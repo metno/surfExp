@@ -1,6 +1,0 @@
-#!/usr/bin/env python3
-import sys
-import experiment
-
-kwargs = experiment.parse_submit_cmd_exp(sys.argv[1:])
-experiment.submit_cmd_exp(**kwargs)

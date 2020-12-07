@@ -1,9 +1,0 @@
-toml
-tomlkit
-datetime
-pysurfex
-pysurfex-scheduler
-json; python_version < '3'
-
-# This is an implicit value, here for clarity
---index-url https://pypi.python.org/simple/
