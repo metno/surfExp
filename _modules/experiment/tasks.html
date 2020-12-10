@@ -6,8 +6,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>experiment.tasks &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
@@ -470,21 +470,100 @@
 
         <span class="n">an_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtg</span>
         <span class="c1"># archive_root = self.get_setting(&quot;archive_root&quot;)</span>
-        <span class="n">input_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/toml/qc_config.json&quot;</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_file</span><span class="p">):</span>
-            <span class="n">settings_var</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="n">settings_var</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">]</span>
-            <span class="n">sfx_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">)</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;domain_file&quot;</span><span class="p">:</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/domain.json&quot;</span><span class="p">}})</span>
-            <span class="n">fg_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_file_paths</span><span class="o">.</span><span class="n">get_system_file</span><span class="p">(</span><span class="s2">&quot;archive_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;raw.nc&quot;</span><span class="p">,</span> <span class="n">basedtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtg</span><span class="p">)</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s2">&quot;firstguess&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;fg_file&quot;</span><span class="p">:</span> <span class="n">fg_file</span><span class="p">,</span>
-                    <span class="s2">&quot;fg_var&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">]</span>
+        <span class="n">settings_var</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="s2">&quot;t2m&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;netatmo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;netatmo&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="p">{</span>
+                  <span class="s2">&quot;nometa&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;blacklist&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;redundancy&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">340</span><span class="p">,</span>
+                    <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">200</span>
+                  <span class="p">}</span>
                 <span class="p">}</span>
-            <span class="p">})</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Could not find input file &quot;</span> <span class="o">+</span> <span class="n">input_file</span><span class="p">)</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;rh2m&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;netatmo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;Humidity&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;netatmo&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="p">{</span>
+                  <span class="s2">&quot;nometa&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;blacklist&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;redundancy&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">100</span>
+                  <span class="p">}</span>
+                <span class="p">}</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;sd&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;bufr&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;bufr&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;totalSnowDepth&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="p">{</span>
+                  <span class="s2">&quot;nometa&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;blacklist&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;redundancy&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                  <span class="p">},</span>
+                  <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">10000</span>
+                  <span class="p">}</span>
+                <span class="p">}</span>
+              <span class="p">}</span>
+            <span class="p">}</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">settings_var</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">]</span>
+        <span class="n">sfx_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">)</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;domain_file&quot;</span><span class="p">:</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/domain.json&quot;</span><span class="p">}})</span>
+        <span class="n">fg_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_file_paths</span><span class="o">.</span><span class="n">get_system_file</span><span class="p">(</span><span class="s2">&quot;archive_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;raw.nc&quot;</span><span class="p">,</span> <span class="n">basedtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtg</span><span class="p">)</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s2">&quot;firstguess&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;fg_file&quot;</span><span class="p">:</span> <span class="n">fg_file</span><span class="p">,</span>
+                <span class="s2">&quot;fg_var&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">})</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obsdir</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obsdir</span> <span class="o">+</span> <span class="s2">&quot;/qc_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span>
@@ -584,7 +663,7 @@
             <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;user_config&quot;</span><span class="p">:</span> <span class="n">user_config</span><span class="p">})</span>
 
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;geo_out&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="p">})</span>
-        <span class="n">global_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/pysurfex/surfex/cfg/config.yml&quot;</span>
+        <span class="n">global_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/surfex/cfg/config.yml&quot;</span>
         <span class="n">global_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">global_config</span><span class="p">})</span>
 
@@ -851,7 +930,7 @@
                 <span class="n">converter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="n">identifier</span> <span class="o">+</span> <span class="s2">&quot;CONVERTER&quot;</span><span class="p">)</span>
 
             <span class="nb">print</span><span class="p">(</span><span class="n">inputfile</span><span class="p">,</span> <span class="n">fileformat</span><span class="p">,</span> <span class="n">converter</span><span class="p">)</span>
-            <span class="n">config_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/pysurfex/surfex/cfg/first_guess.yml&quot;</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/surfex/cfg/first_guess.yml&quot;</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
             <span class="n">defs</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">fileformat</span><span class="p">]</span>
             <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">inputfile</span><span class="p">})</span>
@@ -990,7 +1069,7 @@
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;/tmp/host0/job/test_start_and_run/&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/host1/scratch/hm_home/test_start_and_run/unittest_ok&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/host1/scratch/sfx_home/test_start_and_run/unittest_ok&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -1001,9 +1080,9 @@
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sleeping beauty...&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Create /tmp/host1/scratch/hm_home/test_start_and_run/SleepingBeauty&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Create /tmp/host1/scratch/sfx_home/test_start_and_run/SleepingBeauty&quot;</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;/tmp/host0/job/test_start_and_run/&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/host1/scratch/hm_home/test_start_and_run/SleepingBeauty&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/host1/scratch/sfx_home/test_start_and_run/SleepingBeauty&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;SleepingBeauty&quot;</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">):</span>
@@ -1017,9 +1096,9 @@
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Will the real Sleeping Beauty, please wake up! please wake up!&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Create /tmp/host1/scratch/hm_home/test_start_and_run/SleepingBeauty2&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Create /tmp/host1/scratch/sfx_home/test_start_and_run/SleepingBeauty2&quot;</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;/tmp/host0/job/test_start_and_run/&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/host1/scratch/hm_home/test_start_and_run/SleepingBeauty2&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/host1/scratch/sfx_home/test_start_and_run/SleepingBeauty2&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;SleepingBeauty&quot;</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -1030,9 +1109,9 @@
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This job is default suspended and manually submitted!&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Create /tmp/host1/scratch/hm_home/test_start_and_run/test_submit&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Create /tmp/host1/scratch/sfx_home/test_start_and_run/test_submit&quot;</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;/tmp/host0/job/test_start_and_run/&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/host1/scratch/hm_home/test_start_and_run/test_submit&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/host1/scratch/sfx_home/test_start_and_run/test_submit&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Job was submitted&quot;</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
@@ -1070,7 +1149,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
     </div>
   </body>
 </html>

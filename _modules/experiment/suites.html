@@ -6,8 +6,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>experiment.suites &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     
     <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
@@ -36,8 +36,7 @@
           <div class="body" role="main">
             
   <h1>Source code for experiment.suites</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">import</span> <span class="nn">scheduler</span>
 
@@ -65,48 +64,31 @@
         <span class="n">ecf_jobout</span> <span class="o">=</span> <span class="n">joboutdir</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">%E</span><span class="s2">CF_NAME%.</span><span class="si">%E</span><span class="s2">CF_TRYNO%&quot;</span>
         <span class="c1"># server_log = exp.get_file_name(lib, &quot;server_log&quot;, full_path=True)</span>
 
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="s2">&quot;export PYTHONPATH=&quot;</span>
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;%LIB%/pysurfex/:&quot;</span>
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/pysurfex/:&quot;</span>
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="o">.</span><span class="n">conf</span>
-        <span class="k">if</span> <span class="s2">&quot;PYTHONPATH&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">])</span>
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span>
-
-        <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;export PATH=&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;%LIB%/pysurfex/bin:&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/pysurfex/bin:&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="o">.</span><span class="n">conf</span> <span class="o">+</span> <span class="s2">&quot;/bin&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;:$PATH;&quot;</span>
-
-        <span class="n">ecf_job_cmd</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> \
-                                   <span class="s2">&quot;ECF_submit_exp &quot;</span> \
-                                   <span class="s2">&quot;-ensmbr </span><span class="si">%E</span><span class="s2">NSMBR% &quot;</span> \
-                                   <span class="s2">&quot;-dtg %DTG% &quot;</span> <span class="o">+</span> \
-                                   <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                                   <span class="s2">&quot;-lib %LIB% &quot;</span> \
-                                   <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
-                                   <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
-                                   <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
-                                   <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID%&quot;</span>
-        <span class="n">ecf_kill_cmd</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> \
-                                    <span class="s2">&quot;ECF_kill_exp &quot;</span> \
-                                    <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                                    <span class="s2">&quot;-lib %LIB% &quot;</span> \
-                                    <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME%&quot;</span> \
-                                    <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
-                                    <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
-                                    <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
-                                    <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
-        <span class="n">ecf_status_cmd</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> \
-                                      <span class="s2">&quot;ECF_status_exp &quot;</span> \
-                                      <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                                      <span class="s2">&quot;-lib %LIB% &quot;</span> \
-                                      <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
-                                      <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span>\
-                                      <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
-                                      <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
-                                      <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
+        <span class="n">ecf_job_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_submit_exp &quot;</span> \
+                      <span class="s2">&quot;-ensmbr </span><span class="si">%E</span><span class="s2">NSMBR% &quot;</span> \
+                      <span class="s2">&quot;-dtg %DTG% &quot;</span> <span class="o">+</span> \
+                      <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
+                      <span class="s2">&quot;-lib %LIB% &quot;</span> \
+                      <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                      <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
+                      <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                      <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID%&quot;</span>
+        <span class="n">ecf_kill_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_kill_exp &quot;</span> \
+                       <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
+                       <span class="s2">&quot;-lib %LIB% &quot;</span> \
+                       <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                       <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
+                       <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                       <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
+                       <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
+        <span class="n">ecf_status_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_status_exp &quot;</span> \
+                         <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
+                         <span class="s2">&quot;-lib %LIB% &quot;</span> \
+                         <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                         <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span>\
+                         <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                         <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
+                         <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
 
         <span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">ecf_files</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span>
                                            <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span>
@@ -114,8 +96,7 @@
                                            <span class="n">ecf_jobout</span><span class="o">=</span><span class="n">ecf_jobout</span><span class="p">,</span>
                                            <span class="n">ecf_job_cmd</span><span class="o">=</span><span class="n">ecf_job_cmd</span><span class="p">,</span>
                                            <span class="n">ecf_status_cmd</span><span class="o">=</span><span class="n">ecf_status_cmd</span><span class="p">,</span>
-                                           <span class="n">ecf_kill_cmd</span><span class="o">=</span><span class="n">ecf_kill_cmd</span><span class="p">,</span>
-                                           <span class="n">pythonpath</span><span class="o">=</span><span class="n">pythonpath</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+                                           <span class="n">ecf_kill_cmd</span><span class="o">=</span><span class="n">ecf_kill_cmd</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;LIB&quot;</span><span class="p">,</span> <span class="n">lib</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;EXP&quot;</span><span class="p">,</span> <span class="n">exp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -394,48 +375,31 @@
         <span class="n">ecf_jobout</span> <span class="o">=</span> <span class="n">joboutdir</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">%E</span><span class="s2">CF_NAME%.</span><span class="si">%E</span><span class="s2">CF_TRYNO%&quot;</span>
         <span class="c1"># server_log = exp.get_file_name(lib, &quot;server_log&quot;, full_path=True)</span>
 
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="s2">&quot;export PYTHONPATH=&quot;</span>
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;%LIB%/pysurfex/:&quot;</span>
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/pysurfex/:&quot;</span>
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="o">.</span><span class="n">conf</span>
-        <span class="k">if</span> <span class="s2">&quot;PYTHONPATH&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-            <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">])</span>
-        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span>
-
-        <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;export PATH=&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;%LIB%/pysurfex/bin:&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/pysurfex/bin:&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="o">.</span><span class="n">conf</span> <span class="o">+</span> <span class="s2">&quot;/bin&quot;</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;:$PATH;&quot;</span>
-
-        <span class="n">ecf_job_cmd</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> \
-                                   <span class="s2">&quot;ECF_submit_exp &quot;</span> \
-                                   <span class="s2">&quot;-ensmbr </span><span class="si">%E</span><span class="s2">NSMBR% &quot;</span> \
-                                   <span class="s2">&quot;-dtg %DTG% &quot;</span> <span class="o">+</span> \
-                                   <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                                   <span class="s2">&quot;-lib %LIB% &quot;</span> \
-                                   <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
-                                   <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
-                                   <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
-                                   <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID%&quot;</span>
-        <span class="n">ecf_kill_cmd</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> \
-                                    <span class="s2">&quot;ECF_kill_exp &quot;</span> \
-                                    <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                                    <span class="s2">&quot;-lib %LIB% &quot;</span> \
-                                    <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME%&quot;</span> \
-                                    <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
-                                    <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
-                                    <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
-                                    <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
-        <span class="n">ecf_status_cmd</span> <span class="o">=</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">path</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> \
-                                      <span class="s2">&quot;ECF_status_exp &quot;</span> \
-                                      <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                                      <span class="s2">&quot;-lib %LIB% &quot;</span> \
-                                      <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
-                                      <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span>\
-                                      <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
-                                      <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
-                                      <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
+        <span class="n">ecf_job_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_submit_exp &quot;</span> \
+                      <span class="s2">&quot;-ensmbr </span><span class="si">%E</span><span class="s2">NSMBR% &quot;</span> \
+                      <span class="s2">&quot;-dtg %DTG% &quot;</span> <span class="o">+</span> \
+                      <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
+                      <span class="s2">&quot;-lib %LIB% &quot;</span> \
+                      <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                      <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
+                      <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                      <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID%&quot;</span>
+        <span class="n">ecf_kill_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_kill_exp &quot;</span> \
+                       <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
+                       <span class="s2">&quot;-lib %LIB% &quot;</span> \
+                       <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                       <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
+                       <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                       <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
+                       <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
+        <span class="n">ecf_status_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_status_exp &quot;</span> \
+                         <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
+                         <span class="s2">&quot;-lib %LIB% &quot;</span> \
+                         <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                         <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span>\
+                         <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                         <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
+                         <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
 
         <span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">ecf_files</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span>
                                            <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span>
@@ -443,8 +407,7 @@
                                            <span class="n">ecf_jobout</span><span class="o">=</span><span class="n">ecf_jobout</span><span class="p">,</span>
                                            <span class="n">ecf_job_cmd</span><span class="o">=</span><span class="n">ecf_job_cmd</span><span class="p">,</span>
                                            <span class="n">ecf_status_cmd</span><span class="o">=</span><span class="n">ecf_status_cmd</span><span class="p">,</span>
-                                           <span class="n">ecf_kill_cmd</span><span class="o">=</span><span class="n">ecf_kill_cmd</span><span class="p">,</span>
-                                           <span class="n">pythonpath</span><span class="o">=</span><span class="n">pythonpath</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+                                           <span class="n">ecf_kill_cmd</span><span class="o">=</span><span class="n">ecf_kill_cmd</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;LIB&quot;</span><span class="p">,</span> <span class="n">lib</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;EXP&quot;</span><span class="p">,</span> <span class="n">exp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -547,7 +510,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
     </div>
   </body>
 </html>

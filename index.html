@@ -6,8 +6,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PYSURFEX documentation &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
@@ -252,12 +252,12 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
 
 <dl class="py class">
 <dt id="experiment.Exp">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">rev</span></em>, <em class="sig-param"><span class="n">conf</span></em>, <em class="sig-param"><span class="n">experiment_is_locked</span></em>, <em class="sig-param"><span class="n">system_file_paths</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">system</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">server</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">geo</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">env_submit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">write_config_files</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Exp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">rev</span></em>, <em class="sig-param"><span class="n">pysurfex</span></em>, <em class="sig-param"><span class="n">pysurfex_scheduler</span></em>, <em class="sig-param"><span class="n">pysurfex_experiment</span></em>, <em class="sig-param"><span class="n">experiment_is_locked</span></em>, <em class="sig-param"><span class="n">system_file_paths</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">system</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">server</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">geo</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">env_submit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">setup</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Exp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt id="experiment.ExpFromFiles">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">ExpFromFiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'0'</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#ExpFromFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.ExpFromFiles" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">ExpFromFiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'0'</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#ExpFromFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.ExpFromFiles" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -598,7 +598,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
 
 <dl class="py function">
 <dt id="experiment.Exp.setup_files">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">setup_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">host</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.setup_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">setup_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">host</span></em>, <em class="sig-param"><span class="n">configuration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration_file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.setup_files" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -618,7 +618,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
 
 <dl class="py function">
 <dt id="experiment.Exp.get_config">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">get_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">conf</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.get_config" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">get_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">pysurfex_experiment</span></em>, <em class="sig-param"><span class="n">must_exists</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.get_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -628,7 +628,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
 
 <dl class="py function">
 <dt id="experiment.ExpFromFiles.__init__">
-<code class="sig-prename descclassname">experiment.ExpFromFiles.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'0'</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.ExpFromFiles.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">experiment.ExpFromFiles.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'0'</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.ExpFromFiles.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -823,7 +823,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
     </div>
   </body>
 </html>
