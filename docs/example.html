@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Running an experiment in EcFlow &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -34,18 +34,44 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="running-an-experiment-in-ecflow">
+  <section id="running-an-experiment-in-ecflow">
 <h1>Running an experiment in EcFlow<a class="headerlink" href="#running-an-experiment-in-ecflow" title="Permalink to this headline">¶</a></h1>
-<p>First you must install pysurfex and make sure you have it in PYTHONPATH and the bin directory in your path</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir sfx_home
+<p>First you must install pysurfex-scheduler and pysurfex-experiment and make sure you have it in PYTHONPATH and the bin
+directory in your path.</p>
+<p>Default setup on PPI</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+mkdir -p sfx_home
 <span class="nb">cd</span> sfx_home
 mkdir sandbox
 <span class="nb">cd</span> sandbox
-PySurfex setup -conf PySurfex-root-path -rev your-surfex-source-code -host host-label --domain_name your-domain
-PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">2020040112</span> --suite sandbox
+
+<span class="c1"># Set up experiemnt</span>
+PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/ <span class="se">\</span>
+                 -host ppi-centos7 <span class="se">\</span>
+                 -surfex /modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/ <span class="se">\</span>
+                 -offline /modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline
+
+./bin/PySurfexExp start -dtg <span class="m">2022013106</span> -dtgend <span class="m">2022020206</span>
 </pre></div>
 </div>
+<p>Only snow assimilation on PPI for a domain around DRAMMEN</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+mkdir -p sfx_home
+<span class="nb">cd</span> sfx_home
+mkdir DRAMMEN_SNOW_ASS
+<span class="nb">cd</span> DRAMMEN_SNOW_ASS
+
+<span class="c1"># Set up experiemnt</span>
+PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/ <span class="se">\</span>
+                 -host ppi-centos7 <span class="se">\</span>
+                 -surfex /modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/ <span class="se">\</span>
+                 --config_file /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/config/configurations/isba_dif_snow_ass.toml <span class="se">\</span>
+                 -offline /modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline/conf/system.ppi_centos7
+
+./bin/PySurfexExp start -dtg <span class="m">2022013106</span> -dtgend <span class="m">2022020206</span>
+</pre></div>
 </div>
+</section>
 
 
             <div class="clearer"></div>
@@ -65,7 +91,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -87,7 +113,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
     </div>
   </body>
 </html>

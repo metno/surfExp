@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>PYSURFEX documentation &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -34,17 +34,17 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pysurfex-documentation">
+  <section id="pysurfex-documentation">
 <h1>PYSURFEX documentation<a class="headerlink" href="#pysurfex-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <img alt="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" id="readme" src="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" />
 <p><a class="reference external" href="https://coveralls.io/github/metno/pysurfex-experiment">https://coveralls.io/github/metno/pysurfex-experiment</a></p>
-</div>
-<div class="section" id="python-abstraction-layer-for-a-scheduling-system-like-ecflow">
+</section>
+<section id="python-abstraction-layer-for-a-scheduling-system-like-ecflow">
 <h1>Python abstraction layer for a scheduling system like Ecflow<a class="headerlink" href="#python-abstraction-layer-for-a-scheduling-system-like-ecflow" title="Permalink to this headline">¶</a></h1>
 <p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a></p>
-<div class="section" id="installation-of-pregenerated-packages-from-pypi-pip">
+<section id="installation-of-pregenerated-packages-from-pypi-pip">
 <h2>Installation of pregenerated packages from pypi (pip)<a class="headerlink" href="#installation-of-pregenerated-packages-from-pypi-pip" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3 install pysurfex-experiment --use-feature<span class="o">=</span><span class="m">2020</span>-resolver
 </pre></div>
@@ -53,8 +53,8 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3 install pysurfex-experiment --user --use-feature<span class="o">=</span><span class="m">2020</span>-resolver
 </pre></div>
 </div>
-</div>
-<div class="section" id="installation-on-debian-based-linux-system">
+</section>
+<section id="installation-on-debian-based-linux-system">
 <h2>Installation on debian based Linux system<a class="headerlink" href="#installation-on-debian-based-linux-system" title="Permalink to this headline">¶</a></h2>
 <p>Install the required pacakges (some might be obsolete if the pip packages contain the needed depedencies):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get update
@@ -63,8 +63,8 @@ sudo apt-get install python3-setuptools python3-numpy python3-scipy python3-nose
 </pre></div>
 </div>
 <p>The following depencies are needed. Install the non-standard ones e.g. with pip or your system installation system.</p>
-</div>
-<div class="section" id="general-dependencies-from-pypi">
+</section>
+<section id="general-dependencies-from-pypi">
 <h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pysurfex
 pysurfex-scheduler
@@ -79,8 +79,8 @@ nose
 </div>
 <p>Download the source code, then install <code class="docutils literal notranslate"><span class="pre">pysurfex-experiment</span></code> by executing the following inside the extracted
 folder:</p>
-</div>
-<div class="section" id="install-pysurfex">
+</section>
+<section id="install-pysurfex">
 <h2>Install pysurfex<a class="headerlink" href="#install-pysurfex" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo pip install -e .
 </pre></div>
@@ -89,8 +89,8 @@ folder:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo pip install -e . --user
 </pre></div>
 </div>
-</div>
-<div class="section" id="create-documentation">
+</section>
+<section id="create-documentation">
 <h2>Create documentation<a class="headerlink" href="#create-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs
 <span class="c1"># Create html documentation</span>
@@ -101,648 +101,57 @@ make latex
 make latexpdf
 </pre></div>
 </div>
-</div>
-<div class="section" id="examples">
+</section>
+<section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>See <a class="reference external" href="https://metno.github.io/pysurfex-experiment/#examples">https://metno.github.io/pysurfex-experiment/#examples</a></p>
-</div>
-</div>
-<div class="section" id="running-an-experiment-in-ecflow">
+</section>
+</section>
+<section id="running-an-experiment-in-ecflow">
 <h1>Running an experiment in EcFlow<a class="headerlink" href="#running-an-experiment-in-ecflow" title="Permalink to this headline">¶</a></h1>
-<p>First you must install pysurfex and make sure you have it in PYTHONPATH and the bin directory in your path</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir sfx_home
+<p>First you must install pysurfex-scheduler and pysurfex-experiment and make sure you have it in PYTHONPATH and the bin
+directory in your path.</p>
+<p>Default setup on PPI</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+mkdir -p sfx_home
 <span class="nb">cd</span> sfx_home
 mkdir sandbox
 <span class="nb">cd</span> sandbox
-PySurfex setup -conf PySurfex-root-path -rev your-surfex-source-code -host host-label --domain_name your-domain
-PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">2020040112</span> --suite sandbox
+
+<span class="c1"># Set up experiemnt</span>
+PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/ <span class="se">\</span>
+                 -host ppi-centos7 <span class="se">\</span>
+                 -surfex /modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/ <span class="se">\</span>
+                 -offline /modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline
+
+./bin/PySurfexExp start -dtg <span class="m">2022013106</span> -dtgend <span class="m">2022020206</span>
 </pre></div>
 </div>
-<div class="section" id="classes">
+<p>Only snow assimilation on PPI for a domain around DRAMMEN</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+mkdir -p sfx_home
+<span class="nb">cd</span> sfx_home
+mkdir DRAMMEN_SNOW_ASS
+<span class="nb">cd</span> DRAMMEN_SNOW_ASS
+
+<span class="c1"># Set up experiemnt</span>
+PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/ <span class="se">\</span>
+                 -host ppi-centos7 <span class="se">\</span>
+                 -surfex /modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/ <span class="se">\</span>
+                 --config_file /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/config/configurations/isba_dif_snow_ass.toml <span class="se">\</span>
+                 -offline /modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline/conf/system.ppi_centos7
+
+./bin/PySurfexExp start -dtg <span class="m">2022013106</span> -dtgend <span class="m">2022020206</span>
+</pre></div>
+</div>
+<section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
-<dl class="py class">
-<dt id="experiment.AbstractTask">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">AbstractTask</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#AbstractTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.AbstractTask" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.SurfexBinaryTask">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">SurfexBinaryTask</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="n">mode</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#SurfexBinaryTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.SurfexBinaryTask" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Pgd">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Pgd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#Pgd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Pgd" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Prep">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Prep</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#Prep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Prep" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Forecast">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Forecast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#Forecast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Forecast" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.PerturbedRun">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">PerturbedRun</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#PerturbedRun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.PerturbedRun" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Soda">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Soda</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#Soda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Soda" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.PrepareCycle">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">PrepareCycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#PrepareCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.PrepareCycle" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.QualityControl">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">QualityControl</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#QualityControl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.QualityControl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.OptimalInterpolation">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">OptimalInterpolation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#OptimalInterpolation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.OptimalInterpolation" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Forcing">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Forcing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#Forcing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Forcing" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.FirstGuess">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">FirstGuess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#FirstGuess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.FirstGuess" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.CycleFirstGuess">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">CycleFirstGuess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#CycleFirstGuess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.CycleFirstGuess" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Oi2soda">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Oi2soda</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#Oi2soda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Oi2soda" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Qc2obsmon">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Qc2obsmon</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#Qc2obsmon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Qc2obsmon" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.FirstGuess4OI">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">FirstGuess4OI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#FirstGuess4OI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.FirstGuess4OI" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.MakeOfflineBinaries">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">MakeOfflineBinaries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#MakeOfflineBinaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.MakeOfflineBinaries" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.LogProgress">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">LogProgress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#LogProgress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.LogProgress" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.LogProgressPP">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">LogProgressPP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#LogProgressPP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.LogProgressPP" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.PrepareOiSoilInput">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">PrepareOiSoilInput</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#PrepareOiSoilInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.PrepareOiSoilInput" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.PrepareOiClimate">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">PrepareOiClimate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#PrepareOiClimate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.PrepareOiClimate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.PrepareSST">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">PrepareSST</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#PrepareSST"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.PrepareSST" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.PrepareLSM">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">PrepareLSM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/tasks.html#PrepareLSM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.PrepareLSM" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.SurfexSuite">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">SurfexSuite</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">suite_name</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="n">joboutdir</span></em>, <em class="sig-param"><span class="n">env_submit</span></em>, <em class="sig-param"><span class="n">server_config</span></em>, <em class="sig-param"><span class="n">server_log</span></em>, <em class="sig-param"><span class="n">dtgs</span></em>, <em class="sig-param"><span class="n">def_file</span></em>, <em class="sig-param"><span class="n">dtgbeg</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/suites.html#SurfexSuite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.SurfexSuite" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.System">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">System</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host_system</span></em>, <em class="sig-param"><span class="n">exp_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#System"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.System" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.SystemFromFile">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">SystemFromFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">env_system_file</span></em>, <em class="sig-param"><span class="n">exp_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#SystemFromFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.SystemFromFile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Exp">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">rev</span></em>, <em class="sig-param"><span class="n">pysurfex</span></em>, <em class="sig-param"><span class="n">pysurfex_scheduler</span></em>, <em class="sig-param"><span class="n">pysurfex_experiment</span></em>, <em class="sig-param"><span class="n">experiment_is_locked</span></em>, <em class="sig-param"><span class="n">system_file_paths</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">system</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">server</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">geo</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">env_submit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">setup</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration_file</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Exp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.ExpFromFiles">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">ExpFromFiles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'0'</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#ExpFromFiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.ExpFromFiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.Progress">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">Progress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">progress</span></em>, <em class="sig-param"><span class="n">progress_pp</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#Progress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.Progress" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.ProgressFromFile">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">ProgressFromFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">progress</span></em>, <em class="sig-param"><span class="n">progress_pp</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#ProgressFromFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.ProgressFromFile" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="experiment.SystemFilePathsFromSystem">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">SystemFilePathsFromSystem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#SystemFilePathsFromSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.SystemFilePathsFromSystem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Also set SFX_EXP system variables (File stucture/ssh etc)</p>
-</dd></dl>
-
-<dl class="py class">
-<dt id="experiment.SystemFilePathsFromSystemFile">
-<em class="property">class </em><code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">SystemFilePathsFromSystemFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">system_file_paths</span></em>, <em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#SystemFilePathsFromSystemFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.SystemFilePathsFromSystemFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Also set SFX_EXP system variables (File stucture/ssh etc)</p>
-</dd></dl>
-
-</div>
-<div class="section" id="class-methods">
+</section>
+<section id="class-methods">
 <h2>Class methods<a class="headerlink" href="#class-methods" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="experiment.AbstractTask.__init__">
-<code class="sig-prename descclassname">experiment.AbstractTask.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.AbstractTask.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.AbstractTask.run">
-<code class="sig-prename descclassname">experiment.AbstractTask.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.AbstractTask.run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.AbstractTask.execute">
-<code class="sig-prename descclassname">experiment.AbstractTask.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.AbstractTask.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.AbstractTask.postfix">
-<code class="sig-prename descclassname">experiment.AbstractTask.</code><code class="sig-name descname">postfix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.AbstractTask.postfix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.SurfexBinaryTask.__init__">
-<code class="sig-prename descclassname">experiment.SurfexBinaryTask.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="n">mode</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.SurfexBinaryTask.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.SurfexBinaryTask.execute">
-<code class="sig-prename descclassname">experiment.SurfexBinaryTask.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">binary</span></em>, <em class="sig-param"><span class="n">output</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.SurfexBinaryTask.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Pgd.__init__">
-<code class="sig-prename descclassname">experiment.Pgd.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Pgd.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Pgd.execute">
-<code class="sig-prename descclassname">experiment.Pgd.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Pgd.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Prep.__init__">
-<code class="sig-prename descclassname">experiment.Prep.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Prep.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Prep.execute">
-<code class="sig-prename descclassname">experiment.Prep.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Prep.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Forecast.__init__">
-<code class="sig-prename descclassname">experiment.Forecast.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Forecast.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Forecast.execute">
-<code class="sig-prename descclassname">experiment.Forecast.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Forecast.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PerturbedRun.__init__">
-<code class="sig-prename descclassname">experiment.PerturbedRun.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PerturbedRun.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PerturbedRun.execute">
-<code class="sig-prename descclassname">experiment.PerturbedRun.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PerturbedRun.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Soda.__init__">
-<code class="sig-prename descclassname">experiment.Soda.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Soda.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Soda.execute">
-<code class="sig-prename descclassname">experiment.Soda.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Soda.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Soda.postfix">
-<code class="sig-prename descclassname">experiment.Soda.</code><code class="sig-name descname">postfix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Soda.postfix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareCycle.__init__">
-<code class="sig-prename descclassname">experiment.PrepareCycle.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareCycle.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareCycle.run">
-<code class="sig-prename descclassname">experiment.PrepareCycle.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareCycle.run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareCycle.execute">
-<code class="sig-prename descclassname">experiment.PrepareCycle.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareCycle.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.QualityControl.__init__">
-<code class="sig-prename descclassname">experiment.QualityControl.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.QualityControl.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.QualityControl.execute">
-<code class="sig-prename descclassname">experiment.QualityControl.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.QualityControl.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.OptimalInterpolation.__init__">
-<code class="sig-prename descclassname">experiment.OptimalInterpolation.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.OptimalInterpolation.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.OptimalInterpolation.execute">
-<code class="sig-prename descclassname">experiment.OptimalInterpolation.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.OptimalInterpolation.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Forcing.__init__">
-<code class="sig-prename descclassname">experiment.Forcing.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Forcing.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Forcing.execute">
-<code class="sig-prename descclassname">experiment.Forcing.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Forcing.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.FirstGuess.__init__">
-<code class="sig-prename descclassname">experiment.FirstGuess.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.FirstGuess.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.FirstGuess.execute">
-<code class="sig-prename descclassname">experiment.FirstGuess.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.FirstGuess.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.CycleFirstGuess.__init__">
-<code class="sig-prename descclassname">experiment.CycleFirstGuess.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.CycleFirstGuess.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.CycleFirstGuess.execute">
-<code class="sig-prename descclassname">experiment.CycleFirstGuess.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.CycleFirstGuess.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Oi2soda.__init__">
-<code class="sig-prename descclassname">experiment.Oi2soda.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Oi2soda.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Oi2soda.execute">
-<code class="sig-prename descclassname">experiment.Oi2soda.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Oi2soda.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Qc2obsmon.__init__">
-<code class="sig-prename descclassname">experiment.Qc2obsmon.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Qc2obsmon.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Qc2obsmon.execute">
-<code class="sig-prename descclassname">experiment.Qc2obsmon.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Qc2obsmon.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.FirstGuess4OI.__init__">
-<code class="sig-prename descclassname">experiment.FirstGuess4OI.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.FirstGuess4OI.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.FirstGuess4OI.execute">
-<code class="sig-prename descclassname">experiment.FirstGuess4OI.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.FirstGuess4OI.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.FirstGuess4OI.write_file">
-<code class="sig-prename descclassname">experiment.FirstGuess4OI.</code><code class="sig-name descname">write_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">output</span></em>, <em class="sig-param"><span class="n">variables</span></em>, <em class="sig-param"><span class="n">geo</span></em>, <em class="sig-param"><span class="n">validtime</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.FirstGuess4OI.write_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.MakeOfflineBinaries.__init__">
-<code class="sig-prename descclassname">experiment.MakeOfflineBinaries.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.MakeOfflineBinaries.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.MakeOfflineBinaries.execute">
-<code class="sig-prename descclassname">experiment.MakeOfflineBinaries.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.MakeOfflineBinaries.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.LogProgress.__init__">
-<code class="sig-prename descclassname">experiment.LogProgress.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.LogProgress.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.LogProgress.execute">
-<code class="sig-prename descclassname">experiment.LogProgress.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.LogProgress.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.LogProgressPP.__init__">
-<code class="sig-prename descclassname">experiment.LogProgressPP.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.LogProgressPP.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.LogProgressPP.execute">
-<code class="sig-prename descclassname">experiment.LogProgressPP.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.LogProgressPP.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareOiSoilInput.__init__">
-<code class="sig-prename descclassname">experiment.PrepareOiSoilInput.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareOiSoilInput.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareOiSoilInput.execute">
-<code class="sig-prename descclassname">experiment.PrepareOiSoilInput.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareOiSoilInput.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareOiClimate.__init__">
-<code class="sig-prename descclassname">experiment.PrepareOiClimate.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareOiClimate.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareOiClimate.execute">
-<code class="sig-prename descclassname">experiment.PrepareOiClimate.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareOiClimate.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareSST.__init__">
-<code class="sig-prename descclassname">experiment.PrepareSST.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareSST.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareSST.execute">
-<code class="sig-prename descclassname">experiment.PrepareSST.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareSST.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareLSM.__init__">
-<code class="sig-prename descclassname">experiment.PrepareLSM.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">task</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareLSM.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.PrepareLSM.execute">
-<code class="sig-prename descclassname">experiment.PrepareLSM.</code><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.PrepareLSM.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.SurfexSuite.__init__">
-<code class="sig-prename descclassname">experiment.SurfexSuite.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">suite_name</span></em>, <em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="n">joboutdir</span></em>, <em class="sig-param"><span class="n">env_submit</span></em>, <em class="sig-param"><span class="n">server_config</span></em>, <em class="sig-param"><span class="n">server_log</span></em>, <em class="sig-param"><span class="n">dtgs</span></em>, <em class="sig-param"><span class="n">def_file</span></em>, <em class="sig-param"><span class="n">dtgbeg</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.SurfexSuite.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.SurfexSuite.save_as_defs">
-<code class="sig-prename descclassname">experiment.SurfexSuite.</code><code class="sig-name descname">save_as_defs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.SurfexSuite.save_as_defs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.System.__init__">
-<code class="sig-prename descclassname">experiment.System.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">host_system</span></em>, <em class="sig-param"><span class="n">exp_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.System.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.System.get_var">
-<code class="sig-prename descclassname">experiment.System.</code><code class="sig-name descname">get_var</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">var</span></em>, <em class="sig-param"><span class="n">host</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.System.get_var" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.SystemFromFile.__init__">
-<code class="sig-prename descclassname">experiment.SystemFromFile.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">env_system_file</span></em>, <em class="sig-param"><span class="n">exp_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.SystemFromFile.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Exp.checkout">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">checkout</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">file</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.checkout" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Exp.setup_files">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">setup_files</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">host</span></em>, <em class="sig-param"><span class="n">configuration</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">configuration_file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.setup_files" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Exp.merge_testbed_submit">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">merge_testbed_submit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">testbed_submit</span></em>, <em class="sig-param"><span class="n">decomposition</span><span class="o">=</span><span class="default_value">'2D'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.merge_testbed_submit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Exp.merge_testbed_configurations">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">merge_testbed_configurations</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">testbed_confs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.merge_testbed_configurations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Exp.get_file_name">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">get_file_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wd</span></em>, <em class="sig-param"><span class="n">ftype</span></em>, <em class="sig-param"><span class="n">full_path</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.get_file_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Exp.get_config">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">get_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">pysurfex_experiment</span></em>, <em class="sig-param"><span class="n">must_exists</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.get_config" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Exp.get_experiment_is_locked_file">
-<code class="sig-prename descclassname">experiment.Exp.</code><code class="sig-name descname">get_experiment_is_locked_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">full_path</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Exp.get_experiment_is_locked_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.ExpFromFiles.__init__">
-<code class="sig-prename descclassname">experiment.ExpFromFiles.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">wdir</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">'0'</span></em>, <em class="sig-param"><span class="n">progress</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">debug</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.ExpFromFiles.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.ExpFromFiles.set_experiment_is_locked">
-<code class="sig-prename descclassname">experiment.ExpFromFiles.</code><code class="sig-name descname">set_experiment_is_locked</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.ExpFromFiles.set_experiment_is_locked" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Progress.__init__">
-<code class="sig-prename descclassname">experiment.Progress.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">progress</span></em>, <em class="sig-param"><span class="n">progress_pp</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Progress.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Progress.export_to_file">
-<code class="sig-prename descclassname">experiment.Progress.</code><code class="sig-name descname">export_to_file</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">fname</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Progress.export_to_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Progress.get_dtgbeg">
-<code class="sig-prename descclassname">experiment.Progress.</code><code class="sig-name descname">get_dtgbeg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">fcint</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Progress.get_dtgbeg" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Progress.get_dtgend">
-<code class="sig-prename descclassname">experiment.Progress.</code><code class="sig-name descname">get_dtgend</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">fcint</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Progress.get_dtgend" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Progress.increment_progress">
-<code class="sig-prename descclassname">experiment.Progress.</code><code class="sig-name descname">increment_progress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">fcint_min</span></em>, <em class="sig-param"><span class="n">pp</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Progress.increment_progress" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.Progress.save">
-<code class="sig-prename descclassname">experiment.Progress.</code><code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">progress_file</span></em>, <em class="sig-param"><span class="n">progress_pp_file</span></em>, <em class="sig-param"><span class="n">log</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">log_pp</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.Progress.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.ProgressFromFile.__init__">
-<code class="sig-prename descclassname">experiment.ProgressFromFile.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">progress</span></em>, <em class="sig-param"><span class="n">progress_pp</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.ProgressFromFile.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.ProgressFromFile.increment_progress">
-<code class="sig-prename descclassname">experiment.ProgressFromFile.</code><code class="sig-name descname">increment_progress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">fcint_min</span></em>, <em class="sig-param"><span class="n">pp</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.ProgressFromFile.increment_progress" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.SystemFilePathsFromSystem.__init__">
-<code class="sig-prename descclassname">experiment.SystemFilePathsFromSystem.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">paths</span></em>, <em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.SystemFilePathsFromSystem.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.SystemFilePathsFromSystemFile.__init__">
-<code class="sig-prename descclassname">experiment.SystemFilePathsFromSystemFile.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">system_file_paths</span></em>, <em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#experiment.SystemFilePathsFromSystemFile.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-</div>
-<div class="section" id="methods">
+</section>
+<section id="methods">
 <h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="experiment.parse_submit_cmd_exp">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">parse_submit_cmd_exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">argv</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/cli.html#parse_submit_cmd_exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.parse_submit_cmd_exp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the command line input arguments.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.submit_cmd_exp">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">submit_cmd_exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/cli.html#submit_cmd_exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.submit_cmd_exp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.parse_kill_cmd_exp">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">parse_kill_cmd_exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">argv</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/cli.html#parse_kill_cmd_exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.parse_kill_cmd_exp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the command line input arguments.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.kill_cmd_exp">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">kill_cmd_exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/cli.html#kill_cmd_exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.kill_cmd_exp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.parse_status_cmd_exp">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">parse_status_cmd_exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">argv</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/cli.html#parse_status_cmd_exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.parse_status_cmd_exp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the command line input arguments.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.status_cmd_exp">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">status_cmd_exp</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/cli.html#status_cmd_exp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.status_cmd_exp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.parse_surfex_script">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">parse_surfex_script</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">argv</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/cli.html#parse_surfex_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.parse_surfex_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse the command line input arguments.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="experiment.surfex_script">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">surfex_script</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/cli.html#surfex_script"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.surfex_script" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="experiment.init_run">
-<code class="sig-prename descclassname">experiment.</code><code class="sig-name descname">init_run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">exp</span></em>, <em class="sig-param"><span class="n">stream</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#init_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#experiment.init_run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <ul class="simple">
 <li><dl class="field-list simple">
 <dt class="field-odd">ref</dt>
@@ -751,16 +160,16 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
 </dl>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
+</section>
+</section>
+<section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -769,8 +178,9 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">PYSURFEX documentation</a></li>
 <li><a class="reference internal" href="#python-abstraction-layer-for-a-scheduling-system-like-ecflow">Python abstraction layer for a scheduling system like Ecflow</a><ul>
 <li><a class="reference internal" href="#installation-of-pregenerated-packages-from-pypi-pip">Installation of pregenerated packages from pypi (pip)</a></li>
@@ -790,6 +200,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -801,7 +212,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -823,7 +234,7 @@ PySurfex start -dtg <span class="m">2020033003</span> -dtgend <span class="m">20
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
     </div>
   </body>
 </html>

@@ -2,15 +2,43 @@
 Running an experiment in EcFlow
 =======================================================
 
-First you must install pysurfex and make sure you have it in PYTHONPATH and the bin directory in your path
+First you must install pysurfex-scheduler and pysurfex-experiment and make sure you have it in PYTHONPATH and the bin
+directory in your path.
+
+Default setup on PPI
 
 .. code-block:: bash
 
-  mkdir sfx_home
+  cd
+  mkdir -p sfx_home
   cd sfx_home
   mkdir sandbox
   cd sandbox
-  PySurfex setup -conf PySurfex-root-path -rev your-surfex-source-code -host host-label --domain_name your-domain
-  PySurfex start -dtg 2020033003 -dtgend 2020040112 --suite sandbox
+
+  # Set up experiemnt
+  PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/ \
+                   -host ppi-centos7 \
+                   -surfex /modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/ \
+                   -offline /modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline
+
+  ./bin/PySurfexExp start -dtg 2022013106 -dtgend 2022020206
 
 
+Only snow assimilation on PPI for a domain around DRAMMEN
+
+.. code-block:: bash
+
+  cd
+  mkdir -p sfx_home
+  cd sfx_home
+  mkdir DRAMMEN_SNOW_ASS
+  cd DRAMMEN_SNOW_ASS
+
+  # Set up experiemnt
+  PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/ \
+                   -host ppi-centos7 \
+                   -surfex /modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/ \
+                   --config_file /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/config/configurations/isba_dif_snow_ass.toml \
+                   -offline /modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline/conf/system.ppi_centos7
+
+  ./bin/PySurfexExp start -dtg 2022013106 -dtgend 2022020206
