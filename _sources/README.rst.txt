@@ -6,7 +6,7 @@ https://coveralls.io/github/metno/pysurfex-experiment
 
 
 This repository is a setup to create and run offline SURFEX experiments.
-================================================================
+=========================================================================
 
 See online documentation in https://metno.github.io/pysurfex-experiment/
 The setup is dependent of pysurfex (https://metno.github.io/pysurfex) and pysurfex-scheduler (https://metno.github.io/pysurfex)

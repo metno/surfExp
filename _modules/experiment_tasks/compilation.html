@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>experiment_tasks.compilation &#8212; Pysurfex-experiment  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">experiment_tasks.compilation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for experiment_tasks.compilation</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">experiment_tasks</span> <span class="kn">import</span> <span class="n">AbstractTask</span>
+<span class="kn">import</span> <span class="nn">surfex</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="k">class</span> <span class="nc">ConfigureOfflineBinaries</span><span class="p">(</span><span class="n">AbstractTask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">AbstractTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_name</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">family1</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">rte</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+        <span class="n">wrapper</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">sfx_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">)</span>
+        <span class="n">flavour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s2">&quot;SURFEX_CONFIG&quot;</span><span class="p">]</span>
+        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;export HARMONIE_CONFIG=&quot;</span> <span class="o">+</span> <span class="n">flavour</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; cd &quot;</span> <span class="o">+</span> <span class="n">sfx_lib</span> <span class="o">+</span>
+                                                  <span class="s2">&quot;/offline/src &amp;&amp; ./configure OfflineNWP ../conf//system.&quot;</span> <span class="o">+</span> <span class="n">flavour</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MakeOfflineBinaries"><a class="viewcode-back" href="../../index.html#experiment_tasks.MakeOfflineBinaries">[docs]</a><span class="k">class</span> <span class="nc">MakeOfflineBinaries</span><span class="p">(</span><span class="n">AbstractTask</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">AbstractTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_name</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">family1</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">rte</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+        <span class="n">wrapper</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">sfx_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">)</span>
+        <span class="n">flavour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s2">&quot;SURFEX_CONFIG&quot;</span><span class="p">]</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;COMPILE#XYZ&quot;</span><span class="p">)</span>
+
+        <span class="n">system_file</span> <span class="o">=</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/conf/system.&quot;</span> <span class="o">+</span> <span class="n">flavour</span>
+        <span class="n">conf_file</span> <span class="o">=</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/conf/profile_surfex-&quot;</span> <span class="o">+</span> <span class="n">flavour</span>
+
+        <span class="n">xyz_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/xyz&quot;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;source &quot;</span> <span class="o">+</span> <span class="n">conf_file</span> <span class="o">+</span> <span class="s2">&quot;; echo $XYZ &gt; &quot;</span> <span class="o">+</span> <span class="n">xyz_file</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can write XYZ &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+
+        <span class="n">xyz2</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">xyz_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">xyz2</span> <span class="o">!=</span> <span class="n">xyz</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mismatch betweeen XYZ in config files! :&quot;</span> <span class="o">+</span> <span class="n">xyz</span> <span class="o">+</span> <span class="s2">&quot;: != :&quot;</span> <span class="o">+</span> <span class="n">xyz2</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span><span class="p">)</span>
+
+        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;source &quot;</span> <span class="o">+</span> <span class="n">system_file</span> <span class="o">+</span> <span class="s2">&quot;; source &quot;</span> <span class="o">+</span> <span class="n">conf_file</span> <span class="o">+</span> 
+                                                  <span class="s2">&quot;; cd &quot;</span> <span class="o">+</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/src &amp;&amp; make -j 16&quot;</span><span class="p">)</span>
+        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;source &quot;</span> <span class="o">+</span> <span class="n">system_file</span> <span class="o">+</span> <span class="s2">&quot;; source &quot;</span> <span class="o">+</span> <span class="n">conf_file</span> <span class="o">+</span>
+                                                  <span class="s2">&quot;; cd &quot;</span> <span class="o">+</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/src &amp;&amp; make installmaster&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">experiment_tasks.compilation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Trygve Aspelien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    </div>
+  </body>
+</html>
