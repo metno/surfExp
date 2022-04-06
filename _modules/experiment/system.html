@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>experiment.system &#8212; Pysurfex-experiment  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">experiment.system</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for experiment.system</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">toml</span>
+
+
+<div class="viewcode-block" id="System"><a class="viewcode-back" href="../../index.html#experiment.System">[docs]</a><span class="k">class</span> <span class="nc">System</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host_system</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">):</span>
+
+        <span class="c1"># print(host_system)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_variables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SFX_EXP_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;SFX_EXP_LIB&quot;</span><span class="p">,</span> <span class="s2">&quot;JOBOUTDIR&quot;</span><span class="p">,</span> <span class="s2">&quot;MKDIR&quot;</span><span class="p">,</span>
+                                 <span class="s2">&quot;RSYNC&quot;</span><span class="p">,</span> <span class="s2">&quot;HOSTS&quot;</span><span class="p">,</span> <span class="s2">&quot;LOGIN_HOST&quot;</span><span class="p">,</span> <span class="s2">&quot;SCHEDULER_PYTHONPATH&quot;</span><span class="p">,</span> <span class="s2">&quot;SYNC_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;SURFEX_CONFIG&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_name</span> <span class="o">=</span> <span class="n">exp_name</span>
+
+        <span class="c1"># Set system0 from system_dict</span>
+        <span class="n">system0</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;HOSTS&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="n">host_system</span><span class="p">[</span><span class="s2">&quot;HOST_SYSTEM&quot;</span><span class="p">][</span><span class="s2">&quot;HOSTS&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;HOST&quot;</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">host_system</span><span class="p">[</span><span class="s2">&quot;HOST_SYSTEM&quot;</span><span class="p">]:</span>
+                    <span class="n">system0</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">var</span><span class="p">:</span> <span class="n">host_system</span><span class="p">[</span><span class="s2">&quot;HOST_SYSTEM&quot;</span><span class="p">][</span><span class="n">var</span><span class="p">]})</span>
+
+                <span class="c1"># Always sync for HOST0</span>
+                <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;SYNC_DATA&quot;</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Variable is missing: &quot;</span> <span class="o">+</span> <span class="n">var</span><span class="p">)</span>
+
+        <span class="n">system</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">system</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;HOSTS&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">)):</span>
+            <span class="n">systemn</span> <span class="o">=</span> <span class="n">system0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">systemn</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;HOST&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">[</span><span class="n">host</span><span class="p">]})</span>
+            <span class="n">hostn</span> <span class="o">=</span> <span class="s2">&quot;HOST&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hostn</span> <span class="ow">in</span> <span class="n">host_system</span><span class="p">[</span><span class="s2">&quot;HOST_SYSTEM&quot;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">host_system</span><span class="p">[</span><span class="s2">&quot;HOST_SYSTEM&quot;</span><span class="p">][</span><span class="n">hostn</span><span class="p">]:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">host_system</span><span class="p">[</span><span class="s2">&quot;HOST_SYSTEM&quot;</span><span class="p">][</span><span class="n">hostn</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                    <span class="c1"># print(hostn, key, value)</span>
+                    <span class="n">systemn</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+            <span class="n">system</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">):</span> <span class="n">systemn</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">system</span>
+
+    <span class="k">def</span> <span class="nf">dump_system_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">system_vars</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">)):</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+            <span class="n">var_host</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_variables</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;HOSTS&quot;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">var_host</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;HOSTNAME&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">host</span><span class="p">)]})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+                    <span class="n">var_host</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+            <span class="n">system_vars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">host</span><span class="p">:</span> <span class="n">var_host</span><span class="p">})</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">system_vars</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;HOSTS&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Variable &quot;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; not found in system&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)][</span><span class="n">var</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; is None!&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">stream</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)][</span><span class="n">var</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@STREAM@&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@EXP@&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_name</span><span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@USER@&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;USER&quot;</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;SYNC_DATA&quot;</span> <span class="ow">and</span> <span class="n">host</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Variable &quot;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; not found in system&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SystemFromFile"><a class="viewcode-back" href="../../index.html#experiment.SystemFromFile">[docs]</a><span class="k">class</span> <span class="nc">SystemFromFile</span><span class="p">(</span><span class="n">System</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_system_file</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="c1"># system = System.get_file_name(wdir, full_path=True)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">env_system_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">):</span>
+            <span class="n">host_system</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">)</span>
+        <span class="n">System</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host_system</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SystemFilePathsFromSystem"><a class="viewcode-back" href="../../index.html#experiment.SystemFilePathsFromSystem">[docs]</a><span class="k">class</span> <span class="nc">SystemFilePathsFromSystem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Also set SFX_EXP system variables (File stucture/ssh etc)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths_in</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># surfex.SystemFilePaths.__init__(self, paths)</span>
+        <span class="k">if</span> <span class="n">hosts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span>
+
+        <span class="c1"># override paths from system file</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hosts</span><span class="p">)):</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+            <span class="n">paths_host</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">paths_host</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">paths_in</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">wdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">paths_host</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;exp_dir&quot;</span><span class="p">:</span> <span class="n">wdir</span><span class="p">})</span>
+
+            <span class="n">sfx_data</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SFX_EXP_DATA&quot;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+            <span class="n">sfx_lib</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SFX_EXP_LIB&quot;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+
+            <span class="n">default_bin_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/lib/offline/exe/&quot;</span>
+            <span class="n">default_clim_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/climate/&quot;</span>
+            <span class="n">default_archive_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/archive/@YYYY@/@MM@/@DD@/@HH@/@EEE@/&quot;</span>
+            <span class="n">default_extarch_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/archive/extract/&quot;</span>
+            <span class="n">default_forcing_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/forcing/@YYYY@@MM@@DD@@HH@/@EEE@/&quot;</span>
+            <span class="n">default_obs_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@EEE@/&quot;</span>
+            <span class="n">first_guess_dir</span> <span class="o">=</span> <span class="n">default_archive_dir</span>
+            <span class="n">wrk_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/@YYYY@@MM@@DD@_@HH@/@EEE@/&quot;</span>
+            <span class="n">paths_host</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s2">&quot;sfx_exp_data&quot;</span><span class="p">:</span> <span class="n">sfx_data</span><span class="p">,</span>
+                <span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">:</span> <span class="n">sfx_lib</span><span class="p">,</span>
+                <span class="s2">&quot;default_bin_dir&quot;</span><span class="p">:</span> <span class="n">default_bin_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_archive_dir&quot;</span><span class="p">:</span> <span class="n">default_archive_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_extrarch_dir&quot;</span><span class="p">:</span> <span class="n">default_extarch_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_climdir&quot;</span><span class="p">:</span> <span class="n">default_clim_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_wrk_dir&quot;</span><span class="p">:</span> <span class="n">wrk_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_forcing_dir&quot;</span><span class="p">:</span> <span class="n">default_forcing_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_pgd_dir&quot;</span><span class="p">:</span> <span class="n">default_clim_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_prep_dir&quot;</span><span class="p">:</span> <span class="n">default_archive_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_obs_dir&quot;</span><span class="p">:</span> <span class="n">default_obs_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_first_guess_dir&quot;</span><span class="p">:</span> <span class="n">first_guess_dir</span>
+            <span class="p">})</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">host</span><span class="p">:</span> <span class="n">paths_host</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths</span>
+
+    <span class="k">def</span> <span class="nf">dump_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SystemFilePathsFromSystemFile"><a class="viewcode-back" href="../../index.html#experiment.SystemFilePathsFromSystemFile">[docs]</a><span class="k">class</span> <span class="nc">SystemFilePathsFromSystemFile</span><span class="p">(</span><span class="n">SystemFilePathsFromSystem</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Also set SFX_EXP system variables (File stucture/ssh etc)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system_file_paths</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">system_file_paths</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">system_file_paths</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+        <span class="n">system</span> <span class="o">=</span> <span class="n">SystemFromFile</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">SystemFilePathsFromSystem</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system_file_paths</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span> <span class="n">wdir</span><span class="o">=</span><span class="n">wdir</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">experiment.system</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Trygve Aspelien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    </div>
+  </body>
+</html>

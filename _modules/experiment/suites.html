@@ -6,14 +6,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>experiment.suites &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -36,26 +35,24 @@
           <div class="body" role="main">
             
   <h1>Source code for experiment.suites</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">import</span> <span class="nn">scheduler</span>
 
 
 <div class="viewcode-block" id="SurfexSuite"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite">[docs]</a><span class="k">class</span> <span class="nc">SurfexSuite</span><span class="p">(</span><span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span> <span class="n">dtgs</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span> <span class="n">dtgs</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">dtgbeg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dtgbeg_str</span> <span class="o">=</span> <span class="n">dtgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">dtgbeg_str</span> <span class="o">=</span> <span class="n">dtgbeg</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Scheduler settings</span>
-        <span class="c1"># ecf_loghost = exp.server.get_var(&quot;ECF_LOGHOST&quot;)</span>
-        <span class="c1"># ecf_logport = exp.server.get_var(&quot;ECF_LOGPORT&quot;)</span>
-
-        <span class="c1"># TODO use SFX_DATA</span>
-        <span class="n">lib</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">lib</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SFX_EXP_LIB&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SCHEDULER_PYTHONPATH&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="n">exp_dir</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">pythonpath</span>
 
         <span class="n">ecf_include</span> <span class="o">=</span> <span class="n">lib</span> <span class="o">+</span> <span class="s2">&quot;/ecf&quot;</span>
         <span class="n">ecf_files</span> <span class="o">=</span> <span class="n">lib</span> <span class="o">+</span> <span class="s2">&quot;/ecf&quot;</span>
@@ -64,26 +61,24 @@
         <span class="n">ecf_jobout</span> <span class="o">=</span> <span class="n">joboutdir</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">%E</span><span class="s2">CF_NAME%.</span><span class="si">%E</span><span class="s2">CF_TRYNO%&quot;</span>
         <span class="c1"># server_log = exp.get_file_name(lib, &quot;server_log&quot;, full_path=True)</span>
 
-        <span class="n">ecf_job_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_submit_exp &quot;</span> \
+        <span class="nb">print</span><span class="p">(</span><span class="n">pythonpath</span><span class="p">)</span>
+        <span class="n">ecf_job_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=&quot;</span> <span class="o">+</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/bin/ECF_submit_exp &quot;</span> \
                       <span class="s2">&quot;-ensmbr </span><span class="si">%E</span><span class="s2">NSMBR% &quot;</span> \
                       <span class="s2">&quot;-dtg %DTG% &quot;</span> <span class="o">+</span> \
-                      <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                      <span class="s2">&quot;-lib %LIB% &quot;</span> \
+                      <span class="s2">&quot;-exp &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/scheduler.json &quot;</span> \
                       <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
                       <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
                       <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
                       <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID%&quot;</span>
-        <span class="n">ecf_kill_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_kill_exp &quot;</span> \
-                       <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                       <span class="s2">&quot;-lib %LIB% &quot;</span> \
+        <span class="n">ecf_kill_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=&quot;</span> <span class="o">+</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/bin/ECF_kill_exp &quot;</span> \
+                       <span class="s2">&quot;-exp &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/scheduler.json &quot;</span> \
                        <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
                        <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
                        <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
                        <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
                        <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
-        <span class="n">ecf_status_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=%LIB% &amp;&amp; %LIB%/bin/ECF_status_exp &quot;</span> \
-                         <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP% &quot;</span> \
-                         <span class="s2">&quot;-lib %LIB% &quot;</span> \
+        <span class="n">ecf_status_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=&quot;</span> <span class="o">+</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/bin/ECF_status_exp &quot;</span> \
+                         <span class="s2">&quot;-exp &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/scheduler.json &quot;</span> \
                          <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
                          <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span>\
                          <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
@@ -98,7 +93,9 @@
                                            <span class="n">ecf_status_cmd</span><span class="o">=</span><span class="n">ecf_status_cmd</span><span class="p">,</span>
                                            <span class="n">ecf_kill_cmd</span><span class="o">=</span><span class="n">ecf_kill_cmd</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;EXP_DIR&quot;</span><span class="p">,</span> <span class="n">exp_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;LIB&quot;</span><span class="p">,</span> <span class="n">lib</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;SERVER_LOGFILE&quot;</span><span class="p">,</span> <span class="n">exp</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">logfile</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;EXP&quot;</span><span class="p">,</span> <span class="n">exp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;DTG&quot;</span><span class="p">,</span> <span class="n">dtgbeg_str</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;DTGBEG&quot;</span><span class="p">,</span> <span class="n">dtgbeg_str</span><span class="p">)</span>
@@ -109,14 +106,41 @@
         <span class="c1"># self.suite = EcflowSuite(self.suite_name, def_file=def_file, variables=variables)</span>
 
         <span class="n">init_run</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;InitRun&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="p">)</span>
+        <span class="n">init_run</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;LIB&quot;</span><span class="p">,</span> <span class="n">exp_dir</span><span class="p">)</span>
+        <span class="n">init_run_ecf_job_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=&quot;</span> <span class="o">+</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/bin/ECF_submit_exp &quot;</span> \
+                               <span class="s2">&quot;-ensmbr </span><span class="si">%E</span><span class="s2">NSMBR% &quot;</span> \
+                               <span class="s2">&quot;-dtg %DTG% &quot;</span> <span class="o">+</span> \
+                               <span class="s2">&quot;-exp %LIB%/scheduler.json &quot;</span> \
+                               <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                               <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
+                               <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                               <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID%&quot;</span>
+        <span class="n">init_run_ecf_kill_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=&quot;</span> <span class="o">+</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/bin/ECF_kill_exp &quot;</span> \
+                                <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP%/scheduler.json &quot;</span> \
+                                <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                                <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span> \
+                                <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                                <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
+                                <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
+        <span class="n">init_run_ecf_status_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=&quot;</span> <span class="o">+</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/bin/ECF_status_exp &quot;</span> \
+                                  <span class="s2">&quot;-exp </span><span class="si">%E</span><span class="s2">XP%/scheduler.json &quot;</span> \
+                                  <span class="s2">&quot;-ecf_name </span><span class="si">%E</span><span class="s2">CF_NAME% &quot;</span> \
+                                  <span class="s2">&quot;-ecf_tryno </span><span class="si">%E</span><span class="s2">CF_TRYNO% &quot;</span>\
+                                  <span class="s2">&quot;-ecf_pass </span><span class="si">%E</span><span class="s2">CF_PASS% &quot;</span> \
+                                  <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
+                                  <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
+        <span class="n">init_run</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;ECF_JOB_CMD&quot;</span><span class="p">,</span> <span class="n">init_run_ecf_job_cmd</span><span class="p">)</span>
+        <span class="n">init_run</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;ECF_KILL_CMD&quot;</span><span class="p">,</span> <span class="n">init_run_ecf_kill_cmd</span><span class="p">)</span>
+        <span class="n">init_run</span><span class="o">.</span><span class="n">ecf_node</span><span class="o">.</span><span class="n">add_variable</span><span class="p">(</span><span class="s2">&quot;ECF_STATUS_CMD&quot;</span><span class="p">,</span> <span class="n">init_run_ecf_status_cmd</span><span class="p">)</span>
         <span class="n">init_run_complete</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTrigger</span><span class="p">(</span><span class="n">init_run</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;COMPILE#BUILD&quot;</span><span class="p">):</span>
             <span class="n">comp_trigger</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTriggers</span><span class="p">(</span><span class="n">init_run_complete</span><span class="p">)</span>
             <span class="n">comp</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteFamily</span><span class="p">(</span><span class="s2">&quot;Compilation&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="p">,</span> <span class="n">triggers</span><span class="o">=</span><span class="n">comp_trigger</span><span class="p">)</span>
-
-            <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;MakeOfflineBinaries&quot;</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">ecf_files</span><span class="o">=</span><span class="n">ecf_files</span><span class="p">)</span>
-
+            <span class="n">configure</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;ConfigureOfflineBinaries&quot;</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">ecf_files</span><span class="o">=</span><span class="n">ecf_files</span><span class="p">)</span>
+            <span class="n">configure_complete</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTrigger</span><span class="p">(</span><span class="n">configure</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;complete&quot;</span><span class="p">)</span>
+            <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;MakeOfflineBinaries&quot;</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">ecf_files</span><span class="o">=</span><span class="n">ecf_files</span><span class="p">,</span>
+                                      <span class="n">triggers</span><span class="o">=</span><span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTriggers</span><span class="p">([</span><span class="n">configure_complete</span><span class="p">]))</span>
             <span class="n">comp_complete</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTrigger</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;complete&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">comp_complete</span> <span class="o">=</span> <span class="kc">None</span>
@@ -181,6 +205,7 @@
                 <span class="c1"># Might need an extra trigger for input</span>
 
             <span class="k">else</span><span class="p">:</span>
+
                 <span class="n">schemes</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#ASSIM#SCHEMES&quot;</span><span class="p">)</span>
                 <span class="n">do_soda</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">for</span> <span class="n">scheme</span> <span class="ow">in</span> <span class="n">schemes</span><span class="p">:</span>
@@ -188,26 +213,19 @@
                         <span class="n">do_soda</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="n">do_snow_ass</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">obs_types</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#ASSIM#OBS#COBS_M&quot;</span><span class="p">)</span>
                 <span class="n">nnco</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#ASSIM#OBS#NNCO&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">ivar</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">nnco</span><span class="p">)):</span>
-                    <span class="k">if</span> <span class="n">nnco</span><span class="p">[</span><span class="n">ivar</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">ivar</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="k">pass</span>
-                        <span class="k">elif</span> <span class="n">ivar</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                            <span class="k">pass</span>
-                        <span class="k">elif</span> <span class="n">ivar</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-                            <span class="n">do_snow_ass</span> <span class="o">=</span> <span class="kc">True</span>
-
-                <span class="k">if</span> <span class="n">do_snow_ass</span><span class="p">:</span>
-                    <span class="n">do_snow_ass</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="n">snow_ass</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#ASSIM#ISBA#UPDATE_SNOW_CYCLES&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">snow_ass</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">hh</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dtg</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H&quot;</span><span class="p">))</span>
-                        <span class="k">for</span> <span class="n">sn</span> <span class="ow">in</span> <span class="n">snow_ass</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">hh</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">sn</span><span class="p">):</span>
-                                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Do snow assimilation for &quot;</span><span class="p">,</span> <span class="n">dtg</span><span class="p">)</span>
-                                <span class="n">do_soda</span> <span class="o">=</span> <span class="kc">True</span>
-                                <span class="n">do_snow_ass</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_types</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">ivar</span> <span class="ow">and</span> <span class="n">obs_types</span><span class="p">[</span><span class="n">ivar</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;SWE&quot;</span><span class="p">:</span>
+                        <span class="n">snow_ass</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#ASSIM#ISBA#UPDATE_SNOW_CYCLES&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">snow_ass</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">hh</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dtg</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H&quot;</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">sn</span> <span class="ow">in</span> <span class="n">snow_ass</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">hh</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">sn</span><span class="p">):</span>
+                                    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Do snow assimilation for &quot;</span><span class="p">,</span> <span class="n">dtg</span><span class="p">)</span>
+                                    <span class="n">do_soda</span> <span class="o">=</span> <span class="kc">True</span>
+                                    <span class="n">do_snow_ass</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="n">triggers</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTriggers</span><span class="p">(</span><span class="n">prep_complete</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">do_soda</span><span class="p">:</span>
@@ -230,11 +248,13 @@
                             <span class="n">triggers</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTriggers</span><span class="p">(</span>
                                 <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTrigger</span><span class="p">(</span><span class="n">cycle_input_dtg_node</span><span class="p">[</span><span class="n">fg_dtg</span><span class="p">]))</span>
                         <span class="k">for</span> <span class="n">ivar</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">nncv</span><span class="p">)):</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="n">nncv</span><span class="p">[</span><span class="n">ivar</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">ivar</span><span class="p">,</span> <span class="n">nncv</span><span class="p">[</span><span class="n">ivar</span><span class="p">])</span>
                             <span class="k">if</span> <span class="n">ivar</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                                 <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;REF&quot;</span>
                                 <span class="n">args</span> <span class="o">=</span> <span class="s2">&quot;pert=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ivar</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; name=&quot;</span> <span class="o">+</span> <span class="n">name</span>
-                                <span class="nb">print</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                                    <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
                                 <span class="n">variables</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteVariable</span><span class="p">(</span><span class="s2">&quot;ARGS&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
                                 <span class="n">pert</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteFamily</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">perturbations</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
@@ -243,7 +263,8 @@
                             <span class="k">if</span> <span class="n">nncv</span><span class="p">[</span><span class="n">ivar</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                                 <span class="n">name</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">ivar</span><span class="p">]</span>
                                 <span class="n">args</span> <span class="o">=</span> <span class="s2">&quot;pert=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ivar</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; name=&quot;</span> <span class="o">+</span> <span class="n">name</span>
-                                <span class="nb">print</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                                    <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
                                 <span class="n">variables</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteVariable</span><span class="p">(</span><span class="s2">&quot;ARGS&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
                                 <span class="n">pert</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteFamily</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">perturbations</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
                                 <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;PerturbedRun&quot;</span><span class="p">,</span> <span class="n">pert</span><span class="p">,</span> <span class="n">ecf_files</span><span class="o">=</span><span class="n">ecf_files</span><span class="p">,</span>
@@ -263,14 +284,15 @@
                             <span class="n">prepare_sst</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;PrepareSST&quot;</span><span class="p">,</span> <span class="n">initialization</span><span class="p">,</span> <span class="n">ecf_files</span><span class="o">=</span><span class="n">ecf_files</span><span class="p">)</span>
 
                     <span class="n">an_variables</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;t2m&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;rh2m&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;sd&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+                    <span class="n">obs_types</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#ASSIM#OBS#COBS_M&quot;</span><span class="p">)</span>
                     <span class="n">nnco</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#ASSIM#OBS#NNCO&quot;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">ivar</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">nnco</span><span class="p">)):</span>
-                        <span class="k">if</span> <span class="n">nnco</span><span class="p">[</span><span class="n">ivar</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">ivar</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_types</span><span class="p">)):</span>
+                        <span class="k">if</span> <span class="n">nnco</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">obs_types</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;T2M&quot;</span><span class="p">:</span>
                                 <span class="n">an_variables</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;t2m&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
-                            <span class="k">elif</span> <span class="n">ivar</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="k">elif</span> <span class="n">obs_types</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RH2M&quot;</span><span class="p">:</span>
                                 <span class="n">an_variables</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;rh2m&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
-                            <span class="k">elif</span> <span class="n">ivar</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                            <span class="k">elif</span> <span class="n">obs_types</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;SWE&quot;</span><span class="p">:</span>
                                 <span class="k">if</span> <span class="n">do_snow_ass</span><span class="p">:</span>
                                     <span class="n">an_variables</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;sd&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 
@@ -346,7 +368,9 @@
                 <span class="n">qc2obsmon</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;Qc2obsmon&quot;</span><span class="p">,</span> <span class="n">pp</span><span class="p">,</span> <span class="n">ecf_files</span><span class="o">=</span><span class="n">ecf_files</span><span class="p">)</span>
                 <span class="n">log_pp_trigger</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTriggers</span><span class="p">(</span><span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTrigger</span><span class="p">(</span><span class="n">qc2obsmon</span><span class="p">))</span>
 
-            <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;LogProgressPP&quot;</span><span class="p">,</span> <span class="n">pp</span><span class="p">,</span> <span class="n">triggers</span><span class="o">=</span><span class="n">log_pp_trigger</span><span class="p">,</span> <span class="n">ecf_files</span><span class="o">=</span><span class="n">ecf_files</span><span class="p">)</span>
+            <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTask</span><span class="p">(</span><span class="s2">&quot;LogProgressPP&quot;</span><span class="p">,</span> <span class="n">pp</span><span class="p">,</span> <span class="n">triggers</span><span class="o">=</span><span class="n">log_pp_trigger</span><span class="p">,</span>
+                                      <span class="n">ecf_files</span><span class="o">=</span><span class="n">ecf_files</span><span class="p">)</span>
+
             <span class="n">prev_dtg</span> <span class="o">=</span> <span class="n">dtg</span>
 
         <span class="n">hours_behind</span> <span class="o">=</span> <span class="mi">24</span>
@@ -363,7 +387,7 @@
 
 
 <span class="k">class</span> <span class="nc">UnitTestSuite</span><span class="p">(</span><span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">ecf_files</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">):</span>
 
         <span class="c1"># TODO use SFX_DATA</span>
         <span class="n">lib</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span>
@@ -432,19 +456,18 @@
                                   <span class="n">def_status</span><span class="o">=</span><span class="s2">&quot;suspended&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_defs</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">suite_type</span><span class="p">,</span> <span class="n">def_file</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_defs</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">suite_type</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">suite_name</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">name</span>
-    <span class="n">joboutdir</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;JOBOUTDIR&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
-    <span class="n">env_submit</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">get_file_name</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">wd</span><span class="p">,</span> <span class="s2">&quot;submit&quot;</span><span class="p">,</span> <span class="n">full_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">server_config</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">get_file_name</span><span class="p">(</span><span class="n">exp</span><span class="o">.</span><span class="n">wd</span><span class="p">,</span> <span class="s2">&quot;server&quot;</span><span class="p">,</span> <span class="n">full_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">server_log</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">logfile</span>
-    <span class="n">lib</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">ecf_files</span> <span class="o">=</span> <span class="n">lib</span> <span class="o">+</span> <span class="s2">&quot;/ecf&quot;</span>
+    <span class="n">joboutdir</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;JOBOUTDIR&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+    <span class="n">env_submit</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;Env_submit&quot;</span>
+    <span class="n">server_config</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/Env_server&quot;</span>
+    <span class="n">server_log</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">logfile</span>
     <span class="n">hh_list</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_total_unique_hh_list</span><span class="p">()</span>
-    <span class="n">dtgstart</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">dtg</span>
-    <span class="n">dtgbeg</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">dtgbeg</span>
-    <span class="n">dtgend</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">dtgend</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">dtgstart</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="p">,</span> <span class="n">dtgend</span><span class="p">)</span>
+    <span class="n">dtgstart</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">dtg</span>
+    <span class="n">dtgbeg</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">dtgbeg</span>
+    <span class="n">dtgend</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">dtgend</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">dtgstart</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="p">,</span> <span class="n">dtgend</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">dtgbeg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">dtgbeg</span> <span class="o">=</span> <span class="n">dtgstart</span>
     <span class="n">dtgs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -455,7 +478,8 @@
         <span class="n">fcint</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hh_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hh_list</span><span class="p">)):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">hh_list</span><span class="p">[</span><span class="n">h</span><span class="p">],</span> <span class="n">hh</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">hh_list</span><span class="p">[</span><span class="n">h</span><span class="p">],</span> <span class="n">hh</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh_list</span><span class="p">[</span><span class="n">h</span><span class="p">])</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">h</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">hh_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">fcint</span> <span class="o">=</span> <span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">hh_list</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">hh_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">%</span> <span class="mi">24</span><span class="p">)</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">%</span> <span class="mi">24</span>
@@ -471,7 +495,7 @@
                            <span class="n">dtgbeg</span><span class="o">=</span><span class="n">dtgbeg</span><span class="p">)</span>
         <span class="c1"># return None</span>
     <span class="k">elif</span> <span class="n">suite_type</span> <span class="o">==</span> <span class="s2">&quot;unittest&quot;</span><span class="p">:</span>
-        <span class="n">defs</span> <span class="o">=</span> <span class="n">UnitTestSuite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">ecf_files</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">)</span>
+        <span class="n">defs</span> <span class="o">=</span> <span class="n">UnitTestSuite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">defs</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">()</span>
@@ -487,7 +511,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -510,7 +534,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
     </div>
   </body>
 </html>
