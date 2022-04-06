@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Running an experiment in EcFlow &#8212; Pysurfex-experiment  documentation</title>
+    <title>Eamples of running experiments &#8212; Pysurfex-experiment  documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
@@ -25,7 +25,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pysurfex-experiment  documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Running an experiment in EcFlow</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Eamples of running experiments</a></li> 
       </ul>
     </div>  
 
@@ -34,43 +34,56 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="running-an-experiment-in-ecflow">
-<h1>Running an experiment in EcFlow<a class="headerlink" href="#running-an-experiment-in-ecflow" title="Permalink to this headline">¶</a></h1>
-<p>First you must install pysurfex-scheduler and pysurfex-experiment and make sure you have it in PYTHONPATH and the bin
-directory in your path.</p>
-<p>Default setup on PPI</p>
+  <section id="eamples-of-running-experiments">
+<h1>Eamples of running experiments<a class="headerlink" href="#eamples-of-running-experiments" title="Permalink to this headline">¶</a></h1>
+<p>Here are some examples on how to use pysurfex-experiment</p>
+<section id="ppi-centos7-dual-host-bionic-centos7">
+<h2>ppi-centos7 (dual-host bionic-centos7)<a class="headerlink" href="#ppi-centos7-dual-host-bionic-centos7" title="Permalink to this headline">¶</a></h2>
+<p>First define some system paths to be used:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT</span><span class="o">=</span><span class="s2">&quot;/modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/&quot;</span>
+<span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;ppi-centos7&quot;</span>
+<span class="nb">export</span> <span class="nv">PYSURFEX</span><span class="o">=</span><span class="s2">&quot;/modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/&quot;</span>
+<span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;/modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline&quot;</span>
+</pre></div>
+</div>
+<p>Default configuration on PPI</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
 mkdir -p sfx_home
 <span class="nb">cd</span> sfx_home
 mkdir sandbox
 <span class="nb">cd</span> sandbox
 
-<span class="c1"># Set up experiemnt</span>
-PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/ <span class="se">\</span>
-                 -host ppi-centos7 <span class="se">\</span>
-                 -surfex /modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/ <span class="se">\</span>
-                 -offline /modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline
+<span class="c1"># Set up experiment</span>
+<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
+                -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span> <span class="se">\</span>
+                -host <span class="si">${</span><span class="nv">HOST_TAG</span><span class="si">}</span> <span class="se">\</span>
+                -surfex <span class="si">${</span><span class="nv">PYSURFEX</span><span class="si">}</span> <span class="se">\</span>
+                -offline <span class="si">${</span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="si">}</span>
 
+<span class="c1"># Start the experiment</span>
 ./bin/PySurfexExp start -dtg <span class="m">2022013106</span> -dtgend <span class="m">2022020206</span>
 </pre></div>
 </div>
-<p>Only snow assimilation on PPI for a domain around DRAMMEN</p>
+<p>Only snow assimilation for a domain around DRAMMEN</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
 mkdir -p sfx_home
 <span class="nb">cd</span> sfx_home
 mkdir DRAMMEN_SNOW_ASS
 <span class="nb">cd</span> DRAMMEN_SNOW_ASS
 
-<span class="c1"># Set up experiemnt</span>
-PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/ <span class="se">\</span>
-                 -host ppi-centos7 <span class="se">\</span>
-                 -surfex /modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/ <span class="se">\</span>
-                 --config_file /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/config/configurations/isba_dif_snow_ass.toml <span class="se">\</span>
-                 -offline /modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline/conf/system.ppi_centos7
+<span class="c1"># Set up experiment</span>
+<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
+                 -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span> <span class="se">\</span>
+                 -host <span class="si">${</span><span class="nv">HOST_TAG</span><span class="si">}</span> <span class="se">\</span>
+                 -surfex <span class="si">${</span><span class="nv">PYSURFEX</span><span class="si">}</span> <span class="se">\</span>
+                 --config_file <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>/config/configurations/isba_dif_snow_ass.toml <span class="se">\</span>
+                 -offline <span class="si">${</span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="si">}</span>
 
+<span class="c1"># Start the experiment</span>
 ./bin/PySurfexExp start -dtg <span class="m">2022013106</span> -dtgend <span class="m">2022020206</span>
 </pre></div>
 </div>
+</section>
 </section>
 
 
@@ -80,6 +93,16 @@ PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-de
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Eamples of running experiments</a><ul>
+<li><a class="reference internal" href="#ppi-centos7-dual-host-bionic-centos7">ppi-centos7 (dual-host bionic-centos7)</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -108,7 +131,7 @@ PySurfexExpSetup -rev /modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-de
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="../index.html">Pysurfex-experiment  documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Running an experiment in EcFlow</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Eamples of running experiments</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
