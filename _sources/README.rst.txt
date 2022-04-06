@@ -65,7 +65,7 @@ Create documentation
 Usage
 ---------------------------------------------
 
-Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples. Adjust it to your clone, host-tag and system
+Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings. Adjust it to your clone, host-tag and system
 
 .. code-block:: bash
 
@@ -73,7 +73,16 @@ Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set s
  export HOST_TAG="my-host-tag"
  export PYSURFEX="path-to-your-pysurfex-installation"
  export OFFLINE_SOURCE_CODE="path-to-your-offline-source-code"
+ export SCHEDULER_PYTHONPATH = "path-to-pysurfex-scheduler:path-to-ecflow-python-module"
+ export SCHEDULER_PATH="path-to-ecflow-bin-dir"
 
+ # Set PYTHONPATH
+ export PYTHONPATH=${PYSURFEX_EXPERIMENT}:${SCHEDULER_PYTHONPATH}:$PYTHONPATH
+
+ # Set PATH
+ export PATH=${SCHEDULER_PATH}:$PATH
+
+The reason you need to adjust the path is that the scheduler uses the ecflow start scripts to start the server.
 If you have installed PYSURFEX and/or pysurfex-scheduler with pip you might try this to find the installation directories:
 
 .. code-block:: bash

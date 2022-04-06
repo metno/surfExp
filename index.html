@@ -86,14 +86,23 @@ make latexpdf
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples. Adjust it to your clone, host-tag and system</p>
+<p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings. Adjust it to your clone, host-tag and system</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
 <span class="nb">export</span> <span class="nv">PYSURFEX</span><span class="o">=</span><span class="s2">&quot;path-to-your-pysurfex-installation&quot;</span>
 <span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
+<span class="nb">export</span> <span class="nv">SCHEDULER_PYTHONPATH</span> <span class="o">=</span> <span class="s2">&quot;path-to-pysurfex-scheduler:path-to-ecflow-python-module&quot;</span>
+<span class="nb">export</span> <span class="nv">SCHEDULER_PATH</span><span class="o">=</span><span class="s2">&quot;path-to-ecflow-bin-dir&quot;</span>
+
+<span class="c1"># Set PYTHONPATH</span>
+<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>:<span class="si">${</span><span class="nv">SCHEDULER_PYTHONPATH</span><span class="si">}</span>:<span class="nv">$PYTHONPATH</span>
+
+<span class="c1"># Set PATH</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">SCHEDULER_PATH</span><span class="si">}</span>:<span class="nv">$PATH</span>
 </pre></div>
 </div>
-<p>If you have installed PYSURFEX and/or pysurfex-scheduler with pip you might try this to find the installation directories:</p>
+<p>The reason you need to adjust the path is that the scheduler uses the ecflow start scripts to start the server.
+If you have installed PYSURFEX and/or pysurfex-scheduler with pip you might try this to find the installation directories:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -c <span class="s2">&quot;import surfex; print(surfex.__path__[0] + &#39;/..&#39;)&quot;</span>
 python -c <span class="s2">&quot;import scheduler; print(scheduler.__path__[0] + &#39;/..&#39;)&quot;</span>
 </pre></div>
@@ -174,6 +183,19 @@ mkdir -p my_exp
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;ppi-centos7&quot;</span>
 <span class="nb">export</span> <span class="nv">PYSURFEX</span><span class="o">=</span><span class="s2">&quot;/modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/&quot;</span>
 <span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;/modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline&quot;</span>
+
+ <span class="c1"># Activate environment</span>
+<span class="nb">source</span> /modules/bionic/conda/Feb2021/etc/profile.d/conda.sh
+conda activate production-04-2021
+
+<span class="nb">export</span> <span class="nv">SCHEDULER_PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/modules/bionic/user-apps/suv/pysurfex-scheduler/0.0.1-dev/:/modules/bionic/user-apps/ecflow/5.5.2-ssl/lib/python3.6/site-packages&quot;</span>
+<span class="nb">export</span> <span class="nv">SCHEDULER_PATH</span><span class="o">=</span><span class="s2">&quot;/modules/bionic/user-apps/ecflow/5.5.2-ssl/bin/&quot;</span>
+
+<span class="c1"># Set PYTHONPATH</span>
+<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>:<span class="si">${</span><span class="nv">SCHEDULER_PYTHONPATH</span><span class="si">}</span>:<span class="nv">$PYTHONPATH</span>
+
+<span class="c1"># Set PATH</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">SCHEDULER_PATH</span><span class="si">}</span>:<span class="nv">$PATH</span>
 </pre></div>
 </div>
 <p>Default configuration on PPI</p>
@@ -189,6 +211,9 @@ mkdir sandbox
                 -host <span class="si">${</span><span class="nv">HOST_TAG</span><span class="si">}</span> <span class="se">\</span>
                 -surfex <span class="si">${</span><span class="nv">PYSURFEX</span><span class="si">}</span> <span class="se">\</span>
                 -offline <span class="si">${</span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="si">}</span>
+
+<span class="c1"># Sett SSL</span>
+<span class="nb">export</span> <span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
 
 <span class="c1"># Start the experiment</span>
 ./bin/PySurfexExp start -dtg <span class="m">2022013106</span> -dtgend <span class="m">2022020206</span>
@@ -208,6 +233,9 @@ mkdir DRAMMEN_SNOW_ASS
                  -surfex <span class="si">${</span><span class="nv">PYSURFEX</span><span class="si">}</span> <span class="se">\</span>
                  --config_file <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>/config/configurations/isba_dif_snow_ass.toml <span class="se">\</span>
                  -offline <span class="si">${</span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="si">}</span>
+
+<span class="c1"># Sett SSL</span>
+<span class="nb">export</span> <span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
 
 <span class="c1"># Start the experiment</span>
 ./bin/PySurfexExp start -dtg <span class="m">2022013106</span> -dtgend <span class="m">2022020206</span>

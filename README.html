@@ -81,14 +81,23 @@ make latexpdf
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples. Adjust it to your clone, host-tag and system</p>
+<p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings. Adjust it to your clone, host-tag and system</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
 <span class="nb">export</span> <span class="nv">PYSURFEX</span><span class="o">=</span><span class="s2">&quot;path-to-your-pysurfex-installation&quot;</span>
 <span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
+<span class="nb">export</span> <span class="nv">SCHEDULER_PYTHONPATH</span> <span class="o">=</span> <span class="s2">&quot;path-to-pysurfex-scheduler:path-to-ecflow-python-module&quot;</span>
+<span class="nb">export</span> <span class="nv">SCHEDULER_PATH</span><span class="o">=</span><span class="s2">&quot;path-to-ecflow-bin-dir&quot;</span>
+
+<span class="c1"># Set PYTHONPATH</span>
+<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>:<span class="si">${</span><span class="nv">SCHEDULER_PYTHONPATH</span><span class="si">}</span>:<span class="nv">$PYTHONPATH</span>
+
+<span class="c1"># Set PATH</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">SCHEDULER_PATH</span><span class="si">}</span>:<span class="nv">$PATH</span>
 </pre></div>
 </div>
-<p>If you have installed PYSURFEX and/or pysurfex-scheduler with pip you might try this to find the installation directories:</p>
+<p>The reason you need to adjust the path is that the scheduler uses the ecflow start scripts to start the server.
+If you have installed PYSURFEX and/or pysurfex-scheduler with pip you might try this to find the installation directories:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -c <span class="s2">&quot;import surfex; print(surfex.__path__[0] + &#39;/..&#39;)&quot;</span>
 python -c <span class="s2">&quot;import scheduler; print(scheduler.__path__[0] + &#39;/..&#39;)&quot;</span>
 </pre></div>
