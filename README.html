@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Python abstraction layer for a scheduling system like Ecflow &#8212; Pysurfex-experiment  documentation</title>
+    <title>This repository is a setup to create and run offline SURFEX experiments. &#8212; Pysurfex-experiment  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -25,7 +25,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="nav-item nav-item-0"><a href="index.html">Pysurfex-experiment  documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Python abstraction layer for a scheduling system like Ecflow</a></li> 
+        <li class="nav-item nav-item-this"><a href="">This repository is a setup to create and run offline SURFEX experiments.</a></li> 
       </ul>
     </div>  
 
@@ -36,54 +36,33 @@
             
   <img alt="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" id="readme" src="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" />
 <p><a class="reference external" href="https://coveralls.io/github/metno/pysurfex-experiment">https://coveralls.io/github/metno/pysurfex-experiment</a></p>
-<section id="python-abstraction-layer-for-a-scheduling-system-like-ecflow">
-<h1>Python abstraction layer for a scheduling system like Ecflow<a class="headerlink" href="#python-abstraction-layer-for-a-scheduling-system-like-ecflow" title="Permalink to this headline">¶</a></h1>
-<p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a></p>
-<section id="installation-of-pregenerated-packages-from-pypi-pip">
-<h2>Installation of pregenerated packages from pypi (pip)<a class="headerlink" href="#installation-of-pregenerated-packages-from-pypi-pip" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3 install pysurfex-experiment --use-feature<span class="o">=</span><span class="m">2020</span>-resolver
-</pre></div>
-</div>
-<p>User installation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip3 install pysurfex-experiment --user --use-feature<span class="o">=</span><span class="m">2020</span>-resolver
-</pre></div>
-</div>
-</section>
+<section id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
+<h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this headline">¶</a></h1>
+<p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a>
+The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and pysurfex-scheduler (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>)</p>
 <section id="installation-on-debian-based-linux-system">
 <h2>Installation on debian based Linux system<a class="headerlink" href="#installation-on-debian-based-linux-system" title="Permalink to this headline">¶</a></h2>
 <p>Install the required pacakges (some might be obsolete if the pip packages contain the needed depedencies):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get update
 <span class="c1"># Python tools</span>
-sudo apt-get install python3-setuptools python3-numpy python3-scipy python3-nose
+sudo apt-get install python3-setuptools python3-numpy python3-nose
 </pre></div>
 </div>
-<p>The following depencies are needed. Install the non-standard ones e.g. with pip or your system installation system.</p>
+<p>The following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system.</p>
 </section>
 <section id="general-dependencies-from-pypi">
 <h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pysurfex
 pysurfex-scheduler
-toml
-json<span class="p">;</span> python_version &lt; <span class="s1">&#39;3&#39;</span>
 </pre></div>
 </div>
+<p>pysurfex and pysurfex-scheduler bring extra dependencies like gridpp, titanlib and ecflow. If you install from pypi with pip these should be handled automatically.</p>
 <p>For testing:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>unittest
 nose
 </pre></div>
 </div>
-<p>Download the source code, then install <code class="docutils literal notranslate"><span class="pre">pysurfex-experiment</span></code> by executing the following inside the extracted
-folder:</p>
-</section>
-<section id="install-pysurfex">
-<h2>Install pysurfex<a class="headerlink" href="#install-pysurfex" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo pip install -e .
-</pre></div>
-</div>
-<p>or</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo pip install -e . --user
-</pre></div>
-</div>
+<p>Create coverage/test by executing:</p>
 </section>
 <section id="create-documentation">
 <h2>Create documentation<a class="headerlink" href="#create-documentation" title="Permalink to this headline">¶</a></h2>
@@ -96,6 +75,46 @@ make latex
 make latexpdf
 </pre></div>
 </div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples. Adjust it to your clone, host-tag and system</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>export PYSURFEX_EXPERIMENT=”pysurfex-experiment-clone-dir”
+export HOST_TAG=”my-host-tag”
+export PYSURFEX=”path-to-your-pysurfex-installation”
+export PYSURFEX_SCHEDULER=”path-to-your-pysurfex-scheduler-installation”
+export OFFLINE_SOURCE_CODE=”path-to-your-offline-source-code”</p>
+<p>If you have installed PYSURFEX and/or PYSURFEX_SCHEDULER with pip you might try this to find the installation directories:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>python -c “import surfex; print(surfex.__path__[0] + ‘/..’)”
+python -c “import scheduler; print(scheduler.__path__[0] + ‘/..’)”</p>
+<p>Make sure you have the host you want to run on defined in pysurfex-experiment-clone-dir/config/<em>/host-name-tag</em>. There is a file for:
+- system      Definition of experiment structure and system commands -&gt; Env_system
+- submit      Definition of submission of the job tasks, e.g to a batch system -&gt; Env_submit
+- server      Definition of the scheduler running, e.g an ecflow server -&gt; Env_server
+- env         Definition of a host specific environment used in the beginning og job files -&gt; Env
+- input_paths Definiton of paths and structure of the experiment and input data -&gt; Env_input_paths</p>
+<p>Now you can set up your experiment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>cd
+mkdir -p sfx_home
+cd sfx_home
+mkdir -p my_exp
+cd my_exp
+${PYSURFEX_EXPERIMENT}/bin/PySurfexExpSetup </p>
+<blockquote>
+<div><p>-experiment ${PYSURFEX_EXPERIMENT} -host ${HOST_TAG} -surfex ${PYSURFEX} -scheduler ${PYSURFEX_SCHEDULER} -offline ${OFFLINE_SOURCE_CODE}</p>
+</div></blockquote>
+<p>You now a experiment which you can modify to your needs. You can choose to run with existing binaries without specifying -offline when setting up and add the proper bin_dir to our Env_input_files file. Instead of the -experiment argument you can also specify a full existing experiment by using the -rev argument.</p>
+<p>If you run ecflow with SSL support, remember to add before starting:</p>
+<p>This must also be added to your job tasks for example in the Env file. Finally you can start your experiment</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
@@ -113,12 +132,11 @@ make latexpdf
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
-<li><a class="reference internal" href="#">Python abstraction layer for a scheduling system like Ecflow</a><ul>
-<li><a class="reference internal" href="#installation-of-pregenerated-packages-from-pypi-pip">Installation of pregenerated packages from pypi (pip)</a></li>
+<li><a class="reference internal" href="#">This repository is a setup to create and run offline SURFEX experiments.</a><ul>
 <li><a class="reference internal" href="#installation-on-debian-based-linux-system">Installation on debian based Linux system</a></li>
 <li><a class="reference internal" href="#general-dependencies-from-pypi">General dependencies (from pypi)</a></li>
-<li><a class="reference internal" href="#install-pysurfex">Install pysurfex</a></li>
 <li><a class="reference internal" href="#create-documentation">Create documentation</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
@@ -153,7 +171,7 @@ make latexpdf
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="nav-item nav-item-0"><a href="index.html">Pysurfex-experiment  documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Python abstraction layer for a scheduling system like Ecflow</a></li> 
+        <li class="nav-item nav-item-this"><a href="">This repository is a setup to create and run offline SURFEX experiments.</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
