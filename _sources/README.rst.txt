@@ -34,7 +34,10 @@ General dependencies (from pypi)
 
 pysurfex and pysurfex-scheduler bring extra dependencies like gridpp, titanlib and ecflow. If you install from pypi with pip these should be handled automatically.
 
-For testing:
+Code unit testing and coverage
+----------
+
+Extra dependencies for testing
 
 .. code-block:: bash
 
@@ -48,8 +51,7 @@ Create coverage/test by executing:
  ./create_coverage.sh
 
 
-Create documentation
----------------------------------------------
+Create documentation:
 
 .. code-block:: bash
 
