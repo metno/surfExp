@@ -41,7 +41,7 @@
 
 <div class="viewcode-block" id="SurfexSuite"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite">[docs]</a><span class="k">class</span> <span class="nc">SurfexSuite</span><span class="p">(</span><span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span> <span class="n">dtgs</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="SurfexSuite.__init__"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span> <span class="n">dtgs</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">dtgbeg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -380,10 +380,10 @@
             <span class="k">if</span> <span class="n">pp_dtg_str</span> <span class="ow">in</span> <span class="n">post_processing_dtg_node</span><span class="p">:</span>
                 <span class="n">triggers</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTriggers</span><span class="p">(</span>
                     <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTrigger</span><span class="p">(</span><span class="n">post_processing_dtg_node</span><span class="p">[</span><span class="n">pp_dtg_str</span><span class="p">]))</span>
-                <span class="n">cycle_input_dtg_node</span><span class="p">[</span><span class="n">dtg_str</span><span class="p">]</span><span class="o">.</span><span class="n">add_part_trigger</span><span class="p">(</span><span class="n">triggers</span><span class="p">)</span>
+                <span class="n">cycle_input_dtg_node</span><span class="p">[</span><span class="n">dtg_str</span><span class="p">]</span><span class="o">.</span><span class="n">add_part_trigger</span><span class="p">(</span><span class="n">triggers</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">save_as_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">save_as_defs</span><span class="p">()</span></div>
+<div class="viewcode-block" id="SurfexSuite.save_as_defs"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite.save_as_defs">[docs]</a>    <span class="k">def</span> <span class="nf">save_as_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">save_as_defs</span><span class="p">()</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">UnitTestSuite</span><span class="p">(</span><span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="p">):</span>

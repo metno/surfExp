@@ -50,74 +50,74 @@ Classes
 
 Class methods
 ---------------------------------------------
-.. autofunction:: experiment_tasks.AbstractTask.__init__
-.. autofunction:: experiment_tasks.AbstractTask.run
-.. autofunction:: experiment_tasks.AbstractTask.execute
-.. autofunction:: experiment_tasks.AbstractTask.postfix
-.. autofunction:: experiment_tasks.SurfexBinaryTask.__init__
-.. autofunction:: experiment_tasks.SurfexBinaryTask.execute
-.. autofunction:: experiment_tasks.Pgd.__init__
-.. autofunction:: experiment_tasks.Pgd.execute
-.. autofunction:: experiment_tasks.Prep.__init__
-.. autofunction:: experiment_tasks.Prep.execute
-.. autofunction:: experiment_tasks.Forecast.__init__
-.. autofunction:: experiment_tasks.Forecast.execute
-.. autofunction:: experiment_tasks.PerturbedRun.__init__
-.. autofunction:: experiment_tasks.PerturbedRun.execute
-.. autofunction:: experiment_tasks.Soda.__init__
-.. autofunction:: experiment_tasks.Soda.execute
-.. autofunction:: experiment_tasks.Soda.postfix
-.. autofunction:: experiment_tasks.PrepareCycle.__init__
-.. autofunction:: experiment_tasks.PrepareCycle.run
-.. autofunction:: experiment_tasks.PrepareCycle.execute
-.. autofunction:: experiment_tasks.QualityControl.__init__
-.. autofunction:: experiment_tasks.QualityControl.execute
-.. autofunction:: experiment_tasks.OptimalInterpolation.__init__
-.. autofunction:: experiment_tasks.OptimalInterpolation.execute
-.. autofunction:: experiment_tasks.Forcing.__init__
-.. autofunction:: experiment_tasks.Forcing.execute
-.. autofunction:: experiment_tasks.FirstGuess.__init__
-.. autofunction:: experiment_tasks.FirstGuess.execute
-.. autofunction:: experiment_tasks.CycleFirstGuess.__init__
-.. autofunction:: experiment_tasks.CycleFirstGuess.execute
-.. autofunction:: experiment_tasks.Oi2soda.__init__
-.. autofunction:: experiment_tasks.Oi2soda.execute
-.. autofunction:: experiment_tasks.Qc2obsmon.__init__
-.. autofunction:: experiment_tasks.Qc2obsmon.execute
-.. autofunction:: experiment_tasks.FirstGuess4OI.__init__
-.. autofunction:: experiment_tasks.FirstGuess4OI.execute
-.. autofunction:: experiment_tasks.FirstGuess4OI.write_file
-.. autofunction:: experiment_tasks.MakeOfflineBinaries.__init__
-.. autofunction:: experiment_tasks.MakeOfflineBinaries.execute
-.. autofunction:: experiment_tasks.LogProgress.__init__
-.. autofunction:: experiment_tasks.LogProgress.execute
-.. autofunction:: experiment_tasks.LogProgressPP.__init__
-.. autofunction:: experiment_tasks.LogProgressPP.execute
-.. autofunction:: experiment_tasks.PrepareOiSoilInput.__init__
-.. autofunction:: experiment_tasks.PrepareOiSoilInput.execute
-.. autofunction:: experiment_tasks.PrepareOiClimate.__init__
-.. autofunction:: experiment_tasks.PrepareOiClimate.execute
-.. autofunction:: experiment_tasks.PrepareSST.__init__
-.. autofunction:: experiment_tasks.PrepareSST.execute
-.. autofunction:: experiment_tasks.PrepareLSM.__init__
-.. autofunction:: experiment_tasks.PrepareLSM.execute
-.. autofunction:: experiment.SurfexSuite.__init__
-.. autofunction:: experiment.SurfexSuite.save_as_defs
-.. autofunction:: experiment.System.__init__
-.. autofunction:: experiment.System.get_var
-.. autofunction:: experiment.SystemFromFile.__init__
-.. autofunction:: experiment.Exp.checkout
-.. autofunction:: experiment.ExpFromFiles.__init__
-.. autofunction:: experiment.Progress.__init__
-.. autofunction:: experiment.Progress.export_to_file
-.. autofunction:: experiment.Progress.get_dtgbeg
-.. autofunction:: experiment.Progress.get_dtgend
-.. autofunction:: experiment.Progress.increment_progress
-.. autofunction:: experiment.Progress.save
-.. autofunction:: experiment.ProgressFromFile.__init__
-.. autofunction:: experiment.ProgressFromFile.increment_progress
-.. autofunction:: experiment.SystemFilePathsFromSystem.__init__
-.. autofunction:: experiment.SystemFilePathsFromSystemFile.__init__
+.. automethod:: experiment_tasks.AbstractTask.__init__
+.. automethod:: experiment_tasks.AbstractTask.run
+.. automethod:: experiment_tasks.AbstractTask.execute
+.. automethod:: experiment_tasks.AbstractTask.postfix
+.. automethod:: experiment_tasks.SurfexBinaryTask.__init__
+.. automethod:: experiment_tasks.SurfexBinaryTask.execute
+.. automethod:: experiment_tasks.Pgd.__init__
+.. automethod:: experiment_tasks.Pgd.execute
+.. automethod:: experiment_tasks.Prep.__init__
+.. automethod:: experiment_tasks.Prep.execute
+.. automethod:: experiment_tasks.Forecast.__init__
+.. automethod:: experiment_tasks.Forecast.execute
+.. automethod:: experiment_tasks.PerturbedRun.__init__
+.. automethod:: experiment_tasks.PerturbedRun.execute
+.. automethod:: experiment_tasks.Soda.__init__
+.. automethod:: experiment_tasks.Soda.execute
+.. automethod:: experiment_tasks.Soda.postfix
+.. automethod:: experiment_tasks.PrepareCycle.__init__
+.. automethod:: experiment_tasks.PrepareCycle.run
+.. automethod:: experiment_tasks.PrepareCycle.execute
+.. automethod:: experiment_tasks.QualityControl.__init__
+.. automethod:: experiment_tasks.QualityControl.execute
+.. automethod:: experiment_tasks.OptimalInterpolation.__init__
+.. automethod:: experiment_tasks.OptimalInterpolation.execute
+.. automethod:: experiment_tasks.Forcing.__init__
+.. automethod:: experiment_tasks.Forcing.execute
+.. automethod:: experiment_tasks.FirstGuess.__init__
+.. automethod:: experiment_tasks.FirstGuess.execute
+.. automethod:: experiment_tasks.CycleFirstGuess.__init__
+.. automethod:: experiment_tasks.CycleFirstGuess.execute
+.. automethod:: experiment_tasks.Oi2soda.__init__
+.. automethod:: experiment_tasks.Oi2soda.execute
+.. automethod:: experiment_tasks.Qc2obsmon.__init__
+.. automethod:: experiment_tasks.Qc2obsmon.execute
+.. automethod:: experiment_tasks.FirstGuess4OI.__init__
+.. automethod:: experiment_tasks.FirstGuess4OI.execute
+.. automethod:: experiment_tasks.FirstGuess4OI.write_file
+.. automethod:: experiment_tasks.MakeOfflineBinaries.__init__
+.. automethod:: experiment_tasks.MakeOfflineBinaries.execute
+.. automethod:: experiment_tasks.LogProgress.__init__
+.. automethod:: experiment_tasks.LogProgress.execute
+.. automethod:: experiment_tasks.LogProgressPP.__init__
+.. automethod:: experiment_tasks.LogProgressPP.execute
+.. automethod:: experiment_tasks.PrepareOiSoilInput.__init__
+.. automethod:: experiment_tasks.PrepareOiSoilInput.execute
+.. automethod:: experiment_tasks.PrepareOiClimate.__init__
+.. automethod:: experiment_tasks.PrepareOiClimate.execute
+.. automethod:: experiment_tasks.PrepareSST.__init__
+.. automethod:: experiment_tasks.PrepareSST.execute
+.. automethod:: experiment_tasks.PrepareLSM.__init__
+.. automethod:: experiment_tasks.PrepareLSM.execute
+.. automethod:: experiment.SurfexSuite.__init__
+.. automethod:: experiment.SurfexSuite.save_as_defs
+.. automethod:: experiment.System.__init__
+.. automethod:: experiment.System.get_var
+.. automethod:: experiment.SystemFromFile.__init__
+.. automethod:: experiment.Exp.checkout
+.. automethod:: experiment.ExpFromFiles.__init__
+.. automethod:: experiment.Progress.__init__
+.. automethod:: experiment.Progress.export_to_file
+.. automethod:: experiment.Progress.get_dtgbeg
+.. automethod:: experiment.Progress.get_dtgend
+.. automethod:: experiment.Progress.increment_progress
+.. automethod:: experiment.Progress.save
+.. automethod:: experiment.ProgressFromFile.__init__
+.. automethod:: experiment.ProgressFromFile.increment_progress
+.. automethod:: experiment.SystemFilePathsFromSystem.__init__
+.. automethod:: experiment.SystemFilePathsFromSystemFile.__init__
 
 Methods
 ---------------------------------------------
@@ -138,7 +138,6 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
 

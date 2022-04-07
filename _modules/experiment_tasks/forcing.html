@@ -44,12 +44,12 @@
 
 
 <div class="viewcode-block" id="Forcing"><a class="viewcode-back" href="../../index.html#experiment_tasks.Forcing">[docs]</a><span class="k">class</span> <span class="nc">Forcing</span><span class="p">(</span><span class="n">AbstractTask</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Forcing.__init__"><a class="viewcode-back" href="../../index.html#experiment_tasks.Forcing.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">AbstractTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">var_name</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">family1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_name</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">family1</span></div>
         <span class="c1"># self.binary = self.config.</span>
 
-    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Forcing.execute"><a class="viewcode-back" href="../../index.html#experiment_tasks.Forcing.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="n">dtg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtg</span>
         <span class="n">hh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtg</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H&quot;</span><span class="p">)</span>
@@ -114,7 +114,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output already exists: &quot;</span> <span class="o">+</span> <span class="n">output</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">options</span><span class="p">,</span> <span class="n">var_objs</span><span class="p">,</span> <span class="n">att_objs</span> <span class="o">=</span> <span class="n">surfex</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">set_forcing_config</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="n">surfex</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">run_time_loop</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">var_objs</span><span class="p">,</span> <span class="n">att_objs</span><span class="p">)</span></div>
+            <span class="n">surfex</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">run_time_loop</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">var_objs</span><span class="p">,</span> <span class="n">att_objs</span><span class="p">)</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>
