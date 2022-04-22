@@ -71,7 +71,7 @@ Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set s
 
 .. code-block:: bash
 
- export PYSURFEX_EXPERIMENT="pysurfex-experiment-clone-dir"
+ export PYSURFEX_EXPERIMENT_PATH="pysurfex-experiment-clone-dir"
  export HOST_TAG="my-host-tag"
  export PYSURFEX="path-to-your-pysurfex-installation"
  export OFFLINE_SOURCE_CODE="path-to-your-offline-source-code"
@@ -79,7 +79,7 @@ Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set s
  export SCHEDULER_PATH="path-to-ecflow-bin-dir"
 
  # Set PYTHONPATH
- export PYTHONPATH=${PYSURFEX_EXPERIMENT}:${SCHEDULER_PYTHONPATH}:$PYTHONPATH
+ export PYTHONPATH=${PYSURFEX_EXPERIMENT_PATH}:${SCHEDULER_PYTHONPATH}:$PYTHONPATH
 
  # Set PATH
  export PATH=${SCHEDULER_PATH}:$PATH
@@ -115,8 +115,8 @@ Now you can set up your experiment:
  cd sfx_home
  mkdir -p my_exp
  cd my_exp
- ${PYSURFEX_EXPERIMENT}/bin/PySurfexExpSetup \
-  -experiment ${PYSURFEX_EXPERIMENT} \ 
+ ${PYSURFEX_EXPERIMENT_PATH}/bin/PySurfexExpSetup \
+  -experiment ${PYSURFEX_EXPERIMENT_PATH} \
   -host ${HOST_TAG} \
   -surfex ${PYSURFEX} \
   -offline ${OFFLINE_SOURCE_CODE}

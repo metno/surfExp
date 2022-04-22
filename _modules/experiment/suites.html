@@ -41,8 +41,26 @@
 
 <div class="viewcode-block" id="SurfexSuite"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite">[docs]</a><span class="k">class</span> <span class="nc">SurfexSuite</span><span class="p">(</span><span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="p">):</span>
 
-<div class="viewcode-block" id="SurfexSuite.__init__"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span> <span class="n">dtgs</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="SurfexSuite.__init__"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">dtgs</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize a SurfexSuite object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        :param suite_name: Name of the suite</span>
+<span class="sd">        :type suite_name: str</span>
+<span class="sd">        :param exp: Experiment you want to run</span>
+<span class="sd">        :type exp: experiment.Experiment</span>
+<span class="sd">        :param joboutdir: Directory for job and log files</span>
+<span class="sd">        :type joboutdir: str</span>
+<span class="sd">        :param env_submit: Submission environment for jobs</span>
+<span class="sd">        :type env_submit: dict</span>
+<span class="sd">        :param dtgs: The DTGs you want to run</span>
+<span class="sd">        :type dtgs: list</span>
+<span class="sd">        :param dtgbeg: First DTG of the experiment run</span>
+<span class="sd">        :type dtgbeg: datetime</span>
+<span class="sd">        :param debug: Debug option</span>
+<span class="sd">        :type debug: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">dtgbeg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dtgbeg_str</span> <span class="o">=</span> <span class="n">dtgs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
@@ -61,7 +79,8 @@
         <span class="n">ecf_jobout</span> <span class="o">=</span> <span class="n">joboutdir</span> <span class="o">+</span> <span class="s2">&quot;/</span><span class="si">%E</span><span class="s2">CF_NAME%.</span><span class="si">%E</span><span class="s2">CF_TRYNO%&quot;</span>
         <span class="c1"># server_log = exp.get_file_name(lib, &quot;server_log&quot;, full_path=True)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="n">pythonpath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PYTHONPATH: &quot;</span><span class="p">,</span> <span class="n">pythonpath</span><span class="p">)</span>
         <span class="n">ecf_job_cmd</span> <span class="o">=</span> <span class="s2">&quot;PYTHONPATH=&quot;</span> <span class="o">+</span> <span class="n">pythonpath</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; &quot;</span> <span class="o">+</span> <span class="n">exp_dir</span> <span class="o">+</span> <span class="s2">&quot;/bin/ECF_submit_exp &quot;</span> \
                       <span class="s2">&quot;-ensmbr </span><span class="si">%E</span><span class="s2">NSMBR% &quot;</span> \
                       <span class="s2">&quot;-dtg %DTG% &quot;</span> <span class="o">+</span> \
@@ -85,8 +104,8 @@
                          <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
                          <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
 
-        <span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">ecf_files</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span>
-                                           <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suite_name</span> <span class="o">=</span> <span class="n">suite_name</span>
+        <span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">ecf_files</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span>
                                            <span class="n">ecf_home</span><span class="o">=</span><span class="n">ecf_home</span><span class="p">,</span> <span class="n">ecf_include</span><span class="o">=</span><span class="n">ecf_include</span><span class="p">,</span> <span class="n">ecf_out</span><span class="o">=</span><span class="n">ecf_out</span><span class="p">,</span>
                                            <span class="n">ecf_jobout</span><span class="o">=</span><span class="n">ecf_jobout</span><span class="p">,</span>
                                            <span class="n">ecf_job_cmd</span><span class="o">=</span><span class="n">ecf_job_cmd</span><span class="p">,</span>
@@ -382,12 +401,18 @@
                     <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowSuiteTrigger</span><span class="p">(</span><span class="n">post_processing_dtg_node</span><span class="p">[</span><span class="n">pp_dtg_str</span><span class="p">]))</span>
                 <span class="n">cycle_input_dtg_node</span><span class="p">[</span><span class="n">dtg_str</span><span class="p">]</span><span class="o">.</span><span class="n">add_part_trigger</span><span class="p">(</span><span class="n">triggers</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SurfexSuite.save_as_defs"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite.save_as_defs">[docs]</a>    <span class="k">def</span> <span class="nf">save_as_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">save_as_defs</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="SurfexSuite.save_as_defs"><a class="viewcode-back" href="../../index.html#experiment.SurfexSuite.save_as_defs">[docs]</a>    <span class="k">def</span> <span class="nf">save_as_defs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">def_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save definition file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">        :param def_file: Full path of the definition file</span>
+<span class="sd">        :type def_file: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suite</span><span class="o">.</span><span class="n">save_as_defs</span><span class="p">(</span><span class="n">def_file</span><span class="p">)</span></div></div>
 
 
 <span class="k">class</span> <span class="nc">UnitTestSuite</span><span class="p">(</span><span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">):</span>
 
         <span class="c1"># TODO use SFX_DATA</span>
         <span class="n">lib</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span>
@@ -425,8 +450,7 @@
                          <span class="s2">&quot;-ecf_rid </span><span class="si">%E</span><span class="s2">CF_RID% &quot;</span> \
                          <span class="s2">&quot;-submission_id %SUBMISSION_ID%&quot;</span>
 
-        <span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">ecf_files</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span>
-                                           <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span>
+        <span class="n">scheduler</span><span class="o">.</span><span class="n">SuiteDefinition</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">ecf_files</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span>
                                            <span class="n">ecf_home</span><span class="o">=</span><span class="n">ecf_home</span><span class="p">,</span> <span class="n">ecf_include</span><span class="o">=</span><span class="n">ecf_include</span><span class="p">,</span> <span class="n">ecf_out</span><span class="o">=</span><span class="n">ecf_out</span><span class="p">,</span>
                                            <span class="n">ecf_jobout</span><span class="o">=</span><span class="n">ecf_jobout</span><span class="p">,</span>
                                            <span class="n">ecf_job_cmd</span><span class="o">=</span><span class="n">ecf_job_cmd</span><span class="p">,</span>
@@ -456,12 +480,10 @@
                                   <span class="n">def_status</span><span class="o">=</span><span class="s2">&quot;suspended&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">get_defs</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">suite_type</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_defs</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">suite_type</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">suite_name</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">name</span>
     <span class="n">joboutdir</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;JOBOUTDIR&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
     <span class="n">env_submit</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;Env_submit&quot;</span>
-    <span class="n">server_config</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/Env_server&quot;</span>
-    <span class="n">server_log</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">logfile</span>
     <span class="n">hh_list</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_total_unique_hh_list</span><span class="p">()</span>
     <span class="n">dtgstart</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">dtg</span>
     <span class="n">dtgbeg</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">dtgbeg</span>
@@ -491,11 +513,9 @@
             <span class="k">raise</span> <span class="ne">Exception</span>
         <span class="n">dtg</span> <span class="o">=</span> <span class="n">dtg</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">fcint</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">suite_type</span> <span class="o">==</span> <span class="s2">&quot;surfex&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">SurfexSuite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">,</span> <span class="n">dtgs</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span>
-                           <span class="n">dtgbeg</span><span class="o">=</span><span class="n">dtgbeg</span><span class="p">)</span>
-        <span class="c1"># return None</span>
+        <span class="k">return</span> <span class="n">SurfexSuite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">dtgs</span><span class="o">=</span><span class="n">dtgs</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="o">=</span><span class="n">dtgbeg</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">suite_type</span> <span class="o">==</span> <span class="s2">&quot;unittest&quot;</span><span class="p">:</span>
-        <span class="n">defs</span> <span class="o">=</span> <span class="n">UnitTestSuite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">,</span> <span class="n">server_config</span><span class="p">,</span> <span class="n">server_log</span><span class="p">)</span>
+        <span class="n">defs</span> <span class="o">=</span> <span class="n">UnitTestSuite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">joboutdir</span><span class="p">,</span> <span class="n">env_submit</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">defs</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">()</span>

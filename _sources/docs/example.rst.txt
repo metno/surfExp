@@ -11,7 +11,7 @@ First define some system paths to be used:
 
 .. code-block:: bash
 
- export PYSURFEX_EXPERIMENT="/modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/"
+ export PYSURFEX_EXPERIMENT_PATH="/modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/"
  export HOST_TAG="ppi-centos7"
  export PYSURFEX="/modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/"
  export OFFLINE_SOURCE_CODE="/modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline"
@@ -24,7 +24,7 @@ First define some system paths to be used:
  export SCHEDULER_PATH="/modules/bionic/user-apps/ecflow/5.5.2-ssl/bin/"
 
  # Set PYTHONPATH
- export PYTHONPATH=${PYSURFEX_EXPERIMENT}:${SCHEDULER_PYTHONPATH}:$PYTHONPATH
+ export PYTHONPATH=${PYSURFEX_EXPERIMENT_PATH}:${SCHEDULER_PYTHONPATH}:$PYTHONPATH
 
  # Set PATH
  export PATH=${SCHEDULER_PATH}:$PATH
@@ -40,8 +40,8 @@ Default configuration on PPI
   cd sandbox
 
   # Set up experiment
-  ${PYSURFEX_EXPERIMENT}/bin/PySurfexExpSetup \
-                  -experiment ${PYSURFEX_EXPERIMENT} \
+  ${PYSURFEX_EXPERIMENT_PATH}/bin/PySurfexExpSetup \
+                  -experiment ${PYSURFEX_EXPERIMENT_PATH} \
                   -host ${HOST_TAG} \
                   -surfex ${PYSURFEX} \
                   -offline ${OFFLINE_SOURCE_CODE}
@@ -64,11 +64,11 @@ Only snow assimilation for a domain around DRAMMEN
  cd DRAMMEN_SNOW_ASS
 
  # Set up experiment
- ${PYSURFEX_EXPERIMENT}/bin/PySurfexExpSetup \
-                  -experiment ${PYSURFEX_EXPERIMENT} \
+ ${PYSURFEX_EXPERIMENT_PATH}/bin/PySurfexExpSetup \
+                  -experiment ${PYSURFEX_EXPERIMENT_PATH} \
                   -host ${HOST_TAG} \
                   -surfex ${PYSURFEX} \
-                  --config_file ${PYSURFEX_EXPERIMENT}/config/configurations/isba_dif_snow_ass.toml \
+                  --config_file ${PYSURFEX_EXPERIMENT_PATH}/config/configurations/isba_dif_snow_ass.toml \
                   -offline ${OFFLINE_SOURCE_CODE}
 
  # Sett SSL

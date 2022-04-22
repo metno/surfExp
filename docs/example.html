@@ -40,7 +40,7 @@
 <section id="ppi-centos7-dual-host-bionic-centos7">
 <h2>ppi-centos7 (dual-host bionic-centos7)<a class="headerlink" href="#ppi-centos7-dual-host-bionic-centos7" title="Permalink to this headline">¶</a></h2>
 <p>First define some system paths to be used:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT</span><span class="o">=</span><span class="s2">&quot;/modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;/modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;ppi-centos7&quot;</span>
 <span class="nb">export</span> <span class="nv">PYSURFEX</span><span class="o">=</span><span class="s2">&quot;/modules/centos7/user-apps/suv/pysurfex/0.0.1-dev/&quot;</span>
 <span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;/modules/SOURCES/centos7-SOURCES/AA_SEKF/util/offline&quot;</span>
@@ -53,7 +53,7 @@ conda activate production-04-2021
 <span class="nb">export</span> <span class="nv">SCHEDULER_PATH</span><span class="o">=</span><span class="s2">&quot;/modules/bionic/user-apps/ecflow/5.5.2-ssl/bin/&quot;</span>
 
 <span class="c1"># Set PYTHONPATH</span>
-<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>:<span class="si">${</span><span class="nv">SCHEDULER_PYTHONPATH</span><span class="si">}</span>:<span class="nv">$PYTHONPATH</span>
+<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span>:<span class="si">${</span><span class="nv">SCHEDULER_PYTHONPATH</span><span class="si">}</span>:<span class="nv">$PYTHONPATH</span>
 
 <span class="c1"># Set PATH</span>
 <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">SCHEDULER_PATH</span><span class="si">}</span>:<span class="nv">$PATH</span>
@@ -67,8 +67,8 @@ mkdir sandbox
 <span class="nb">cd</span> sandbox
 
 <span class="c1"># Set up experiment</span>
-<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
-                -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span> <span class="se">\</span>
+<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
+                -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span> <span class="se">\</span>
                 -host <span class="si">${</span><span class="nv">HOST_TAG</span><span class="si">}</span> <span class="se">\</span>
                 -surfex <span class="si">${</span><span class="nv">PYSURFEX</span><span class="si">}</span> <span class="se">\</span>
                 -offline <span class="si">${</span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="si">}</span>
@@ -88,11 +88,11 @@ mkdir DRAMMEN_SNOW_ASS
 <span class="nb">cd</span> DRAMMEN_SNOW_ASS
 
 <span class="c1"># Set up experiment</span>
-<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
-                 -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span> <span class="se">\</span>
+<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
+                 -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span> <span class="se">\</span>
                  -host <span class="si">${</span><span class="nv">HOST_TAG</span><span class="si">}</span> <span class="se">\</span>
                  -surfex <span class="si">${</span><span class="nv">PYSURFEX</span><span class="si">}</span> <span class="se">\</span>
-                 --config_file <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>/config/configurations/isba_dif_snow_ass.toml <span class="se">\</span>
+                 --config_file <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span>/config/configurations/isba_dif_snow_ass.toml <span class="se">\</span>
                  -offline <span class="si">${</span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="si">}</span>
 
 <span class="c1"># Sett SSL</span>

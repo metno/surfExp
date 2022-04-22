@@ -230,9 +230,9 @@
         <span class="c1"># Create and start the suite</span>
         <span class="n">def_file</span> <span class="o">=</span> <span class="n">data0</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">suite</span> <span class="o">+</span> <span class="s2">&quot;.def&quot;</span>
 
-        <span class="n">defs</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">get_defs</span><span class="p">(</span><span class="n">sfx_exp</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">my_scheduler</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">suite</span><span class="p">,</span> <span class="n">def_file</span><span class="p">)</span>
-        <span class="n">defs</span><span class="o">.</span><span class="n">save_as_defs</span><span class="p">()</span>
-        <span class="n">my_scheduler</span><span class="o">.</span><span class="n">start_suite</span><span class="p">(</span><span class="n">defs</span><span class="p">,</span> <span class="n">begin</span><span class="o">=</span><span class="n">begin</span><span class="p">)</span></div>
+        <span class="n">defs</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">get_defs</span><span class="p">(</span><span class="n">sfx_exp</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">suite</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="n">defs</span><span class="o">.</span><span class="n">save_as_defs</span><span class="p">(</span><span class="n">def_file</span><span class="p">)</span>
+        <span class="n">my_scheduler</span><span class="o">.</span><span class="n">start_suite</span><span class="p">(</span><span class="n">defs</span><span class="o">.</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">begin</span><span class="o">=</span><span class="n">begin</span><span class="p">)</span></div>
 </pre></div>
 
             <div class="clearer"></div>

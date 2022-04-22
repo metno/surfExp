@@ -48,6 +48,20 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_dependencies</span><span class="p">,</span> <span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span><span class="p">,</span> <span class="n">submit_exceptions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">system_file_paths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">env_submit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Instaniate an object of the main experiment class</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            exp_dependencies (dict):  Eperiment dependencies</span>
+<span class="sd">            merged_config (dict): Experiment configuration</span>
+<span class="sd">            member_merged_config (dict): Member (EPS) specific configuration settings</span>
+<span class="sd">            submit_exceptions (dict):</span>
+<span class="sd">            system_file_paths (experiment.SystemFilePaths):</span>
+<span class="sd">            system (experiment.System:</span>
+<span class="sd">            server (scheduler.Server):</span>
+<span class="sd">            env_submit (dict):</span>
+<span class="sd">            progress (dict):</span>
+<span class="sd">            debug (bool): Write extra debug information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">rev</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;revision&quot;</span><span class="p">]</span>
         <span class="n">pysurfex_experiment</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;pysurfex_experiment&quot;</span><span class="p">]</span>
@@ -70,16 +84,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">progress</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
 
-        <span class="c1"># self.config_files = self.get_config_files()</span>
-        <span class="c1"># Merge config</span>
-        <span class="c1"># all_merged_settings = experiment_setup.merge_toml_env_from_config_dicts(self.config_files)</span>
-        <span class="c1"># merged_config, member_merged_config = experiment_setup.process_merged_settings(all_merged_settings)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span> <span class="o">=</span> <span class="n">merged_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">member_config</span> <span class="o">=</span> <span class="n">member_merged_config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">Configuration</span><span class="p">(</span><span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ExpConfiguration</span><span class="p">(</span><span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Exp.checkout"><a class="viewcode-back" href="../../index.html#experiment.Exp.checkout">[docs]</a>    <span class="k">def</span> <span class="nf">checkout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;File must be set&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
@@ -128,10 +140,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="s2">&quot;ExpFromFiles&quot;</span><span class="p">)</span>
 
         <span class="n">exp_dependencies</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
-        <span class="c1"># rev = exp_dependencies[&quot;revision&quot;]</span>
         <span class="n">pysurfex_experiment</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;pysurfex_experiment&quot;</span><span class="p">]</span>
-        <span class="c1"># offline_source = exp_dependencies[&quot;offline_source&quot;]</span>
-        <span class="c1"># pysurfex = exp_dependencies[&quot;pysurfex&quot;]</span>
         <span class="n">wdir</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;exp_dir&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">=</span> <span class="n">wdir</span>
         <span class="n">exp_name</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;exp_name&quot;</span><span class="p">]</span>
@@ -197,6 +206,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dump_exp_configuration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/exp_configuration.json&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">get_config_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the needed set of configurations files</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Check existence of needed config files</span>
         <span class="n">config_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/config/config.toml&quot;</span>

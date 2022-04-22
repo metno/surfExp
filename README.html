@@ -83,7 +83,7 @@ make latexpdf
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings. Adjust it to your clone, host-tag and system</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
 <span class="nb">export</span> <span class="nv">PYSURFEX</span><span class="o">=</span><span class="s2">&quot;path-to-your-pysurfex-installation&quot;</span>
 <span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
@@ -91,7 +91,7 @@ make latexpdf
 <span class="nb">export</span> <span class="nv">SCHEDULER_PATH</span><span class="o">=</span><span class="s2">&quot;path-to-ecflow-bin-dir&quot;</span>
 
 <span class="c1"># Set PYTHONPATH</span>
-<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>:<span class="si">${</span><span class="nv">SCHEDULER_PYTHONPATH</span><span class="si">}</span>:<span class="nv">$PYTHONPATH</span>
+<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span>:<span class="si">${</span><span class="nv">SCHEDULER_PYTHONPATH</span><span class="si">}</span>:<span class="nv">$PYTHONPATH</span>
 
 <span class="c1"># Set PATH</span>
 <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">SCHEDULER_PATH</span><span class="si">}</span>:<span class="nv">$PATH</span>
@@ -147,8 +147,8 @@ mkdir -p sfx_home
 <span class="nb">cd</span> sfx_home
 mkdir -p my_exp
 <span class="nb">cd</span> my_exp
-<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
- -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT</span><span class="si">}</span> <span class="se">\</span>
+<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
+ -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span> <span class="se">\</span>
  -host <span class="si">${</span><span class="nv">HOST_TAG</span><span class="si">}</span> <span class="se">\</span>
  -surfex <span class="si">${</span><span class="nv">PYSURFEX</span><span class="si">}</span> <span class="se">\</span>
  -offline <span class="si">${</span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="si">}</span>
