@@ -42,12 +42,12 @@
 
 <div class="viewcode-block" id="Progress"><a class="viewcode-back" href="../../index.html#experiment.Progress">[docs]</a><span class="k">class</span> <span class="nc">Progress</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <div class="viewcode-block" id="Progress.__init__"><a class="viewcode-back" href="../../index.html#experiment.Progress.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">progress_pp</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize the experiment progress</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the experiment progress</span>
 
-<span class="sd">        :param progress: Contains the current date/time information</span>
-<span class="sd">        :type progress: dict</span>
-<span class="sd">        :param progress_pp: Contains the current date/time information for psot-processing</span>
-<span class="sd">        :type progress_pp: dict</span>
+<span class="sd">        Args:</span>
+<span class="sd">            progress (dict): Contains the current date/time information</span>
+<span class="sd">            progress_pp (dict): Contains the current date/time information for psot-processing</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Update DTG/DTGBED/DTGEND</span>
@@ -113,12 +113,15 @@
 
     <span class="c1"># Members could potentially have different DTGBEGs</span>
 <div class="viewcode-block" id="Progress.get_dtgbeg"><a class="viewcode-back" href="../../index.html#experiment.Progress.get_dtgbeg">[docs]</a>    <span class="k">def</span> <span class="nf">get_dtgbeg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fcint</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;get the first DTG of the run</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get the first DTG of the run</span>
 
-<span class="sd">        :param fcint: Time in hours between the forecasts/analysis</span>
-<span class="sd">        :type fcint: int</span>
-<span class="sd">        :return: first DTG of the run</span>
-<span class="sd">        :rtype datetime.datetime</span>
+<span class="sd">        Args:</span>
+<span class="sd">            fcint (int): Time in hours between the forecasts/analysis</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dtgbeg (datetime.datetime):  first DTG of the run</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">dtgbeg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtgbeg</span>
@@ -157,13 +160,12 @@
 
 <div class="viewcode-block" id="ProgressFromFile"><a class="viewcode-back" href="../../index.html#experiment.ProgressFromFile">[docs]</a><span class="k">class</span> <span class="nc">ProgressFromFile</span><span class="p">(</span><span class="n">Progress</span><span class="p">):</span>
 <div class="viewcode-block" id="ProgressFromFile.__init__"><a class="viewcode-back" href="../../index.html#experiment.ProgressFromFile.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">progress_file</span><span class="p">,</span> <span class="n">progress_pp_file</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize a progress object from files</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a progress object from files</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">        :param progress_file: Full path of the progress files</span>
-<span class="sd">        :type progress_file: str</span>
-<span class="sd">        :param progress_pp_file: Full path of the post-processing progress file</span>
-<span class="sd">        :type progress_pp_file: str</span>
+<span class="sd">            progress_file (str): Full path of the progress files</span>
+<span class="sd">            progress_pp_file (str): Full path of the post-processing progress file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">progress_file</span> <span class="o">=</span> <span class="n">progress_file</span>

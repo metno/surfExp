@@ -148,7 +148,7 @@
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wdir</span><span class="p">)</span>
 
         <span class="n">hh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtg</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fcint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_fcint</span><span class="p">(</span><span class="n">hh</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mbr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_fcint</span><span class="p">(</span><span class="n">hh</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mbr</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fg_dtg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtg</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fcint</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_dtg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtg</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fcint</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_dtgpp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_dtg</span>
@@ -303,8 +303,161 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">setting</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Setting was not substituted properly? &quot;</span> <span class="o">+</span> <span class="n">setting</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">setting</span></div>
+        <span class="k">return</span> <span class="n">setting</span>
 
+    <span class="k">def</span> <span class="nf">get_total_unique_hh_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Create a list of all unique HHs from all members</span>
+        <span class="c1"># print(self.members, self.get_hh_list())</span>
+        <span class="n">hh_list_all</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">mbr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
+                <span class="n">hh_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hh_list</span><span class="p">(</span><span class="n">mbr</span><span class="o">=</span><span class="n">mbr</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">hh</span> <span class="ow">in</span> <span class="n">hh_l</span><span class="p">:</span>
+                    <span class="n">hh</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:02d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">hh</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hh_list_all</span><span class="p">:</span>
+                        <span class="n">hh_list_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hh</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hh_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hh_list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">hh</span> <span class="ow">in</span> <span class="n">hh_l</span><span class="p">:</span>
+                <span class="n">hh</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:02d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hh</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">hh</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">hh_list_all</span><span class="p">:</span>
+                    <span class="n">hh_list_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hh</span><span class="p">)</span>
+
+        <span class="c1"># print(hh_list_all)</span>
+        <span class="c1"># Sort this list</span>
+        <span class="n">hh_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">hh</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hh_list_all</span><span class="p">):</span>
+            <span class="n">hh_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hh</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hh_list</span>
+
+    <span class="k">def</span> <span class="nf">get_fcint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">hh_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hh_list</span><span class="p">(</span><span class="n">mbr</span><span class="o">=</span><span class="n">mbr</span><span class="p">)</span>
+        <span class="n">fcint</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hh_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">hh</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hh_list</span><span class="p">)):</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh_list</span><span class="p">[</span><span class="n">hh</span><span class="p">])</span> <span class="o">%</span> <span class="mi">24</span>
+                <span class="k">if</span> <span class="n">h</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span> <span class="o">%</span> <span class="mi">24</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">hh</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">fcint</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hh_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh_list</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">hh_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span> <span class="o">%</span> <span class="mi">24</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">fcint</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh_list</span><span class="p">[</span><span class="n">hh</span><span class="p">])</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">hh_list</span><span class="p">[</span><span class="n">hh</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fcint</span> <span class="o">=</span> <span class="mi">24</span>
+        <span class="k">return</span> <span class="n">fcint</span>
+
+    <span class="k">def</span> <span class="nf">get_hh_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">hh_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;GENERAL#HH_LIST&quot;</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="n">mbr</span><span class="p">)</span>
+        <span class="n">ll_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;GENERAL#LL_LIST&quot;</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="n">mbr</span><span class="p">)</span>
+        <span class="c1"># print(hh_list, ll_list)</span>
+        <span class="n">hh_list</span><span class="p">,</span> <span class="n">ll_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_hh_and_ll_list</span><span class="p">(</span><span class="n">hh_list</span><span class="p">,</span> <span class="n">ll_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hh_list</span>
+
+    <span class="k">def</span> <span class="nf">get_ll_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">hh_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;GENERAL#HH_LIST&quot;</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="n">mbr</span><span class="p">)</span>
+        <span class="n">ll_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;GENERAL#LL_LIST&quot;</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="n">mbr</span><span class="p">)</span>
+        <span class="n">hh_list</span><span class="p">,</span> <span class="n">ll_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_hh_and_ll_list</span><span class="p">(</span><span class="n">hh_list</span><span class="p">,</span> <span class="n">ll_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ll_list</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">expand_list</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sep1</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">sep2</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">sep3</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tstep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep1</span><span class="p">)</span>
+        <span class="n">expanded_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">expanded_list</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)):</span>
+            <span class="n">element</span> <span class="o">=</span> <span class="n">elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># print(element)</span>
+            <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">sep2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">sep3</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">sep2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">p1</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep2</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">p1</span> <span class="o">=</span> <span class="n">element</span>
+
+                <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep3</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">ll</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">step</span><span class="p">)):</span>
+                    <span class="n">add</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="n">maxval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">ll</span> <span class="o">&gt;</span> <span class="n">maxval</span><span class="p">:</span>
+                            <span class="n">add</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="k">if</span> <span class="n">add</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">tstep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">ll</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span> <span class="o">%</span> <span class="n">tstep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">ll</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ll</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">/</span> <span class="n">tstep</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span>
+                                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Time step is not a minute!&quot;</span><span class="p">)</span>
+                        <span class="n">this_ll</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span>
+                        <span class="n">expanded_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_ll</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># print(fmt, element)</span>
+                <span class="c1"># print(fmt.decode(&#39;ascii&#39;))</span>
+                <span class="n">add</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">ll</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">maxval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ll</span> <span class="o">&gt;</span> <span class="n">maxval</span><span class="p">:</span>
+                        <span class="n">add</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">add</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">tstep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">ll</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span> <span class="o">%</span> <span class="n">tstep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">ll</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ll</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">/</span> <span class="n">tstep</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Time step is not a minute! &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ll</span><span class="p">))</span>
+                    <span class="n">ll</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span>
+                    <span class="n">expanded_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span>
+
+        <span class="c1"># Add last value if wanted and not existing</span>
+        <span class="k">if</span> <span class="n">maxval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">add_last</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tstep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">maxval</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span> <span class="o">%</span> <span class="n">tstep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">maxval</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxval</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">/</span> <span class="n">tstep</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Time step is not a minute!&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">maxval</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expanded_list</span><span class="p">:</span>
+                <span class="n">ll</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">maxval</span><span class="p">)</span>
+                <span class="n">expanded_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">expanded_list</span>
+
+    <span class="k">def</span> <span class="nf">expand_hh_and_ll_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hh_list</span><span class="p">,</span> <span class="n">ll_list</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">):</span>
+        <span class="c1"># hhs = split_hh_and_ll(hh_list)</span>
+        <span class="c1"># lls = split_hh_and_ll(ll_list)</span>
+        <span class="n">hhs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_list</span><span class="p">(</span><span class="n">hh_list</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:02d}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">lls_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_list</span><span class="p">(</span><span class="n">ll_list</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># print(hhs)</span>
+        <span class="c1"># print(lls_in)</span>
+
+        <span class="n">lls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hhs</span><span class="p">)):</span>
+            <span class="n">lls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lls_in</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">lls_in</span><span class="p">):</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hhs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lls</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+
+        <span class="n">expanded_hh_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">expanded_ll_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hhs</span><span class="p">)):</span>
+            <span class="n">ll</span> <span class="o">=</span> <span class="n">lls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># print(i, hhs[i])</span>
+            <span class="k">if</span> <span class="n">hhs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">p1</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="n">hhs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+                <span class="n">h1</span><span class="p">,</span> <span class="n">h2</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">h1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">h2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">step</span><span class="p">)):</span>
+                    <span class="n">hh</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:02d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+                    <span class="n">expanded_hh_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hh</span><span class="p">)</span>
+                    <span class="n">expanded_ll_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hh</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:02d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">hhs</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                <span class="n">expanded_hh_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hh</span><span class="p">)</span>
+                <span class="n">expanded_ll_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ll</span><span class="p">)</span>
+
+        <span class="c1"># print(expanded_hh_list, expanded_ll_list)</span>
+        <span class="k">return</span> <span class="n">expanded_hh_list</span><span class="p">,</span> <span class="n">expanded_ll_list</span></div>
 
 <span class="k">class</span> <span class="nc">Dummy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
