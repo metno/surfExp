@@ -11,17 +11,7 @@ This repository is a setup to create and run offline SURFEX experiments.
 See online documentation in https://metno.github.io/pysurfex-experiment/
 The setup is dependent of pysurfex (https://metno.github.io/pysurfex) and pysurfex-scheduler (https://metno.github.io/pysurfex)
 
-You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system.
-
-.. code-block:: bash
-
- sys
- os
- argparse
- datetime
- shutil
- json
- toml
+You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt
 
 
 General dependencies (from pypi)
@@ -129,13 +119,21 @@ If you run ecflow with SSL support, remember to add before starting:
 
  export ECF_SSL=1
   
-This must also be added to your job tasks for example in the Env file. Finally you can start your experiment
+This must also be added to your job tasks for example in the Env file for communication with your server fom the batch job. Finally you can start your experiment
 
 .. code-block:: bash
 
  ./bin/PySurfexExp start -dtg 2022020100 -dtgend 2022020103
 
+All batch jobs start from local json files with configuration of server, system and you configuration found on the scratch directory on the whost you run on. It means if you do local configuration changes you will need to either start/continue the run with "PySurfexExp start/prod" or you can execute PySurfexExpConfig and then sync files from HOME on HOST0 to scratch on the used hosts by executing the InitRun task in the scheduler. InitRun alone will not update your configurations, only sync files.
+
 Examples
 -----------------------
 
 See https://metno.github.io/pysurfex-experiment/#examples
+
+
+Trainings
+-----------------------
+
+`Budapest May 2022 <https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/>`

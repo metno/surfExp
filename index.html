@@ -45,16 +45,7 @@
 <h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this headline">¶</a></h1>
 <p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a>
 The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and pysurfex-scheduler (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>)</p>
-<p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sys
-os
-argparse
-datetime
-shutil
-json
-toml
-</pre></div>
-</div>
+<p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></p>
 <section id="general-dependencies-from-pypi">
 <h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pysurfex
@@ -164,14 +155,19 @@ mkdir -p my_exp
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
-<p>This must also be added to your job tasks for example in the Env file. Finally you can start your experiment</p>
+<p>This must also be added to your job tasks for example in the Env file for communication with your server fom the batch job. Finally you can start your experiment</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfexExp start -dtg <span class="m">2022020100</span> -dtgend <span class="m">2022020103</span>
 </pre></div>
 </div>
+<p>All batch jobs start from local json files with configuration of server, system and you configuration found on the scratch directory on the whost you run on. It means if you do local configuration changes you will need to either start/continue the run with “PySurfexExp start/prod” or you can execute PySurfexExpConfig and then sync files from HOME on HOST0 to scratch on the used hosts by executing the InitRun task in the scheduler. InitRun alone will not update your configurations, only sync files.</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p>See <a class="reference external" href="https://metno.github.io/pysurfex-experiment/#examples">https://metno.github.io/pysurfex-experiment/#examples</a></p>
+</section>
+<section id="trainings">
+<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this headline">¶</a></h2>
+<p><cite>Budapest May 2022 &lt;https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/&gt;</cite></p>
 </section>
 </section>
 <section id="eamples-of-running-experiments">
@@ -1340,6 +1336,7 @@ mkdir DRAMMEN_SNOW_ASS
 <li><a class="reference internal" href="#code-unit-testing-and-coverage">Code unit testing and coverage</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#trainings">Trainings</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#eamples-of-running-experiments">Eamples of running experiments</a><ul>
