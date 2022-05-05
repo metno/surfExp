@@ -56,6 +56,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">soda</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">namelist</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="nb">print</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">print_namelist</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="s2">&quot;print_namelist&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">print_namelist</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;print_namelist&quot;</span><span class="p">]</span>
@@ -70,8 +71,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">force</span>
         <span class="n">pert</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="s2">&quot;pert&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">pert</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;pert&quot;</span><span class="p">]</span>
+            <span class="n">pert</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;pert&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pert</span> <span class="o">=</span> <span class="n">pert</span>
+        <span class="n">ivar</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;ivar&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">ivar</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;ivar&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ivar</span> <span class="o">=</span> <span class="n">ivar</span>
 
         <span class="n">xyz</span> <span class="o">=</span> <span class="s2">&quot;.exe&quot;</span>
         <span class="n">libdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfx_exp_vars</span><span class="p">[</span><span class="s2">&quot;SFX_EXP_LIB&quot;</span><span class="p">]</span>
@@ -86,7 +91,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
     <span class="k">def</span> <span class="nf">execute_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">pgd_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prep_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                       <span class="n">pert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">archive_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">forc_zs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">archive_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">forc_zs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">masterodb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">perturbed_file_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fcint</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">prep_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prep_filetype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">prep_pgdfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prep_pgdfiletype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -154,7 +159,14 @@
             <span class="n">surffile</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">perturbed</span><span class="p">:</span>
-            <span class="n">surfex</span><span class="o">.</span><span class="n">PerturbedOffline</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">prepfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pert</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pert</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ivar</span><span class="p">)</span>
+                <span class="n">surfex</span><span class="o">.</span><span class="n">PerturbedOffline</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">prepfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ivar</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span>
+                                        <span class="n">pgdfile</span><span class="o">=</span><span class="n">pgdfile</span><span class="p">,</span> <span class="n">surfout</span><span class="o">=</span><span class="n">surffile</span><span class="p">,</span>
+                                        <span class="n">archive_data</span><span class="o">=</span><span class="n">archive_data</span><span class="p">,</span>
+                                        <span class="n">print_namelist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_namelist</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">surfex</span><span class="o">.</span><span class="n">SURFEXBinary</span><span class="p">(</span><span class="n">binary</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">prepfile</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span>
                                     <span class="n">pgdfile</span><span class="o">=</span><span class="n">pgdfile</span><span class="p">,</span> <span class="n">surfout</span><span class="o">=</span><span class="n">surffile</span><span class="p">,</span>
                                     <span class="n">archive_data</span><span class="o">=</span><span class="n">archive_data</span><span class="p">,</span>
                                     <span class="n">print_namelist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">print_namelist</span><span class="p">)</span>
@@ -301,7 +313,11 @@
                                             <span class="n">forc_zs</span><span class="o">=</span><span class="n">forc_zs</span><span class="p">,</span>
                                             <span class="n">prep_file_path</span><span class="o">=</span><span class="n">prep_file_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output already exists: &quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Output already exists: &quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span></div>
+
+    <span class="c1"># Make sure we don&#39;t clean yet</span>
+    <span class="k">def</span> <span class="nf">postfix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Soda"><a class="viewcode-back" href="../../index.html#experiment_tasks.Soda">[docs]</a><span class="k">class</span> <span class="nc">Soda</span><span class="p">(</span><span class="n">SurfexBinaryTask</span><span class="p">):</span>

@@ -501,104 +501,173 @@
 <div class="viewcode-block" id="QualityControl.execute"><a class="viewcode-back" href="../../index.html#experiment_tasks.QualityControl.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="n">an_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtg</span>
-        <span class="c1"># archive_root = self.get_setting(&quot;archive_root&quot;)</span>
-        <span class="n">settings_var</span> <span class="o">=</span> <span class="p">{</span>
-          <span class="s2">&quot;t2m&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span>
-              <span class="s2">&quot;netatmo&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;netatmo&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="p">{</span>
-                  <span class="s2">&quot;nometa&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;blacklist&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;redundancy&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">340</span><span class="p">,</span>
-                    <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">200</span>
-                  <span class="p">}</span>
-                <span class="p">}</span>
-              <span class="p">}</span>
-            <span class="p">}</span>
-          <span class="p">},</span>
-          <span class="s2">&quot;rh2m&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span>
-              <span class="s2">&quot;netatmo&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;Humidity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;netatmo&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="p">{</span>
-                  <span class="s2">&quot;nometa&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;blacklist&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;redundancy&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                    <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">100</span>
-                  <span class="p">}</span>
-                <span class="p">}</span>
-              <span class="p">}</span>
-            <span class="p">}</span>
-          <span class="p">},</span>
-          <span class="s2">&quot;sd&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="p">{</span>
-              <span class="s2">&quot;bufr&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;bufr&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;totalSnowDepth&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="p">{</span>
-                  <span class="s2">&quot;nometa&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;blacklist&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;redundancy&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
-                  <span class="p">},</span>
-                  <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                    <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">10000</span>
-                  <span class="p">}</span>
-                <span class="p">}</span>
-              <span class="p">}</span>
-            <span class="p">}</span>
-          <span class="p">}</span>
-        <span class="p">}</span>
 
-        <span class="n">settings</span> <span class="o">=</span> <span class="n">settings_var</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">]</span>
         <span class="n">sfx_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">)</span>
-        <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;domain_file&quot;</span><span class="p">:</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/domain.json&quot;</span><span class="p">}})</span>
+
         <span class="n">fg_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_file</span><span class="p">(</span><span class="s2">&quot;archive_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;raw.nc&quot;</span><span class="p">,</span> <span class="n">basedtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtg</span><span class="p">,</span>
                                                       <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_archive_dir&quot;</span><span class="p">)</span>
-        <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+
+        <span class="c1"># Default</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;domain_file&quot;</span><span class="p">:</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/domain.json&quot;</span>
+            <span class="p">},</span>
             <span class="s2">&quot;firstguess&quot;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s2">&quot;fg_file&quot;</span><span class="p">:</span> <span class="n">fg_file</span><span class="p">,</span>
                 <span class="s2">&quot;fg_var&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">]</span>
             <span class="p">}</span>
-        <span class="p">})</span>
+        <span class="p">}</span>
+        <span class="n">default_tests</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;nometa&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;blacklist&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;redundancy&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">obsdir</span><span class="p">)</span>
+        <span class="c1"># T2M</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_name</span> <span class="o">==</span> <span class="s2">&quot;t2m&quot;</span><span class="p">:</span>
+            <span class="n">synop_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#SYNOP_OBS_T2M&quot;</span><span class="p">)</span>
+            <span class="n">data_sets</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">synop_obs</span><span class="p">:</span>
+                <span class="n">bufr_tests</span> <span class="o">=</span> <span class="n">default_tests</span>
+                <span class="n">bufr_tests</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">340</span><span class="p">,</span>
+                        <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">200</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+                <span class="n">filepattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obsdir</span> <span class="o">+</span> <span class="s2">&quot;/ob@YYYY@@MM@@DD@@HH@&quot;</span>
+                <span class="n">data_sets</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;bufr&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">filepattern</span><span class="p">,</span>
+                        <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;bufr&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;airTemperatureAt2M&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="n">bufr_tests</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+            <span class="n">netatmo_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#NETATMO_OBS_T2M&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">netatmo_obs</span><span class="p">:</span>
+                <span class="n">netatmo_tests</span> <span class="o">=</span> <span class="n">default_tests</span>
+                <span class="n">netatmo_tests</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;sct&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">340</span><span class="p">,</span>
+                        <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">200</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+                <span class="n">filepattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#NETATMO_FILEPATTERN&quot;</span><span class="p">,</span> <span class="n">check_parsing</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">data_sets</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;netatmo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">filepattern</span><span class="p">,</span>
+                        <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;netatmo&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="n">netatmo_tests</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+
+            <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="n">data_sets</span>
+            <span class="p">})</span>
+
+        <span class="c1"># RH2M</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_name</span> <span class="o">==</span> <span class="s2">&quot;rh2m&quot;</span><span class="p">:</span>
+            <span class="n">synop_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#SYNOP_OBS_RH2M&quot;</span><span class="p">)</span>
+            <span class="n">data_sets</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">synop_obs</span><span class="p">:</span>
+                <span class="n">bufr_tests</span> <span class="o">=</span> <span class="n">default_tests</span>
+                <span class="n">bufr_tests</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                        <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">0</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+                <span class="n">filepattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obsdir</span> <span class="o">+</span> <span class="s2">&quot;/ob@YYYY@@MM@@DD@@HH@&quot;</span>
+                <span class="n">data_sets</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;bufr&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">filepattern</span><span class="p">,</span>
+                        <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;bufr&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;relativeHumidityAt2M&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="n">bufr_tests</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+
+            <span class="n">netatmo_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#NETATMO_OBS_RH2M&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">netatmo_obs</span><span class="p">:</span>
+                <span class="n">netatmo_tests</span> <span class="o">=</span> <span class="n">default_tests</span>
+                <span class="n">netatmo_tests</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;sct&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+                        <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">0</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+                <span class="n">filepattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#NETATMO_FILEPATTERN&quot;</span><span class="p">,</span> <span class="n">check_parsing</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">data_sets</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;netatmo&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">filepattern</span><span class="p">,</span>
+                        <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;Humidity&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;netatmo&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="n">netatmo_tests</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+
+            <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="n">data_sets</span>
+            <span class="p">})</span>
+
+        <span class="c1"># Snow Depth</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_name</span> <span class="o">==</span> <span class="s2">&quot;sd&quot;</span><span class="p">:</span>
+            <span class="n">synop_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#SYNOP_OBS_SD&quot;</span><span class="p">)</span>
+            <span class="n">data_sets</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="n">synop_obs</span><span class="p">:</span>
+                <span class="n">bufr_tests</span> <span class="o">=</span> <span class="n">default_tests</span>
+                <span class="n">bufr_tests</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;plausibility&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;maxval&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+                        <span class="s2">&quot;minval&quot;</span><span class="p">:</span> <span class="mi">0</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;firstguess&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;do_test&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;negdiff&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                        <span class="s2">&quot;posdiff&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+                <span class="n">filepattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obsdir</span> <span class="o">+</span> <span class="s2">&quot;/ob@YYYY@@MM@@DD@@HH@&quot;</span>
+                <span class="n">data_sets</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;bufr&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">filepattern</span><span class="p">,</span>
+                        <span class="s2">&quot;filetype&quot;</span><span class="p">:</span> <span class="s2">&quot;bufr&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;varname&quot;</span><span class="p">:</span> <span class="s2">&quot;totalSnowDepth&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;tests&quot;</span><span class="p">:</span> <span class="n">bufr_tests</span>
+                    <span class="p">}</span>
+                <span class="p">})</span>
+
+            <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s2">&quot;sets&quot;</span><span class="p">:</span> <span class="n">data_sets</span>
+            <span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Settings&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obsdir</span> <span class="o">+</span> <span class="s2">&quot;/qc_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">tests</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#QC#&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;#TESTS&quot;</span><span class="p">)</span>
@@ -610,15 +679,9 @@
         <span class="n">indent</span> <span class="o">=</span> <span class="mi">2</span>
         <span class="n">blacklist</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">surfex</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;settings.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">tests</span> <span class="o">=</span> <span class="n">surfex</span><span class="o">.</span><span class="n">titan</span><span class="o">.</span><span class="n">define_quality_control</span><span class="p">(</span><span class="n">tests</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">an_time</span><span class="p">,</span> <span class="n">domain_geo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geo</span><span class="p">,</span>
                                                     <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span> <span class="n">blacklist</span><span class="o">=</span><span class="n">blacklist</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="s2">&quot;netatmo&quot;</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;sets&quot;</span><span class="p">]:</span>
-            <span class="n">filepattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;OBSERVATIONS#NETATMO_FILEPATTERN&quot;</span><span class="p">,</span> <span class="n">check_parsing</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;sets&quot;</span><span class="p">][</span><span class="s2">&quot;netatmo&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">filepattern</span><span class="p">})</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">filepattern</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;bufr&quot;</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;sets&quot;</span><span class="p">]:</span>
-            <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;sets&quot;</span><span class="p">][</span><span class="s2">&quot;bufr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">obsdir</span> <span class="o">+</span> <span class="s2">&quot;/ob@YYYY@@MM@@DD@@HH@&quot;</span><span class="p">})</span>
 
         <span class="n">datasources</span> <span class="o">=</span> <span class="n">surfex</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">get_datasources</span><span class="p">(</span><span class="n">an_time</span><span class="p">,</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;sets&quot;</span><span class="p">])</span>
         <span class="n">data_set</span> <span class="o">=</span> <span class="n">surfex</span><span class="o">.</span><span class="n">TitanDataSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_name</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">tests</span><span class="p">,</span> <span class="n">datasources</span><span class="p">,</span> <span class="n">an_time</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">)</span>
