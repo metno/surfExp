@@ -122,6 +122,8 @@ oi2soda
 .. code-block:: bash
    # Prepare OBSERVATIONS.dat file for Soda
    
+   oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc 2021060506 -o OBSERVATIONS_210605H06.DAT
+   
 Prepare satellite derived soil moisture observations using pySurfex
 ====================================================================
 .. code-block:: bash
@@ -175,6 +177,10 @@ gridPP
    
    gridpp -i /nobackup/obsOutput/FirstGuess4GridppSM.nc --obs /nobackup/obsOutput/qc_sentinel.json -o /nobackup/obsOutput/an_sm.nc -v surface_soil_moisture -hor 1000 -vert 200 --elevGradient -0.0065
  
+oi2Soda
+====================================================================
+.. code-block:: bash
 
-
+   oi2soda --t2m_file /nobackup/obsOutput/an_t2m.nc --sm_file /nobackup/obsOutput/an_sm.nc 2021060506 -o OBSERVATIONS_210605H06.DAT
+   
 
