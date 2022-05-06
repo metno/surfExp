@@ -36,6 +36,89 @@
             
   <section id="accord-training-budapest-may-9-13-20222">
 <h1>ACCORD training Budapest May 9-13 20222<a class="headerlink" href="#accord-training-budapest-may-9-13-20222" title="Permalink to this headline">¶</a></h1>
+<section id="pysurfex-command-line-exercises">
+<h2>pySurfex command line exercises<a class="headerlink" href="#pysurfex-command-line-exercises" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Assume pysurfex is installed and in your path</p></li>
+<li><p>Assume pysurfex installation directory is “path-to-pysurfex”</p></li>
+<li><p>Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA</p></li>
+<li><p>Assume that you have system paths defined in a file called system.json</p></li>
+<li><p>Assume a domain defined in a file called domain.json</p></li>
+</ul>
+</section>
+<section id="outline">
+<h2>Outline<a class="headerlink" href="#outline" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>create offline forcing from netCDF and grib files using pySurfex create_forcing</p></li>
+<li><p>create PREP file</p></li>
+<li><p>Run OFFLINE</p></li>
+<li><p>Prepare screen level and satellite observations for assimilation in Soda</p></li>
+</ul>
+</section>
+<section id="create-offline-forcing">
+<h2>Create offline forcing<a class="headerlink" href="#create-offline-forcing" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir hm_sfx
+<span class="nb">cd</span> hm_sfx
+mkdir forcing
+<span class="nb">cd</span> forcing
+create_forcing <span class="m">2021060500</span> <span class="m">2021060503</span> -d examples/domains/drammen.json -p forcingdir/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc --zsoro_converter none -i surfex --rain_converter none --wind_converter none --wind_dir_converter none -ig examples/domains/met_nordic.json
+</pre></div>
+</div>
+</section>
+<section id="create-prep-file">
+<h2>Create PREP file<a class="headerlink" href="#create-prep-file" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="run-offline">
+<h2>Run OFFLINE<a class="headerlink" href="#run-offline" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="prepare-screen-level-observations-t2m-rh2m-and-snow-depth">
+<h2>Prepare screen level observations (t2m, rh2m and snow depth)<a class="headerlink" href="#prepare-screen-level-observations-t2m-rh2m-and-snow-depth" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p nobackup/training_data
+mkdir -p nobackup/ObHandlingOutput
+<span class="nb">cd</span> nobackup/training_data
+untar ObHandling.tar
+<span class="c1">#ob2021060506 (bufr file)</span>
+<span class="c1">#first_guess_gridpp_grib (atmosphere FG file)</span>
+<span class="c1">#first_guess_sfx_gridpp_grib (surface FG file)</span>
+<span class="c1">#Const.Clim.sfx.grib</span>
+<span class="c1">#PGD.nc</span>
+<span class="c1">#Sentinel_2021060506.nc</span>
+<span class="c1">#first_guess.yml</span>
+<span class="c1">#config.json</span>
+<span class="c1">#config_sentinel.json</span>
+
+<span class="nb">cd</span> hm_sfx
+mkdir obHandling
+<span class="nb">cd</span> obHandling
+</pre></div>
+</div>
+</section>
+<section id="bufr2json">
+<h2>bufr2json<a class="headerlink" href="#bufr2json" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="firstguess4gridpp">
+<h2>FirstGuess4gridpp<a class="headerlink" href="#firstguess4gridpp" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create first guess netCDF file for the model equivalent variables:</span>
+
+FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
+-c /nobackup/training_data/first_guess.yml <span class="se">\</span>
+-i <span class="nv">$fg_ua</span> <span class="se">\</span>
+-if grib2 <span class="se">\</span>
+-d /nobackup/training_data/drammen.json <span class="se">\</span>
+-sd_file <span class="nv">$fg_sfx</span> <span class="se">\</span>
+-sd_format grib1 <span class="se">\</span>
+--sd_converter sdp <span class="se">\</span>
+-altitude_file <span class="nv">$fg_ua</span> <span class="se">\</span>
+-altitude_format grib2 <span class="se">\</span>
+--altitude_converter phi2m <span class="se">\</span>
+-laf_file <span class="nv">$climfile</span>  <span class="se">\</span>
+-laf_format grib1 <span class="se">\</span>
+--laf_converter sea2land <span class="se">\</span>
+air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">\</span>
+-o <span class="nv">$raw</span> <span class="o">||</span> <span class="nb">exit</span> <span class="m">1</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -45,6 +128,23 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">ACCORD training Budapest May 9-13 20222</a><ul>
+<li><a class="reference internal" href="#pysurfex-command-line-exercises">pySurfex command line exercises</a></li>
+<li><a class="reference internal" href="#outline">Outline</a></li>
+<li><a class="reference internal" href="#create-offline-forcing">Create offline forcing</a></li>
+<li><a class="reference internal" href="#create-prep-file">Create PREP file</a></li>
+<li><a class="reference internal" href="#run-offline">Run OFFLINE</a></li>
+<li><a class="reference internal" href="#prepare-screen-level-observations-t2m-rh2m-and-snow-depth">Prepare screen level observations (t2m, rh2m and snow depth)</a></li>
+<li><a class="reference internal" href="#bufr2json">bufr2json</a></li>
+<li><a class="reference internal" href="#firstguess4gridpp">FirstGuess4gridpp</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
