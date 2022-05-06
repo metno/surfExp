@@ -56,29 +56,31 @@ Prepare screen level observations (t2m, rh2m and snow depth)
    #first_guess.yml
    #config.json
    #config_sentinel.json
-   
-   cd hm_sfx
-   mkdir obHandling
-   cd obHandling
 
 bufr2json
 =============================================================
+
 .. code-block:: bash
-   # Create observation file in json format from bufr file
-   bufr2json -b /nobackup/training_data/ob2021060506 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o /nobackup/ObHandlingOutput/ob2021060506.json -dtg 2021060506 -range 1800
+
+   # Create observation file in json format from bufr file   
+   cd hm_sfx
+   mkdir obHandling
+   cd obHandling
    
+   bufr2json -b /nobackup/training_data/ob2021060506 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o /nobackup/ObHandlingOutput/ob2021060506.json -dtg 2021060506 -range 1800
+      
+FirstGuess4gridpp
+=============================================================   
+.. code-block:: bash
+
+   # Create first guess netCDF file for the model equivalent variables:
    # Set paths to input and output files
    raw=/nobackup/obsOp_output/FirstGuess4Gridpp.nc 
    climfile=/nobackup/training_data/Const.Clim.sfx.grib
    fg_ua=/nobackup/training_data/first_guess_gridpp_grib
    fg_sfx=/nobackup/training_data/first_guess_sfx_gridpp_grib
    DTG=2021060506
-   
-FirstGuess4gridpp
-=============================================================   
-.. code-block:: bash
 
-   # Create first guess netCDF file for the model equivalent variables:
    
    FirstGuess4gridpp -dtg $DTG \
    -c /nobackup/training_data/first_guess.yml \

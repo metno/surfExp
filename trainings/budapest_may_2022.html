@@ -86,19 +86,30 @@ untar ObHandling.tar
 <span class="c1">#first_guess.yml</span>
 <span class="c1">#config.json</span>
 <span class="c1">#config_sentinel.json</span>
-
-<span class="nb">cd</span> hm_sfx
-mkdir obHandling
-<span class="nb">cd</span> obHandling
 </pre></div>
 </div>
 </section>
 <section id="bufr2json">
 <h2>bufr2json<a class="headerlink" href="#bufr2json" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create observation file in json format from bufr file</span>
+<span class="nb">cd</span> hm_sfx
+mkdir obHandling
+<span class="nb">cd</span> obHandling
+
+bufr2json -b /nobackup/training_data/ob2021060506 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o /nobackup/ObHandlingOutput/ob2021060506.json -dtg <span class="m">2021060506</span> -range <span class="m">1800</span>
+</pre></div>
+</div>
 </section>
 <section id="firstguess4gridpp">
 <h2>FirstGuess4gridpp<a class="headerlink" href="#firstguess4gridpp" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create first guess netCDF file for the model equivalent variables:</span>
+<span class="c1"># Set paths to input and output files</span>
+<span class="nv">raw</span><span class="o">=</span>/nobackup/obsOp_output/FirstGuess4Gridpp.nc
+<span class="nv">climfile</span><span class="o">=</span>/nobackup/training_data/Const.Clim.sfx.grib
+<span class="nv">fg_ua</span><span class="o">=</span>/nobackup/training_data/first_guess_gridpp_grib
+<span class="nv">fg_sfx</span><span class="o">=</span>/nobackup/training_data/first_guess_sfx_gridpp_grib
+<span class="nv">DTG</span><span class="o">=</span><span class="m">2021060506</span>
+
 
 FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
 -c /nobackup/training_data/first_guess.yml <span class="se">\</span>
