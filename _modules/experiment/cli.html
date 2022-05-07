@@ -259,7 +259,14 @@
 
     <span class="c1"># Set experiment from files. Should be existing now after setup</span>
     <span class="n">exp_dependencies_file</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/paths_to_sync.json&quot;</span>
-    <span class="n">experiment</span><span class="o">.</span><span class="n">ExpFromFiles</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+    <span class="n">sfx_exp</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ExpFromFiles</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+    <span class="n">system</span> <span class="o">=</span> <span class="n">sfx_exp</span><span class="o">.</span><span class="n">system</span>
+
+    <span class="n">data0</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SFX_EXP_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+    <span class="n">logfile</span> <span class="o">=</span> <span class="n">data0</span> <span class="o">+</span> <span class="s2">&quot;/ECF.log&quot;</span>
+
+    <span class="c1"># Create exp scheduler json file</span>
+    <span class="n">sfx_exp</span><span class="o">.</span><span class="n">write_scheduler_info</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
 </pre></div>
 
             <div class="clearer"></div>
