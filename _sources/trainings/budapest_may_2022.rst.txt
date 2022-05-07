@@ -1,46 +1,117 @@
-=========================================
+#########################################
  ACCORD training Budapest May 9-13 20222
-=========================================
+#########################################
 
-pySurfex command line exercises
-=======================================================
+Excercises are prepared for the ACCORD training in Budapest. More information can be found on the internal website https://opensource.umr-cnrm.fr/projects/accord/wiki/Spring_Surface_Working_Week_2022
 
-- Assume pysurfex is installed and in your path
+The first and second parts will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.
+
+
+================================================================================
+Part 1: Run offline binaries and create a first guess
+================================================================================
+
+The first part demonstrates examples on how to make forcing and run offline SURFEX.
+The second part will focus on observation pre-processing, horizontal analysis and surface assimilation.
+
+Assumptions:
+
+- Assume pysurfex is installed and in your path (https://github.com/metno/pysurfex)
 - Assume pysurfex installation directory is "path-to-pysurfex"
 - Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA
 - Assume that you have system paths defined in a file called system.json
-- Assume a domain defined in a file called domain.json
+- Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json
 
-Outline
-=======================================================
-- create offline forcing from netCDF and grib files using pySurfex create_forcing
-- create PREP file
-- Run OFFLINE
-- Prepare screen level and satellite observations for assimilation in Soda
 
-Create offline forcing
-=======================================================
+E1.1: Create offline forcing
+------------------------------------------------------
+
 .. code-block:: bash
 
-   mkdir hm_sfx
-   cd hm_sfx
+   cd
+   mkdir -p sfx_home
+   cd sfx_home
    mkdir forcing
    cd forcing
-   create_forcing 2021060500 2021060503 -d examples/domains/drammen.json -p forcingdir/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc --zsoro_converter none -i surfex --rain_converter none --wind_converter none --wind_dir_converter none -ig examples/domains/met_nordic.json
+   create_forcing 2021060500 2021060503 \
+   -d [path-to-pysurfex]/examples/domains/drammen.json -p forcingdir/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc \
+   --zsoro_converter none
+   -i surfex \
+   --rain_converter none \
+   --wind_converter none \
+   --wind_dir_converter none \
+   -ig examples/domains/met_nordic.json
 
 
-Create PREP file
-=======================================================
+E1.2: Create PREP file
+-----------------------
+
+PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_home/EXP/PGD/.
+
+.. code-block:: bash
+
+   cd
+   mkdir -p sfx_home/EXP
+   cd sfx_home/EXP
+   mkdir PREP
+
+   # Set openMP threads
+   export OMP_NUM_THREADS=1
+
+   # Create rte.json
+   dump_environ
+
+   # run prep
+   prep -c [path-to-pysurfex]/surfex/cfg/config_exp_surfex.toml \
+   -r rte.json \
+   --domain [path-to-pysurfex]/examples/domains/drammen.json \
+   -s system.json \
+   -n [path-to-pysurfex]/test/nam/ \
+   --pgd PGD/PGD.nc -o PREP/PREP.nc \
+   --prep_file system.json/test/nam/prep_from_namelist_values.json --prep_filetype json  \
+   --dtg 2021060500 \
+   PREP
 
 
 
-Run OFFLINE
-=======================================================
+E1.3: Run OFFLINE
+-------------------
+
+PGD file can be fetched from sample data. See Part 3. Assumed to be in ~/sfx_home/EXP/PGD/.
+
+.. code-block:: bash
+
+   cd
+   mkdir -p sfx_home/EXP
+   cd sfx_home/EXP
+   mkdir OFFLINE
+
+   # Set openMP threads
+   export OMP_NUM_THREADS=1
+
+   # Create rte.json
+   dump_environ
+
+   # Run offline
+   offline -c [path-to-pysurfex]/surfex/cfg/config_exp_surfex.toml \
+  -r rte.json \
+  --domain [path-to-pysurfex]/examples/domains/drammen.json \
+  -s system.json \
+  -n [path-to-pysurfex]/test/nam/ \
+  --pgd PGD/PGD.nc \
+  --prep PREP/PREP.nc \
+  -o OFFLINE/SURFOUT.nc \
+  --forcing $PWD/forcing \
+  --forc_zs \
+  OFFLINE
 
 
+======================================================
+Part 2: Observations and surface assimilation
+======================================================
 
 Prepare screen level observations (t2m, rh2m and snow depth)
-=============================================================
+
 .. code-block:: bash
 
    mkdir -p nobackup/trainingData
@@ -58,20 +129,23 @@ Prepare screen level observations (t2m, rh2m and snow depth)
    #config_sentinel.json
    #drammen.json
 
-bufr2json
-=============================================================
+
+E2.1: Create a json observation file from a bufr file
+
+-----------------------------------------------------------
 
 .. code-block:: bash
 
    # Create observation file in json format from bufr file   
-   cd hm_sfx
+   cd sfx_home
    mkdir obHandling
    cd obHandling
    
    bufr2json -b /nobackup/trainingData/ob2021060506 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o /nobackup/ObHandlingOutput/ob2021060506.json -dtg 2021060506 -range 1800
       
-FirstGuess4gridpp
-=============================================================   
+E2.2: Create a first guess for horizontal OI
+------------------------------------------------------
+
 .. code-block:: bash
 
    # Create first guess netCDF file for the model equivalent variables:
@@ -102,8 +176,9 @@ FirstGuess4gridpp
 
    # This creates the file FirstGuess4Gridpp.nc
 
-titan and gridPP
-=============================================================   
+E2.2: Quality control and horizontal OI
+------------------------------------------------------
+
 .. code-block:: bash
 
    # Quality control and optimal interpolation of the observed values
@@ -117,15 +192,21 @@ titan and gridPP
    
    # This creates the analysis file an_t2m.nc, repeat the process for rh2m and sd
 
-oi2soda
-=============================================================   
+E2.3: Prepare ASCII file for SODA
+------------------------------------------------------
+
 .. code-block:: bash
+
    # Prepare OBSERVATIONS.dat file for Soda
    
    oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc 2021060506 -o OBSERVATIONS_210605H06.DAT
    
 Prepare satellite derived soil moisture observations using pySurfex
-====================================================================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The next exercises are similar to the previous ones but focussing on preparing remote sensing observations of brightness temperature from Sentinel and demonstrate how you could do horizontal analysis on these,
+
+
 .. code-block:: bash
       
    # FirstGuess4gridpp   
@@ -153,34 +234,270 @@ Prepare satellite derived soil moisture observations using pySurfex
       surface_soil_moisture \
       -o $raw || exit 1
 
-sentinel_obs
-====================================================================
+
+
+E2.4: Create an observation set
+------------------------------------------------------------------------------------------------------------
+
 .. code-block:: bash      
 
    # Create json file for titan and gridpp
    
    sentinel_obs --varname surface_soil_moisture -fg /nobackup/obsOutput/FirstGuess4GridppSM.nc -i /nobackup/trainingData/Sentinel_SM_20210606.nc -o sentinel_obs.json
    
-titan
-====================================================================
+E2.5: Quality control
+------------------------------------------------------------------------------------------------------------
+
 .. code-block:: bash  
    
    # Quality control of observations
    
    titan --domain /nobackup/trainingData/drammen.json -i /nobackup/obsOutput/config_sentinel.json -dtg 2021060506 -v surface_soil_moisture -o /nobackup/obsOutput/qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
 
-gridPP
-====================================================================
+E2.6: Horizontal OI
+------------------------------------------------------------------------------------------------------------
+
 .. code-block:: bash
 
    # gridPP 
    
    gridpp -i /nobackup/obsOutput/FirstGuess4GridppSM.nc --obs /nobackup/obsOutput/qc_sentinel.json -o /nobackup/obsOutput/an_sm.nc -v surface_soil_moisture -hor 1000 -vert 200 --elevGradient -0.0065
  
-oi2Soda
-====================================================================
+E2.7: Prepare ASCII file for SODA
+------------------------------------------------------------------------------------------------------------
+
 .. code-block:: bash
+
+   # Prepare OBSERVATIONS.dat file for Soda
 
    oi2soda --t2m_file /nobackup/obsOutput/an_t2m.nc --sm_file /nobackup/obsOutput/an_sm.nc 2021060506 -o OBSERVATIONS_210605H06.DAT
    
 
+======================================================
+Part 3: Running pySurfex experiment
+======================================================
+
+This part will give you guidance in how to install and setup pySurfex for your architecture of choice and some direct instructions are provided for those with access to the ECMWF dual-host system ecgate-cca.
+
+In addition to have pySurfex available you should also install https://github.com/metno/pysurfex-scheduler.
+Lastly you need  https://github.com/metno/pysurfex-experiment and you probably need to define you new host before running so I would recommend to install with "pip -e ." or clone/download the repo.
+Now you have pysurfex-experiment either as clone or installed as an editable pip package.
+
+1) Add your host
+------------------------------------------------------
+
+You are probably now doing this on a new “host”. Define a name of your host.
+
+- config/system/[host].toml - Define your system based on other examples
+
+  - Set SURFEX_CONFIG in Env_system to be the same as you have called your host
+  - SCHEDULER_PYTHONPATH should be set on each host to whatever needed to import python modules from pysurfex-scheduler and ecflow.
+- config/submit/[host].json - Look at other examples. Probably you will run a localhost setup on your laptop?
+- config/input_paths/[host].json - Look at other examples. You need to set the variables you are going to use to where you have the data on your system. Typically for PGD input data.
+- config/server/[host].json - Define your ecflow server name (host name on your laptop?) and port and/or port_offset
+- config/env/[host].py - This file will be added to your batch script for all batch jobs. Most likely you can keep this empty.
+
+2.) Get SURFEX source code
+------------------------------------------------------
+
+In the examples here we will use a slightly modified version of the AROME-Arctic preop2 code which has been running SEKF now for several years. You can get this code, some auxillary code and sample data from ecmwf (or ask).
+
+.. code-block:: bash
+
+  # AA preop code
+  /hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz
+
+  # Auxlibs (gribex still neeeded)
+  /hpc/perm/ms/no/sbu/training/auxlib.tgz
+
+  # PGD/PREP/OFFLINE/forcing/Observations
+  /hpc/perm/ms/no/sbu/training/budapest_2022.tgz
+
+
+Compilation is done with the OfflineNWP option. You need a file conf/system-[SURFEX_CONFIG] and src/Rules-[SURFEX_CONFIG] in the AA preop2 surfex code.
+
+
+3.) Set up your experiment for your [host].
+------------------------------------------------------
+
+Adapt PATH/PYTHONPATH unless not installed in system wide locations. You should be able to import ecflow, pysurfex-scheduler and pysurfex-experiment.
+You should use the offline SURFEX source code from AA preop2. Create a name of your experiment in ~/sfx_home/[EXP-NAME] and enter this directory. Setup the experiment
+
+.. code-block:: bash
+
+  cd
+  mkdir -p sfx_home
+  cd sfx_home
+  mkdir EXP
+  cd EXP
+  [pysurfex-experiment-path]/bin/PySurfexSetup \
+ -experiment [pysurfex-experiment-path] \
+ -surfex [pysurfex-path] \
+ -host [host] \
+ -offline [path-to-AA-preop2]
+
+
+4.) Run your experiment!
+------------------------------------------------------
+
+Now we should be ready to start the experiment:
+
+.. code-block:: bash
+
+   ./bin/PySurfex start -dtg 2022042803 -dtgend 2022042806
+
+
+4.1) Reconfigure your experiment
+------------------------------------------------------
+
+If you have started you experiment and you want to change the configurations without running Pysurfex start/prod. Then you can reconfigure the experiment with:
+
+.. code-block:: bash
+
+  ./bin/PySurfexConfig
+
+then you can run InitRun and continue the scheduler. This command updates the json setting files picked up by the ecflow tasks.
+
+
+Excercises
+^^^^^^^^^^^
+
+E3.1: Snow assimilation only on your local platform
+------------------------------------------------------
+
+.. code-block:: bash
+
+  cd
+  mkdir -p sfx_home
+  cd sfx_home
+  mkdir SNOWASS
+  cd SNOWASS
+  [pysurfex-experiment-path]/bin/PySurfexSetup \
+ -experiment [pysurfex-experiment-path] \
+ -surfex [pysurfex-path] \
+ -host [host] \
+ --config_file [pysurfex-experiment-path]/config/configurations/isba_dif_snow_ass.toml \
+ -offline [path-to-AA-preop2]
+
+  # Prepare observations from the sample data in your observation directory
+  # [SFX_EXP_DATA]/archive/observations/2022/04/28/06
+
+  # Start run
+  ./bin/PySurfex start -dtg 2022042803 -dtgend 2022042806
+
+E3.2: SEKF only on your local platform
+------------------------------------------------------
+
+.. code-block:: bash
+
+  cd
+  mkdir -p sfx_home
+  cd sfx_home
+  mkdir SEKF
+  cd SEKF
+  [pysurfex-experiment-path]/bin/PySurfexSetup \
+ -experiment [pysurfex-experiment-path] \
+ -surfex [pysurfex-path] \
+ -host [host] \
+ --config_file [pysurfex-experiment-path]/config/configurations/sekf.toml\
+ -offline [path-to-AA-preop2]
+
+  # Prepare observations from the sample data in your observation directory
+  # [SFX_EXP_DATA]/archive/observations/2022/04/28/06
+
+  # Start run
+  ./bin/PySurfex start -dtg 2022042803 -dtgend 2022042806
+
+
+E3.3: Snow assimilation only on ecgate/cca
+------------------------------------------------------
+
+Log in to ecgate
+
+.. code-block:: bash
+
+  module load python3/3.8.8-01
+  module load ecflow/5.8.1
+  export PATH=/hpc/perm/ms/no/sbu/training/pysurfex-experiment/bin/:/hpc/perm/ms/no/sbu/training/pysurfex/bin:$PATH
+  export PYTHONPATH=/hpc/perm/ms/no/sbu/training/pysurfex-experiment/:/hpc/perm/ms/no/sbu/training/pysurfex-scheduler:/hpc/perm/ms/no/sbu/training/pysurfex:/hpc/perm/ms/no/sbu/training/addons/3.8.8/:$PYTHONPATH
+
+  cd
+  mkdir -p sfx_home
+  cd sfx_home
+  mkdir SNOWASS
+  cd SNOWASS
+  PySurfexExpSetup -experiment /hpc/perm/ms/no/sbu/training/pysurfex-experiment \
+ -host ecgb-cca \
+ -surfex /hpc/perm/ms/no/sbu/training/pysurfex \
+ -offline /hpc/perm/ms/no/sbu/training/AA_preop2 \
+ --config_file /hpc/perm/ms/no/sbu/training/pysurfex-experiment/config/configurations/isba_dif_snow_ass.toml
+
+  # Find your user id
+  id -u
+  # Replace ECF_PORT in Env_server with this number
+
+  # Replace no with your coutry code in Env_system
+
+  # Sample data can be found on cca under /hpc/perm/ms/no/sbu/training/budapest_2022
+  # We need to prepare a couple of shot-cuts since OpenDAP does not work on CCA and I
+  # have not preared other input sources (like grib files)
+
+  # Log into cca. SFX_EXP_DATA=/scratch/ms/CC/$USER/sfx_data/SNOWASS
+  # Prepare observations from the sample data in your observation directory
+  # [SFX_EXP_DATA]/archive/observations/2022/04/28/06
+
+  # Prepare forcing data from sample data
+  # [SFX_EXP_DATA]/forcing
+
+  # Prepare first guess from sample data. This could be taken from your own first guess. Maybe you can try it out?
+  # archive/2022/04/28/06/raw*.nc
+
+  # Start run
+  ./bin/PySurfexExp start -dtg 2022042803 -dtgend 2022042806
+
+
+E3.4: SEKF only on you local platform
+------------------------------------------------------
+
+Log in to ecgate
+
+.. code-block:: bash
+
+  module load python3/3.8.8-01
+  module load ecflow/5.8.1
+  export PATH=/hpc/perm/ms/no/sbu/training/pysurfex-experiment/bin/:/hpc/perm/ms/no/sbu/training/pysurfex/bin:$PATH
+  export PYTHONPATH=/hpc/perm/ms/no/sbu/training/pysurfex-experiment/:/hpc/perm/ms/no/sbu/training/pysurfex-scheduler:/hpc/perm/ms/no/sbu/training/pysurfex:/hpc/perm/ms/no/sbu/training/addons/3.8.8/:$PYTHONPATH
+
+  cd
+  mkdir -p sfx_home
+  cd sfx_home
+  mkdir SEKF
+  cd SEKF
+  PySurfexExpSetup -experiment /hpc/perm/ms/no/sbu/training/pysurfex-experiment \
+ -host ecgb-cca \
+ -surfex /hpc/perm/ms/no/sbu/training/pysurfex \
+ -offline /hpc/perm/ms/no/sbu/training/AA_preop2 \
+ --config_file /hpc/perm/ms/no/sbu/training/pysurfex-experiment/config/configurations/sekf.toml
+
+  # Find your user id
+  id -u
+  # Replace ECF_PORT in Env_server with this number
+
+  # Replace no with your coutry code in Env_system
+
+  # Sample data can be found on cca under /hpc/perm/ms/no/sbu/training/budapest_2022
+  # We need to prepare a couple of shot-cuts since OpenDAP does not work on CCA and I
+  # have not preared other input sources (like grib files)
+
+  # Log into cca. SFX_EXP_DATA=/scratch/ms/CC/$USER/sfx_data/SEKF
+  # Prepare observations from the sample data in your observation directory
+  # [SFX_EXP_DATA]/archive/observations/2022/04/28/06
+
+  # Prepare forcing data from sample data
+  # [SFX_EXP_DATA]/forcing
+
+  # Prepare first guess from sample data. This could be taken from your own first guess. Maybe you can try it out?
+  # archive/2022/04/28/06/raw*.nc
+
+  # Start run
+  ./bin/PySurfexExp start -dtg 2022042803 -dtgend 2022042806
