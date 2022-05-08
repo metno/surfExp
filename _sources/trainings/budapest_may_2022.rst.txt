@@ -167,11 +167,13 @@ E2.2: Quality control and horizontal OI
    # Quality control and optimal interpolation of the observed values
    # NB remember to set the correct paths in the config.json file!!
    
-   titan --domain /nobackup/trainingData/drammen.json -i config.json -dtg 2021060506 -v rh2m -o /nobackup/obsOutput/qc_obs_rh2m.json domain nometa redundancy plausibility fraction firstguess
+   cp ~/nobackup/trainingData/config.json .
+   
+   titan --domain [path-to-pysurfex]/examples/domains/drammen.json -i config.json -dtg 2022042806 -v t2m -o qc_obs_t2m.json domain nometa redundancy plausibility fraction firstguess
    
    # This creates the file qc_obs_t2m.json, repeat the process for rh2m and sd
    
-   gridpp -i /nobackup/obsOp_output/FirstGuess4Gridpp.nc --obs /nobackup/obsOutput/qc_obs_t2m.json -o /nobackup/obsOutput/an_t2m.nc -v air_temperature_2m -hor 35000 -vert 200 --elevGradient -0.0065
+   gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_t2m.json -o an_t2m.nc -v air_temperature_2m -hor 35000 -vert 200 --elevGradient -0.0065
    
    # This creates the analysis file an_t2m.nc, repeat the process for rh2m and sd
 
@@ -182,12 +184,12 @@ E2.3: Prepare ASCII file for SODA
 
    # Prepare OBSERVATIONS.dat file for Soda
    
-   oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc 2021060506 -o OBSERVATIONS_210605H06.DAT
+   oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc 2022042806 -o OBSERVATIONS_220428H06.DAT
    
 Prepare satellite derived soil moisture observations using pySurfex
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The next exercises are similar to the previous ones but focussing on preparing remote sensing observations of brightness temperature from Sentinel and demonstrate how you could do horizontal analysis on these,
+The next exercises are similar to the previous ones but focusing on preparing remote sensing observations of  surface soil moisture from Sentinel and demonstrate how you could do horizontal analysis on these,
 
 
 .. code-block:: bash

@@ -175,11 +175,13 @@ air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quality control and optimal interpolation of the observed values</span>
 <span class="c1"># NB remember to set the correct paths in the config.json file!!</span>
 
-titan --domain /nobackup/trainingData/drammen.json -i config.json -dtg <span class="m">2021060506</span> -v rh2m -o /nobackup/obsOutput/qc_obs_rh2m.json domain nometa redundancy plausibility fraction firstguess
+cp ~/nobackup/trainingData/config.json .
+
+titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config.json -dtg <span class="m">2022042806</span> -v t2m -o qc_obs_t2m.json domain nometa redundancy plausibility fraction firstguess
 
 <span class="c1"># This creates the file qc_obs_t2m.json, repeat the process for rh2m and sd</span>
 
-gridpp -i /nobackup/obsOp_output/FirstGuess4Gridpp.nc --obs /nobackup/obsOutput/qc_obs_t2m.json -o /nobackup/obsOutput/an_t2m.nc -v air_temperature_2m -hor <span class="m">35000</span> -vert <span class="m">200</span> --elevGradient -0.0065
+gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_t2m.json -o an_t2m.nc -v air_temperature_2m -hor <span class="m">35000</span> -vert <span class="m">200</span> --elevGradient -0.0065
 
 <span class="c1"># This creates the analysis file an_t2m.nc, repeat the process for rh2m and sd</span>
 </pre></div>
@@ -189,12 +191,12 @@ gridpp -i /nobackup/obsOp_output/FirstGuess4Gridpp.nc --obs /nobackup/obsOutput/
 <h3>E2.3: Prepare ASCII file for SODA<a class="headerlink" href="#e2-3-prepare-ascii-file-for-soda" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare OBSERVATIONS.dat file for Soda</span>
 
-oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc <span class="m">2021060506</span> -o OBSERVATIONS_210605H06.DAT
+oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc <span class="m">2022042806</span> -o OBSERVATIONS_220428H06.DAT
 </pre></div>
 </div>
 <section id="prepare-satellite-derived-soil-moisture-observations-using-pysurfex">
 <h4>Prepare satellite derived soil moisture observations using pySurfex<a class="headerlink" href="#prepare-satellite-derived-soil-moisture-observations-using-pysurfex" title="Permalink to this headline">¶</a></h4>
-<p>The next exercises are similar to the previous ones but focussing on preparing remote sensing observations of brightness temperature from Sentinel and demonstrate how you could do horizontal analysis on these,</p>
+<p>The next exercises are similar to the previous ones but focusing on preparing remote sensing observations of  surface soil moisture from Sentinel and demonstrate how you could do horizontal analysis on these,</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># FirstGuess4gridpp</span>
 <span class="c1"># Define paths to input and output data</span>
 <span class="nv">raw</span><span class="o">=</span>/nobackup/obsOp_output/FirstGuess4GridppSM.nc
