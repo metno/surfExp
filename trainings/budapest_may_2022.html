@@ -197,19 +197,23 @@ oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc <span cla
 <section id="prepare-satellite-derived-soil-moisture-observations-using-pysurfex">
 <h4>Prepare satellite derived soil moisture observations using pySurfex<a class="headerlink" href="#prepare-satellite-derived-soil-moisture-observations-using-pysurfex" title="Permalink to this headline">¶</a></h4>
 <p>The next exercises are similar to the previous ones but focusing on preparing remote sensing observations of  surface soil moisture from Sentinel and demonstrate how you could do horizontal analysis on these,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># FirstGuess4gridpp</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> hm_sfx
+mkdir sentinel_sm
+<span class="nb">cd</span> sentinel_sm
+
+<span class="c1"># FirstGuess4gridpp</span>
 <span class="c1"># Define paths to input and output data</span>
-<span class="nv">raw</span><span class="o">=</span>/nobackup/obsOp_output/FirstGuess4GridppSM.nc
-<span class="nv">climfile</span><span class="o">=</span>/nobackup/trainingData/PGD.nc
-<span class="nv">fg_ua</span><span class="o">=</span>/nobackup/trainingData/first_guess_gridpp_grib
-<span class="nv">fg_sfx</span><span class="o">=</span>/nobackup/trainingData/first_guess_sfx_gridpp_grib
+<span class="nv">raw</span><span class="o">=</span>FirstGuess4GridppSM.nc
+<span class="nv">climfile</span><span class="o">=</span><span class="nv">climfile</span><span class="o">=</span>/climate/PGD.nc
+<span class="nv">fg_ua</span><span class="o">=</span>/nobackup/trainingData/grib_FG/first_guess_gridpp_grib
+<span class="nv">fg_sfx</span><span class="o">=</span>/nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
 <span class="nv">DTG</span><span class="o">=</span><span class="m">2021060506</span>
 
 FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
    -c /nobackup/trainingData/first_guess.yml <span class="se">\</span>
    -i <span class="nv">$fg_ua</span> <span class="se">\</span>
    -if grib2 <span class="se">\</span>
-   -d /nobackup/trainingData/drammen.json <span class="se">\</span>
+   -d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
    -sm_file <span class="nv">$fg_sfx</span> <span class="se">\</span>
    -sm_format grib1 <span class="se">\</span>
    --sm_converter smp <span class="se">\</span>
@@ -220,7 +224,7 @@ FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
    --laf_converter sea2land <span class="se">\</span>
    -laf_format surfex <span class="se">\</span>
    surface_soil_moisture <span class="se">\</span>
-   -o <span class="nv">$raw</span> <span class="o">||</span> <span class="nb">exit</span> <span class="m">1</span>
+   -o <span class="nv">$raw</span>
 </pre></div>
 </div>
 </section>
@@ -229,15 +233,16 @@ FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
 <h3>E2.4: Create an observation set<a class="headerlink" href="#e2-4-create-an-observation-set" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create json file for titan and gridpp</span>
 
-sentinel_obs --varname surface_soil_moisture -fg /nobackup/obsOutput/FirstGuess4GridppSM.nc -i /nobackup/trainingData/Sentinel_SM_20210606.nc -o sentinel_obs.json
+sentinel_obs --varname surface_soil_moisture -fg FirstGuess4GridppSM.nc -i /nobackup/trainingData/Sentinel_SM.nc -o sentinel_obs.json
 </pre></div>
 </div>
 </section>
 <section id="e2-5-quality-control">
 <h3>E2.5: Quality control<a class="headerlink" href="#e2-5-quality-control" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quality control of observations</span>
+cp /nobackup/trainingData/config_sentinel.json .
 
-titan --domain /nobackup/trainingData/drammen.json -i /nobackup/obsOutput/config_sentinel.json -dtg <span class="m">2021060506</span> -v surface_soil_moisture -o /nobackup/obsOutput/qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
+titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config_sentinel.json -dtg <span class="m">2021060506</span> -v surface_soil_moisture -o qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
 </pre></div>
 </div>
 </section>
@@ -245,7 +250,7 @@ titan --domain /nobackup/trainingData/drammen.json -i /nobackup/obsOutput/config
 <h3>E2.6: Horizontal OI<a class="headerlink" href="#e2-6-horizontal-oi" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># gridPP</span>
 
-gridpp -i /nobackup/obsOutput/FirstGuess4GridppSM.nc --obs /nobackup/obsOutput/qc_sentinel.json -o /nobackup/obsOutput/an_sm.nc -v surface_soil_moisture -hor <span class="m">1000</span> -vert <span class="m">200</span> --elevGradient -0.0065
+gridpp -i FirstGuess4GridppSM.nc --obs qc_sentinel.json -o an_sm.nc -v surface_soil_moisture -hor <span class="m">1000</span> -vert <span class="m">200</span> --elevGradient -0.0065
 </pre></div>
 </div>
 </section>
@@ -253,7 +258,7 @@ gridpp -i /nobackup/obsOutput/FirstGuess4GridppSM.nc --obs /nobackup/obsOutput/q
 <h3>E2.7: Prepare ASCII file for SODA<a class="headerlink" href="#e2-7-prepare-ascii-file-for-soda" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare OBSERVATIONS.dat file for Soda</span>
 
-oi2soda --t2m_file /nobackup/obsOutput/an_t2m.nc --sm_file /nobackup/obsOutput/an_sm.nc <span class="m">2021060506</span> -o OBSERVATIONS_210605H06.DAT
+oi2soda --sm_file an_sm.nc <span class="m">2021060506</span> -o OBSERVATIONS_210605H06.DAT
 </pre></div>
 </div>
 </section>

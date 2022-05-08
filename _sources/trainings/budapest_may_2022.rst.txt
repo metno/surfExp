@@ -194,19 +194,23 @@ The next exercises are similar to the previous ones but focusing on preparing re
 
 .. code-block:: bash
       
+   cd hm_sfx
+   mkdir sentinel_sm
+   cd sentinel_sm
+   
    # FirstGuess4gridpp   
    # Define paths to input and output data
-   raw=/nobackup/obsOp_output/FirstGuess4GridppSM.nc   
-   climfile=/nobackup/trainingData/PGD.nc
-   fg_ua=/nobackup/trainingData/first_guess_gridpp_grib
-   fg_sfx=/nobackup/trainingData/first_guess_sfx_gridpp_grib
+   raw=FirstGuess4GridppSM.nc   
+   climfile=climfile=/climate/PGD.nc
+   fg_ua=/nobackup/trainingData/grib_FG/first_guess_gridpp_grib
+   fg_sfx=/nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
    DTG=2021060506
    
    FirstGuess4gridpp -dtg $DTG \
       -c /nobackup/trainingData/first_guess.yml \
       -i $fg_ua \
       -if grib2 \
-      -d /nobackup/trainingData/drammen.json \
+      -d [path-to-pysurfex]/examples/domains/drammen.json \
       -sm_file $fg_sfx \
       -sm_format grib1 \
       --sm_converter smp \
@@ -217,7 +221,7 @@ The next exercises are similar to the previous ones but focusing on preparing re
       --laf_converter sea2land \
       -laf_format surfex \
       surface_soil_moisture \
-      -o $raw || exit 1
+      -o $raw
 
 
 
@@ -228,7 +232,7 @@ E2.4: Create an observation set
 
    # Create json file for titan and gridpp
    
-   sentinel_obs --varname surface_soil_moisture -fg /nobackup/obsOutput/FirstGuess4GridppSM.nc -i /nobackup/trainingData/Sentinel_SM_20210606.nc -o sentinel_obs.json
+   sentinel_obs --varname surface_soil_moisture -fg FirstGuess4GridppSM.nc -i /nobackup/trainingData/Sentinel_SM.nc -o sentinel_obs.json
    
 E2.5: Quality control
 ------------------------------------------------------------------------------------------------------------
@@ -236,8 +240,9 @@ E2.5: Quality control
 .. code-block:: bash  
    
    # Quality control of observations
+   cp /nobackup/trainingData/config_sentinel.json .
    
-   titan --domain /nobackup/trainingData/drammen.json -i /nobackup/obsOutput/config_sentinel.json -dtg 2021060506 -v surface_soil_moisture -o /nobackup/obsOutput/qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
+   titan --domain [path-to-pysurfex]/examples/domains/drammen.json -i config_sentinel.json -dtg 2021060506 -v surface_soil_moisture -o qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
 
 E2.6: Horizontal OI
 ------------------------------------------------------------------------------------------------------------
@@ -246,7 +251,7 @@ E2.6: Horizontal OI
 
    # gridPP 
    
-   gridpp -i /nobackup/obsOutput/FirstGuess4GridppSM.nc --obs /nobackup/obsOutput/qc_sentinel.json -o /nobackup/obsOutput/an_sm.nc -v surface_soil_moisture -hor 1000 -vert 200 --elevGradient -0.0065
+   gridpp -i FirstGuess4GridppSM.nc --obs qc_sentinel.json -o an_sm.nc -v surface_soil_moisture -hor 1000 -vert 200 --elevGradient -0.0065
  
 E2.7: Prepare ASCII file for SODA
 ------------------------------------------------------------------------------------------------------------
@@ -255,7 +260,7 @@ E2.7: Prepare ASCII file for SODA
 
    # Prepare OBSERVATIONS.dat file for Soda
 
-   oi2soda --t2m_file /nobackup/obsOutput/an_t2m.nc --sm_file /nobackup/obsOutput/an_sm.nc 2021060506 -o OBSERVATIONS_210605H06.DAT
+   oi2soda --sm_file an_sm.nc 2021060506 -o OBSERVATIONS_210605H06.DAT
    
 
 ======================================================
