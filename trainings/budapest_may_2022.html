@@ -142,18 +142,18 @@ mkdir -p obsHandling
 <h3>E2.2: Create a first guess for horizontal OI<a class="headerlink" href="#e2-2-create-a-first-guess-for-horizontal-oi" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create first guess netCDF file for the model equivalent variables:</span>
 <span class="c1"># Set paths to input and output files</span>
-<span class="nv">raw</span><span class="o">=</span>/nobackup/obsOutput/FirstGuess4Gridpp.nc
-<span class="nv">climfile</span><span class="o">=</span>/nobackup/trainingData/Const.Clim.sfx.grib
-<span class="nv">fg_ua</span><span class="o">=</span>/nobackup/trainingData/first_guess_gridpp_grib
-<span class="nv">fg_sfx</span><span class="o">=</span>/nobackup/trainingData/first_guess_sfx_gridpp_grib
-<span class="nv">DTG</span><span class="o">=</span><span class="m">2021060506</span>
+<span class="nv">raw</span><span class="o">=</span>FirstGuess4Gridpp.nc
+<span class="nv">climfile</span><span class="o">=</span>/climate/PGD.nc
+<span class="nv">fg_ua</span><span class="o">=</span>/nobackup/trainingData/grib_FG/first_guess_gridpp_grib
+<span class="nv">fg_sfx</span><span class="o">=</span>/nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
+<span class="nv">DTG</span><span class="o">=</span><span class="m">2022042806</span>
 
 
 FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
 -c /nobackup/trainingData/first_guess.yml <span class="se">\</span>
 -i <span class="nv">$fg_ua</span> <span class="se">\</span>
 -if grib2 <span class="se">\</span>
--d /nobackup/trainingData/drammen.json <span class="se">\</span>
+-d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
 -sd_file <span class="nv">$fg_sfx</span> <span class="se">\</span>
 -sd_format grib1 <span class="se">\</span>
 --sd_converter sdp <span class="se">\</span>
@@ -161,10 +161,10 @@ FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
 -altitude_format grib2 <span class="se">\</span>
 --altitude_converter phi2m <span class="se">\</span>
 -laf_file <span class="nv">$climfile</span>  <span class="se">\</span>
--laf_format grib1 <span class="se">\</span>
+-laf_format surfex <span class="se">\</span>
 --laf_converter sea2land <span class="se">\</span>
 air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">\</span>
--o <span class="nv">$raw</span> <span class="o">||</span> <span class="nb">exit</span> <span class="m">1</span>
+-o <span class="nv">$raw</span>
 
 <span class="c1"># This creates the file FirstGuess4Gridpp.nc</span>
 </pre></div>

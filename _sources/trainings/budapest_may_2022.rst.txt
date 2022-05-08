@@ -133,18 +133,18 @@ E2.2: Create a first guess for horizontal OI
 
    # Create first guess netCDF file for the model equivalent variables:
    # Set paths to input and output files
-   raw=/nobackup/obsOutput/FirstGuess4Gridpp.nc 
-   climfile=/nobackup/trainingData/Const.Clim.sfx.grib
-   fg_ua=/nobackup/trainingData/first_guess_gridpp_grib
-   fg_sfx=/nobackup/trainingData/first_guess_sfx_gridpp_grib
-   DTG=2021060506
-
+   raw=FirstGuess4Gridpp.nc 
+   climfile=/climate/PGD.nc
+   fg_ua=/nobackup/trainingData/grib_FG/first_guess_gridpp_grib
+   fg_sfx=/nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
+   DTG=2022042806
+   
    
    FirstGuess4gridpp -dtg $DTG \
    -c /nobackup/trainingData/first_guess.yml \
    -i $fg_ua \
    -if grib2 \
-   -d /nobackup/trainingData/drammen.json \
+   -d [path-to-pysurfex]/examples/domains/drammen.json \
    -sd_file $fg_sfx \
    -sd_format grib1 \
    --sd_converter sdp \
@@ -152,10 +152,10 @@ E2.2: Create a first guess for horizontal OI
    -altitude_format grib2 \
    --altitude_converter phi2m \
    -laf_file $climfile  \
-   -laf_format grib1 \
+   -laf_format surfex \
    --laf_converter sea2land \
    air_temperature_2m relative_humidity_2m surface_snow_thickness \
-   -o $raw || exit 1
+   -o $raw
 
    # This creates the file FirstGuess4Gridpp.nc
 
