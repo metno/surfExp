@@ -33,14 +33,14 @@ E1.1: Create offline forcing
    cd sfx_home
    mkdir forcing
    cd forcing
-   create_forcing 2021060500 2021060503 \
-   -d [path-to-pysurfex]/examples/domains/drammen.json -p forcingdir/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc \
+   create_forcing 2022042803 2022042806 \
+   -d [path-to-pysurfex]/examples/domains/drammen.json -p nobackup/trainingData/netcdf_forcing/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc \
    --zsoro_converter none
    -i surfex \
    --rain_converter none \
    --wind_converter none \
    --wind_dir_converter none \
-   -ig examples/domains/met_nordic.json
+   -ig [path-to-pysurfex]/examples/domains/met_nordic.json
 
 
 E1.2: Create PREP file
@@ -114,34 +114,17 @@ Prepare screen level observations (t2m, rh2m and snow depth)
 
 .. code-block:: bash
 
-   mkdir -p nobackup/trainingData
-   mkdir -p nobackup/obsOutput
-   cd nobackup/trainingData
-   untar ObHandling.tar
-   #ob2021060506 (bufr file)
-   #first_guess_gridpp_grib (atmosphere FG file)
-   #first_guess_sfx_gridpp_grib (surface FG file)
-   #Const.Clim.sfx.grib
-   #PGD.nc
-   #Sentinel_2021060506.nc
-   #first_guess.yml
-   #config.json
-   #config_sentinel.json
-   #drammen.json
-
+   cd sfx_home
+   mkdir -p obsHandling
+   cd obsHandling
 
 E2.1: Create a json observation file from a bufr file
 
 -----------------------------------------------------------
 
 .. code-block:: bash
-
-   # Create observation file in json format from bufr file   
-   cd sfx_home
-   mkdir obHandling
-   cd obHandling
    
-   bufr2json -b /nobackup/trainingData/ob2021060506 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o /nobackup/ObHandlingOutput/ob2021060506.json -dtg 2021060506 -range 1800
+   bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg 2022042806 -range 1800
       
 E2.2: Create a first guess for horizontal OI
 ------------------------------------------------------

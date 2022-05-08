@@ -57,14 +57,14 @@ mkdir -p sfx_home
 <span class="nb">cd</span> sfx_home
 mkdir forcing
 <span class="nb">cd</span> forcing
-create_forcing <span class="m">2021060500</span> <span class="m">2021060503</span> <span class="se">\</span>
--d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -p forcingdir/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
+create_forcing <span class="m">2022042803</span> <span class="m">2022042806</span> <span class="se">\</span>
+-d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -p nobackup/trainingData/netcdf_forcing/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
 --zsoro_converter none
 -i surfex <span class="se">\</span>
 --rain_converter none <span class="se">\</span>
 --wind_converter none <span class="se">\</span>
 --wind_dir_converter none <span class="se">\</span>
--ig examples/domains/met_nordic.json
+-ig <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/met_nordic.json
 </pre></div>
 </div>
 </section>
@@ -128,30 +128,14 @@ OFFLINE
 <section id="part-2-observations-and-surface-assimilation">
 <h2>Part 2: Observations and surface assimilation<a class="headerlink" href="#part-2-observations-and-surface-assimilation" title="Permalink to this headline">¶</a></h2>
 <p>Prepare screen level observations (t2m, rh2m and snow depth)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p nobackup/trainingData
-mkdir -p nobackup/obsOutput
-<span class="nb">cd</span> nobackup/trainingData
-untar ObHandling.tar
-<span class="c1">#ob2021060506 (bufr file)</span>
-<span class="c1">#first_guess_gridpp_grib (atmosphere FG file)</span>
-<span class="c1">#first_guess_sfx_gridpp_grib (surface FG file)</span>
-<span class="c1">#Const.Clim.sfx.grib</span>
-<span class="c1">#PGD.nc</span>
-<span class="c1">#Sentinel_2021060506.nc</span>
-<span class="c1">#first_guess.yml</span>
-<span class="c1">#config.json</span>
-<span class="c1">#config_sentinel.json</span>
-<span class="c1">#drammen.json</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> sfx_home
+mkdir -p obsHandling
+<span class="nb">cd</span> obsHandling
 </pre></div>
 </div>
 <p>E2.1: Create a json observation file from a bufr file</p>
 <hr class="docutils" />
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create observation file in json format from bufr file</span>
-<span class="nb">cd</span> sfx_home
-mkdir obHandling
-<span class="nb">cd</span> obHandling
-
-bufr2json -b /nobackup/trainingData/ob2021060506 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o /nobackup/ObHandlingOutput/ob2021060506.json -dtg <span class="m">2021060506</span> -range <span class="m">1800</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg <span class="m">2022042806</span> -range <span class="m">1800</span>
 </pre></div>
 </div>
 <section id="e2-2-create-a-first-guess-for-horizontal-oi">
