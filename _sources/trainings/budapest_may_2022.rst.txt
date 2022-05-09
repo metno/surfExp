@@ -7,9 +7,10 @@ Excercises are prepared for the ACCORD training in Budapest. More information ca
 Sample data can be downloaded from ECMWF ecgate:
  - /hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data.tgz
  - /hpc/perm/ms/no/sbu/training/budapest_2022.tgz
+ 
 Source code:
-- /hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz
-- /hpc/perm/ms/no/sbu/training/auxlib.tgz
+ - /hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz
+ - /hpc/perm/ms/no/sbu/training/auxlib.tgz
 
 The first and second parts will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.
 
@@ -39,14 +40,16 @@ E1.1: Create offline forcing
 .. code-block:: bash
 
    # Create offline surfex forcing using the MET-Nordic analysis from thredds. 
-   # You can also use forcing files from here: /hpc/perm/ms/no/sbu/training
+   # You can also use forcing files from here: /hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data.tgz
+   # -p nobackup/trainingData/netcdf_forcing/FORCING_20220428T07Z.nc
+   
    cd
    mkdir -p sfx_home
    cd sfx_home
    mkdir forcing
    cd forcing
    create_forcing 2022042803 2022042806 \
-   -d [path-to-pysurfex]/examples/domains/drammen.json -p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@//FORCING_@YYYY@@MM@@DD@T@HH@Z.nc \
+   -d [path-to-pysurfex]/examples/domains/drammen.json -p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc \
    --zsoro_converter none
    -i surfex \
    --rain_converter none \
