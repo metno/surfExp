@@ -51,7 +51,7 @@ E1.1: Create offline forcing
    cd forcing
    create_forcing 2022042803 2022042806 \
    -d [path-to-pysurfex]/examples/domains/drammen.json -p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc \
-   --zsoro_converter none
+   --zsoro_converter none \
    -i surfex \
    --rain_converter none \
    --wind_converter none \
