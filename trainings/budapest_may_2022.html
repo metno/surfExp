@@ -69,7 +69,7 @@ mkdir -p sfx_home
 mkdir forcing
 <span class="nb">cd</span> forcing
 create_forcing <span class="m">2022042803</span> <span class="m">2022042806</span> <span class="se">\</span>
--d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -p nobackup/trainingData/netcdf_forcing/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
+-d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@//FORCING_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
 --zsoro_converter none
 -i surfex <span class="se">\</span>
 --rain_converter none <span class="se">\</span>
