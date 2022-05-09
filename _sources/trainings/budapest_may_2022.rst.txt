@@ -209,8 +209,8 @@ The next exercises are similar to the previous ones but focusing on preparing re
    # Define paths to input and output data
    raw=FirstGuess4GridppSM.nc   
    climfile=climfile=/climate/PGD.nc
-   fg_ua=/nobackup/trainingData/grib_FG/first_guess_gridpp_grib
-   fg_sfx=/nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
+   fg_ua=nobackup/trainingData/grib_FG/first_guess_gridpp_grib
+   fg_sfx=nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
    DTG=2021060506
    
    FirstGuess4gridpp -dtg $DTG \
@@ -247,7 +247,7 @@ E2.5: Quality control
 .. code-block:: bash  
    
    # Quality control of observations
-   cp /nobackup/trainingData/config_sentinel.json .
+   cp nobackup/trainingData/config_sentinel.json .
    
    titan --domain [path-to-pysurfex]/examples/domains/drammen.json -i config_sentinel.json -dtg 2021060506 -v surface_soil_moisture -o qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
 

@@ -215,8 +215,8 @@ mkdir sentinel_sm
 <span class="c1"># Define paths to input and output data</span>
 <span class="nv">raw</span><span class="o">=</span>FirstGuess4GridppSM.nc
 <span class="nv">climfile</span><span class="o">=</span><span class="nv">climfile</span><span class="o">=</span>/climate/PGD.nc
-<span class="nv">fg_ua</span><span class="o">=</span>/nobackup/trainingData/grib_FG/first_guess_gridpp_grib
-<span class="nv">fg_sfx</span><span class="o">=</span>/nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
+<span class="nv">fg_ua</span><span class="o">=</span>nobackup/trainingData/grib_FG/first_guess_gridpp_grib
+<span class="nv">fg_sfx</span><span class="o">=</span>nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
 <span class="nv">DTG</span><span class="o">=</span><span class="m">2021060506</span>
 
 FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
@@ -250,7 +250,7 @@ sentinel_obs --varname surface_soil_moisture -fg FirstGuess4GridppSM.nc -i /noba
 <section id="e2-5-quality-control">
 <h3>E2.5: Quality control<a class="headerlink" href="#e2-5-quality-control" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quality control of observations</span>
-cp /nobackup/trainingData/config_sentinel.json .
+cp nobackup/trainingData/config_sentinel.json .
 
 titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config_sentinel.json -dtg <span class="m">2021060506</span> -v surface_soil_moisture -o qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
 </pre></div>
