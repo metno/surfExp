@@ -72,8 +72,8 @@ PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_ho
    -s system.json \
    -n [path-to-pysurfex]/test/nam/ \
    --pgd PGD/PGD.nc -o PREP/PREP.nc \
-   --prep_file test/nam/prep_from_namelist_values.json --prep_filetype json  \
-   --dtg 2021060500 \
+   --prep_file system.json/test/nam/prep_from_namelist_values.json --prep_filetype json  \
+   --dtg 2022042803 \
    PREP
 
 
