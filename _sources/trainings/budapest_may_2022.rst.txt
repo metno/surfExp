@@ -26,7 +26,7 @@ Assumptions:
 - Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA
 - Assume that you have system paths defined in a file called system.json
   - LAKE_LTA_NEW.nc (flake_dir) needed for PREP
-- nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data
+- nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data. It is assumed to be relative to where you run.
 - Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json
 
 
@@ -174,7 +174,7 @@ E2.2: Quality control and horizontal OI
    # Quality control and optimal interpolation of the observed values
    # NB remember to set the correct paths in the config.json file!!
    
-   cp ~/nobackup/trainingData/config.json .
+   cp nobackup/trainingData/config.json .
    
    titan --domain [path-to-pysurfex]/examples/domains/drammen.json -i config.json -dtg 2022042806 -v t2m -o qc_obs_t2m.json domain nometa redundancy plausibility fraction firstguess
    

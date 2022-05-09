@@ -57,7 +57,7 @@ The second part will focus on observation pre-processing, horizontal analysis an
 <li><p>Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA</p></li>
 <li><p>Assume that you have system paths defined in a file called system.json
 - LAKE_LTA_NEW.nc (flake_dir) needed for PREP</p></li>
-<li><p>nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data</p></li>
+<li><p>nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data. It is assumed to be relative to where you run.</p></li>
 <li><p>Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json</p></li>
 </ul>
 <section id="e1-1-create-offline-forcing">
@@ -185,7 +185,7 @@ air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quality control and optimal interpolation of the observed values</span>
 <span class="c1"># NB remember to set the correct paths in the config.json file!!</span>
 
-cp ~/nobackup/trainingData/config.json .
+cp nobackup/trainingData/config.json .
 
 titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config.json -dtg <span class="m">2022042806</span> -v t2m -o qc_obs_t2m.json domain nometa redundancy plausibility fraction firstguess
 
