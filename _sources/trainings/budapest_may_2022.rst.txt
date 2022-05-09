@@ -29,6 +29,7 @@ Assumptions:
 - Assume pysurfex-experiment installation/clone directory is "path-to-pysurfex-experiment"
 - Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA
 - Assume that you have system paths defined in a file called system.json
+
   - LAKE_LTA_NEW.nc (flake_dir) needed for PREP
 - nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data. It is assumed to be relative to where you run.
 - Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json
