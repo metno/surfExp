@@ -50,14 +50,14 @@ E1.1: Create offline forcing
 E1.2: Create PREP file
 -----------------------
 
-PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_home/EXP/PGD/.
+PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_home/[NAME-OF-EXP]/PGD_DIR/.
 
 .. code-block:: bash
 
    cd
    mkdir -p sfx_home/EXP
    cd sfx_home/EXP
-   mkdir PREP
+   mkdir PREP_DIR
 
    # Set openMP threads
    export OMP_NUM_THREADS=1
@@ -71,7 +71,7 @@ PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_ho
    --domain [path-to-pysurfex]/examples/domains/drammen.json \
    -s system.json \
    -n [path-to-pysurfex]/test/nam/ \
-   --pgd PGD/PGD.nc -o PREP/PREP.nc \
+   --pgd PGD_DIR/PGD.nc -o PREP_DIR/PREP.nc \
    --prep_file [path-to-pysurfex]/test/nam/prep_from_namelist_values.json --prep_filetype json  \
    --dtg 2022042803 \
    PREP
@@ -102,8 +102,8 @@ PGD file can be fetched from sample data. See Part 3. Assumed to be in ~/sfx_hom
   --domain [path-to-pysurfex]/examples/domains/drammen.json \
   -s system.json \
   -n [path-to-pysurfex]/test/nam/ \
-  --pgd PGD/PGD.nc \
-  --prep PREP/PREP.nc \
+  --pgd PGD_DIR/PGD.nc \
+  --prep PREP_DIR/PREP.nc \
   -o OFFLINE/SURFOUT.nc \
   --forcing $PWD/forcing \
   --forc_zs \

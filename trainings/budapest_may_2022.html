@@ -77,11 +77,11 @@ create_forcing <span class="m">2022042803</span> <span class="m">2022042806</spa
 </section>
 <section id="e1-2-create-prep-file">
 <h3>E1.2: Create PREP file<a class="headerlink" href="#e1-2-create-prep-file" title="Permalink to this headline">¶</a></h3>
-<p>PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_home/EXP/PGD/.</p>
+<p>PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_home/[NAME-OF-EXP]/PGD_DIR/.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
 mkdir -p sfx_home/EXP
 <span class="nb">cd</span> sfx_home/EXP
-mkdir PREP
+mkdir PREP_DIR
 
 <span class="c1"># Set openMP threads</span>
 <span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span>
@@ -95,7 +95,7 @@ prep -c <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/surfex/
 --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
 -s system.json <span class="se">\</span>
 -n <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/ <span class="se">\</span>
---pgd PGD/PGD.nc -o PREP/PREP.nc <span class="se">\</span>
+--pgd PGD_DIR/PGD.nc -o PREP_DIR/PREP.nc <span class="se">\</span>
 --prep_file <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/prep_from_namelist_values.json --prep_filetype json  <span class="se">\</span>
 --dtg <span class="m">2022042803</span> <span class="se">\</span>
 PREP
@@ -122,8 +122,8 @@ PREP
 --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
 -s system.json <span class="se">\</span>
 -n <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/ <span class="se">\</span>
---pgd PGD/PGD.nc <span class="se">\</span>
---prep PREP/PREP.nc <span class="se">\</span>
+--pgd PGD_DIR/PGD.nc <span class="se">\</span>
+--prep PREP_DIR/PREP.nc <span class="se">\</span>
 -o OFFLINE/SURFOUT.nc <span class="se">\</span>
 --forcing <span class="nv">$PWD</span>/forcing <span class="se">\</span>
 --forc_zs <span class="se">\</span>
