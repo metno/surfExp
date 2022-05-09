@@ -120,7 +120,7 @@ PREP
  dump_environ
 
  <span class="c1"># Run offline</span>
- offline -c //hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data/nobackup/trainingData/ <span class="se">\</span>
+ offline -c nobackup/trainingData/config_example.toml <span class="se">\</span>
 -r rte.json <span class="se">\</span>
 --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
 -s system.json <span class="se">\</span>
@@ -220,7 +220,7 @@ mkdir sentinel_sm
 <span class="nv">DTG</span><span class="o">=</span><span class="m">2021060506</span>
 
 FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
-   -c /nobackup/trainingData/first_guess.yml <span class="se">\</span>
+   -c nobackup/trainingData/first_guess.yml <span class="se">\</span>
    -i <span class="nv">$fg_ua</span> <span class="se">\</span>
    -if grib2 <span class="se">\</span>
    -d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>

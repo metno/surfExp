@@ -100,7 +100,7 @@ PGD file can be fetched from sample data. See Part 3. Assumed to be in ~/sfx_hom
    dump_environ
 
    # Run offline
-   offline -c //hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data/nobackup/trainingData/ \
+   offline -c nobackup/trainingData/config_example.toml \
   -r rte.json \
   --domain [path-to-pysurfex]/examples/domains/drammen.json \
   -s system.json \
@@ -214,7 +214,7 @@ The next exercises are similar to the previous ones but focusing on preparing re
    DTG=2021060506
    
    FirstGuess4gridpp -dtg $DTG \
-      -c /nobackup/trainingData/first_guess.yml \
+      -c nobackup/trainingData/first_guess.yml \
       -i $fg_ua \
       -if grib2 \
       -d [path-to-pysurfex]/examples/domains/drammen.json \
