@@ -111,7 +111,7 @@ PREP
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> <span class="nb">cd</span>
  mkdir -p sfx_home/EXP
  <span class="nb">cd</span> sfx_home/EXP
- mkdir OFFLINE
+ mkdir OFFLINE_DIR
 
  <span class="c1"># Set openMP threads</span>
  <span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span>
@@ -127,7 +127,7 @@ PREP
 -n <span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/nam/ <span class="se">\</span>
 --pgd PGD_DIR/PGD.nc <span class="se">\</span>
 --prep PREP_DIR/PREP.nc <span class="se">\</span>
--o OFFLINE/SURFOUT.nc <span class="se">\</span>
+-o OFFLINE_DIR/SURFOUT.nc <span class="se">\</span>
 --forcing <span class="nv">$PWD</span>/forcing <span class="se">\</span>
 --forc_zs <span class="se">\</span>
 OFFLINE

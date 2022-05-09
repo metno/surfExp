@@ -91,7 +91,7 @@ PGD file can be fetched from sample data. See Part 3. Assumed to be in ~/sfx_hom
    cd
    mkdir -p sfx_home/EXP
    cd sfx_home/EXP
-   mkdir OFFLINE
+   mkdir OFFLINE_DIR
 
    # Set openMP threads
    export OMP_NUM_THREADS=1
@@ -107,7 +107,7 @@ PGD file can be fetched from sample data. See Part 3. Assumed to be in ~/sfx_hom
   -n [path-to-pysurfex-experiment]/nam/ \
   --pgd PGD_DIR/PGD.nc \
   --prep PREP_DIR/PREP.nc \
-  -o OFFLINE/SURFOUT.nc \
+  -o OFFLINE_DIR/SURFOUT.nc \
   --forcing $PWD/forcing \
   --forc_zs \
   OFFLINE
