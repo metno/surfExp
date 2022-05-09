@@ -51,10 +51,13 @@
 The second part will focus on observation pre-processing, horizontal analysis and surface assimilation.</p>
 <p>Assumptions:</p>
 <ul class="simple">
-<li><p>Assume pysurfex is installed and in your path (<a class="reference external" href="https://github.com/metno/pysurfex">https://github.com/metno/pysurfex</a>)</p></li>
-<li><p>Assume pysurfex installation directory is “path-to-pysurfex”</p></li>
+<li><p>Assume pysurfex is installed/cloned and in your path (<a class="reference external" href="https://github.com/metno/pysurfex">https://github.com/metno/pysurfex</a>)</p></li>
+<li><p>Assume pysurfex installation/clone directory is “path-to-pysurfex”</p></li>
+<li><p>Assume pysurfex-experiment installation/clone directory is “path-to-pysurfex-experiment”</p></li>
 <li><p>Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA</p></li>
-<li><p>Assume that you have system paths defined in a file called system.json</p></li>
+<li><p>Assume that you have system paths defined in a file called system.json
+- LAKE_LTA_NEW.nc (flake_dir) needed for PREP</p></li>
+<li><p>nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data</p></li>
 <li><p>Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json</p></li>
 </ul>
 <section id="e1-1-create-offline-forcing">
@@ -90,11 +93,11 @@ mkdir PREP_DIR
 dump_environ
 
 <span class="c1"># run prep</span>
-prep -c <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/surfex/cfg/config_exp_surfex.toml <span class="se">\</span>
+prep -c nobackup/trainingData/config_exp.toml <span class="se">\</span>
 -r rte.json <span class="se">\</span>
 --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
 -s system.json <span class="se">\</span>
--n <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/ <span class="se">\</span>
+-n <span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/test/nam/ <span class="se">\</span>
 --pgd PGD_DIR/PGD.nc -o PREP_DIR/PREP.nc <span class="se">\</span>
 --prep_file <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/prep_from_namelist_values.json --prep_filetype json  <span class="se">\</span>
 --dtg <span class="m">2022042803</span> <span class="se">\</span>
@@ -117,11 +120,11 @@ PREP
  dump_environ
 
  <span class="c1"># Run offline</span>
- offline -c <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/surfex/cfg/config_exp_surfex.toml <span class="se">\</span>
+ offline -c //hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data/nobackup/trainingData/ <span class="se">\</span>
 -r rte.json <span class="se">\</span>
 --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
 -s system.json <span class="se">\</span>
--n <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/ <span class="se">\</span>
+-n <span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/nam/ <span class="se">\</span>
 --pgd PGD_DIR/PGD.nc <span class="se">\</span>
 --prep PREP_DIR/PREP.nc <span class="se">\</span>
 -o OFFLINE/SURFOUT.nc <span class="se">\</span>
@@ -150,14 +153,14 @@ mkdir -p obsHandling
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create first guess netCDF file for the model equivalent variables:</span>
 <span class="c1"># Set paths to input and output files</span>
 <span class="nv">raw</span><span class="o">=</span>FirstGuess4Gridpp.nc
-<span class="nv">climfile</span><span class="o">=</span>/climate/PGD.nc
-<span class="nv">fg_ua</span><span class="o">=</span>/nobackup/trainingData/grib_FG/first_guess_gridpp_grib
-<span class="nv">fg_sfx</span><span class="o">=</span>/nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
+<span class="nv">climfile</span><span class="o">=</span>climate/PGD.nc
+<span class="nv">fg_ua</span><span class="o">=</span>nobackup/trainingData/grib_FG/first_guess_gridpp_grib
+<span class="nv">fg_sfx</span><span class="o">=</span>nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
 <span class="nv">DTG</span><span class="o">=</span><span class="m">2022042806</span>
 
 
 FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
--c /nobackup/trainingData/first_guess.yml <span class="se">\</span>
+-c nobackup/trainingData/first_guess.yml <span class="se">\</span>
 -i <span class="nv">$fg_ua</span> <span class="se">\</span>
 -if grib2 <span class="se">\</span>
 -d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>

@@ -20,10 +20,13 @@ The second part will focus on observation pre-processing, horizontal analysis an
 
 Assumptions:
 
-- Assume pysurfex is installed and in your path (https://github.com/metno/pysurfex)
-- Assume pysurfex installation directory is "path-to-pysurfex"
+- Assume pysurfex is installed/cloned and in your path (https://github.com/metno/pysurfex)
+- Assume pysurfex installation/clone directory is "path-to-pysurfex"
+- Assume pysurfex-experiment installation/clone directory is "path-to-pysurfex-experiment"
 - Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA
 - Assume that you have system paths defined in a file called system.json
+  - LAKE_LTA_NEW.nc (flake_dir) needed for PREP
+- nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data
 - Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json
 
 
@@ -66,11 +69,11 @@ PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_ho
    dump_environ
 
    # run prep
-   prep -c [path-to-pysurfex]/surfex/cfg/config_exp_surfex.toml \
+   prep -c nobackup/trainingData/config_exp.toml \
    -r rte.json \
    --domain [path-to-pysurfex]/examples/domains/drammen.json \
    -s system.json \
-   -n [path-to-pysurfex]/test/nam/ \
+   -n [path-to-pysurfex-experiment]/test/nam/ \
    --pgd PGD_DIR/PGD.nc -o PREP_DIR/PREP.nc \
    --prep_file [path-to-pysurfex]/test/nam/prep_from_namelist_values.json --prep_filetype json  \
    --dtg 2022042803 \
@@ -97,11 +100,11 @@ PGD file can be fetched from sample data. See Part 3. Assumed to be in ~/sfx_hom
    dump_environ
 
    # Run offline
-   offline -c [path-to-pysurfex]/surfex/cfg/config_exp_surfex.toml \
+   offline -c //hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data/nobackup/trainingData/ \
   -r rte.json \
   --domain [path-to-pysurfex]/examples/domains/drammen.json \
   -s system.json \
-  -n [path-to-pysurfex]/test/nam/ \
+  -n [path-to-pysurfex-experiment]/nam/ \
   --pgd PGD_DIR/PGD.nc \
   --prep PREP_DIR/PREP.nc \
   -o OFFLINE/SURFOUT.nc \
@@ -138,14 +141,14 @@ E2.2: Create a first guess for horizontal OI
    # Create first guess netCDF file for the model equivalent variables:
    # Set paths to input and output files
    raw=FirstGuess4Gridpp.nc 
-   climfile=/climate/PGD.nc
-   fg_ua=/nobackup/trainingData/grib_FG/first_guess_gridpp_grib
-   fg_sfx=/nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
+   climfile=climate/PGD.nc
+   fg_ua=nobackup/trainingData/grib_FG/first_guess_gridpp_grib
+   fg_sfx=nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
    DTG=2022042806
    
    
    FirstGuess4gridpp -dtg $DTG \
-   -c /nobackup/trainingData/first_guess.yml \
+   -c nobackup/trainingData/first_guess.yml \
    -i $fg_ua \
    -if grib2 \
    -d [path-to-pysurfex]/examples/domains/drammen.json \
