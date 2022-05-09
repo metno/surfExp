@@ -4,6 +4,10 @@
 
 Excercises are prepared for the ACCORD training in Budapest. More information can be found on the internal website https://opensource.umr-cnrm.fr/projects/accord/wiki/Spring_Surface_Working_Week_2022
 
+Sample data can be downloaded from ECMWF
+ - /hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data.tgz
+ - /hpc/perm/ms/no/sbu/training/budapest_2022.tgz
+
 The first and second parts will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.
 
 
