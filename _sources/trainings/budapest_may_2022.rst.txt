@@ -38,6 +38,8 @@ E1.1: Create offline forcing
 
 .. code-block:: bash
 
+   # Create offline surfex forcing using the MET-Nordic analysis from thredds. 
+   # You can also use forcing files from here: /hpc/perm/ms/no/sbu/training
    cd
    mkdir -p sfx_home
    cd sfx_home
