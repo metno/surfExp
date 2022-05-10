@@ -183,10 +183,18 @@ E2.1: Create a json observation file from a bufr file
    
    bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg 2022042806 -range 1800
       
-E2.2: Create a first guess for horizontal OI
+E2.2: Create a first guess for horizontal OI from grib files
 ------------------------------------------------------
 
+Climate file (PGD) is assumed to be in climate (found in sample data). Grib files also found in sample data.  
+
 .. code-block:: bash
+
+   cd
+   mkdir -p sfx_home
+   cd sfx_home
+   mkdir fg
+   cd fg
 
    # Create first guess netCDF file for the model equivalent variables:
    # Set paths to input and output files
