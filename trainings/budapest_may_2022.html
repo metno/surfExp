@@ -54,6 +54,11 @@
 <a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a>
 <a class="reference external" href="https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt">https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt</a></p>
 <p>You will need python3 and I reccomend to install either with “pip3 install [package] –user” or python3 -m pip install [package] –user. This does not require special permissions and will install in ~/.local. You can of course also install it system-wide but not everyone can do this.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># extra-dependencies is the path to ~/.local or wherever you put your extra needed dependencies installed above</span>
+<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=[</span>path-to-pysurfex-clone<span class="o">]</span>:<span class="o">[</span>path-to-pysurfex-experimet-clone<span class="o">]</span>:<span class="o">[</span>path-to-pysurfex-experiment-clone<span class="o">]</span>:<span class="o">[</span>extra-dependencies<span class="o">]</span>:<span class="nv">$PYTHONPATH</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=[</span>path-to-pysurfex-clone<span class="o">]</span>/bin:<span class="o">[</span>path-to-pysurfex-experiment-clone<span class="o">]</span>/bin:<span class="nv">$PATH</span>
+</pre></div>
+</div>
 <p>This can for example be combined into a environment module if you for example do this on a hpc with a software module system. By running module use [path-to-module-files] you can always run user defined modules.</p>
 <p>The first and second parts in the exercises will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.</p>
 <section id="part-1-run-offline-binaries-and-create-a-first-guess">
@@ -74,10 +79,10 @@ The second part will focus on observation pre-processing, horizontal analysis an
 <li><p>nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data. It is assumed to be relative to where you run.</p></li>
 <li><p>Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json</p></li>
 </ul>
-<section id="e1-1-create-offline-forcing">
-<h3>E1.1: Create offline forcing<a class="headerlink" href="#e1-1-create-offline-forcing" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create offline surfex forcing using the MET-Nordic analysis from thredds.</span>
-<span class="c1"># You can also use forcing files from here: /hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data.tgz</span>
+<section id="e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds">
+<h3>E1.1: Create offline forcing using the MET-Nordic analysis from thredds<a class="headerlink" href="#e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds" title="Permalink to this headline">¶</a></h3>
+<p>This exercise is reading 1 km re-analysed forcing from surfex forcing files located on thredds at MET-Norway. Many points and might be slow with a poor connection, but is the best avaliable forcing we can provide and you can get it from everywhere.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># You can also use forcing files from here: /hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data.tgz</span>
 <span class="c1"># -p nobackup/trainingData/netcdf_forcing/FORCING_20220428T07Z.nc</span>
 
 <span class="nb">cd</span>
@@ -93,6 +98,27 @@ create_forcing <span class="m">2022042803</span> <span class="m">2022042806</spa
 --wind_converter none <span class="se">\</span>
 --wind_dir_converter none <span class="se">\</span>
 -ig <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/met_nordic.json
+</pre></div>
+</div>
+<p>E.1.1 Same exersice with MEPS deterministic from thredds</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+mkdir -p sfx_home
+<span class="nb">cd</span> sfx_home
+mkdir forcing_meps
+<span class="nb">cd</span> forcing_meps
+
+create_forcing <span class="m">2022042803</span> <span class="m">2022042806</span> <span class="se">\</span>
+-d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
+-p <span class="s2">&quot;https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.n \</span>
+<span class="s2">--zsoro_converter phi2m \</span>
+<span class="s2">-i netcdf \</span>
+<span class="s2">--rain_converter totalprec \</span>
+<span class="s2">--wind_converter windspeed \</span>
+<span class="s2">--wind_dir_converter winddir \</span>
+<span class="s2">--uval constant \</span>
+<span class="s2">--zval constant \</span>
+<span class="s2">--sca_sw constant \</span>
+<span class="s2">--co2 constant</span>
 </pre></div>
 </div>
 </section>
@@ -510,7 +536,7 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
     <ul>
 <li><a class="reference internal" href="#">ACCORD training Budapest May 9-13 20222</a><ul>
 <li><a class="reference internal" href="#part-1-run-offline-binaries-and-create-a-first-guess">Part 1: Run offline binaries and create a first guess</a><ul>
-<li><a class="reference internal" href="#e1-1-create-offline-forcing">E1.1: Create offline forcing</a></li>
+<li><a class="reference internal" href="#e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds">E1.1: Create offline forcing using the MET-Nordic analysis from thredds</a></li>
 <li><a class="reference internal" href="#e1-2-create-prep-file">E1.2: Create PREP file</a></li>
 <li><a class="reference internal" href="#e1-3-run-offline">E1.3: Run OFFLINE</a></li>
 </ul>
