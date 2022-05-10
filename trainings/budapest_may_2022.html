@@ -188,11 +188,12 @@ mkdir -p obsHandling
 <span class="nb">cd</span> obsHandling
 </pre></div>
 </div>
-<p>E2.1: Create a json observation file from a bufr file</p>
-<hr class="docutils" />
+<section id="e2-1-create-a-json-observation-file-from-a-bufr-file">
+<h3>E2.1: Create a json observation file from a bufr file<a class="headerlink" href="#e2-1-create-a-json-observation-file-from-a-bufr-file" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg <span class="m">2022042806</span> -range <span class="m">1800</span>
 </pre></div>
 </div>
+</section>
 <section id="e2-2-create-a-first-guess-for-horizontal-oi-from-grib-files">
 <h3>E2.2: Create a first guess for horizontal OI from grib files<a class="headerlink" href="#e2-2-create-a-first-guess-for-horizontal-oi-from-grib-files" title="Permalink to this headline">¶</a></h3>
 <p>Climate file (PGD) is assumed to be in climate (found in sample data). Grib files also found in sample data.</p>
@@ -232,8 +233,8 @@ air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">
 </pre></div>
 </div>
 </section>
-<section id="e2-2-quality-control-and-horizontal-oi">
-<h3>E2.2: Quality control and horizontal OI<a class="headerlink" href="#e2-2-quality-control-and-horizontal-oi" title="Permalink to this headline">¶</a></h3>
+<section id="e2-3-quality-control-and-horizontal-oi">
+<h3>E2.3: Quality control and horizontal OI<a class="headerlink" href="#e2-3-quality-control-and-horizontal-oi" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quality control and optimal interpolation of the observed values</span>
 <span class="c1"># NB remember to set the correct paths in the config.json file!!</span>
 
@@ -249,8 +250,8 @@ gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_t2m.json -o an_t2m.nc -v air_tempera
 </pre></div>
 </div>
 </section>
-<section id="e2-3-prepare-ascii-file-for-soda">
-<h3>E2.3: Prepare ASCII file for SODA<a class="headerlink" href="#e2-3-prepare-ascii-file-for-soda" title="Permalink to this headline">¶</a></h3>
+<section id="e2-4-prepare-ascii-file-for-soda">
+<h3>E2.4: Prepare ASCII file for SODA<a class="headerlink" href="#e2-4-prepare-ascii-file-for-soda" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare OBSERVATIONS.dat file for Soda</span>
 
 oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc <span class="m">2022042806</span> -o OBSERVATIONS_220428H06.DAT
@@ -258,7 +259,11 @@ oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc <span cla
 </div>
 <section id="prepare-satellite-derived-soil-moisture-observations-using-pysurfex">
 <h4>Prepare satellite derived soil moisture observations using pySurfex<a class="headerlink" href="#prepare-satellite-derived-soil-moisture-observations-using-pysurfex" title="Permalink to this headline">¶</a></h4>
-<p>The next exercises are similar to the previous ones but focusing on preparing remote sensing observations of  surface soil moisture from Sentinel and demonstrate how you could do horizontal analysis on these,</p>
+<p>The next exercises are similar to the previous ones but focusing on preparing remote sensing observations of surface soil moisture from Sentinel and demonstrate how you could do horizontal analysis on these,</p>
+</section>
+</section>
+<section id="e2-5-soil-moisture-first-guess">
+<h3>E2.5: Soil moisture first guess<a class="headerlink" href="#e2-5-soil-moisture-first-guess" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> hm_sfx
 mkdir sentinel_sm
 <span class="nb">cd</span> sentinel_sm
@@ -290,17 +295,16 @@ FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
 </pre></div>
 </div>
 </section>
-</section>
-<section id="e2-4-create-an-observation-set">
-<h3>E2.4: Create an observation set<a class="headerlink" href="#e2-4-create-an-observation-set" title="Permalink to this headline">¶</a></h3>
+<section id="e2-6-create-an-observation-set">
+<h3>E2.6: Create an observation set<a class="headerlink" href="#e2-6-create-an-observation-set" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create json file for titan and gridpp</span>
 
 sentinel_obs --varname surface_soil_moisture -fg FirstGuess4GridppSM.nc -i /nobackup/trainingData/Sentinel_SM.nc -o sentinel_obs.json
 </pre></div>
 </div>
 </section>
-<section id="e2-5-quality-control">
-<h3>E2.5: Quality control<a class="headerlink" href="#e2-5-quality-control" title="Permalink to this headline">¶</a></h3>
+<section id="e2-7-quality-control">
+<h3>E2.7: Quality control<a class="headerlink" href="#e2-7-quality-control" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quality control of observations</span>
 cp nobackup/trainingData/config_sentinel.json .
 
@@ -308,16 +312,16 @@ titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/
 </pre></div>
 </div>
 </section>
-<section id="e2-6-horizontal-oi">
-<h3>E2.6: Horizontal OI<a class="headerlink" href="#e2-6-horizontal-oi" title="Permalink to this headline">¶</a></h3>
+<section id="e2-8-horizontal-oi">
+<h3>E2.8: Horizontal OI<a class="headerlink" href="#e2-8-horizontal-oi" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># gridPP</span>
 
 gridpp -i FirstGuess4GridppSM.nc --obs qc_sentinel.json -o an_sm.nc -v surface_soil_moisture -hor <span class="m">1000</span> -vert <span class="m">200</span> --elevGradient -0.0065
 </pre></div>
 </div>
 </section>
-<section id="e2-7-prepare-ascii-file-for-soda">
-<h3>E2.7: Prepare ASCII file for SODA<a class="headerlink" href="#e2-7-prepare-ascii-file-for-soda" title="Permalink to this headline">¶</a></h3>
+<section id="e2-9-prepare-ascii-file-for-soda">
+<h3>E2.9: Prepare ASCII file for SODA<a class="headerlink" href="#e2-9-prepare-ascii-file-for-soda" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare OBSERVATIONS.dat file for Soda</span>
 
 oi2soda --sm_file an_sm.nc <span class="m">2021060506</span> -o OBSERVATIONS_210605H06.DAT
@@ -550,16 +554,18 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
 </ul>
 </li>
 <li><a class="reference internal" href="#part-2-observations-and-surface-assimilation">Part 2: Observations and surface assimilation</a><ul>
+<li><a class="reference internal" href="#e2-1-create-a-json-observation-file-from-a-bufr-file">E2.1: Create a json observation file from a bufr file</a></li>
 <li><a class="reference internal" href="#e2-2-create-a-first-guess-for-horizontal-oi-from-grib-files">E2.2: Create a first guess for horizontal OI from grib files</a></li>
-<li><a class="reference internal" href="#e2-2-quality-control-and-horizontal-oi">E2.2: Quality control and horizontal OI</a></li>
-<li><a class="reference internal" href="#e2-3-prepare-ascii-file-for-soda">E2.3: Prepare ASCII file for SODA</a><ul>
+<li><a class="reference internal" href="#e2-3-quality-control-and-horizontal-oi">E2.3: Quality control and horizontal OI</a></li>
+<li><a class="reference internal" href="#e2-4-prepare-ascii-file-for-soda">E2.4: Prepare ASCII file for SODA</a><ul>
 <li><a class="reference internal" href="#prepare-satellite-derived-soil-moisture-observations-using-pysurfex">Prepare satellite derived soil moisture observations using pySurfex</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#e2-4-create-an-observation-set">E2.4: Create an observation set</a></li>
-<li><a class="reference internal" href="#e2-5-quality-control">E2.5: Quality control</a></li>
-<li><a class="reference internal" href="#e2-6-horizontal-oi">E2.6: Horizontal OI</a></li>
-<li><a class="reference internal" href="#e2-7-prepare-ascii-file-for-soda">E2.7: Prepare ASCII file for SODA</a></li>
+<li><a class="reference internal" href="#e2-5-soil-moisture-first-guess">E2.5: Soil moisture first guess</a></li>
+<li><a class="reference internal" href="#e2-6-create-an-observation-set">E2.6: Create an observation set</a></li>
+<li><a class="reference internal" href="#e2-7-quality-control">E2.7: Quality control</a></li>
+<li><a class="reference internal" href="#e2-8-horizontal-oi">E2.8: Horizontal OI</a></li>
+<li><a class="reference internal" href="#e2-9-prepare-ascii-file-for-soda">E2.9: Prepare ASCII file for SODA</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#part-3-running-pysurfex-experiment">Part 3: Running pySurfex experiment</a><ul>

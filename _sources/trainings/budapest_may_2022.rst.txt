@@ -176,7 +176,6 @@ Prepare screen level observations (t2m, rh2m and snow depth)
    cd obsHandling
 
 E2.1: Create a json observation file from a bufr file
-
 -----------------------------------------------------------
 
 .. code-block:: bash
@@ -224,7 +223,7 @@ Climate file (PGD) is assumed to be in climate (found in sample data). Grib file
 
    # This creates the file FirstGuess4Gridpp.nc
 
-E2.2: Quality control and horizontal OI
+E2.3: Quality control and horizontal OI
 ------------------------------------------------------
 
 .. code-block:: bash
@@ -242,7 +241,7 @@ E2.2: Quality control and horizontal OI
    
    # This creates the analysis file an_t2m.nc, repeat the process for rh2m and sd
 
-E2.3: Prepare ASCII file for SODA
+E2.4: Prepare ASCII file for SODA
 ------------------------------------------------------
 
 .. code-block:: bash
@@ -254,8 +253,10 @@ E2.3: Prepare ASCII file for SODA
 Prepare satellite derived soil moisture observations using pySurfex
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The next exercises are similar to the previous ones but focusing on preparing remote sensing observations of  surface soil moisture from Sentinel and demonstrate how you could do horizontal analysis on these,
+The next exercises are similar to the previous ones but focusing on preparing remote sensing observations of surface soil moisture from Sentinel and demonstrate how you could do horizontal analysis on these,
 
+E2.5: Soil moisture first guess
+------------------------------------------------------
 
 .. code-block:: bash
       
@@ -290,7 +291,7 @@ The next exercises are similar to the previous ones but focusing on preparing re
 
 
 
-E2.4: Create an observation set
+E2.6: Create an observation set
 ------------------------------------------------------------------------------------------------------------
 
 .. code-block:: bash      
@@ -299,7 +300,7 @@ E2.4: Create an observation set
    
    sentinel_obs --varname surface_soil_moisture -fg FirstGuess4GridppSM.nc -i /nobackup/trainingData/Sentinel_SM.nc -o sentinel_obs.json
    
-E2.5: Quality control
+E2.7: Quality control
 ------------------------------------------------------------------------------------------------------------
 
 .. code-block:: bash  
@@ -309,7 +310,7 @@ E2.5: Quality control
    
    titan --domain [path-to-pysurfex]/examples/domains/drammen.json -i config_sentinel.json -dtg 2021060506 -v surface_soil_moisture -o qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
 
-E2.6: Horizontal OI
+E2.8: Horizontal OI
 ------------------------------------------------------------------------------------------------------------
 
 .. code-block:: bash
@@ -318,7 +319,7 @@ E2.6: Horizontal OI
    
    gridpp -i FirstGuess4GridppSM.nc --obs qc_sentinel.json -o an_sm.nc -v surface_soil_moisture -hor 1000 -vert 200 --elevGradient -0.0065
  
-E2.7: Prepare ASCII file for SODA
+E2.9: Prepare ASCII file for SODA
 ------------------------------------------------------------------------------------------------------------
 
 .. code-block:: bash
