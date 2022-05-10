@@ -76,6 +76,7 @@ This exercise is reading 1 km re-analysed forcing from surfex forcing files loca
    -ig [path-to-pysurfex]/examples/domains/met_nordic.json
    
 E.1.1.1 Same exersice with MEPS deterministic from thredds
+--------------------------------------------------------------
 
 .. code-block:: bash
 
@@ -169,17 +170,14 @@ Part 2: Observations and surface assimilation
 
 Prepare screen level observations (t2m, rh2m and snow depth)
 
-.. code-block:: bash
-
-   cd sfx_home
-   mkdir -p obsHandling
-   cd obsHandling
-
 E2.1: Create a json observation file from a bufr file
 -----------------------------------------------------------
 
 .. code-block:: bash
    
+   cd sfx_home
+   mkdir -p obsHandling
+   cd obsHandling
    bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg 2022042806 -range 1800
       
 E2.2: Create a first guess for horizontal OI from grib files
@@ -228,8 +226,14 @@ E2.3: Quality control and horizontal OI
 
 .. code-block:: bash
 
+   cd
+   mkdir -p sfx_home
+   cd sfx_home
+   mkdir -p analysis
+   cd analysis
+
    # Quality control and optimal interpolation of the observed values
-   # NB remember to set the correct paths in the config.json file!!
+   # Check config.json file below. It expects the file ob2022042806.json from E2.1 
    
    cp nobackup/trainingData/config.json .
    
@@ -240,6 +244,12 @@ E2.3: Quality control and horizontal OI
    gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_t2m.json -o an_t2m.nc -v air_temperature_2m -hor 35000 -vert 200 --elevGradient -0.0065
    
    # This creates the analysis file an_t2m.nc, repeat the process for rh2m and sd
+   # rh2m
+   titan --domain [path-to-pysurfex]/examples/domains/drammen.json -i config.json -dtg 2022042806 -v rh2m -o qc_obs_rh2m.json domain nometa redundancy plausibility fraction firstguess
+   gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_rh2m.json -o an_rh2m.nc -v relative_humidity_2m -hor 35000 -vert 200
+   # SD
+   titan --domain [path-to-pysurfex]/examples/domains/drammen.json -i config.json -dtg 2022042806 -v sd -o qc_obs_sd.json domain nometa redundancy plausibility fraction firstguess
+   gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_sd.json -o an_sd.nc -v surface_snow_thickness -hor 35000 -vert 200
 
 E2.4: Prepare ASCII file for SODA
 ------------------------------------------------------

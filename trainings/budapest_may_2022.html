@@ -101,7 +101,9 @@ create_forcing <span class="m">2022042803</span> <span class="m">2022042806</spa
 -ig <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/met_nordic.json
 </pre></div>
 </div>
-<p>E.1.1.1 Same exersice with MEPS deterministic from thredds</p>
+</section>
+<section id="e-1-1-1-same-exersice-with-meps-deterministic-from-thredds">
+<h3>E.1.1.1 Same exersice with MEPS deterministic from thredds<a class="headerlink" href="#e-1-1-1-same-exersice-with-meps-deterministic-from-thredds" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
 mkdir -p sfx_home
 <span class="nb">cd</span> sfx_home
@@ -183,14 +185,12 @@ OFFLINE
 <section id="part-2-observations-and-surface-assimilation">
 <h2>Part 2: Observations and surface assimilation<a class="headerlink" href="#part-2-observations-and-surface-assimilation" title="Permalink to this headline">¶</a></h2>
 <p>Prepare screen level observations (t2m, rh2m and snow depth)</p>
+<section id="e2-1-create-a-json-observation-file-from-a-bufr-file">
+<h3>E2.1: Create a json observation file from a bufr file<a class="headerlink" href="#e2-1-create-a-json-observation-file-from-a-bufr-file" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> sfx_home
 mkdir -p obsHandling
 <span class="nb">cd</span> obsHandling
-</pre></div>
-</div>
-<section id="e2-1-create-a-json-observation-file-from-a-bufr-file">
-<h3>E2.1: Create a json observation file from a bufr file<a class="headerlink" href="#e2-1-create-a-json-observation-file-from-a-bufr-file" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg <span class="m">2022042806</span> -range <span class="m">1800</span>
+bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg <span class="m">2022042806</span> -range <span class="m">1800</span>
 </pre></div>
 </div>
 </section>
@@ -235,8 +235,14 @@ air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">
 </section>
 <section id="e2-3-quality-control-and-horizontal-oi">
 <h3>E2.3: Quality control and horizontal OI<a class="headerlink" href="#e2-3-quality-control-and-horizontal-oi" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quality control and optimal interpolation of the observed values</span>
-<span class="c1"># NB remember to set the correct paths in the config.json file!!</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+mkdir -p sfx_home
+<span class="nb">cd</span> sfx_home
+mkdir -p analysis
+<span class="nb">cd</span> analysis
+
+<span class="c1"># Quality control and optimal interpolation of the observed values</span>
+<span class="c1"># Check config.json file below. It expects the file ob2022042806.json from E2.1</span>
 
 cp nobackup/trainingData/config.json .
 
@@ -247,6 +253,12 @@ titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/
 gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_t2m.json -o an_t2m.nc -v air_temperature_2m -hor <span class="m">35000</span> -vert <span class="m">200</span> --elevGradient -0.0065
 
 <span class="c1"># This creates the analysis file an_t2m.nc, repeat the process for rh2m and sd</span>
+<span class="c1"># rh2m</span>
+titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config.json -dtg <span class="m">2022042806</span> -v rh2m -o qc_obs_rh2m.json domain nometa redundancy plausibility fraction firstguess
+gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_rh2m.json -o an_rh2m.nc -v relative_humidity_2m -hor <span class="m">35000</span> -vert <span class="m">200</span>
+<span class="c1"># SD</span>
+titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config.json -dtg <span class="m">2022042806</span> -v sd -o qc_obs_sd.json domain nometa redundancy plausibility fraction firstguess
+gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_sd.json -o an_sd.nc -v surface_snow_thickness -hor <span class="m">35000</span> -vert <span class="m">200</span>
 </pre></div>
 </div>
 </section>
@@ -549,6 +561,7 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
 <li><a class="reference internal" href="#">ACCORD training Budapest May 9-13 20222</a><ul>
 <li><a class="reference internal" href="#part-1-run-offline-binaries-and-create-a-first-guess">Part 1: Run offline binaries and create a first guess</a><ul>
 <li><a class="reference internal" href="#e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds">E1.1: Create offline forcing using the MET-Nordic analysis from thredds</a></li>
+<li><a class="reference internal" href="#e-1-1-1-same-exersice-with-meps-deterministic-from-thredds">E.1.1.1 Same exersice with MEPS deterministic from thredds</a></li>
 <li><a class="reference internal" href="#e1-2-create-prep-file">E1.2: Create PREP file</a></li>
 <li><a class="reference internal" href="#e1-3-run-offline">E1.3: Run OFFLINE</a></li>
 </ul>
