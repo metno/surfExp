@@ -49,7 +49,13 @@
 </ul>
 </dd>
 </dl>
-<p>The first and second parts will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.</p>
+<p>For installation of pysurfex, scheduler and experiment I reccomend to clone the repos to your system. Then install the extra dependencies from pip:
+<a class="reference external" href="https://github.com/metno/pysurfex/blob/master/requirements.txt">https://github.com/metno/pysurfex/blob/master/requirements.txt</a>
+<a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a>
+<a class="reference external" href="https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt">https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt</a></p>
+<p>You will need python3 and I reccomend to install either with “pip3 install [package] –user” or python3 -m pip install [package] –user. This does not require special permissions and will install in ~/.local. You can of course also install it system-wide but not everyone can do this.</p>
+<p>This can for example be combined into a environment module if you for example do this on a hpc with a software module system. By running module use [path-to-module-files] you can always run user defined modules.</p>
+<p>The first and second parts in the exercises will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.</p>
 <section id="part-1-run-offline-binaries-and-create-a-first-guess">
 <h2>Part 1: Run offline binaries and create a first guess<a class="headerlink" href="#part-1-run-offline-binaries-and-create-a-first-guess" title="Permalink to this headline">¶</a></h2>
 <p>The first part demonstrates examples on how to make forcing and run offline SURFEX.

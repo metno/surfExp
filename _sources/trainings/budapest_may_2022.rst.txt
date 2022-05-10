@@ -12,7 +12,21 @@ Source code:
  - /hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz
  - /hpc/perm/ms/no/sbu/training/auxlib.tgz
 
-The first and second parts will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.
+For installation of pysurfex, scheduler and experiment I reccomend to clone the repos to your system. Then install the extra dependencies from pip:
+https://github.com/metno/pysurfex/blob/master/requirements.txt
+https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt
+https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt
+
+You will need python3 and I reccomend to install either with "pip3 install [package] --user" or python3 -m pip install [package] --user. This does not require special permissions and will install in ~/.local. You can of course also install it system-wide but not everyone can do this.
+
+.. code-block:: bash
+  # extra-dependencies is the path to ~/.local or wherever you put your extra needed dependencies installed above
+  export PYTHONPATH=[path-to-pysurfex-clone]:[path-to-pysurfex-experimet-clone]:[path-to-pysurfex-experiment-clone]:[extra-dependencies]:$PYTHONPATH
+  export PATH=[path-to-pysurfex-clone]/bin:[path-to-pysurfex-experiment-clone]/bin:$PATH
+
+This can for example be combined into a environment module if you for example do this on a hpc with a software module system. By running module use [path-to-module-files] you can always run user defined modules.
+
+The first and second parts in the exercises will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.
 
 
 ================================================================================
