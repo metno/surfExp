@@ -438,7 +438,7 @@ E3.1: Snow assimilation only on your local platform
   cd sfx_home
   mkdir SNOWASS
   cd SNOWASS
-  [pysurfex-experiment-path]/bin/PySurfexSetup \
+  [pysurfex-experiment-path]/bin/PySurfexExpSetup \
  -experiment [pysurfex-experiment-path] \
  -surfex [pysurfex-path] \
  -host [host] \
@@ -449,7 +449,7 @@ E3.1: Snow assimilation only on your local platform
   # [SFX_EXP_DATA]/archive/observations/2022/04/28/06
 
   # Start run
-  ./bin/PySurfex start -dtg 2022042803 -dtgend 2022042806
+  ./bin/PySurfexExp start -dtg 2022042803 -dtgend 2022042806
 
 E3.2: SEKF only on your local platform
 ------------------------------------------------------
@@ -461,18 +461,18 @@ E3.2: SEKF only on your local platform
   cd sfx_home
   mkdir SEKF
   cd SEKF
-  [pysurfex-experiment-path]/bin/PySurfexSetup \
+  [pysurfex-experiment-path]/bin/PySurfexExpSetup \
  -experiment [pysurfex-experiment-path] \
  -surfex [pysurfex-path] \
  -host [host] \
- --config_file [pysurfex-experiment-path]/config/configurations/sekf.toml\
+ --config_file [pysurfex-experiment-path]/config/configurations/sekf.toml \
  -offline [path-to-AA-preop2]
 
   # Prepare observations from the sample data in your observation directory
   # [SFX_EXP_DATA]/archive/observations/2022/04/28/06
 
   # Start run
-  ./bin/PySurfex start -dtg 2022042803 -dtgend 2022042806
+  ./bin/PySurfexExp start -dtg 2022042803 -dtgend 2022042806
 
 
 E3.3: Snow assimilation only on ecgate/cca

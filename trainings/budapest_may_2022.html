@@ -420,7 +420,7 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
  <span class="nb">cd</span> sfx_home
  mkdir SNOWASS
  <span class="nb">cd</span> SNOWASS
- <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexSetup <span class="se">\</span>
+ <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup <span class="se">\</span>
 -experiment <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span> <span class="se">\</span>
 -surfex <span class="o">[</span>pysurfex-path<span class="o">]</span> <span class="se">\</span>
 -host <span class="o">[</span>host<span class="o">]</span> <span class="se">\</span>
@@ -431,7 +431,7 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
  <span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
 
  <span class="c1"># Start run</span>
- ./bin/PySurfex start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
+ ./bin/PySurfexExp start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
 </pre></div>
 </div>
 </section>
@@ -442,18 +442,18 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
  <span class="nb">cd</span> sfx_home
  mkdir SEKF
  <span class="nb">cd</span> SEKF
- <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexSetup <span class="se">\</span>
+ <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup <span class="se">\</span>
 -experiment <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span> <span class="se">\</span>
 -surfex <span class="o">[</span>pysurfex-path<span class="o">]</span> <span class="se">\</span>
 -host <span class="o">[</span>host<span class="o">]</span> <span class="se">\</span>
---config_file <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/config/configurations/sekf.toml<span class="se">\</span>
+--config_file <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/config/configurations/sekf.toml <span class="se">\</span>
 -offline <span class="o">[</span>path-to-AA-preop2<span class="o">]</span>
 
  <span class="c1"># Prepare observations from the sample data in your observation directory</span>
  <span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
 
  <span class="c1"># Start run</span>
- ./bin/PySurfex start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
+ ./bin/PySurfexExp start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
 </pre></div>
 </div>
 </section>
