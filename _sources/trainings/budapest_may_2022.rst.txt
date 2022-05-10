@@ -75,7 +75,7 @@ This exercise is reading 1 km re-analysed forcing from surfex forcing files loca
    --wind_dir_converter none \
    -ig [path-to-pysurfex]/examples/domains/met_nordic.json
    
-E.1.1 Same exersice with MEPS deterministic from thredds
+E.1.1.1 Same exersice with MEPS deterministic from thredds
 
 .. code-block:: bash
 
