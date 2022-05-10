@@ -91,7 +91,8 @@ mkdir -p sfx_home
 mkdir forcing
 <span class="nb">cd</span> forcing
 create_forcing <span class="m">2022042803</span> <span class="m">2022042806</span> <span class="se">\</span>
--d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
+-d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
+-p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
 --zsoro_converter none <span class="se">\</span>
 -i surfex <span class="se">\</span>
 --rain_converter none <span class="se">\</span>
@@ -109,16 +110,16 @@ mkdir forcing_meps
 
 create_forcing <span class="m">2022042803</span> <span class="m">2022042806</span> <span class="se">\</span>
 -d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
--p <span class="s2">&quot;https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.n \</span>
-<span class="s2">--zsoro_converter phi2m \</span>
-<span class="s2">-i netcdf \</span>
-<span class="s2">--rain_converter totalprec \</span>
-<span class="s2">--wind_converter windspeed \</span>
-<span class="s2">--wind_dir_converter winddir \</span>
-<span class="s2">--uval constant \</span>
-<span class="s2">--zval constant \</span>
-<span class="s2">--sca_sw constant \</span>
-<span class="s2">--co2 constant</span>
+-p https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
+--zsoro_converter phi2m <span class="se">\</span>
+-i netcdf <span class="se">\</span>
+--rain_converter totalprec <span class="se">\</span>
+--wind_converter windspeed <span class="se">\</span>
+--wind_dir_converter winddir <span class="se">\</span>
+--uval constant <span class="se">\</span>
+--zval constant <span class="se">\</span>
+--sca_sw constant <span class="se">\</span>
+--co2 constant
 </pre></div>
 </div>
 </section>

@@ -66,7 +66,8 @@ This exercise is reading 1 km re-analysed forcing from surfex forcing files loca
    mkdir forcing
    cd forcing
    create_forcing 2022042803 2022042806 \
-   -d [path-to-pysurfex]/examples/domains/drammen.json -p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc \
+   -d [path-to-pysurfex]/examples/domains/drammen.json \
+   -p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc \
    --zsoro_converter none \
    -i surfex \
    --rain_converter none \
@@ -86,7 +87,7 @@ E.1.1 Same exersice with MEPS deterministic from thredds
 
    create_forcing 2022042803 2022042806 \
    -d [path-to-pysurfex]/examples/domains/drammen.json \
-   -p "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.n \
+   -p https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc \
    --zsoro_converter phi2m \
    -i netcdf \
    --rain_converter totalprec \
