@@ -119,11 +119,11 @@ PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_ho
    dump_environ
 
    # run prep
-   prep -c nobackup/trainingData/config_exp.toml \
+   prep -c nobackup/trainingData/config_example.toml \
    -r rte.json \
    --domain [path-to-pysurfex]/examples/domains/drammen.json \
    -s system.json \
-   -n [path-to-pysurfex-experiment]/test/nam/ \
+   -n [path-to-pysurfex-experiment]/nam/ \
    --pgd PGD_DIR/PGD.nc -o PREP_DIR/PREP.nc \
    --prep_file [path-to-pysurfex]/test/nam/prep_from_namelist_values.json --prep_filetype json  \
    --dtg 2022042803 \

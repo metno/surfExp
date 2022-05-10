@@ -138,11 +138,11 @@ mkdir PREP_DIR
 dump_environ
 
 <span class="c1"># run prep</span>
-prep -c nobackup/trainingData/config_exp.toml <span class="se">\</span>
+prep -c nobackup/trainingData/config_example.toml <span class="se">\</span>
 -r rte.json <span class="se">\</span>
 --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
 -s system.json <span class="se">\</span>
--n <span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/test/nam/ <span class="se">\</span>
+-n <span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/nam/ <span class="se">\</span>
 --pgd PGD_DIR/PGD.nc -o PREP_DIR/PREP.nc <span class="se">\</span>
 --prep_file <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/prep_from_namelist_values.json --prep_filetype json  <span class="se">\</span>
 --dtg <span class="m">2022042803</span> <span class="se">\</span>
