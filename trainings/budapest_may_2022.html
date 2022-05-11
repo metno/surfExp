@@ -194,8 +194,26 @@ bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt
 </pre></div>
 </div>
 </section>
-<section id="e2-2-create-a-first-guess-for-horizontal-oi-from-grib-files">
-<h3>E2.2: Create a first guess for horizontal OI from grib files<a class="headerlink" href="#e2-2-create-a-first-guess-for-horizontal-oi-from-grib-files" title="Permalink to this headline">¶</a></h3>
+<section id="e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806">
+<h3>E2.2 Create FirstGuess4Gridpp.nc from MET-Norway thredds data valid for 2022042806<a class="headerlink" href="#e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>cd
+mkdir -p sfx_home
+cd sfx_home
+mkdir -p fg_meps
+cd fg_meps</p>
+<p># Create first guess netCDF file for the model equivalent variables:
+# Set paths to input and output files
+raw=FirstGuess4Gridpp.nc
+climfile=climate/PGD.nc
+fg_ua=https://thredds.met.no/thredds/dodsC/meps25epsarchive/2022/04/28/meps_det_2_5km_20220428T00Z.nc
+DTG=2022042806</p>
+<p>FirstGuess4gridpp -dtg $DTG -c nobackup/trainingData/first_guess.yml -i $fg_ua -if netcdf -d [path_to_pysurfex]/examples/domains/drammen.json –sd_converter sweclim -laf_file $climfile  -laf_format surfex –laf_converter sea2land air_temperature_2m relative_humidity_2m surface_snow_thickness -o $raw</p>
+</section>
+<section id="e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500">
+<h3>E2.2.1: Create a first guess for horizontal OI from grib files (2021060500)<a class="headerlink" href="#e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500" title="Permalink to this headline">¶</a></h3>
 <p>Climate file (PGD) is assumed to be in climate (found in sample data). Grib files also found in sample data.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
 mkdir -p sfx_home
@@ -209,7 +227,7 @@ mkdir <span class="nb">fg</span>
 <span class="nv">climfile</span><span class="o">=</span>climate/PGD.nc
 <span class="nv">fg_ua</span><span class="o">=</span>nobackup/trainingData/grib_FG/first_guess_gridpp_grib
 <span class="nv">fg_sfx</span><span class="o">=</span>nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
-<span class="nv">DTG</span><span class="o">=</span><span class="m">2022042806</span>
+<span class="nv">DTG</span><span class="o">=</span><span class="m">2021060500</span>
 
 
 FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
@@ -568,7 +586,8 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
 </li>
 <li><a class="reference internal" href="#part-2-observations-and-surface-assimilation">Part 2: Observations and surface assimilation</a><ul>
 <li><a class="reference internal" href="#e2-1-create-a-json-observation-file-from-a-bufr-file">E2.1: Create a json observation file from a bufr file</a></li>
-<li><a class="reference internal" href="#e2-2-create-a-first-guess-for-horizontal-oi-from-grib-files">E2.2: Create a first guess for horizontal OI from grib files</a></li>
+<li><a class="reference internal" href="#e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806">E2.2 Create FirstGuess4Gridpp.nc from MET-Norway thredds data valid for 2022042806</a></li>
+<li><a class="reference internal" href="#e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500">E2.2.1: Create a first guess for horizontal OI from grib files (2021060500)</a></li>
 <li><a class="reference internal" href="#e2-3-quality-control-and-horizontal-oi">E2.3: Quality control and horizontal OI</a></li>
 <li><a class="reference internal" href="#e2-4-prepare-ascii-file-for-soda">E2.4: Prepare ASCII file for SODA</a><ul>
 <li><a class="reference internal" href="#prepare-satellite-derived-soil-moisture-observations-using-pysurfex">Prepare satellite derived soil moisture observations using pySurfex</a></li>

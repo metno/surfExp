@@ -180,8 +180,39 @@ E2.1: Create a json observation file from a bufr file
    cd obsHandling
    bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg 2022042806 -range 1800
       
-E2.2: Create a first guess for horizontal OI from grib files
-------------------------------------------------------
+E2.2 Create FirstGuess4Gridpp.nc from MET-Norway thredds data valid for 2022042806
+--------------------------------------------------------------------------------------
+
+.. code-block:: bash
+cd
+mkdir -p sfx_home
+cd sfx_home
+mkdir -p fg_meps
+cd fg_meps
+
+# Create first guess netCDF file for the model equivalent variables:
+# Set paths to input and output files
+raw=FirstGuess4Gridpp.nc
+climfile=climate/PGD.nc
+fg_ua=https://thredds.met.no/thredds/dodsC/meps25epsarchive/2022/04/28/meps_det_2_5km_20220428T00Z.nc
+DTG=2022042806
+
+
+FirstGuess4gridpp -dtg $DTG \
+-c nobackup/trainingData/first_guess.yml \
+-i $fg_ua \
+-if netcdf \
+-d [path_to_pysurfex]/examples/domains/drammen.json \
+--sd_converter sweclim \
+-laf_file $climfile  \
+-laf_format surfex \
+--laf_converter sea2land \
+air_temperature_2m relative_humidity_2m surface_snow_thickness \
+-o $raw
+
+
+E2.2.1: Create a first guess for horizontal OI from grib files (2021060500)
+------------------------------------------------------------------------
 
 Climate file (PGD) is assumed to be in climate (found in sample data). Grib files also found in sample data.  
 
@@ -199,7 +230,7 @@ Climate file (PGD) is assumed to be in climate (found in sample data). Grib file
    climfile=climate/PGD.nc
    fg_ua=nobackup/trainingData/grib_FG/first_guess_gridpp_grib
    fg_sfx=nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
-   DTG=2022042806
+   DTG=2021060500
    
    
    FirstGuess4gridpp -dtg $DTG \
@@ -220,6 +251,7 @@ Climate file (PGD) is assumed to be in climate (found in sample data). Grib file
    -o $raw
 
    # This creates the file FirstGuess4Gridpp.nc
+
 
 E2.3: Quality control and horizontal OI
 ------------------------------------------------------
