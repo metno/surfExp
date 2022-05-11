@@ -184,6 +184,7 @@ E2.2 Create FirstGuess4Gridpp.nc from MET-Norway thredds data valid for 20220428
 --------------------------------------------------------------------------------------
 
 .. code-block:: bash
+
 cd
 mkdir -p sfx_home
 cd sfx_home
