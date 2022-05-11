@@ -198,21 +198,33 @@ bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt
 </section>
 <section id="e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806">
 <h3>E2.2 Create FirstGuess4Gridpp.nc from MET-Norway thredds data valid for 2022042806<a class="headerlink" href="#e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+mkdir -p sfx_home
+<span class="nb">cd</span> sfx_home
+mkdir -p fg_meps
+<span class="nb">cd</span> fg_meps
+
+<span class="c1"># Create first guess netCDF file for the model equivalent variables:</span>
+<span class="c1"># Set paths to input and output files</span>
+<span class="nv">raw</span><span class="o">=</span>FirstGuess4Gridpp.nc
+<span class="nv">climfile</span><span class="o">=</span>climate/PGD.nc
+<span class="nv">fg_ua</span><span class="o">=</span>https://thredds.met.no/thredds/dodsC/meps25epsarchive/2022/04/28/meps_det_2_5km_20220428T00Z.nc
+<span class="nv">DTG</span><span class="o">=</span><span class="m">2022042806</span>
+
+
+FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
+ -c nobackup/trainingData/first_guess.yml <span class="se">\</span>
+ -i <span class="nv">$fg_ua</span> <span class="se">\</span>
+ -if netcdf <span class="se">\</span>
+ -d <span class="o">[</span>path_to_pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
+ --sd_converter sweclim <span class="se">\</span>
+ -laf_file <span class="nv">$climfile</span>  <span class="se">\</span>
+ -laf_format surfex <span class="se">\</span>
+ --laf_converter sea2land <span class="se">\</span>
+ air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">\</span>
+ -o <span class="nv">$raw</span>
 </pre></div>
 </div>
-<p>cd
-mkdir -p sfx_home
-cd sfx_home
-mkdir -p fg_meps
-cd fg_meps</p>
-<p># Create first guess netCDF file for the model equivalent variables:
-# Set paths to input and output files
-raw=FirstGuess4Gridpp.nc
-climfile=climate/PGD.nc
-fg_ua=https://thredds.met.no/thredds/dodsC/meps25epsarchive/2022/04/28/meps_det_2_5km_20220428T00Z.nc
-DTG=2022042806</p>
-<p>FirstGuess4gridpp -dtg $DTG -c nobackup/trainingData/first_guess.yml -i $fg_ua -if netcdf -d [path_to_pysurfex]/examples/domains/drammen.json –sd_converter sweclim -laf_file $climfile  -laf_format surfex –laf_converter sea2land air_temperature_2m relative_humidity_2m surface_snow_thickness -o $raw</p>
 </section>
 <section id="e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500">
 <h3>E2.2.1: Create a first guess for horizontal OI from grib files (2021060500)<a class="headerlink" href="#e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500" title="Permalink to this headline">¶</a></h3>
