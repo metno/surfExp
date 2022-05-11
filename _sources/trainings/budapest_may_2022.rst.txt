@@ -429,7 +429,7 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
   cd sfx_home
   mkdir EXP
   cd EXP
-  [pysurfex-experiment-path]/bin/PySurfexSetup \
+  [pysurfex-experiment-path]/bin/PySurfexExpSetup \
  -experiment [pysurfex-experiment-path] \
  -surfex [pysurfex-path] \
  -host [host] \
@@ -443,7 +443,7 @@ Now we should be ready to start the experiment:
 
 .. code-block:: bash
 
-   ./bin/PySurfex start -dtg 2022042803 -dtgend 2022042806
+   ./bin/PySurfexExp start -dtg 2022042803 -dtgend 2022042806
 
 
 4.1) Reconfigure your experiment
@@ -453,7 +453,7 @@ If you have started you experiment and you want to change the configurations wit
 
 .. code-block:: bash
 
-  ./bin/PySurfexConfig
+  ./bin/PySurfexExpConfig
 
 then you can run InitRun and continue the scheduler. This command updates the json setting files picked up by the ecflow tasks.
 

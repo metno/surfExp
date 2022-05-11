@@ -419,7 +419,7 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
  <span class="nb">cd</span> sfx_home
  mkdir EXP
  <span class="nb">cd</span> EXP
- <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexSetup <span class="se">\</span>
+ <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup <span class="se">\</span>
 -experiment <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span> <span class="se">\</span>
 -surfex <span class="o">[</span>pysurfex-path<span class="o">]</span> <span class="se">\</span>
 -host <span class="o">[</span>host<span class="o">]</span> <span class="se">\</span>
@@ -430,14 +430,14 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
 <section id="run-your-experiment">
 <h3>4.) Run your experiment!<a class="headerlink" href="#run-your-experiment" title="Permalink to this headline">¶</a></h3>
 <p>Now we should be ready to start the experiment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfex start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfexExp start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
 </pre></div>
 </div>
 </section>
 <section id="reconfigure-your-experiment">
 <h3>4.1) Reconfigure your experiment<a class="headerlink" href="#reconfigure-your-experiment" title="Permalink to this headline">¶</a></h3>
 <p>If you have started you experiment and you want to change the configurations without running Pysurfex start/prod. Then you can reconfigure the experiment with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfexConfig
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfexExpConfig
 </pre></div>
 </div>
 <p>then you can run InitRun and continue the scheduler. This command updates the json setting files picked up by the ecflow tasks.</p>
