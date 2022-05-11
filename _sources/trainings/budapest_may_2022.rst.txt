@@ -9,7 +9,7 @@ Sample data can be downloaded from ECMWF ecgate:
  - /hpc/perm/ms/no/sbu/training/budapest_2022.tgz
  
 Source code (needed for excercise E1.2, E1.3 and all in part 3):
- - /hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz
+ - /hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz (Difference from AA preop2: Works with NC files and split_patch. Adds new snow also for positive temperatures)
  - /hpc/perm/ms/no/sbu/training/auxlib.tgz
 
 For installation of pysurfex, scheduler and experiment I reccomend to clone the repos to your system. Then install the extra dependencies from pip:
