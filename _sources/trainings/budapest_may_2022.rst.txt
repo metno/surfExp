@@ -13,9 +13,9 @@ Source code (needed for excercise E1.2, E1.3 and all in part 3):
  - /hpc/perm/ms/no/sbu/training/auxlib.tgz
 
 For installation of pysurfex, scheduler and experiment I reccomend to clone the repos to your system. Then install the extra dependencies from pip:
-https://github.com/metno/pysurfex/blob/master/requirements.txt
-https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt
-https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt
+ - https://github.com/metno/pysurfex/blob/master/requirements.txt
+ - https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt
+ - https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt
 
 You will need python3 and I reccomend to install either with "pip3 install [package] --user" or python3 -m pip install [package] --user. This does not require special permissions and will install in ~/.local. You can of course also install it system-wide but not everyone can do this.
 

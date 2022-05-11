@@ -48,11 +48,13 @@
 <li><p>/hpc/perm/ms/no/sbu/training/auxlib.tgz</p></li>
 </ul>
 </dd>
+<dt>For installation of pysurfex, scheduler and experiment I reccomend to clone the repos to your system. Then install the extra dependencies from pip:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://github.com/metno/pysurfex/blob/master/requirements.txt">https://github.com/metno/pysurfex/blob/master/requirements.txt</a></p></li>
+<li><p><a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></p></li>
+<li><p><a class="reference external" href="https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt">https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt</a></p></li>
+</ul>
+</dd>
 </dl>
-<p>For installation of pysurfex, scheduler and experiment I reccomend to clone the repos to your system. Then install the extra dependencies from pip:
-<a class="reference external" href="https://github.com/metno/pysurfex/blob/master/requirements.txt">https://github.com/metno/pysurfex/blob/master/requirements.txt</a>
-<a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a>
-<a class="reference external" href="https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt">https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt</a></p>
 <p>You will need python3 and I reccomend to install either with “pip3 install [package] –user” or python3 -m pip install [package] –user. This does not require special permissions and will install in ~/.local. You can of course also install it system-wide but not everyone can do this.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># extra-dependencies is the path to ~/.local or wherever you put your extra needed dependencies installed above</span>
 <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=[</span>path-to-pysurfex-clone<span class="o">]</span>:<span class="o">[</span>path-to-pysurfex-experimet-clone<span class="o">]</span>:<span class="o">[</span>path-to-pysurfex-experiment-clone<span class="o">]</span>:<span class="o">[</span>extra-dependencies<span class="o">]</span>:<span class="nv">$PYTHONPATH</span>
