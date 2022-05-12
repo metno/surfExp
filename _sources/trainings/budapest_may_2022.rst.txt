@@ -119,6 +119,9 @@ PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_ho
    # Create rte.json
    dump_environ
 
+   # system.json need a path to LAKE_LTA_NEW.nc, could be something like
+   # { "flake_dir": "dir-to-LAKE_LTA_NEW.nc" }
+
    # run prep
    prep -c nobackup/trainingData/config_example.toml \
    -r rte.json \
@@ -150,6 +153,9 @@ PGD file can be fetched from sample data. See Part 3. Assumed to be in ~/sfx_hom
    # Create rte.json
    dump_environ
 
+   # system.json can be empty, only with curly braces, like this:
+   # {}
+   
    # Run offline
    offline -c nobackup/trainingData/config_example.toml \
   -r rte.json \

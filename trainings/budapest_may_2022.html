@@ -141,6 +141,9 @@ mkdir PREP_DIR
 <span class="c1"># Create rte.json</span>
 dump_environ
 
+<span class="c1"># system.json need a path to LAKE_LTA_NEW.nc, could be something like</span>
+<span class="c1"># { &quot;flake_dir&quot;: &quot;dir-to-LAKE_LTA_NEW.nc&quot; }</span>
+
 <span class="c1"># run prep</span>
 prep -c nobackup/trainingData/config_example.toml <span class="se">\</span>
 -r rte.json <span class="se">\</span>
@@ -167,6 +170,9 @@ PREP
 
  <span class="c1"># Create rte.json</span>
  dump_environ
+
+ <span class="c1"># system.json can be empty, only with curly braces, like this:</span>
+ <span class="c1"># {}</span>
 
  <span class="c1"># Run offline</span>
  offline -c nobackup/trainingData/config_example.toml <span class="se">\</span>
