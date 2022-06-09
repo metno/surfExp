@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>PYSURFEX Experiment documentation &#8212; Pysurfex-experiment  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
@@ -35,19 +36,19 @@
           <div class="body" role="main">
             
   <section id="pysurfex-experiment-documentation">
-<h1>PYSURFEX Experiment documentation<a class="headerlink" href="#pysurfex-experiment-documentation" title="Permalink to this headline">¶</a></h1>
+<h1>PYSURFEX Experiment documentation<a class="headerlink" href="#pysurfex-experiment-documentation" title="Permalink to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <img alt="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" id="readme" src="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" />
 <p><a class="reference external" href="https://coveralls.io/github/metno/pysurfex-experiment">https://coveralls.io/github/metno/pysurfex-experiment</a></p>
 </section>
 <section id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
-<h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this headline">¶</a></h1>
+<h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this heading">¶</a></h1>
 <p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a>
 The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and pysurfex-scheduler (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>)</p>
 <p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></p>
 <section id="general-dependencies-from-pypi">
-<h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this headline">¶</a></h2>
+<h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pysurfex
 pysurfex-scheduler
 </pre></div>
@@ -55,7 +56,7 @@ pysurfex-scheduler
 <p>pysurfex and pysurfex-scheduler bring extra dependencies like gridpp, titanlib and ecflow. If you install from pypi with pip these should be handled automatically.</p>
 </section>
 <section id="code-unit-testing-and-coverage">
-<h2>Code unit testing and coverage<a class="headerlink" href="#code-unit-testing-and-coverage" title="Permalink to this headline">¶</a></h2>
+<h2>Code unit testing and coverage<a class="headerlink" href="#code-unit-testing-and-coverage" title="Permalink to this heading">¶</a></h2>
 <p>Extra dependencies for testing</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>unittest
 nose
@@ -77,7 +78,7 @@ make latexpdf
 </div>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings. Adjust it to your clone, host-tag and system</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
@@ -162,19 +163,19 @@ mkdir -p my_exp
 <p>All batch jobs start from local json files with configuration of server, system and you configuration found on the scratch directory on the whost you run on. It means if you do local configuration changes you will need to either start/continue the run with “PySurfexExp start/prod” or you can execute PySurfexExpConfig and then sync files from HOME on HOST0 to scratch on the used hosts by executing the InitRun task in the scheduler. InitRun alone will not update your configurations, only sync files.</p>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
 <p>See <a class="reference external" href="https://metno.github.io/pysurfex-experiment/#examples">https://metno.github.io/pysurfex-experiment/#examples</a></p>
 </section>
 <section id="trainings">
-<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this headline">¶</a></h2>
+<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this heading">¶</a></h2>
 <p><cite>Budapest May 2022 &lt;https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/&gt;</cite></p>
 </section>
 </section>
 <section id="eamples-of-running-experiments">
-<h1>Eamples of running experiments<a class="headerlink" href="#eamples-of-running-experiments" title="Permalink to this headline">¶</a></h1>
+<h1>Eamples of running experiments<a class="headerlink" href="#eamples-of-running-experiments" title="Permalink to this heading">¶</a></h1>
 <p>Here are some examples on how to use pysurfex-experiment</p>
 <section id="ppi-centos7-dual-host-bionic-centos7">
-<h2>ppi-centos7 (dual-host bionic-centos7)<a class="headerlink" href="#ppi-centos7-dual-host-bionic-centos7" title="Permalink to this headline">¶</a></h2>
+<h2>ppi-centos7 (dual-host bionic-centos7)<a class="headerlink" href="#ppi-centos7-dual-host-bionic-centos7" title="Permalink to this heading">¶</a></h2>
 <p>First define some system paths to be used:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;/modules/bionic/user-apps/suv/pysurfex-experiment/0.0.1-dev/&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;ppi-centos7&quot;</span>
@@ -240,7 +241,7 @@ mkdir DRAMMEN_SNOW_ASS
 </div>
 </section>
 <section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="experiment_tasks.AbstractTask">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">experiment_tasks.</span></span><span class="sig-name descname"><span class="pre">AbstractTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment_tasks/tasks.html#AbstractTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment_tasks.AbstractTask" title="Permalink to this definition">¶</a></dt>
@@ -395,14 +396,14 @@ mkdir DRAMMEN_SNOW_ASS
 
 </section>
 <section id="class-methods">
-<h2>Class methods<a class="headerlink" href="#class-methods" title="Permalink to this headline">¶</a></h2>
+<h2>Class methods<a class="headerlink" href="#class-methods" title="Permalink to this heading">¶</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="experiment_tasks.AbstractTask.__init__">
 <span class="sig-prename descclassname"><span class="pre">AbstractTask.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment_tasks/tasks.html#AbstractTask.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment_tasks.AbstractTask.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -441,7 +442,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -470,7 +471,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -499,7 +500,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -528,7 +529,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -557,7 +558,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -586,7 +587,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -620,7 +621,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -654,7 +655,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -683,7 +684,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -712,7 +713,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -741,7 +742,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -770,7 +771,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -799,7 +800,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -828,7 +829,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -857,7 +858,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -891,7 +892,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -920,7 +921,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -949,7 +950,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -978,7 +979,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -1007,7 +1008,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dd><p>Initialize a task run by the default ecflow container</p>
 <p>All tasks implelementing this base class will work with the default ecflow container</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
 <li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
@@ -1085,7 +1086,7 @@ mkdir DRAMMEN_SNOW_ASS
 <span class="sig-prename descclassname"><span class="pre">ExpFromFiles.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exp_dependencies_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/experiment.html#ExpFromFiles.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment.ExpFromFiles.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Instaniate an object of the main experiment class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>exp_dependencies</strong> (<em>dict</em>) – Eperiment dependencies</p></li>
 <li><p><strong>merged_config</strong> (<em>dict</em>) – Experiment configuration</p></li>
@@ -1107,7 +1108,7 @@ mkdir DRAMMEN_SNOW_ASS
 <span class="sig-prename descclassname"><span class="pre">Progress.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_pp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/progress.html#Progress.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment.Progress.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the experiment progress</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>progress</strong> (<em>dict</em>) – Contains the current date/time information</p></li>
 <li><p><strong>progress_pp</strong> (<em>dict</em>) – Contains the current date/time information for psot-processing</p></li>
@@ -1126,13 +1127,13 @@ mkdir DRAMMEN_SNOW_ASS
 <span class="sig-prename descclassname"><span class="pre">Progress.</span></span><span class="sig-name descname"><span class="pre">get_dtgbeg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fcint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/progress.html#Progress.get_dtgbeg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment.Progress.get_dtgbeg" title="Permalink to this definition">¶</a></dt>
 <dd><p>get the first DTG of the run</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fcint</strong> (<em>int</em>) – Time in hours between the forecasts/analysis</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>first DTG of the run</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dtgbeg (datetime.datetime)</p>
 </dd>
 </dl>
@@ -1158,7 +1159,7 @@ mkdir DRAMMEN_SNOW_ASS
 <span class="sig-prename descclassname"><span class="pre">ProgressFromFile.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_pp_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment/progress.html#ProgressFromFile.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment.ProgressFromFile.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize a progress object from files</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>progress_file</strong> (<em>str</em>) – Full path of the progress files</p></li>
 <li><p><strong>progress_pp_file</strong> (<em>str</em>) – Full path of the post-processing progress file</p></li>
@@ -1184,7 +1185,7 @@ mkdir DRAMMEN_SNOW_ASS
 
 </section>
 <section id="methods">
-<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="experiment_scheduler.parse_submit_cmd_exp">
 <span class="sig-prename descclassname"><span class="pre">experiment_scheduler.</span></span><span class="sig-name descname"><span class="pre">parse_submit_cmd_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment_scheduler/cli.html#parse_submit_cmd_exp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment_scheduler.parse_submit_cmd_exp" title="Permalink to this definition">¶</a></dt>
@@ -1236,7 +1237,7 @@ mkdir DRAMMEN_SNOW_ASS
 
 <ul class="simple">
 <li><dl class="field-list simple">
-<dt class="field-odd">ref</dt>
+<dt class="field-odd">ref<span class="colon">:</span></dt>
 <dd class="field-odd"><p><cite>README</cite></p>
 </dd>
 </dl>
@@ -1245,7 +1246,7 @@ mkdir DRAMMEN_SNOW_ASS
 </section>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
@@ -1298,7 +1299,7 @@ mkdir DRAMMEN_SNOW_ASS
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1315,7 +1316,7 @@ mkdir DRAMMEN_SNOW_ASS
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.1.
     </div>
   </body>
 </html>

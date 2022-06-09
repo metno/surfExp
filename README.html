@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>This repository is a setup to create and run offline SURFEX experiments. &#8212; Pysurfex-experiment  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
@@ -37,12 +38,12 @@
   <img alt="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" id="readme" src="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" />
 <p><a class="reference external" href="https://coveralls.io/github/metno/pysurfex-experiment">https://coveralls.io/github/metno/pysurfex-experiment</a></p>
 <section id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
-<h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this headline">¶</a></h1>
+<h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this heading">¶</a></h1>
 <p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a>
 The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and pysurfex-scheduler (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>)</p>
 <p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></p>
 <section id="general-dependencies-from-pypi">
-<h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this headline">¶</a></h2>
+<h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pysurfex
 pysurfex-scheduler
 </pre></div>
@@ -50,7 +51,7 @@ pysurfex-scheduler
 <p>pysurfex and pysurfex-scheduler bring extra dependencies like gridpp, titanlib and ecflow. If you install from pypi with pip these should be handled automatically.</p>
 </section>
 <section id="code-unit-testing-and-coverage">
-<h2>Code unit testing and coverage<a class="headerlink" href="#code-unit-testing-and-coverage" title="Permalink to this headline">¶</a></h2>
+<h2>Code unit testing and coverage<a class="headerlink" href="#code-unit-testing-and-coverage" title="Permalink to this heading">¶</a></h2>
 <p>Extra dependencies for testing</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>unittest
 nose
@@ -72,7 +73,7 @@ make latexpdf
 </div>
 </section>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings. Adjust it to your clone, host-tag and system</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
@@ -157,11 +158,11 @@ mkdir -p my_exp
 <p>All batch jobs start from local json files with configuration of server, system and you configuration found on the scratch directory on the whost you run on. It means if you do local configuration changes you will need to either start/continue the run with “PySurfexExp start/prod” or you can execute PySurfexExpConfig and then sync files from HOME on HOST0 to scratch on the used hosts by executing the InitRun task in the scheduler. InitRun alone will not update your configurations, only sync files.</p>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
 <p>See <a class="reference external" href="https://metno.github.io/pysurfex-experiment/#examples">https://metno.github.io/pysurfex-experiment/#examples</a></p>
 </section>
 <section id="trainings">
-<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this headline">¶</a></h2>
+<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this heading">¶</a></h2>
 <p><cite>Budapest May 2022 &lt;https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/&gt;</cite></p>
 </section>
 </section>
@@ -203,7 +204,7 @@ mkdir -p my_exp
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -220,7 +221,7 @@ mkdir -p my_exp
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.1.
     </div>
   </body>
 </html>

@@ -1,5 +1,5 @@
 #########################################
- ACCORD training Budapest May 9-13 20222
+ ACCORD training Budapest May 9-13 2022
 #########################################
 
 Excercises are prepared for the ACCORD training in Budapest. More information can be found on the internal website https://opensource.umr-cnrm.fr/projects/accord/wiki/Spring_Surface_Working_Week_2022
