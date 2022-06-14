@@ -959,12 +959,24 @@
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">identifier</span> <span class="o">=</span> <span class="s2">&quot;INITIAL_CONDITIONS#FG4OI#&quot;</span>
                 <span class="n">converter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="n">identifier</span> <span class="o">+</span> <span class="s2">&quot;CONVERTER&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">identifier</span> <span class="o">=</span> <span class="s2">&quot;INITIAL_CONDITIONS#FG4OI#&quot;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s2">&quot;#&quot;</span>
+                <span class="n">input_geo_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="n">identifier</span> <span class="o">+</span> <span class="s2">&quot;INPUT_GEO_FILE&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">identifier</span> <span class="o">=</span> <span class="s2">&quot;INITIAL_CONDITIONS#FG4OI#&quot;</span>
+                <span class="n">input_geo_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="n">identifier</span> <span class="o">+</span> <span class="s2">&quot;INPUT_GEO_FILE&quot;</span><span class="p">)</span>
 
-            <span class="nb">print</span><span class="p">(</span><span class="n">inputfile</span><span class="p">,</span> <span class="n">fileformat</span><span class="p">,</span> <span class="n">converter</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">inputfile</span><span class="p">,</span> <span class="n">fileformat</span><span class="p">,</span> <span class="n">converter</span><span class="p">,</span> <span class="n">input_geo_file</span><span class="p">)</span>
             <span class="n">config_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lib</span> <span class="o">+</span> <span class="s2">&quot;/config/first_guess.yml&quot;</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
             <span class="n">defs</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">fileformat</span><span class="p">]</span>
-            <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">inputfile</span><span class="p">})</span>
+            <span class="n">geo_input</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">input_geo_file</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">geo_iput</span> <span class="o">=</span> <span class="n">surfex</span><span class="o">.</span><span class="n">get_geo_object</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">input_geo_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+            <span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="s2">&quot;filepattern&quot;</span><span class="p">:</span> <span class="n">inputfile</span><span class="p">,</span>
+                <span class="s2">&quot;geo_input&quot;</span><span class="p">:</span> <span class="n">geo_input</span>
+                <span class="p">})</span>
 
             <span class="n">converter_conf</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">fileformat</span><span class="p">][</span><span class="s2">&quot;converter&quot;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">converter</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">fileformat</span><span class="p">][</span><span class="s2">&quot;converter&quot;</span><span class="p">]:</span>
