@@ -36,20 +36,24 @@
           <div class="body" role="main">
             
   <h1>Source code for experiment.experiment</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">scheduler</span>
-<span class="kn">import</span> <span class="nn">experiment</span>
-<span class="kn">import</span> <span class="nn">experiment_setup</span>
+<span></span><span class="sd">&quot;&quot;&quot;Experiment classes and methods.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">toml</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">toml</span>
+<span class="kn">import</span> <span class="nn">scheduler</span>
+<span class="kn">import</span> <span class="nn">experiment</span>
+<span class="kn">import</span> <span class="nn">experiment_setup</span>
 
 
-<div class="viewcode-block" id="Exp"><a class="viewcode-back" href="../../index.html#experiment.Exp">[docs]</a><span class="k">class</span> <span class="nc">Exp</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_dependencies</span><span class="p">,</span> <span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span><span class="p">,</span> <span class="n">submit_exceptions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">system_file_paths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">env_submit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Instaniate an object of the main experiment class</span>
+<div class="viewcode-block" id="Exp"><a class="viewcode-back" href="../../index.html#experiment.Exp">[docs]</a><span class="k">class</span> <span class="nc">Exp</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Experiment class.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_dependencies</span><span class="p">,</span> <span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span><span class="p">,</span>
+                 <span class="n">submit_exceptions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">system_file_paths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">env_submit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Instaniate an object of the main experiment class.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            exp_dependencies (dict):  Eperiment dependencies</span>
@@ -57,22 +61,23 @@
 <span class="sd">            member_merged_config (dict): Member (EPS) specific configuration settings</span>
 <span class="sd">            submit_exceptions (dict):</span>
 <span class="sd">            system_file_paths (experiment.SystemFilePaths):</span>
-<span class="sd">            system (experiment.System:</span>
+<span class="sd">            system (experiment.System):</span>
 <span class="sd">            server (scheduler.Server):</span>
 <span class="sd">            env_submit (dict):</span>
 <span class="sd">            progress (dict):</span>
-<span class="sd">            debug (bool): Write extra debug information</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Construct Exp&quot;</span><span class="p">)</span>
         <span class="n">rev</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;revision&quot;</span><span class="p">]</span>
-        <span class="n">pysurfex_experiment</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;pysurfex_experiment&quot;</span><span class="p">]</span>
-        <span class="n">offline_source</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;offline_source&quot;</span><span class="p">]</span>
-        <span class="n">pysurfex</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;pysurfex&quot;</span><span class="p">]</span>
-        <span class="n">wdir</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;exp_dir&quot;</span><span class="p">]</span>
-        <span class="n">exp_name</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;exp_name&quot;</span><span class="p">]</span>
+        <span class="n">pysurfex_experiment</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pysurfex_experiment&quot;</span><span class="p">)</span>
+        <span class="n">offline_source</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offline_source&quot;</span><span class="p">)</span>
+        <span class="n">pysurfex</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pysurfex&quot;</span><span class="p">)</span>
+        <span class="n">wdir</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exp_dir&quot;</span><span class="p">)</span>
+        <span class="n">exp_name</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exp_name&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">exp_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">=</span> <span class="n">wdir</span>
+        <span class="n">merged_config</span><span class="p">[</span><span class="s2">&quot;GENERAL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;EXP&quot;</span><span class="p">:</span> <span class="n">exp_name</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">wdir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rev</span> <span class="o">=</span> <span class="n">rev</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pysurfex</span> <span class="o">=</span> <span class="n">pysurfex</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pysurfex_experiment</span> <span class="o">=</span> <span class="n">pysurfex_experiment</span>
@@ -83,14 +88,42 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">submit_exceptions</span> <span class="o">=</span> <span class="n">submit_exceptions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_file_paths</span> <span class="o">=</span> <span class="n">system_file_paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">progress</span> <span class="o">=</span> <span class="n">progress</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span> <span class="o">=</span> <span class="n">merged_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">member_config</span> <span class="o">=</span> <span class="n">member_merged_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ExpConfiguration</span><span class="p">(</span><span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">env_submit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">submit_types</span> <span class="o">=</span> <span class="n">env_submit</span><span class="p">[</span><span class="s2">&quot;submit_types&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">submit_type</span> <span class="ow">in</span> <span class="n">submit_types</span><span class="p">:</span>
+                <span class="n">key_to_update</span> <span class="o">=</span> <span class="s2">&quot;SUBMIT_VARIABLES&quot;</span>
+                <span class="k">if</span> <span class="s2">&quot;HOST&quot;</span> <span class="ow">in</span> <span class="n">env_submit</span><span class="p">[</span><span class="n">submit_type</span><span class="p">]:</span>
+                    <span class="n">host</span> <span class="o">=</span> <span class="n">env_submit</span><span class="p">[</span><span class="n">submit_type</span><span class="p">][</span><span class="s2">&quot;HOST&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;The submission type </span><span class="si">{submit_type}</span><span class="s2"> need a HOST&quot;</span><span class="p">)</span>
+                <span class="n">scheduler_pythonpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SCHEDULER_PYTHONPATH&quot;</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+                <span class="n">exp_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SFX_EXP_LIB&quot;</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+                <span class="n">update_vars</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">pythonpath</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="n">key_to_update</span> <span class="ow">in</span> <span class="n">env_submit</span><span class="p">[</span><span class="n">submit_type</span><span class="p">]:</span>
+                    <span class="n">update_vars</span> <span class="o">=</span> <span class="n">env_submit</span><span class="p">[</span><span class="n">submit_type</span><span class="p">][</span><span class="n">key_to_update</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="s2">&quot;PYTHONPATH&quot;</span> <span class="ow">in</span> <span class="n">update_vars</span><span class="p">:</span>
+                        <span class="n">pythonpath</span> <span class="o">=</span> <span class="n">update_vars</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">]</span>
+
+                <span class="n">update_vars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">:</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{scheduler_pythonpath}</span><span class="s2">:</span><span class="si">{exp_lib}</span><span class="s2">:</span><span class="si">{pythonpath}</span><span class="s2">&quot;</span><span class="p">})</span>
+                <span class="n">env_submit</span><span class="p">[</span><span class="n">submit_type</span><span class="p">][</span><span class="n">key_to_update</span><span class="p">]</span> <span class="o">=</span> <span class="n">update_vars</span>
+
+
 <div class="viewcode-block" id="Exp.checkout"><a class="viewcode-back" href="../../index.html#experiment.Exp.checkout">[docs]</a>    <span class="k">def</span> <span class="nf">checkout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Check out a file to the experiment.</span>
+
+<span class="sd">        Not very smart checkout.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file (str): relative path to rev to check out</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: _description_</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -99,21 +132,34 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File is aleady checked out &quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">):</span>
-                <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">)</span>
+                <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">)</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">)</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checked out file: &quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;File was not found: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">file</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">write_scheduler_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logfile</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">write_scheduler_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logfile</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write scheduler info.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            logfile (str): Filename</span>
+<span class="sd">            filename (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/scheduler.json&quot;</span>
+        <span class="n">exp_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_scheduler_info</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">exp_settings</span><span class="p">,</span> <span class="n">file_handler</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">create_scheduler_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the scheduler info.&quot;&quot;&quot;</span>
         <span class="n">submit_exceptions</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_exceptions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">submit_exceptions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_exceptions</span>
         <span class="n">exp_settings</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">exp_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;submit_exceptions&quot;</span><span class="p">:</span> <span class="n">submit_exceptions</span><span class="p">})</span>
-        <span class="n">exp_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;env_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/Env&quot;</span><span class="p">})</span>
+        <span class="n">exp_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;env_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/Env&quot;</span><span class="p">})</span>
         <span class="n">exp_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;env_submit&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">env_submit</span><span class="p">})</span>
         <span class="n">exp_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;env_server&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">settings</span><span class="p">})</span>
         <span class="n">hosts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">hosts</span>
@@ -122,29 +168,48 @@
             <span class="n">joboutdir</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;JOBOUTDIR&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">))})</span>
         <span class="n">exp_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;joboutdir&quot;</span><span class="p">:</span> <span class="n">joboutdir</span><span class="p">})</span>
         <span class="n">exp_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;logfile&quot;</span><span class="p">:</span> <span class="n">logfile</span><span class="p">})</span>
-        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">exp_settings</span><span class="p">)</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">exp_settings</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/scheduler.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;create_scheduler_info: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">exp_settings</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">exp_settings</span>
 
     <span class="k">def</span> <span class="nf">dump_exp_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump the exp configuration.</span>
+
+<span class="sd">        The configuration has two keys. One for general config and one for member config.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): filename to dump to</span>
+<span class="sd">            indent (int, optional): indentation in json file. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_dict</span><span class="p">,</span>
             <span class="s2">&quot;member_config&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_config</span>
         <span class="p">}</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ExpFromFiles"><a class="viewcode-back" href="../../index.html#experiment.ExpFromFiles">[docs]</a><span class="k">class</span> <span class="nc">ExpFromFiles</span><span class="p">(</span><span class="n">Exp</span><span class="p">):</span>
-<div class="viewcode-block" id="ExpFromFiles.__init__"><a class="viewcode-back" href="../../index.html#experiment.ExpFromFiles.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate Exp object from existing files.&quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="s2">&quot;ExpFromFiles&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="ExpFromFiles.__init__"><a class="viewcode-back" href="../../index.html#experiment.ExpFromFiles.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct an Exp object from files.</span>
 
-        <span class="n">exp_dependencies</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
-        <span class="n">pysurfex_experiment</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;pysurfex_experiment&quot;</span><span class="p">]</span>
-        <span class="n">wdir</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;exp_dir&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">=</span> <span class="n">wdir</span>
+<span class="sd">        Args:</span>
+<span class="sd">            exp_dependencies_file (_type_): _description_</span>
+<span class="sd">            stream (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">            progress (_type_, optional): _description_. Defaults to None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: _description_</span>
+<span class="sd">            FileNotFoundError: _description_</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Construct ExpFromFiles&quot;</span><span class="p">)</span>
+        <span class="n">exp_dependencies</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))</span>
+        <span class="n">pysurfex_experiment</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pysurfex_experiment&quot;</span><span class="p">)</span>
+        <span class="n">wdir</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exp_dir&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">wdir</span>
         <span class="n">exp_name</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="p">[</span><span class="s2">&quot;exp_name&quot;</span><span class="p">]</span>
+        <span class="n">pysurfex</span> <span class="o">=</span> <span class="n">exp_dependencies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pysurfex&quot;</span><span class="p">)</span>
 
         <span class="c1"># Check existence of needed system files</span>
         <span class="n">system_files</span> <span class="o">=</span> <span class="p">{</span>
@@ -157,15 +222,7 @@
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">system_files</span><span class="p">:</span>
             <span class="n">target</span> <span class="o">=</span> <span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">key</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;System target file is missing &quot;</span> <span class="o">+</span> <span class="n">target</span><span class="p">)</span>
-
-        <span class="n">c_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">wdir</span><span class="p">,</span> <span class="n">pysurfex_experiment</span><span class="p">)[</span><span class="s2">&quot;config_files&quot;</span><span class="p">]</span>
-        <span class="n">config_files</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">c_files</span><span class="p">:</span>
-            <span class="n">lfile</span> <span class="o">=</span> <span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/config/&quot;</span> <span class="o">+</span> <span class="n">f</span>
-            <span class="n">config_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lfile</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lfile</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Needed config file is missing &quot;</span> <span class="o">+</span> <span class="n">f</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;System target file is missing &quot;</span> <span class="o">+</span> <span class="n">target</span><span class="p">)</span>
 
         <span class="c1"># System</span>
         <span class="n">env_system</span> <span class="o">=</span> <span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/Env_system&quot;</span>
@@ -176,15 +233,16 @@
         <span class="c1"># System file path</span>
         <span class="n">input_paths</span> <span class="o">=</span> <span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/Env_input_paths&quot;</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_paths</span><span class="p">):</span>
-            <span class="n">system_file_paths</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+            <span class="n">system_file_paths</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;System setting input paths not found &quot;</span> <span class="o">+</span> <span class="n">input_paths</span><span class="p">)</span>
-        <span class="n">system_file_paths</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">SystemFilePathsFromSystem</span><span class="p">(</span><span class="n">system_file_paths</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">system</span><span class="o">.</span><span class="n">hosts</span><span class="p">,</span>
+        <span class="n">system_file_paths</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">SystemFilePathsFromSystem</span><span class="p">(</span><span class="n">system_file_paths</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span>
+                                                                 <span class="n">hosts</span><span class="o">=</span><span class="n">system</span><span class="o">.</span><span class="n">hosts</span><span class="p">,</span>
                                                                  <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span> <span class="n">wdir</span><span class="o">=</span><span class="n">wdir</span><span class="p">)</span>
         <span class="c1"># Dump experiment file paths</span>
         <span class="n">system_file_paths</span><span class="o">.</span><span class="n">dump_system</span><span class="p">(</span><span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/exp_system.json&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">env_submit</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/Env_submit&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+        <span class="n">env_submit</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/Env_submit&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))</span>
 
         <span class="n">logfile</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SFX_EXP_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;/ECF.log&quot;</span>
         <span class="n">server</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowServerFromFile</span><span class="p">(</span><span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/Env_server&quot;</span><span class="p">,</span> <span class="n">logfile</span><span class="p">)</span>
@@ -193,61 +251,96 @@
             <span class="n">progress</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ProgressFromFile</span><span class="p">(</span><span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/progress.json&quot;</span><span class="p">,</span>
                                                    <span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/progressPP.json&quot;</span><span class="p">)</span>
 
-        <span class="n">config_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config_files</span><span class="p">()</span>
-        <span class="n">all_merged_settings</span> <span class="o">=</span> <span class="n">experiment_setup</span><span class="o">.</span><span class="n">merge_toml_env_from_config_dicts</span><span class="p">(</span><span class="n">config_files</span><span class="p">)</span>
-        <span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span> <span class="o">=</span> <span class="n">experiment_setup</span><span class="o">.</span><span class="n">process_merged_settings</span><span class="p">(</span><span class="n">all_merged_settings</span><span class="p">)</span>
+        <span class="c1"># Configuration</span>
+        <span class="n">config_files_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config_files_dict</span><span class="p">(</span><span class="n">wdir</span><span class="p">,</span>
+                                                       <span class="n">pysurfex_experiment</span><span class="o">=</span><span class="n">pysurfex_experiment</span><span class="p">,</span>
+                                                       <span class="n">pysurfex</span><span class="o">=</span><span class="n">pysurfex</span><span class="p">)</span>
+        <span class="n">all_merged_settings</span> <span class="o">=</span> <span class="n">experiment_setup</span><span class="o">.</span><span class="n">merge_toml_env_from_config_dicts</span><span class="p">(</span><span class="n">config_files_dict</span><span class="p">)</span>
 
+        <span class="c1"># Geometry</span>
+        <span class="n">domains</span> <span class="o">=</span> <span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/config/domains/Harmonie_domains.json&quot;</span>
+        <span class="n">domains</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">domains</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))</span>
+        <span class="n">all_merged_settings</span><span class="p">[</span><span class="s2">&quot;GEOMETRY&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;DOMAINS&quot;</span><span class="p">:</span> <span class="n">domains</span><span class="p">})</span>
+        <span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span> <span class="o">=</span> \
+                                      <span class="n">experiment_setup</span><span class="o">.</span><span class="n">process_merged_settings</span><span class="p">(</span><span class="n">all_merged_settings</span><span class="p">)</span>
+
+        <span class="c1"># Submission exceptions</span>
         <span class="n">submit_exceptions</span> <span class="o">=</span> <span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/config/submit/submission.json&quot;</span>
-        <span class="n">submit_exceptions</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">submit_exceptions</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+        <span class="n">submit_exceptions</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">submit_exceptions</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))</span>
 
         <span class="n">Exp</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp_dependencies</span><span class="p">,</span> <span class="n">merged_config</span><span class="p">,</span> <span class="n">member_merged_config</span><span class="p">,</span>
                      <span class="n">submit_exceptions</span><span class="o">=</span><span class="n">submit_exceptions</span><span class="p">,</span>
-                     <span class="n">system_file_paths</span><span class="o">=</span><span class="n">system_file_paths</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">,</span>
+                     <span class="n">system_file_paths</span><span class="o">=</span><span class="n">system_file_paths</span><span class="p">,</span>
                      <span class="n">system</span><span class="o">=</span><span class="n">system</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span> <span class="n">env_submit</span><span class="o">=</span><span class="n">env_submit</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dump_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/exp_configuration.json&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">get_config_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the needed set of configurations files</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Check existence of needed config files</span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/config/config.toml&quot;</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
-        <span class="n">c_files</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;config_files&quot;</span><span class="p">]</span>
-        <span class="n">config_files</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">c_files</span><span class="p">:</span>
-            <span class="n">lfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/config/&quot;</span> <span class="o">+</span> <span class="n">f</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lfile</span><span class="p">):</span>
-                <span class="c1"># print(&quot;lfile&quot;, lfile)</span>
-                <span class="n">toml_dict</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">lfile</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No config file found for &quot;</span> <span class="o">+</span> <span class="n">lfile</span><span class="p">)</span>
-
-            <span class="n">config_files</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="n">f</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;toml&quot;</span><span class="p">:</span> <span class="n">toml_dict</span><span class="p">,</span>
-                    <span class="s2">&quot;blocks&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="s2">&quot;blocks&quot;</span><span class="p">]</span>
-                <span class="p">}</span>
-            <span class="p">})</span>
-        <span class="k">return</span> <span class="n">config_files</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">dump_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/exp_configuration.json&quot;</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">wdir</span><span class="p">,</span> <span class="n">pysurfex_experiment</span><span class="p">,</span> <span class="n">must_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_config_files_dict</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span>  <span class="n">pysurfex_experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pysurfex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">must_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the needed set of configurations files.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: if no config file is found.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: config_files_dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check existence of needed config files</span>
+        <span class="c1"># config_file = work_dir + &quot;/config/config.toml&quot;</span>
+        <span class="c1"># config = toml.load(open(config_file, mode=&quot;r&quot;, encoding=&quot;UTF-8&quot;))</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ExpFromFiles</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">pysurfex_experiment</span><span class="o">=</span><span class="n">pysurfex_experiment</span><span class="p">,</span>
+                                         <span class="n">must_exists</span><span class="o">=</span><span class="n">must_exists</span><span class="p">)</span>
+        <span class="n">c_files</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;config_files&quot;</span><span class="p">]</span>
+        <span class="n">config_files_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">c_files</span><span class="p">:</span>
+            <span class="n">lfile</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/config/&quot;</span> <span class="o">+</span> <span class="n">fname</span>
+            <span class="k">if</span> <span class="n">fname</span> <span class="o">==</span> <span class="s2">&quot;config_exp_surfex.toml&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pysurfex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">lfile</span> <span class="o">=</span> <span class="n">pysurfex</span> <span class="o">+</span> <span class="s2">&quot;/surfex/cfg/&quot;</span> <span class="o">+</span> <span class="n">fname</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lfile</span><span class="p">):</span>
+                <span class="c1"># print(&quot;lfile&quot;, lfile)</span>
+                <span class="n">toml_dict</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">lfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;No config file found for &quot;</span> <span class="o">+</span> <span class="n">lfile</span><span class="p">)</span>
+
+            <span class="n">config_files_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                <span class="n">fname</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;toml&quot;</span><span class="p">:</span> <span class="n">toml_dict</span><span class="p">,</span>
+                    <span class="s2">&quot;blocks&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">[</span><span class="n">fname</span><span class="p">][</span><span class="s2">&quot;blocks&quot;</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="n">config_files_dict</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">wdir</span><span class="p">,</span> <span class="n">pysurfex_experiment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">must_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the config definiton.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wdir (str): work directory to search for config</span>
+<span class="sd">            pysurfex_experiment (str, optional): path to pysurfex-experiment</span>
+<span class="sd">            must_exists (bool, optional): raise exception on not existing. Defaults to True.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: _description_</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of config files</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check existence of needed config files</span>
         <span class="n">local_config</span> <span class="o">=</span> <span class="n">wdir</span> <span class="o">+</span> <span class="s2">&quot;/config/config.toml&quot;</span>
-        <span class="n">exp_config</span> <span class="o">=</span> <span class="n">pysurfex_experiment</span> <span class="o">+</span> <span class="s2">&quot;/config/config.toml&quot;</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">local_config</span><span class="p">):</span>
-            <span class="n">c_files</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">local_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">exp_config</span><span class="p">):</span>
-            <span class="n">c_files</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">exp_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">must_exists</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No config found in &quot;</span> <span class="o">+</span> <span class="n">local_config</span> <span class="o">+</span> <span class="s2">&quot; or &quot;</span> <span class="o">+</span> <span class="n">exp_config</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">c_files</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">search_configs</span> <span class="o">=</span> <span class="p">[</span><span class="n">local_config</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">pysurfex_experiment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">search_configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pysurfex_experiment</span> <span class="o">+</span> <span class="s2">&quot;/config/config.toml&quot;</span><span class="p">)</span>
+
+        <span class="n">c_files</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">conf</span> <span class="ow">in</span> <span class="n">search_configs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c_files</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">conf</span><span class="p">):</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+                    <span class="n">c_files</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">must_exists</span> <span class="ow">and</span> <span class="n">c_files</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;No config found in {str(search_configs)}&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">c_files</span></div>
 </pre></div>
 
@@ -284,7 +377,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

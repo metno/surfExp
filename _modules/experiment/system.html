@@ -36,17 +36,34 @@
           <div class="body" role="main">
             
   <h1>Source code for experiment.system</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span></span><span class="sd">&quot;&quot;&quot;Handle system specific settings.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">toml</span>
 
 
 <div class="viewcode-block" id="System"><a class="viewcode-back" href="../../index.html#experiment.System">[docs]</a><span class="k">class</span> <span class="nc">System</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<div class="viewcode-block" id="System.__init__"><a class="viewcode-back" href="../../index.html#experiment.System.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host_system</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main system class.</span>
 
-        <span class="c1"># print(host_system)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        object (_type_): _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="System.__init__"><a class="viewcode-back" href="../../index.html#experiment.System.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host_system</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constuct a system object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            host_system (_type_): _description_</span>
+<span class="sd">            exp_name (_type_): _description_</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: _description_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">host_system</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_variables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SFX_EXP_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;SFX_EXP_LIB&quot;</span><span class="p">,</span> <span class="s2">&quot;JOBOUTDIR&quot;</span><span class="p">,</span> <span class="s2">&quot;MKDIR&quot;</span><span class="p">,</span>
-                                 <span class="s2">&quot;RSYNC&quot;</span><span class="p">,</span> <span class="s2">&quot;HOSTS&quot;</span><span class="p">,</span> <span class="s2">&quot;LOGIN_HOST&quot;</span><span class="p">,</span> <span class="s2">&quot;SCHEDULER_PYTHONPATH&quot;</span><span class="p">,</span> <span class="s2">&quot;SYNC_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;SURFEX_CONFIG&quot;</span><span class="p">]</span>
+                                 <span class="s2">&quot;RSYNC&quot;</span><span class="p">,</span> <span class="s2">&quot;HOSTS&quot;</span><span class="p">,</span> <span class="s2">&quot;LOGIN_HOST&quot;</span><span class="p">,</span> <span class="s2">&quot;SCHEDULER_PYTHONPATH&quot;</span><span class="p">,</span>
+                                 <span class="s2">&quot;SYNC_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;SURFEX_CONFIG&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exp_name</span> <span class="o">=</span> <span class="n">exp_name</span>
 
@@ -83,7 +100,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">system</span></div>
 
     <span class="k">def</span> <span class="nf">dump_system_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dump system variables to a json file.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            filename (_type_): _description_</span>
+<span class="sd">            indent (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">            stream (_type_, optional): _description_. Defaults to None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">system_vars</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">)):</span>
             <span class="n">host</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
@@ -91,68 +115,100 @@
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system_variables</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;HOSTS&quot;</span><span class="p">:</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                     <span class="n">var_host</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;HOSTNAME&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">host</span><span class="p">)]})</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
                     <span class="n">var_host</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;HOST=</span><span class="si">%s</span><span class="s2"> KEY=</span><span class="si">%s</span><span class="s2"> VALUE=</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
             <span class="n">system_vars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">host</span><span class="p">:</span> <span class="n">var_host</span><span class="p">})</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">system_vars</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">system_vars</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span>
 
 <div class="viewcode-block" id="System.get_var"><a class="viewcode-back" href="../../index.html#experiment.System.get_var">[docs]</a>    <span class="k">def</span> <span class="nf">get_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the variable value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            var (_type_): variable name</span>
+<span class="sd">            host (int): host</span>
+<span class="sd">            stream (int, optional): _description_. Defaults to None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Exception: _description_</span>
+<span class="sd">            Exception: _description_</span>
+<span class="sd">            Exception: _description_</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            _type_: variable value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;HOSTS&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Variable &quot;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; not found in system&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)]:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)][</span><span class="n">var</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; is None!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;HOSTS not found in system&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;SYNC_DATA&quot;</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
-                <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">stream</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)][</span><span class="n">var</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; is None!&quot;</span><span class="p">)</span>
 
-                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)][</span><span class="n">var</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@STREAM@&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@EXP@&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_name</span><span class="p">)</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@USER@&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;USER&quot;</span><span class="p">])</span>
-                <span class="k">return</span> <span class="n">value</span>
-            <span class="k">elif</span> <span class="n">var</span> <span class="o">==</span> <span class="s2">&quot;SYNC_DATA&quot;</span> <span class="ow">and</span> <span class="n">host</span> <span class="o">==</span> <span class="s2">&quot;0&quot;</span><span class="p">:</span>
-                <span class="k">pass</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Variable &quot;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; not found in system&quot;</span><span class="p">)</span></div></div>
+            <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">stream</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)][</span><span class="n">var</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@STREAM@&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@EXP@&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_name</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@USER@&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;USER&quot;</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Variable &quot;</span> <span class="o">+</span> <span class="n">var</span> <span class="o">+</span> <span class="s2">&quot; not found in system&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="SystemFromFile"><a class="viewcode-back" href="../../index.html#experiment.SystemFromFile">[docs]</a><span class="k">class</span> <span class="nc">SystemFromFile</span><span class="p">(</span><span class="n">System</span><span class="p">):</span>
-<div class="viewcode-block" id="SystemFromFile.__init__"><a class="viewcode-back" href="../../index.html#experiment.SystemFromFile.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_system_file</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a system from a toml file.&quot;&quot;&quot;</span>
 
-        <span class="c1"># system = System.get_file_name(wdir, full_path=True)</span>
-        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="n">env_system_file</span><span class="p">)</span>
+<div class="viewcode-block" id="SystemFromFile.__init__"><a class="viewcode-back" href="../../index.html#experiment.SystemFromFile.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_system_file</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct the System object from a system file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            env_system_file (str): System toml file.</span>
+<span class="sd">            exp_name (str): Name of the experiment.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If system file not found.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Env_system_file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">env_system_file</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">):</span>
-            <span class="n">host_system</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+            <span class="n">host_system</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">)</span>
         <span class="n">System</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host_system</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="SystemFilePathsFromSystem"><a class="viewcode-back" href="../../index.html#experiment.SystemFilePathsFromSystem">[docs]</a><span class="k">class</span> <span class="nc">SystemFilePathsFromSystem</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SystemFilePathsFromSystem"><a class="viewcode-back" href="../../index.html#experiment.SystemFilePathsFromSystem">[docs]</a><span class="k">class</span> <span class="nc">SystemFilePathsFromSystem</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Set system file paths from a system object.</span>
 
 <span class="sd">    Also set SFX_EXP system variables (File stucture/ssh etc)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="SystemFilePathsFromSystem.__init__"><a class="viewcode-back" href="../../index.html#experiment.SystemFilePathsFromSystem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths_in</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a SystemFilePathsFromSystem object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            paths_in (_type_): _description_</span>
+<span class="sd">            system (_type_): _description_</span>
+<span class="sd">            hosts (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">            stream (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">            wdir (_type_, optional): _description_. Defaults to None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># surfex.SystemFilePaths.__init__(self, paths)</span>
         <span class="k">if</span> <span class="n">hosts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span>
 
         <span class="c1"># override paths from system file</span>
         <span class="n">paths</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">hosts</span><span class="p">)):</span>
             <span class="n">host</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
             <span class="n">paths_host</span> <span class="o">=</span> <span class="p">{}</span>
@@ -166,6 +222,7 @@
             <span class="n">default_bin_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/lib/offline/exe/&quot;</span>
             <span class="n">default_clim_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/climate/&quot;</span>
             <span class="n">default_archive_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/archive/@YYYY@/@MM@/@DD@/@HH@/@EEE@/&quot;</span>
+            <span class="n">default_first_guess_dir</span> <span class="o">=</span> <span class="n">default_archive_dir</span>
             <span class="n">default_extarch_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/archive/extract/&quot;</span>
             <span class="n">default_forcing_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/forcing/@YYYY@@MM@@DD@@HH@/@EEE@/&quot;</span>
             <span class="n">default_obs_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@EEE@/&quot;</span>
@@ -176,6 +233,7 @@
                 <span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">:</span> <span class="n">sfx_lib</span><span class="p">,</span>
                 <span class="s2">&quot;default_bin_dir&quot;</span><span class="p">:</span> <span class="n">default_bin_dir</span><span class="p">,</span>
                 <span class="s2">&quot;default_archive_dir&quot;</span><span class="p">:</span> <span class="n">default_archive_dir</span><span class="p">,</span>
+                <span class="s2">&quot;default_first_guess_dir&quot;</span><span class="p">:</span> <span class="n">default_first_guess_dir</span><span class="p">,</span>
                 <span class="s2">&quot;default_extrarch_dir&quot;</span><span class="p">:</span> <span class="n">default_extarch_dir</span><span class="p">,</span>
                 <span class="s2">&quot;default_climdir&quot;</span><span class="p">:</span> <span class="n">default_clim_dir</span><span class="p">,</span>
                 <span class="s2">&quot;default_wrk_dir&quot;</span><span class="p">:</span> <span class="n">wrk_dir</span><span class="p">,</span>
@@ -189,20 +247,39 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths</span></div>
 
     <span class="k">def</span> <span class="nf">dump_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;Dump the system to a json file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename (str): filename</span>
+<span class="sd">            indent (int, optional): indentation in file. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SystemFilePathsFromSystemFile"><a class="viewcode-back" href="../../index.html#experiment.SystemFilePathsFromSystemFile">[docs]</a><span class="k">class</span> <span class="nc">SystemFilePathsFromSystemFile</span><span class="p">(</span><span class="n">SystemFilePathsFromSystem</span><span class="p">):</span>
-
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Set systemfilepaths from a system file.</span>
 
 <span class="sd">    Also set SFX_EXP system variables (File stucture/ssh etc)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="SystemFilePathsFromSystemFile.__init__"><a class="viewcode-back" href="../../index.html#experiment.SystemFilePathsFromSystemFile.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system_file_paths</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">system_file_paths</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">system_file_paths</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+        <span class="sd">&quot;&quot;&quot;Construct the SystemFilePathsFromSystem object.</span>
+
+<span class="sd">        From a systemfilepath file and a system file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            system_file_paths (_type_): _description_</span>
+<span class="sd">            system (_type_): _description_</span>
+<span class="sd">            name (_type_): _description_</span>
+<span class="sd">            hosts (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">            stream (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">            wdir (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">system_file_paths</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">system_file_paths</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">))</span>
         <span class="n">system</span> <span class="o">=</span> <span class="n">SystemFromFile</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="n">SystemFilePathsFromSystem</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system_file_paths</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span> <span class="n">wdir</span><span class="o">=</span><span class="n">wdir</span><span class="p">)</span></div></div>
+        <span class="n">SystemFilePathsFromSystem</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system_file_paths</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">hosts</span><span class="p">,</span>
+                                           <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span> <span class="n">wdir</span><span class="o">=</span><span class="n">wdir</span><span class="p">)</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>
@@ -238,7 +315,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

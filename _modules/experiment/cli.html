@@ -36,26 +36,30 @@
           <div class="body" role="main">
             
   <h1>Source code for experiment.cli</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">scheduler</span>
-<span class="kn">import</span> <span class="nn">experiment</span>
+<span></span><span class="sd">&quot;&quot;&quot;Client interfaces for offline experiment scripts.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">argparse</span> <span class="k">import</span> <span class="n">ArgumentParser</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
-
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">scheduler</span>
+<span class="kn">import</span> <span class="nn">experiment</span>
 
 <div class="viewcode-block" id="parse_surfex_script"><a class="viewcode-back" href="../../index.html#experiment.parse_surfex_script">[docs]</a><span class="k">def</span> <span class="nf">parse_surfex_script</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Parse the command line input arguments.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span><span class="s2">&quot;Surfex offline run script&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Action&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;prod&quot;</span><span class="p">,</span> <span class="s2">&quot;continue&quot;</span><span class="p">,</span> <span class="s2">&quot;testbed&quot;</span><span class="p">,</span>
-                                                                    <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;climate&quot;</span><span class="p">,</span> <span class="s2">&quot;co&quot;</span><span class="p">])</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Action&quot;</span><span class="p">,</span>
+                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;prod&quot;</span><span class="p">,</span> <span class="s2">&quot;continue&quot;</span><span class="p">,</span> <span class="s2">&quot;testbed&quot;</span><span class="p">,</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;climate&quot;</span><span class="p">,</span> <span class="s2">&quot;co&quot;</span><span class="p">])</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-exp_name&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Experiment name&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--wd&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Experiment working directory&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-dtg&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;DateTimeGroup (YYYYMMDDHH)&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-dtgend&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;DateTimeGroup (YYYYMMDDHH)&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--suite&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;surfex&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Type of suite definition&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-dtg&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;DateTimeGroup (YYYYMMDDHH)&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-dtgend&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;DateTimeGroup (YYYYMMDDHH)&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--suite&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;surfex&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Type of suite definition&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--stream&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Stream&quot;</span><span class="p">)</span>
 
     <span class="c1"># co</span>
@@ -76,15 +80,29 @@
 
 
 <div class="viewcode-block" id="surfex_script"><a class="viewcode-back" href="../../index.html#experiment.surfex_script">[docs]</a><span class="k">def</span> <span class="nf">surfex_script</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Modify or start an experiment suite.</span>
 
-    <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="s2">&quot;debug&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">debug</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        NotImplementedError: _description_</span>
+<span class="sd">        Exception: _description_</span>
+<span class="sd">        Exception: _description_</span>
+<span class="sd">        Exception: _description_</span>
+<span class="sd">        Exception: _description_</span>
+<span class="sd">        Exception: _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">debug</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(pathname)s</span><span class="s1">:</span><span class="si">%(lineno)s</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span>
+                            <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;************ PySurfexExp ******************&quot;</span><span class="p">)</span>
 
     <span class="n">action</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">]</span>
-    <span class="n">exp</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="s2">&quot;exp&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">exp</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;exp&quot;</span><span class="p">]</span>
+    <span class="n">exp</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exp&quot;</span><span class="p">)</span>
 
     <span class="c1"># Co</span>
     <span class="n">file</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span>
@@ -94,29 +112,26 @@
     <span class="n">dtgend</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;dtgend&quot;</span><span class="p">]</span>
     <span class="n">suite</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;suite&quot;</span><span class="p">]</span>
 
-    <span class="n">begin</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">if</span> <span class="s2">&quot;begin&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">begin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;begin&quot;</span><span class="p">]</span>
+    <span class="n">begin</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;begin&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">begin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">begin</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="n">wd</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="s2">&quot;wd&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">wd</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;wd&quot;</span><span class="p">]</span>
+    <span class="n">work_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;wd&quot;</span><span class="p">)</span>
 
     <span class="c1"># Find experiment</span>
-    <span class="k">if</span> <span class="n">wd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">wd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Setting current working directory as WD: &quot;</span> <span class="o">+</span> <span class="n">wd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setting current working directory as WD: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">exp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Setting EXP from WD:&quot;</span> <span class="o">+</span> <span class="n">wd</span><span class="p">)</span>
-        <span class="n">exp</span> <span class="o">=</span> <span class="n">wd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXP = &quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setting EXP from WD: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">work_dir</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;EXP = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exp</span><span class="p">)</span>
 
     <span class="n">libs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;surfex&quot;</span><span class="p">,</span> <span class="s2">&quot;scheduler&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">lib</span> <span class="ow">in</span> <span class="n">libs</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">lib</span><span class="p">):</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">lib</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Set first in system path: &quot;</span><span class="p">,</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">lib</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">lib</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">lib</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Set first in system path: </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">lib</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;action&quot;</span> <span class="o">==</span> <span class="s2">&quot;mon&quot;</span><span class="p">:</span>
         <span class="c1"># TODO</span>
@@ -125,7 +140,7 @@
     <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;co&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Checkout requires a file (--file)&quot;</span><span class="p">)</span>
-        <span class="n">experiment</span><span class="o">.</span><span class="n">ExpFromFiles</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">wd</span><span class="p">)</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">experiment</span><span class="o">.</span><span class="n">ExpFromFiles</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Some kind of start</span>
         <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;start&quot;</span> <span class="ow">and</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -134,52 +149,56 @@
             <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">dtg</span> <span class="o">=</span> <span class="s2">&quot;2008061600&quot;</span>
             <span class="k">if</span> <span class="n">suite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">suite</span> <span class="o">!=</span> <span class="s2">&quot;climate&quot;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Action was climate but you also specified a suite not being climate: &quot;</span> <span class="o">+</span> <span class="n">suite</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Action was climate but you also specified a suite not being &quot;</span> <span class="o">+</span>
+                                <span class="n">f</span><span class="s2">&quot;climate: </span><span class="si">{suite}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">suite</span> <span class="o">=</span> <span class="s2">&quot;climate&quot;</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;testbed&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">dtg</span> <span class="o">=</span> <span class="s2">&quot;2008061600&quot;</span>
             <span class="k">if</span> <span class="n">suite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">suite</span> <span class="o">!=</span> <span class="s2">&quot;testbed&quot;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Action was climate but you also specified a suite not being testbed: &quot;</span> <span class="o">+</span> <span class="n">suite</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Action was climate but you also specified a suite not being &quot;</span> <span class="o">+</span>
+                                <span class="n">f</span><span class="s2">&quot;testbed: </span><span class="si">{suite}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">suite</span> <span class="o">=</span> <span class="s2">&quot;testbed&quot;</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;install&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">dtg</span> <span class="o">=</span> <span class="s2">&quot;2008061600&quot;</span>
             <span class="n">suite</span> <span class="o">=</span> <span class="s2">&quot;Makeup&quot;</span>
 
-        <span class="n">updated_progress</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">updated_progress_pp</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">updated_progress</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;DTG&quot;</span><span class="p">:</span> <span class="n">dtg</span><span class="p">})</span>
-        <span class="k">if</span> <span class="n">dtgend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">updated_progress</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;DTGEND&quot;</span><span class="p">:</span> <span class="n">dtgend</span><span class="p">})</span>
-        <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No DTG was provided!&quot;</span><span class="p">)</span>
-            <span class="n">updated_progress</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;DTG&quot;</span><span class="p">:</span> <span class="n">dtg</span><span class="p">})</span>
-            <span class="n">updated_progress</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;DTGBEG&quot;</span><span class="p">:</span> <span class="n">dtg</span><span class="p">})</span>
-            <span class="k">if</span> <span class="n">dtgend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">updated_progress</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;DTGEND&quot;</span><span class="p">:</span> <span class="n">dtgend</span><span class="p">})</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">updated_progress</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;DTGEND&quot;</span><span class="p">:</span> <span class="n">dtg</span><span class="p">})</span>
-            <span class="n">updated_progress_pp</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;DTGPP&quot;</span><span class="p">:</span> <span class="n">dtg</span><span class="p">})</span>
 
-        <span class="n">progress_file</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/progress.json&quot;</span>
-        <span class="n">progress_pp_file</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/progressPP.json&quot;</span>
+        <span class="n">progress_file</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/progress.json&quot;</span>
+        <span class="n">progress_pp_file</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/progressPP.json&quot;</span>
 
+        <span class="n">progress</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;prod&quot;</span> <span class="ow">or</span> <span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;continue&quot;</span><span class="p">:</span>
             <span class="n">progress</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ProgressFromFile</span><span class="p">(</span><span class="n">progress_file</span><span class="p">,</span> <span class="n">progress_pp_file</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">dtgend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">progress</span><span class="o">.</span><span class="n">dtgend</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">progress</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">Progress</span><span class="p">(</span><span class="n">updated_progress</span><span class="p">,</span> <span class="n">updated_progress_pp</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No DTG was provided!&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Convert dtg/dtgend to datetime</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">dtg</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtg</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">dtgend</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Read progress from file. Returns None if no file exists or not set.</span>
+                <span class="n">progress</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ProgressFromFile</span><span class="p">(</span><span class="n">progress_file</span><span class="p">,</span> <span class="n">progress_pp_file</span><span class="p">)</span>
+
+                <span class="n">dtgbeg</span> <span class="o">=</span> <span class="n">dtg</span>
+                <span class="k">if</span> <span class="n">dtgend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">dtgend</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">dtgend</span>
+                <span class="n">progress</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">Progress</span><span class="p">(</span><span class="n">dtg</span><span class="p">,</span> <span class="n">dtgbeg</span><span class="p">,</span> <span class="n">dtgend</span><span class="o">=</span><span class="n">dtgend</span><span class="p">)</span>
 
         <span class="c1"># Update progress</span>
-        <span class="n">progress</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">progress_file</span><span class="p">,</span> <span class="n">progress_pp_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">progress_file</span><span class="p">,</span> <span class="n">progress_pp_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="c1"># Set experiment from files. Should be existing now after setup</span>
-        <span class="n">exp_dependencies_file</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/paths_to_sync.json&quot;</span>
-        <span class="n">sfx_exp</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ExpFromFiles</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="n">exp_dependencies_file</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/paths_to_sync.json&quot;</span>
+        <span class="n">sfx_exp</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ExpFromFiles</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">)</span>
         <span class="n">system</span> <span class="o">=</span> <span class="n">sfx_exp</span><span class="o">.</span><span class="n">system</span>
 
         <span class="n">data0</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SFX_EXP_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
@@ -190,34 +209,25 @@
         <span class="n">sfx_exp</span><span class="o">.</span><span class="n">write_scheduler_info</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
 
         <span class="c1"># Create LIB0 and copy init run if WD != lib0</span>
-        <span class="k">if</span> <span class="n">wd</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">lib0</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">work_dir</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">lib0</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
             <span class="n">ecf_init_run</span> <span class="o">=</span> <span class="n">lib0</span> <span class="o">+</span> <span class="s2">&quot;/ecf/InitRun.py&quot;</span>
             <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">ecf_init_run</span><span class="p">)</span>
-            <span class="c1"># print(dirname)</span>
             <span class="n">dirs</span> <span class="o">=</span> <span class="n">dirname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
-            <span class="c1"># print(dirs)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dirs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span>
-                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span>
+                <span class="k">for</span> <span class="n">dname</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="n">fpath</span> <span class="o">=</span> <span class="n">fpath</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dname</span><span class="p">)</span>
                     <span class="c1"># print(p)</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/ecf/InitRun.py&quot;</span><span class="p">,</span> <span class="n">ecf_init_run</span><span class="p">)</span>
-
-        <span class="c1"># Create the scheduler</span>
-        <span class="n">env_server</span> <span class="o">=</span> <span class="n">sfx_exp</span><span class="o">.</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/Env_server&quot;</span>
-        <span class="n">my_scheduler</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">EcflowServerFromFile</span><span class="p">(</span><span class="n">env_server</span><span class="p">,</span> <span class="n">logfile</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="vm">__file__</span><span class="p">,</span> <span class="s2">&quot;Creating def file&quot;</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">fpath</span> <span class="o">=</span> <span class="n">fpath</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/ecf/InitRun.py&quot;</span><span class="p">,</span> <span class="n">ecf_init_run</span><span class="p">)</span>
 
         <span class="c1"># Create and start the suite</span>
-        <span class="n">def_file</span> <span class="o">=</span> <span class="n">data0</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">suite</span> <span class="o">+</span> <span class="s2">&quot;.def&quot;</span>
+        <span class="n">def_file</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{data0}</span><span class="s2">/</span><span class="si">{suite}</span><span class="s2">.def&quot;</span>
 
-        <span class="n">defs</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">get_defs</span><span class="p">(</span><span class="n">sfx_exp</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">suite</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="n">defs</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">get_defs</span><span class="p">(</span><span class="n">sfx_exp</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="n">suite</span><span class="p">)</span>
         <span class="n">defs</span><span class="o">.</span><span class="n">save_as_defs</span><span class="p">(</span><span class="n">def_file</span><span class="p">)</span>
-        <span class="n">my_scheduler</span><span class="o">.</span><span class="n">start_suite</span><span class="p">(</span><span class="n">defs</span><span class="o">.</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">begin</span><span class="o">=</span><span class="n">begin</span><span class="p">)</span></div>
+        <span class="n">sfx_exp</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">start_suite</span><span class="p">(</span><span class="n">defs</span><span class="o">.</span><span class="n">suite_name</span><span class="p">,</span> <span class="n">def_file</span><span class="p">,</span> <span class="n">begin</span><span class="o">=</span><span class="n">begin</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">parse_update_config</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
@@ -236,31 +246,32 @@
 
 
 <span class="k">def</span> <span class="nf">update_config</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Update the experiment json file configurations.&quot;&quot;&quot;</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">debug</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(pathname)s</span><span class="s1">:</span><span class="si">%(lineno)s</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span>
+                            <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
 
-    <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="s2">&quot;debug&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">debug</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span>
+    <span class="n">exp</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exp&quot;</span><span class="p">)</span>
 
-    <span class="n">exp</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="s2">&quot;exp&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">exp</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;exp&quot;</span><span class="p">]</span>
-
-    <span class="n">wd</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="s2">&quot;wd&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="n">wd</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;wd&quot;</span><span class="p">]</span>
+    <span class="n">work_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;wd&quot;</span><span class="p">)</span>
 
     <span class="c1"># Find experiment</span>
-    <span class="k">if</span> <span class="n">wd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">wd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Setting current working directory as WD: &quot;</span> <span class="o">+</span> <span class="n">wd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">work_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">work_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setting current working directory as WD: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">exp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Setting EXP from WD:&quot;</span> <span class="o">+</span> <span class="n">wd</span><span class="p">)</span>
-        <span class="n">exp</span> <span class="o">=</span> <span class="n">wd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EXP = &quot;</span> <span class="o">+</span> <span class="n">exp</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setting EXP from WD: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">)</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">work_dir</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;EXP = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exp</span><span class="p">)</span>
 
     <span class="c1"># Set experiment from files. Should be existing now after setup</span>
-    <span class="n">exp_dependencies_file</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/paths_to_sync.json&quot;</span>
-    <span class="n">sfx_exp</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ExpFromFiles</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+    <span class="n">exp_dependencies_file</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{work_dir}</span><span class="s2">/paths_to_sync.json&quot;</span>
+    <span class="n">sfx_exp</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ExpFromFiles</span><span class="p">(</span><span class="n">exp_dependencies_file</span><span class="p">)</span>
     <span class="n">system</span> <span class="o">=</span> <span class="n">sfx_exp</span><span class="o">.</span><span class="n">system</span>
 
     <span class="n">data0</span> <span class="o">=</span> <span class="n">system</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;SFX_EXP_DATA&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
@@ -268,6 +279,7 @@
 
     <span class="c1"># Create exp scheduler json file</span>
     <span class="n">sfx_exp</span><span class="o">.</span><span class="n">write_scheduler_info</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Configuration was updated!&quot;</span><span class="p">)</span>
 </pre></div>
 
             <div class="clearer"></div>
@@ -303,7 +315,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>
