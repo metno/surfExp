@@ -42,13 +42,12 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">tomlkit</span>
-<span class="kn">import</span> <span class="nn">toml</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">toml</span>
+<span class="kn">import</span> <span class="nn">tomlkit</span>
 
 <span class="c1"># TODO make this a file general for all cli</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0.1-dev&quot;</span>
@@ -66,13 +65,13 @@
 <span class="sd">        _type_: _description_</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+    <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
     <span class="n">res</span> <span class="o">=</span> <span class="n">tomlkit</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
     <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">res</span>
 
 
-<span class="k">def</span> <span class="nf">toml_dump</span><span class="p">(</span><span class="n">to_dump</span><span class="p">,</span>  <span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">toml_dump</span><span class="p">(</span><span class="n">to_dump</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Dump toml to file.</span>
 
 <span class="sd">    Using tomlkit to preserve stucture</span>
@@ -83,7 +82,7 @@
 <span class="sd">        mode (str, optional): _description_. Defaults to &quot;w&quot;.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
     <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tomlkit</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">to_dump</span><span class="p">))</span>
     <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
@@ -103,7 +102,7 @@
 
     <span class="k">def</span> <span class="nf">recurse</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">parent_key</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
                 <span class="n">recurse</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">parent_key</span> <span class="o">+</span> <span class="n">sep</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">if</span> <span class="n">parent_key</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -117,7 +116,7 @@
 
 <span class="k">def</span> <span class="nf">deep_update</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">overrides</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Update a nested dictionary or similar mapping.</span>
-<span class="sd">   </span>
+
 <span class="sd">    Modify ``source`` in place.</span>
 
 <span class="sd">    Args:</span>
@@ -236,7 +235,7 @@
                 <span class="n">block_config</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">block</span><span class="p">:</span> <span class="n">hm_testbed</span><span class="p">})</span>
 
             <span class="k">if</span> <span class="n">user_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">user_settings</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_settings</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;User settings should be a dict here!&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">user_settings</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Merge user settings in block </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
@@ -265,7 +264,8 @@
     <span class="c1"># Check existence of needed config files</span>
     <span class="n">config_file</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/config/config.toml&quot;</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;config_file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">config_file</span><span class="p">)</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
     <span class="n">c_files</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;config_files&quot;</span><span class="p">]</span>
     <span class="n">config_files</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">c_files</span><span class="p">:</span>
@@ -348,9 +348,9 @@
     <span class="k">for</span> <span class="n">setting</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">:</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="n">setting</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">member3</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">member</span><span class="p">))</span>
+            <span class="n">member3</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;{int(member):03d}&quot;</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">setting</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;@EEE@&quot;</span><span class="p">,</span> <span class="n">member3</span><span class="p">)</span>
 
             <span class="n">this_setting</span> <span class="o">=</span> <span class="p">{</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">val</span><span class="p">}</span>
@@ -370,7 +370,17 @@
 <span class="k">def</span> <span class="nf">merge_to_toml_config_files</span><span class="p">(</span><span class="n">config_files</span><span class="p">,</span> <span class="n">wd</span><span class="p">,</span> <span class="n">configuration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">testbed_configuration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                <span class="n">user_settings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                <span class="n">write_config_files</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Merge to toml config files.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        config_files (_type_): _description_</span>
+<span class="sd">        wd (_type_): _description_</span>
+<span class="sd">        configuration (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">        testbed_configuration (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">        user_settings (_type_, optional): _description_. Defaults to None.</span>
+<span class="sd">        write_config_files (bool, optional): _description_. Defaults to True.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">config_files</span> <span class="o">=</span> <span class="n">config_files</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">config_files</span> <span class="o">=</span> <span class="n">merge_config_files_dict</span><span class="p">(</span><span class="n">config_files</span><span class="p">,</span> <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
                                            <span class="n">testbed_configuration</span><span class="o">=</span><span class="n">testbed_configuration</span><span class="p">,</span>
@@ -390,8 +400,9 @@
                     <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
-            <span class="n">f_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+            <span class="n">f_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">f_out</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
             <span class="n">f_out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tomlkit</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">block_config</span><span class="p">))</span>
+            <span class="n">f_out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="setup_files"><a class="viewcode-back" href="../../index.html#experiment_setup.setup_files">[docs]</a><span class="k">def</span> <span class="nf">setup_files</span><span class="p">(</span><span class="n">wd</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">revision</span><span class="p">,</span> <span class="n">pysurfex_experiment</span><span class="p">,</span> <span class="n">pysurfex</span><span class="p">,</span> <span class="n">offline_source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -448,23 +459,23 @@
     <span class="p">})</span>
 
     <span class="n">sfiles</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">system_files</span><span class="p">:</span>
-        <span class="n">sfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">system_files</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">sfile</span> <span class="ow">in</span> <span class="n">system_files</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">sfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sfile</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Setting up for host </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">sfiles</span><span class="p">)</span>
     <span class="n">fetched</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">revs</span> <span class="o">=</span> <span class="p">[</span><span class="n">revision</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">revision</span><span class="p">)</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">pysurfex_experiment</span><span class="p">):</span>
         <span class="n">revs</span> <span class="o">=</span> <span class="n">revs</span> <span class="o">+</span> <span class="p">[</span><span class="n">pysurfex_experiment</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">system_files</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">lname</span><span class="p">,</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">system_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="n">revs</span><span class="p">:</span>
-            <span class="n">lfile</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">system_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-            <span class="n">rfile</span> <span class="o">=</span> <span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">system_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">lfile</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">fname</span>
+            <span class="n">rfile</span> <span class="o">=</span> <span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">fname</span>
             <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">lfile</span><span class="p">)</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;rfile </span><span class="si">%s</span><span class="s2"> lfile </span><span class="si">%s</span><span class="s2"> dirname </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rfile</span><span class="p">,</span> <span class="n">lfile</span><span class="p">,</span> <span class="n">dirname</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lfile</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">lfile</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fetched</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;System file </span><span class="si">%s</span><span class="s2"> already exists, is not fetched again from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> 
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;System file </span><span class="si">%s</span><span class="s2"> already exists, is not fetched again from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
                                  <span class="n">lfile</span><span class="p">,</span> <span class="n">rev</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">rfile</span><span class="p">)</span> <span class="ow">and</span> <span class="n">lfile</span> <span class="o">!=</span> <span class="n">rfile</span><span class="p">:</span>
@@ -472,8 +483,8 @@
                     <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">rfile</span><span class="p">,</span> <span class="n">lfile</span><span class="p">)</span>
                     <span class="n">fetched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lfile</span><span class="p">)</span>
 
-        <span class="n">target</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">key</span>
-        <span class="n">lfile</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">system_files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">lname</span>
+        <span class="n">lfile</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">fname</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">target</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fetched</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;System target file </span><span class="si">%s</span><span class="s2"> already exists&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
@@ -483,7 +494,7 @@
 
     <span class="c1"># Set up pysurfex_experiment</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set up experiment from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">revs</span><span class="p">))</span>
-    <span class="n">config_dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;experiment&quot;</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment_scheduler&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment_tasks&quot;</span><span class="p">,</span> 
+    <span class="n">config_dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;experiment&quot;</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment_scheduler&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment_tasks&quot;</span><span class="p">,</span>
                    <span class="s2">&quot;experiment_setup&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="n">revs</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">cdir</span> <span class="ow">in</span> <span class="n">config_dirs</span><span class="p">:</span>
@@ -534,7 +545,8 @@
             <span class="k">if</span> <span class="n">lfile</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fetched</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> already exists, is not fetched again from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lfile</span><span class="p">,</span> <span class="n">rev</span><span class="p">)</span>
 
-    <span class="n">c_files</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))[</span><span class="s2">&quot;config_files&quot;</span><span class="p">]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+        <span class="n">c_files</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)[</span><span class="s2">&quot;config_files&quot;</span><span class="p">]</span>
     <span class="n">c_files</span> <span class="o">=</span> <span class="n">c_files</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;first_guess.yml&quot;</span><span class="p">,</span> <span class="s2">&quot;config.yml&quot;</span><span class="p">]</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Check out config files </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">c_files</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="p">[</span><span class="n">pysurfex</span><span class="p">]</span> <span class="o">+</span> <span class="n">revs</span><span class="p">:</span>
@@ -549,9 +561,10 @@
             <span class="k">if</span> <span class="n">rev</span> <span class="o">==</span> <span class="n">revision</span><span class="p">:</span>
                 <span class="n">rfile</span> <span class="o">=</span> <span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/config/&quot;</span> <span class="o">+</span> <span class="n">f</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;config_exp.toml&quot;</span> <span class="ow">or</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;config_exp_surfex.toml&quot;</span> \
-                                          <span class="ow">or</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;first_guess.yml&quot;</span> \
-                                          <span class="ow">or</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;config.yml&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;config_exp.toml&quot;</span> <span class="ow">or</span> \
+                   <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;config_exp_surfex.toml&quot;</span> <span class="ow">or</span> \
+                   <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;first_guess.yml&quot;</span> <span class="ow">or</span> \
+                   <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;config.yml&quot;</span><span class="p">:</span>
                     <span class="n">rfile</span> <span class="o">=</span> <span class="n">pysurfex</span> <span class="o">+</span> <span class="s2">&quot;/surfex/cfg/&quot;</span> <span class="o">+</span> <span class="n">f</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">rfile</span> <span class="o">=</span> <span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/config/&quot;</span> <span class="o">+</span> <span class="n">f</span>
@@ -588,8 +601,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">conf</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can not find configuration &quot;</span> <span class="o">+</span> <span class="n">configuration</span> <span class="o">+</span> <span class="s2">&quot; in: &quot;</span> <span class="o">+</span> <span class="n">conf</span><span class="p">)</span>
         <span class="n">configuration</span> <span class="o">=</span> <span class="n">toml_load</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
-        <span class="n">merge_to_toml_config_files</span><span class="p">(</span><span class="n">config_files</span><span class="p">,</span> <span class="n">wd</span><span class="p">,</span> <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span> 
-                                  <span class="n">write_config_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">merge_to_toml_config_files</span><span class="p">(</span><span class="n">config_files</span><span class="p">,</span> <span class="n">wd</span><span class="p">,</span> <span class="n">configuration</span><span class="o">=</span><span class="n">configuration</span><span class="p">,</span>
+                                   <span class="n">write_config_files</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Set up domains from </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">revs</span><span class="p">))</span>
     <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;config/domains&quot;</span><span class="p">]</span>
@@ -678,13 +691,14 @@
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rev</span><span class="p">,</span> <span class="n">cdir</span><span class="p">,</span> <span class="n">wd</span><span class="p">,</span> <span class="n">cdir</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">cdir</span><span class="p">):</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">cdir</span><span class="p">):</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Copy source code &quot;</span> <span class="o">+</span> <span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">cdir</span> <span class="o">+</span> <span class="s2">&quot; -&gt; &quot;</span> <span class="o">+</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">cdir</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Copy source code </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rev</span><span class="p">,</span> <span class="n">cdir</span><span class="p">,</span> <span class="n">wd</span><span class="p">,</span> <span class="n">cdir</span><span class="p">)</span>
                     <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">rev</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">cdir</span><span class="p">,</span> <span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">cdir</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">cdir</span> <span class="o">+</span> <span class="s2">&quot; already exists, is not fetched again from &quot;</span> <span class="o">+</span>
-                                 <span class="n">rev</span><span class="p">)</span>
+                                 <span class="o">+</span> <span class="n">rev</span><span class="p">)</span>
 
-    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">paths_to_sync</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/paths_to_sync.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">wd</span> <span class="o">+</span> <span class="s2">&quot;/paths_to_sync.json&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">paths_to_sync</span><span class="p">,</span> <span class="n">file_handler</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">parse_surfex_script_setup</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
@@ -739,7 +753,6 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">debug</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;debug&quot;</span><span class="p">)</span>
-    <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
     <span class="k">if</span> <span class="n">debug</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
@@ -760,7 +773,7 @@
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;You must set a host&quot;</span><span class="p">)</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
-    <span class="n">config_file</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;config_file&quot;</span><span class="p">)</span>       
+    <span class="n">config_file</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;config_file&quot;</span><span class="p">)</span>
 
     <span class="c1"># Find experiment</span>
     <span class="k">if</span> <span class="n">wd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -793,16 +806,17 @@
     <span class="k">if</span> <span class="n">offline_source</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No offline soure code set. Assume existing binaries&quot;</span><span class="p">)</span>
 
-    <span class="n">setup_files</span><span class="p">(</span><span class="n">wd</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span>  <span class="n">rev</span><span class="p">,</span> <span class="n">pysurfex_experiment</span><span class="p">,</span> <span class="n">pysurfex</span><span class="p">,</span>
+    <span class="n">setup_files</span><span class="p">(</span><span class="n">wd</span><span class="p">,</span> <span class="n">exp_name</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">rev</span><span class="p">,</span> <span class="n">pysurfex_experiment</span><span class="p">,</span> <span class="n">pysurfex</span><span class="p">,</span>
                 <span class="n">offline_source</span><span class="o">=</span><span class="n">offline_source</span><span class="p">,</span>
                 <span class="n">configuration</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">configuration_file</span><span class="o">=</span><span class="n">config_file</span><span class="p">)</span>
+
 
 <span class="k">def</span> <span class="nf">init_run_from_file</span><span class="p">(</span><span class="n">system_file</span><span class="p">,</span> <span class="n">exp_dependencies</span><span class="p">,</span> <span class="n">stream_nr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Call init_run from experiment files.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        system_file (str): File with system</span>
-<span class="sd">        exp_dependencies (str): File with experiment paths </span>
+<span class="sd">        exp_dependencies (str): File with experiment paths</span>
 <span class="sd">        stream_nr (int, optional): stream. Defaults to None.</span>
 
 <span class="sd">    Raises:</span>
@@ -811,11 +825,13 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">system_file</span><span class="p">):</span>
-        <span class="n">system</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">system_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">system_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+            <span class="n">system</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">system_file</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">exp_dependencies</span><span class="p">):</span>
-        <span class="n">paths_to_sync</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">exp_dependencies</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">exp_dependencies</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+            <span class="n">paths_to_sync</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">exp_dependencies</span><span class="p">)</span>
     <span class="n">init_run</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">paths_to_sync</span><span class="p">,</span> <span class="n">stream_nr</span><span class="o">=</span><span class="n">stream_nr</span><span class="p">)</span>
@@ -865,7 +881,7 @@
                <span class="s2">&quot; --exclude=.cache --exclude=__pycache__ --exclude=&#39;*.pyc&#39;&quot;</span>
     <span class="c1"># Sync pysurfex_experiment to LIB0</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">experiment_is_locked</span><span class="p">:</span>
-        <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;experiment&quot;</span><span class="p">,</span> <span class="s2">&quot;nam&quot;</span><span class="p">,</span> <span class="s2">&quot;toml&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="s2">&quot;ecf&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment_tasks&quot;</span><span class="p">,</span> 
+        <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;experiment&quot;</span><span class="p">,</span> <span class="s2">&quot;nam&quot;</span><span class="p">,</span> <span class="s2">&quot;toml&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="s2">&quot;ecf&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment_tasks&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;experiment_scheduler&quot;</span><span class="p">,</span> <span class="s2">&quot;experiment_setup&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{lib0}</span><span class="s2">/</span><span class="si">{d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -875,7 +891,7 @@
             <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">cmd</span> <span class="o">+</span> <span class="s2">&quot; failed!&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Not resyncing &quot;</span> <span class="o">+</span> <span class="n">pysurfex_experiment</span> <span class="o">+</span> <span class="s2">&quot; as experiment is locked&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Not resyncing </span><span class="si">%s</span><span class="s2"> as experiment is locked&quot;</span><span class="p">,</span> <span class="n">pysurfex_experiment</span><span class="p">)</span>
 
     <span class="c1"># Sync pysurfex to LIB0</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">experiment_is_locked</span><span class="p">:</span>
@@ -888,7 +904,7 @@
             <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">cmd</span> <span class="o">+</span> <span class="s2">&quot; failed!&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Not resyncing &quot;</span> <span class="o">+</span> <span class="n">pysurfex_experiment</span> <span class="o">+</span> <span class="s2">&quot; as experiment is locked&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Not resyncing </span><span class="si">%s</span><span class="s2"> as experiment is locked&quot;</span><span class="p">,</span> <span class="n">pysurfex</span><span class="p">)</span>
 
     <span class="c1"># Sync REV to LIB0</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">experiment_is_locked</span><span class="p">:</span>
@@ -964,19 +980,17 @@
                 <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span>
-                <span class="n">cmd</span> <span class="o">=</span> <span class="n">rsync</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">host_name0</span> <span class="o">+</span> <span class="n">lib0</span> <span class="o">+</span> <span class="s2">&quot;/ &quot;</span> <span class="o">+</span> <span class="n">host_namen</span> <span class="o">+</span> <span class="n">libn</span> <span class="o">+</span> \
-                                <span class="s2">&quot; --exclude=.git --exclude=.vscode --exclude=.github --exclude=coverage --exclude=.cache --exclude=.idea --exclude=__pycache__ --exclude=&#39;*.pyc&#39;&quot;</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{rsync}</span><span class="s2"> </span><span class="si">{host_name0}{lib0}</span><span class="s2">/ </span><span class="si">{host_namen}{libn}</span><span class="s2"> </span><span class="si">{excludes}</span><span class="s2">&quot;</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
                 <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">ret</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">Exception</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Data sync to &quot;</span> <span class="o">+</span> <span class="n">host_namen</span> <span class="o">+</span> <span class="s2">&quot; disabled&quot;</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Data sync to </span><span class="si">%s</span><span class="s2"> disabled&quot;</span><span class="p">,</span> <span class="n">host_namen</span><span class="p">)</span>
 
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Lock experiment&quot;</span><span class="p">)</span>
-    <span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">experiment_is_locked_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Something from git?&quot;</span><span class="p">)</span>
-    <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">experiment_is_locked_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_handler</span><span class="p">:</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Something from git?&quot;</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished syncing&quot;</span><span class="p">)</span>
 </pre></div>
 

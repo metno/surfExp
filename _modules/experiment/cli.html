@@ -43,14 +43,15 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">scheduler</span>
 <span class="kn">import</span> <span class="nn">experiment</span>
+
 
 <div class="viewcode-block" id="parse_surfex_script"><a class="viewcode-back" href="../../index.html#experiment.parse_surfex_script">[docs]</a><span class="k">def</span> <span class="nf">parse_surfex_script</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Parse the command line input arguments.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span><span class="s2">&quot;Surfex offline run script&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Action&quot;</span><span class="p">,</span>
-                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;prod&quot;</span><span class="p">,</span> <span class="s2">&quot;continue&quot;</span><span class="p">,</span> <span class="s2">&quot;testbed&quot;</span><span class="p">,</span><span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;climate&quot;</span><span class="p">,</span> <span class="s2">&quot;co&quot;</span><span class="p">])</span>
+                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;prod&quot;</span><span class="p">,</span> <span class="s2">&quot;continue&quot;</span><span class="p">,</span> <span class="s2">&quot;testbed&quot;</span><span class="p">,</span>
+                                 <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;climate&quot;</span><span class="p">,</span> <span class="s2">&quot;co&quot;</span><span class="p">])</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-exp_name&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;exp&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Experiment name&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--wd&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Experiment working directory&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
@@ -150,20 +151,19 @@
                 <span class="n">dtg</span> <span class="o">=</span> <span class="s2">&quot;2008061600&quot;</span>
             <span class="k">if</span> <span class="n">suite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">suite</span> <span class="o">!=</span> <span class="s2">&quot;climate&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Action was climate but you also specified a suite not being &quot;</span> <span class="o">+</span>
-                                <span class="n">f</span><span class="s2">&quot;climate: </span><span class="si">{suite}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="o">+</span> <span class="n">f</span><span class="s2">&quot;climate: </span><span class="si">{suite}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">suite</span> <span class="o">=</span> <span class="s2">&quot;climate&quot;</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;testbed&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dtg</span> <span class="o">=</span> <span class="s2">&quot;2008061600&quot;</span>
+                <span class="n">dtg</span> <span class="o">=</span> <span class="s2">&quot;200806160000&quot;</span>
             <span class="k">if</span> <span class="n">suite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">suite</span> <span class="o">!=</span> <span class="s2">&quot;testbed&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Action was climate but you also specified a suite not being &quot;</span> <span class="o">+</span>
-                                <span class="n">f</span><span class="s2">&quot;testbed: </span><span class="si">{suite}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="o">+</span> <span class="n">f</span><span class="s2">&quot;testbed: </span><span class="si">{suite}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">suite</span> <span class="o">=</span> <span class="s2">&quot;testbed&quot;</span>
         <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;install&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">dtg</span> <span class="o">=</span> <span class="s2">&quot;2008061600&quot;</span>
+                <span class="n">dtg</span> <span class="o">=</span> <span class="s2">&quot;200806160000&quot;</span>
             <span class="n">suite</span> <span class="o">=</span> <span class="s2">&quot;Makeup&quot;</span>
-
 
         <span class="n">progress_file</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/progress.json&quot;</span>
         <span class="n">progress_pp_file</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="o">+</span> <span class="s2">&quot;/progressPP.json&quot;</span>
@@ -172,7 +172,7 @@
         <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;prod&quot;</span> <span class="ow">or</span> <span class="n">action</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;continue&quot;</span><span class="p">:</span>
             <span class="n">progress</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ProgressFromFile</span><span class="p">(</span><span class="n">progress_file</span><span class="p">,</span> <span class="n">progress_pp_file</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">dtgend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">progress</span><span class="o">.</span><span class="n">dtgend</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
+                <span class="n">progress</span><span class="o">.</span><span class="n">dtgend</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">dtg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -180,10 +180,19 @@
 
                 <span class="c1"># Convert dtg/dtgend to datetime</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">dtg</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtg</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dtg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+                        <span class="n">dtg</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtg</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">dtg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+                        <span class="n">dtg</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtg</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;DTG must be YYYYMMDDHH or YYYYMMDDHHmm&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">dtgend</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
-
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dtgend</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+                        <span class="n">dtgend</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">dtgend</span><span class="p">)</span> <span class="o">==</span> <span class="mi">12</span><span class="p">:</span>
+                        <span class="n">dtgend</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">dtgend</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;DTGEND must be YYYYMMDDHH or YYYYMMDDHHmm&quot;</span><span class="p">)</span>
                 <span class="c1"># Read progress from file. Returns None if no file exists or not set.</span>
                 <span class="n">progress</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">ProgressFromFile</span><span class="p">(</span><span class="n">progress_file</span><span class="p">,</span> <span class="n">progress_pp_file</span><span class="p">)</span>
 

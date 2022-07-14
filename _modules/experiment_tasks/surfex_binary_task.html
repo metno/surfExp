@@ -43,6 +43,7 @@
 <span class="kn">import</span> <span class="nn">surfex</span>
 <span class="kn">from</span> <span class="nn">experiment_tasks</span> <span class="k">import</span> <span class="n">AbstractTask</span>
 
+
 <div class="viewcode-block" id="SurfexBinaryTask"><a class="viewcode-back" href="../../index.html#experiment_tasks.SurfexBinaryTask">[docs]</a><span class="k">class</span> <span class="nc">SurfexBinaryTask</span><span class="p">(</span><span class="n">AbstractTask</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Main surfex binary task executing all tasks.</span>
 
@@ -177,7 +178,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">namelist</span> <span class="o">=</span> <span class="n">surfex</span><span class="o">.</span><span class="n">BaseNamelist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">,</span>
                                             <span class="n">forc_zs</span><span class="o">=</span><span class="n">forc_zs</span><span class="p">,</span>
                                             <span class="n">prep_file</span><span class="o">=</span><span class="n">prep_file</span><span class="p">,</span> <span class="n">prep_filetype</span><span class="o">=</span><span class="n">prep_filetype</span><span class="p">,</span>
-                                            <span class="n">prep_pgdfile</span><span class="o">=</span><span class="n">prep_pgdfile</span><span class="p">,</span> 
+                                            <span class="n">prep_pgdfile</span><span class="o">=</span><span class="n">prep_pgdfile</span><span class="p">,</span>
                                             <span class="n">prep_pgdfiletype</span><span class="o">=</span><span class="n">prep_pgdfiletype</span><span class="p">,</span>
                                             <span class="n">dtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtg</span><span class="p">,</span> <span class="n">fcint</span><span class="o">=</span><span class="n">fcint</span><span class="p">)</span>
 
@@ -297,7 +298,7 @@
 <div class="viewcode-block" id="Prep.execute"><a class="viewcode-back" href="../../index.html#experiment_tasks.Prep.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute.&quot;&quot;&quot;</span>
         <span class="n">pgdfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#IO#CPGDFILE&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span>
-        <span class="n">pgd_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_file</span><span class="p">(</span><span class="s2">&quot;pgd_dir&quot;</span><span class="p">,</span> <span class="n">pgdfile</span><span class="p">,</span> 
+        <span class="n">pgd_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_file</span><span class="p">(</span><span class="s2">&quot;pgd_dir&quot;</span><span class="p">,</span> <span class="n">pgdfile</span><span class="p">,</span>
                                                             <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_climdir&quot;</span><span class="p">)</span>
         <span class="n">prep_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;INITIAL_CONDITIONS#PREP_INPUT_FILE&quot;</span><span class="p">,</span>
                                      <span class="n">validtime</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtg</span><span class="p">,</span> <span class="n">basedtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fg_dtg</span><span class="p">)</span>
@@ -342,7 +343,7 @@
 <span class="sd">            progress (_type_): _description_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">SurfexBinaryTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="s2">&quot;offline&quot;</span><span class="p">,</span>
-                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Forecast.execute"><a class="viewcode-back" href="../../index.html#experiment_tasks.Forecast.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute.&quot;&quot;&quot;</span>
@@ -384,25 +385,27 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        SurfexBinaryTask(AbstractTask): Inheritance of surfex binary task class</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="PerturbedRun.__init__"><a class="viewcode-back" href="../../index.html#experiment_tasks.PerturbedRun.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Construct a perturbed run task.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            task (_type_): _description_</span>
-<span class="sd">            config (_type_): _description_</span>
-<span class="sd">            system (_type_): _description_</span>
-<span class="sd">            exp_file_paths (_type_): _description_</span>
-<span class="sd">            progress (_type_): _description_</span>
+<span class="sd">            task (scheduler.Task): _description_</span>
+<span class="sd">            config (dict): _description_</span>
+<span class="sd">            system (dict): _description_</span>
+<span class="sd">            exp_file_paths (dict): _description_</span>
+<span class="sd">            progress (dict): _description_</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">SurfexBinaryTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="s2">&quot;perturbed&quot;</span><span class="p">,</span>
-                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PerturbedRun.execute"><a class="viewcode-back" href="../../index.html#experiment_tasks.PerturbedRun.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute.&quot;&quot;&quot;</span>
         <span class="n">pgdfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#IO#CPGDFILE&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span>
-        <span class="n">pgd_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_file</span><span class="p">(</span><span class="s2">&quot;pgd_dir&quot;</span><span class="p">,</span> <span class="n">pgdfile</span><span class="p">,</span> 
+        <span class="n">pgd_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_file</span><span class="p">(</span><span class="s2">&quot;pgd_dir&quot;</span><span class="p">,</span> <span class="n">pgdfile</span><span class="p">,</span>
                                                             <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_climdir&quot;</span><span class="p">)</span>
         <span class="n">bindir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;bin_dir&quot;</span><span class="p">,</span> <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_bin_dir&quot;</span><span class="p">)</span>
         <span class="n">binary</span> <span class="o">=</span> <span class="n">bindir</span> <span class="o">+</span> <span class="s2">&quot;/OFFLINE&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">xyz</span>
@@ -419,15 +422,14 @@
                                                              <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_archive_dir&quot;</span><span class="p">)</span>
 
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">archive</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#IO#CSURFFILE&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_PERT&quot;</span> <span class="o">+</span> \
-                                      <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pert</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pert</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span>
 
         <span class="c1"># Forcing dir is for previous cycle</span>
         <span class="c1"># TODO If pertubed runs moved to pp it should be a diffenent dtg</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">add_system_file_path</span><span class="p">(</span><span class="s2">&quot;forcing_dir&quot;</span><span class="p">,</span>
-                                                 <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;forcing_dir&quot;</span><span class="p">,</span>
-                                                                <span class="n">mbr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mbr</span><span class="p">,</span>
-                                                                <span class="n">basedtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fg_dtg</span><span class="p">,</span> 
-                                                                <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_forcing_dir&quot;</span><span class="p">))</span>
+        <span class="n">forcing_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;forcing_dir&quot;</span><span class="p">,</span> <span class="n">mbr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mbr</span><span class="p">,</span>
+                                                           <span class="n">basedtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fg_dtg</span><span class="p">,</span>
+                                                           <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_forcing_dir&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">add_system_file_path</span><span class="p">(</span><span class="s2">&quot;forcing_dir&quot;</span><span class="p">,</span> <span class="n">forcing_path</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
             <span class="n">SurfexBinaryTask</span><span class="o">.</span><span class="n">execute_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span>
@@ -476,9 +478,9 @@
         <span class="n">perturbed_file_pattern</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">setting_is</span><span class="p">(</span><span class="s2">&quot;SURFEX#ASSIM#SCHEMES#ISBA&quot;</span><span class="p">,</span> <span class="s2">&quot;EKF&quot;</span><span class="p">):</span>
             <span class="c1"># TODO If pertubed runs moved to pp it should be a diffenent dtg</span>
-            <span class="n">perturbed_run_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;archive_dir&quot;</span><span class="p">,</span>
-                                                                 <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_archive_dir&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">add_system_file_path</span><span class="p">(</span><span class="s2">&quot;perturbed_run_dir&quot;</span><span class="p">,</span> <span class="n">perturbed_run_dir</span><span class="p">,</span>
+            <span class="n">pert_run_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;archive_dir&quot;</span><span class="p">,</span>
+                                                               <span class="n">default_dir</span><span class="o">=</span><span class="s2">&quot;default_archive_dir&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">add_system_file_path</span><span class="p">(</span><span class="s2">&quot;perturbed_run_dir&quot;</span><span class="p">,</span> <span class="n">pert_run_dir</span><span class="p">,</span>
                                                      <span class="n">mbr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mbr</span><span class="p">,</span> <span class="n">basedtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtg</span><span class="p">)</span>
             <span class="n">first_guess_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;first_guess_dir&quot;</span><span class="p">,</span>
                                                                   <span class="n">mbr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mbr</span><span class="p">,</span>
@@ -486,8 +488,8 @@
                                                                   <span class="n">basedtg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fg_dtg</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">add_system_file_path</span><span class="p">(</span><span class="s2">&quot;first_guess_dir&quot;</span><span class="p">,</span> <span class="n">first_guess_dir</span><span class="p">)</span>
 
-            <span class="n">perturbed_file_pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#IO#CSURFFILE&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_PERT@PERT@&quot;</span> <span class="o">+</span> \
-                                                      <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span>
+            <span class="n">csurffile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;SURFEX#IO#CSURFFILE&quot;</span><span class="p">)</span>
+            <span class="n">perturbed_file_pattern</span> <span class="o">=</span> <span class="n">csurffile</span> <span class="o">+</span> <span class="s2">&quot;_PERT@PERT@&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
             <span class="n">SurfexBinaryTask</span><span class="o">.</span><span class="n">execute_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">pgd_file_path</span><span class="o">=</span><span class="n">pgd_file_path</span><span class="p">,</span>

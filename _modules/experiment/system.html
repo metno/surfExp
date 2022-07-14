@@ -86,9 +86,9 @@
 
         <span class="n">system</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">system</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;HOSTS&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">})</span>
-        <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">host</span><span class="p">,</span> <span class="n">host_label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">):</span>
             <span class="n">systemn</span> <span class="o">=</span> <span class="n">system0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">systemn</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;HOST&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">[</span><span class="n">host</span><span class="p">]})</span>
+            <span class="n">systemn</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;HOST&quot;</span><span class="p">:</span> <span class="n">host_label</span><span class="p">})</span>
             <span class="n">hostn</span> <span class="o">=</span> <span class="s2">&quot;HOST&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">hostn</span> <span class="ow">in</span> <span class="n">host_system</span><span class="p">[</span><span class="s2">&quot;HOST_SYSTEM&quot;</span><span class="p">]:</span>
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">host_system</span><span class="p">[</span><span class="s2">&quot;HOST_SYSTEM&quot;</span><span class="p">][</span><span class="n">hostn</span><span class="p">]:</span>
@@ -177,7 +177,7 @@
 <span class="sd">            FileNotFoundError: If system file not found.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Env_system_file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">env_system_file</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Env_system_file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">env_system_file</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">):</span>
             <span class="n">host_system</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">env_system_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -226,7 +226,6 @@
             <span class="n">default_extarch_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/archive/extract/&quot;</span>
             <span class="n">default_forcing_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/forcing/@YYYY@@MM@@DD@@HH@/@EEE@/&quot;</span>
             <span class="n">default_obs_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@EEE@/&quot;</span>
-            <span class="n">first_guess_dir</span> <span class="o">=</span> <span class="n">default_archive_dir</span>
             <span class="n">wrk_dir</span> <span class="o">=</span> <span class="n">sfx_data</span> <span class="o">+</span> <span class="s2">&quot;/@YYYY@@MM@@DD@_@HH@/@EEE@/&quot;</span>
             <span class="n">paths_host</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                 <span class="s2">&quot;sfx_exp_data&quot;</span><span class="p">:</span> <span class="n">sfx_data</span><span class="p">,</span>
@@ -240,8 +239,7 @@
                 <span class="s2">&quot;default_forcing_dir&quot;</span><span class="p">:</span> <span class="n">default_forcing_dir</span><span class="p">,</span>
                 <span class="s2">&quot;default_pgd_dir&quot;</span><span class="p">:</span> <span class="n">default_clim_dir</span><span class="p">,</span>
                 <span class="s2">&quot;default_prep_dir&quot;</span><span class="p">:</span> <span class="n">default_archive_dir</span><span class="p">,</span>
-                <span class="s2">&quot;default_obs_dir&quot;</span><span class="p">:</span> <span class="n">default_obs_dir</span><span class="p">,</span>
-                <span class="s2">&quot;default_first_guess_dir&quot;</span><span class="p">:</span> <span class="n">first_guess_dir</span>
+                <span class="s2">&quot;default_obs_dir&quot;</span><span class="p">:</span> <span class="n">default_obs_dir</span>
             <span class="p">})</span>
             <span class="n">paths</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">host</span><span class="p">:</span> <span class="n">paths_host</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">paths</span></div>

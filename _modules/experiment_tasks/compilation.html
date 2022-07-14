@@ -36,52 +36,90 @@
           <div class="body" role="main">
             
   <h1>Source code for experiment_tasks.compilation</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">experiment_tasks</span> <span class="k">import</span> <span class="n">AbstractTask</span>
-<span class="kn">import</span> <span class="nn">surfex</span>
+<span></span><span class="sd">&quot;&quot;&quot;Compilation.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">surfex</span>
+<span class="kn">from</span> <span class="nn">experiment_tasks</span> <span class="k">import</span> <span class="n">AbstractTask</span>
 
 
 <span class="k">class</span> <span class="nc">ConfigureOfflineBinaries</span><span class="p">(</span><span class="n">AbstractTask</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Configure offline binaries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        AbstractTask (_type_): _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct ConfigureOfflineBinaries task.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (_type_): _description_</span>
+<span class="sd">            config (_type_): _description_</span>
+<span class="sd">            system (_type_): _description_</span>
+<span class="sd">            exp_file_paths (_type_): _description_</span>
+<span class="sd">            progress (_type_): _description_</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">AbstractTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;Execute.&quot;&quot;&quot;</span>
         <span class="n">rte</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
         <span class="n">sfx_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">)</span>
-        <span class="n">flavour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s2">&quot;SURFEX_CONFIG&quot;</span><span class="p">]</span>
-        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;export HARMONIE_CONFIG=&quot;</span> <span class="o">+</span> <span class="n">flavour</span> <span class="o">+</span> <span class="s2">&quot; &amp;&amp; cd &quot;</span> <span class="o">+</span> <span class="n">sfx_lib</span> <span class="o">+</span>
-                                                       <span class="s2">&quot;/offline/src &amp;&amp; ./configure OfflineNWP ../conf//system.&quot;</span> <span class="o">+</span>
-                                                       <span class="n">flavour</span><span class="p">)</span>
+        <span class="n">flavour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">surfex_config</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;export HARMONIE_CONFIG=</span><span class="si">{flavour}</span><span class="s2"> &amp;&amp; cd </span><span class="si">{sfx_lib}</span><span class="s2">/offline/src &amp;&amp; &quot;</span> \
+              <span class="n">f</span><span class="s2">&quot;./configure OfflineNWP ../conf//system.</span><span class="si">{flavour}</span><span class="s2">&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 
         <span class="n">conf_file</span> <span class="o">=</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/conf/profile_surfex-&quot;</span> <span class="o">+</span> <span class="n">flavour</span>
         <span class="n">xyz_file</span> <span class="o">=</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/xyz&quot;</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;. &quot;</span> <span class="o">+</span> <span class="n">conf_file</span> <span class="o">+</span> <span class="s2">&quot;; echo </span><span class="se">\&quot;</span><span class="s2">$XYZ</span><span class="se">\&quot;</span><span class="s2"> &gt; &quot;</span> <span class="o">+</span> <span class="n">xyz_file</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can not write XYZ &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ex</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Can not write XYZ &quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">ex</span>
 
 
 <div class="viewcode-block" id="MakeOfflineBinaries"><a class="viewcode-back" href="../../index.html#experiment_tasks.MakeOfflineBinaries">[docs]</a><span class="k">class</span> <span class="nc">MakeOfflineBinaries</span><span class="p">(</span><span class="n">AbstractTask</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make offline binaries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        AbstractTask (_type_): _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="MakeOfflineBinaries.__init__"><a class="viewcode-back" href="../../index.html#experiment_tasks.MakeOfflineBinaries.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct MakeOfflineBinaries task.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task (_type_): _description_</span>
+<span class="sd">            config (_type_): _description_</span>
+<span class="sd">            system (_type_): _description_</span>
+<span class="sd">            exp_file_paths (_type_): _description_</span>
+<span class="sd">            progress (_type_): _description_</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">AbstractTask</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">system</span><span class="p">,</span> <span class="n">exp_file_paths</span><span class="p">,</span> <span class="n">progress</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MakeOfflineBinaries.execute"><a class="viewcode-back" href="../../index.html#experiment_tasks.MakeOfflineBinaries.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;Execute.&quot;&quot;&quot;</span>
         <span class="n">rte</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
         <span class="n">wrapper</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">sfx_lib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exp_file_paths</span><span class="o">.</span><span class="n">get_system_path</span><span class="p">(</span><span class="s2">&quot;sfx_exp_lib&quot;</span><span class="p">)</span>
-        <span class="n">flavour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="s2">&quot;SURFEX_CONFIG&quot;</span><span class="p">]</span>
+        <span class="n">flavour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">surfex_config</span>
 
         <span class="n">system_file</span> <span class="o">=</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/conf/system.&quot;</span> <span class="o">+</span> <span class="n">flavour</span>
         <span class="n">conf_file</span> <span class="o">=</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/conf/profile_surfex-&quot;</span> <span class="o">+</span> <span class="n">flavour</span>
 
-        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;. &quot;</span> <span class="o">+</span> <span class="n">system_file</span> <span class="o">+</span> <span class="s2">&quot;; . &quot;</span> <span class="o">+</span> <span class="n">conf_file</span> <span class="o">+</span> 
-                                                  <span class="s2">&quot;; cd &quot;</span> <span class="o">+</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/src &amp;&amp; make -j 4&quot;</span><span class="p">)</span>
-        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;. &quot;</span> <span class="o">+</span> <span class="n">system_file</span> <span class="o">+</span> <span class="s2">&quot;; . &quot;</span> <span class="o">+</span> <span class="n">conf_file</span> <span class="o">+</span>
-                                                  <span class="s2">&quot;; cd &quot;</span> <span class="o">+</span> <span class="n">sfx_lib</span> <span class="o">+</span> <span class="s2">&quot;/offline/src &amp;&amp; make installmaster&quot;</span><span class="p">)</span></div></div>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;. </span><span class="si">{system_file}</span><span class="s2">; . </span><span class="si">{conf_file}</span><span class="s2">; cd </span><span class="si">{sfx_lib}</span><span class="s2">/offline/src &amp;&amp; make -j 4&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;. </span><span class="si">{system_file}</span><span class="s2">; . </span><span class="si">{conf_file}</span><span class="s2">; cd </span><span class="si">{sfx_lib}</span><span class="s2">/offline/src &amp;&amp; make installmaster&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="n">surfex</span><span class="o">.</span><span class="n">BatchJob</span><span class="p">(</span><span class="n">rte</span><span class="p">,</span> <span class="n">wrapper</span><span class="o">=</span><span class="n">wrapper</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span></div></div>
 </pre></div>
 
             <div class="clearer"></div>

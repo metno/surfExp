@@ -412,7 +412,13 @@ mkdir DRAMMEN_SNOW_ASS
 <dl class="py class">
 <dt class="sig sig-object py" id="experiment_tasks.MakeOfflineBinaries">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">experiment_tasks.</span></span><span class="sig-name descname"><span class="pre">MakeOfflineBinaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment_tasks/compilation.html#MakeOfflineBinaries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment_tasks.MakeOfflineBinaries" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Make offline binaries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>AbstractTask</strong> (<em>_type_</em>) – _description_</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="experiment.SurfexSuite">
@@ -626,11 +632,11 @@ mkdir DRAMMEN_SNOW_ASS
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>task</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>config</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>system</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>exp_file_paths</strong> (<em>_type_</em>) – _description_</p></li>
-<li><p><strong>progress</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>task</strong> (<em>scheduler.Task</em>) – _description_</p></li>
+<li><p><strong>config</strong> (<em>dict</em>) – _description_</p></li>
+<li><p><strong>system</strong> (<em>dict</em>) – _description_</p></li>
+<li><p><strong>exp_file_paths</strong> (<em>dict</em>) – _description_</p></li>
+<li><p><strong>progress</strong> (<em>dict</em>) – _description_</p></li>
 </ul>
 </dd>
 </dl>
@@ -892,17 +898,15 @@ mkdir DRAMMEN_SNOW_ASS
 <dl class="py method">
 <dt class="sig sig-object py" id="experiment_tasks.MakeOfflineBinaries.__init__">
 <span class="sig-prename descclassname"><span class="pre">MakeOfflineBinaries.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment_tasks/compilation.html#MakeOfflineBinaries.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment_tasks.MakeOfflineBinaries.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize a task run by the default ecflow container.</p>
-<p>All tasks implelementing this base class will work with the default ecflow container</p>
+<dd><p>Construct MakeOfflineBinaries task.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>task</strong> – A scheduler.EcflowTask object</p></li>
-<li><p><strong>config</strong> (<em>dict</em>) – Dict with configuration</p></li>
-<li><p><strong>system</strong> (<em>dict</em>) – System variables for each host number.</p></li>
-<li><p><strong>exp_file_paths</strong> (<em>dict</em>) – Paths to dependencies used in the experiment</p></li>
-<li><p><strong>progress</strong> (<em>dict</em>) – Date/time information for the experiment</p></li>
-<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments.</p></li>
+<li><p><strong>task</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>config</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>system</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>exp_file_paths</strong> (<em>_type_</em>) – _description_</p></li>
+<li><p><strong>progress</strong> (<em>_type_</em>) – _description_</p></li>
 </ul>
 </dd>
 </dl>
@@ -911,7 +915,7 @@ mkdir DRAMMEN_SNOW_ASS
 <dl class="py method">
 <dt class="sig sig-object py" id="experiment_tasks.MakeOfflineBinaries.execute">
 <span class="sig-prename descclassname"><span class="pre">MakeOfflineBinaries.</span></span><span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/experiment_tasks/compilation.html#MakeOfflineBinaries.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#experiment_tasks.MakeOfflineBinaries.execute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do nothing for base execute task.</p>
+<dd><p>Execute.</p>
 </dd></dl>
 
 <dl class="py method">
