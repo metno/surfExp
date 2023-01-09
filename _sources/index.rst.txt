@@ -32,12 +32,6 @@ Classes
 .. autoclass:: experiment_tasks.Qc2obsmon
 .. autoclass:: experiment_tasks.FirstGuess4OI
 .. autoclass:: experiment_tasks.MakeOfflineBinaries
-.. autoclass:: experiment_tasks.LogProgress
-.. autoclass:: experiment_tasks.LogProgressPP
-.. autoclass:: experiment_tasks.PrepareOiSoilInput
-.. autoclass:: experiment_tasks.PrepareOiClimate
-.. autoclass:: experiment_tasks.PrepareSST
-.. autoclass:: experiment_tasks.PrepareLSM
 .. autoclass:: experiment.SurfexSuite
 .. autoclass:: experiment.System
 .. autoclass:: experiment.SystemFromFile
@@ -89,47 +83,22 @@ Class methods
 .. automethod:: experiment_tasks.FirstGuess4OI.write_file
 .. automethod:: experiment_tasks.MakeOfflineBinaries.__init__
 .. automethod:: experiment_tasks.MakeOfflineBinaries.execute
-.. automethod:: experiment_tasks.LogProgress.__init__
-.. automethod:: experiment_tasks.LogProgress.execute
-.. automethod:: experiment_tasks.LogProgressPP.__init__
-.. automethod:: experiment_tasks.LogProgressPP.execute
-.. automethod:: experiment_tasks.PrepareOiSoilInput.__init__
-.. automethod:: experiment_tasks.PrepareOiSoilInput.execute
-.. automethod:: experiment_tasks.PrepareOiClimate.__init__
-.. automethod:: experiment_tasks.PrepareOiClimate.execute
-.. automethod:: experiment_tasks.PrepareSST.__init__
-.. automethod:: experiment_tasks.PrepareSST.execute
-.. automethod:: experiment_tasks.PrepareLSM.__init__
-.. automethod:: experiment_tasks.PrepareLSM.execute
 .. automethod:: experiment.SurfexSuite.__init__
 .. automethod:: experiment.SurfexSuite.save_as_defs
 .. automethod:: experiment.System.__init__
 .. automethod:: experiment.System.get_var
 .. automethod:: experiment.SystemFromFile.__init__
-.. automethod:: experiment.Exp.checkout
 .. automethod:: experiment.ExpFromFiles.__init__
 .. automethod:: experiment.Progress.__init__
-.. automethod:: experiment.Progress.export_to_file
-.. automethod:: experiment.Progress.get_dtgbeg
-.. automethod:: experiment.Progress.get_dtgend
-.. automethod:: experiment.Progress.increment_progress
 .. automethod:: experiment.Progress.save
 .. automethod:: experiment.ProgressFromFile.__init__
-.. automethod:: experiment.ProgressFromFile.increment_progress
 .. automethod:: experiment.SystemFilePathsFromSystem.__init__
 .. automethod:: experiment.SystemFilePathsFromSystemFile.__init__
 
 Methods
 ---------------------------------------------
-.. autofunction:: experiment_scheduler.parse_submit_cmd_exp
-.. autofunction:: experiment_scheduler.submit_cmd_exp
-.. autofunction:: experiment_scheduler.parse_kill_cmd_exp
-.. autofunction:: experiment_scheduler.kill_cmd_exp
-.. autofunction:: experiment_scheduler.parse_status_cmd_exp
-.. autofunction:: experiment_scheduler.status_cmd_exp
 .. autofunction:: experiment.parse_surfex_script
 .. autofunction:: experiment.surfex_script
-.. autofunction:: experiment_setup.setup_files
 
 
 * :ref: `README`
