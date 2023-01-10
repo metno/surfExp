@@ -39,135 +39,92 @@
 <div class="section" id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
 <h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this headline">¶</a></h1>
 <p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a>
-The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and pysurfex-scheduler (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>)</p>
+The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>)</p>
 <p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></p>
 <div class="section" id="general-dependencies-from-pypi">
 <h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pysurfex
-pysurfex-scheduler
 </pre></div>
 </div>
-<p>pysurfex and pysurfex-scheduler bring extra dependencies like gridpp, titanlib and ecflow. If you install from pypi with pip these should be handled automatically.</p>
+<p>pysurfex bring extra dependencies like gridpp, titanlib. If you install from pypi with pip these should be handled automatically.</p>
 </div>
-<div class="section" id="code-unit-testing-and-coverage">
-<h2>Code unit testing and coverage<a class="headerlink" href="#code-unit-testing-and-coverage" title="Permalink to this headline">¶</a></h2>
-<p>Extra dependencies for testing</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>unittest
-nose
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The recommended installation method is using poetry. First install poetry. This can be done in several ways like a system package or ftom pypi. The recommended way is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -sSL https://install.python-poetry.org <span class="p">|</span> python3 -
 </pre></div>
 </div>
-<p>Create coverage/test by executing:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./create_coverage.sh
-</pre></div>
-</div>
-<p>Create documentation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs
-<span class="c1"># Create html documentation</span>
-make html
-<span class="c1"># Create latex documentation</span>
-make latex
-<span class="c1"># Create a pdf documentation</span>
-make latexpdf
+<p>When you have poetry installed make sure you have it in path. It might be installed in ~/.local/bin.
+To install the script system first clone <a class="reference external" href="https://github.com/metno/pysurfex-experiment">https://github.com/metno/pysurfex-experiment</a> and install it.
+To run commands interactively in the poetry environment you need to run either “poetry shell” or “poetry run [cmd]”</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+mkdir -p projects
+<span class="nb">cd</span> projects
+
+<span class="c1"># Clone the source code</span>
+clone https://github.com/metno/pysurfex-experiment
+
+<span class="c1"># Install the script system</span>
+<span class="nb">cd</span> pysurfex-experiment
+poetry install
+
+<span class="c1"># Enter the environment</span>
+poetry shell
 </pre></div>
 </div>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings. Adjust it to your clone, host-tag and system</p>
+<p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings.
+Adjust it to your clone, host-tag and system. First you will set up an experiment. This will merge configuration based on your settings and split them back to configuration files.
+You have the following config files in the config directories:</p>
+<blockquote>
+<div><ul class="simple">
+<li>config_exp.toml</li>
+<li>config_exp_surfex.toml</li>
+<li>config_exp_observations.toml</li>
+<li>config_exp_eps.toml</li>
+</ul>
+</div></blockquote>
+<p>In addition you will get some other config files used in the tasks.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
-<span class="nb">export</span> <span class="nv">PYSURFEX</span><span class="o">=</span><span class="s2">&quot;path-to-your-pysurfex-installation&quot;</span>
 <span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
-<span class="nb">export</span> <span class="nv">SCHEDULER_PYTHONPATH</span> <span class="o">=</span> <span class="s2">&quot;path-to-pysurfex-scheduler:path-to-ecflow-python-module&quot;</span>
-<span class="nb">export</span> <span class="nv">SCHEDULER_PATH</span><span class="o">=</span><span class="s2">&quot;path-to-ecflow-bin-dir&quot;</span>
 
-<span class="c1"># Set PYTHONPATH</span>
-<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span>:<span class="si">${</span><span class="nv">SCHEDULER_PYTHONPATH</span><span class="si">}</span>:<span class="nv">$PYTHONPATH</span>
-
-<span class="c1"># Set PATH</span>
-<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">SCHEDULER_PATH</span><span class="si">}</span>:<span class="nv">$PATH</span>
-</pre></div>
-</div>
-<p>The reason you need to adjust the path is that the scheduler uses the ecflow start scripts to start the server.
-If you have installed PYSURFEX and/or pysurfex-scheduler with pip you might try this to find the installation directories:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -c <span class="s2">&quot;import surfex; print(surfex.__path__[0] + &#39;/..&#39;)&quot;</span>
-python -c <span class="s2">&quot;import scheduler; print(scheduler.__path__[0] + &#39;/..&#39;)&quot;</span>
-</pre></div>
-</div>
-<p>Make sure you have the host you want to run on defined in pysurfex-experiment-clone-dir/config/<em>/host-name-tag</em>. There is a file for:</p>
-<ul class="simple">
-<li><dl class="first docutils">
-<dt>system -&gt; sym-linked to Env_system in setup</dt>
-<dd><ul class="first last">
-<li>Definition of experiment structure and system commands. The pythonpath for the scheduler should be defined as SCHEDULER_PYTHONPATH for each host in this file</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>submit -&gt; sym-linked to Env_submit in setup</dt>
-<dd><ul class="first last">
-<li>Definition of submission of the job tasks, e.g to a batch system</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>server -&gt; sym-linked to  Env_server in setup</dt>
-<dd><ul class="first last">
-<li>Definition of the scheduler running, e.g an ecflow server</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>env -&gt; sym-linked to Env in setup</dt>
-<dd><ul class="first last">
-<li>Definition of a host specific environment used in the beginning og job files</li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>input_paths -&gt; sym-linked to Env_input_paths in setup</dt>
-<dd><ul class="first last">
-<li>Definiton of paths and structure of the experiment and input data</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-<p>Now you can set up your experiment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
+<span class="nb">cd</span>
 mkdir -p sfx_home
 <span class="nb">cd</span> sfx_home
 mkdir -p my_exp
 <span class="nb">cd</span> my_exp
-<span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span>/bin/PySurfexExpSetup <span class="se">\</span>
- -experiment <span class="si">${</span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="si">}</span> <span class="se">\</span>
- -host <span class="si">${</span><span class="nv">HOST_TAG</span><span class="si">}</span> <span class="se">\</span>
- -surfex <span class="si">${</span><span class="nv">PYSURFEX</span><span class="si">}</span> <span class="se">\</span>
- -offline <span class="si">${</span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="si">}</span>
+
+<span class="c1"># The -offline argument is optional if you want to run with existing binaries</span>
+PySurfexExpSetup -experiment <span class="nv">$PYSURFEX_EXPERIMENT_PATH</span> -host <span class="nv">$HOST_TAG</span> -offline <span class="nv">$OFFLINE_SOURCE_CODE</span>
+<span class="c1"># This will create a file exp_dependencies.json</span>
+
+<span class="c1"># Alternative way of setting up a pre-defined SEKF configuration</span>
+PySurfexExpSetup -experiment <span class="nv">$PYSURFEX_EXPERIMENT_PATH</span> -host <span class="nv">$HOST_TAG</span> -offline <span class="nv">$OFFLINE_SOURCE_CODE</span> --config sekf
+
+<span class="c1"># To re-configure your config and (re-)create exp_configuration.json</span>
+PySurfexExpConfig
+
+<span class="c1"># To start you experiment</span>
+PySurfexExp start -dtg <span class="m">202301010300</span> -dtgend <span class="m">202301010600</span>
 </pre></div>
 </div>
-<p>You now a experiment which you can modify to your needs. You can choose to run with existing binaries without specifying -offline when setting up and add the proper bin_dir to our Env_input_files file. Instead of the -experiment argument you can also specify a full existing experiment by using the -rev argument.</p>
-<p>If you run ecflow with SSL support, remember to add before starting:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
-</pre></div>
-</div>
-<p>This must also be added to your job tasks for example in the Env file for communication with your server fom the batch job. Finally you can start your experiment</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfexExp start -dtg <span class="m">2022020100</span> -dtgend <span class="m">2022020103</span>
-</pre></div>
-</div>
-<p>All batch jobs start from local json files with configuration of server, system and you configuration found on the scratch directory on the whost you run on. It means if you do local configuration changes you will need to either start/continue the run with “PySurfexExp start/prod” or you can execute PySurfexExpConfig and then sync files from HOME on HOST0 to scratch on the used hosts by executing the InitRun task in the scheduler. InitRun alone will not update your configurations, only sync files.</p>
-</div>
-<div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<p>See <a class="reference external" href="https://metno.github.io/pysurfex-experiment/#examples">https://metno.github.io/pysurfex-experiment/#examples</a></p>
+<p>Following host tags are tested:</p>
+<blockquote>
+<div><ul class="simple">
+<li>ECMWF-atos (ATOS at ECMWF)</li>
+<li>ppi-rhel8  (RH8 PPI at met.no)</li>
+<li>nebula     (nebula.nsc.liu.se)</li>
+</ul>
+<p>The experiment specific file exp_dependencies.json will tell you the location of the system dependent files.
+You might want to override them with local copies if needed.</p>
+</div></blockquote>
 </div>
 <div class="section" id="trainings">
 <h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this headline">¶</a></h2>
-<p><cite>Budapest May 2022 &lt;https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/&gt;</cite></p>
+<p><cite>Budapest May 2022 &lt;https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/&gt;</cite> (Old version)</p>
 </div>
 </div>
 
@@ -181,9 +138,8 @@ mkdir -p my_exp
   <ul>
 <li><a class="reference internal" href="#">This repository is a setup to create and run offline SURFEX experiments.</a><ul>
 <li><a class="reference internal" href="#general-dependencies-from-pypi">General dependencies (from pypi)</a></li>
-<li><a class="reference internal" href="#code-unit-testing-and-coverage">Code unit testing and coverage</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
-<li><a class="reference internal" href="#examples">Examples</a></li>
 <li><a class="reference internal" href="#trainings">Trainings</a></li>
 </ul>
 </li>

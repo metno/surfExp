@@ -11,7 +11,6 @@ PYSURFEX Experiment documentation
    :caption: Contents:
 
 .. include::  README.rst
-.. include::  docs/example.rst
 
 Classes
 ---------------------------------------------
