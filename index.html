@@ -127,9 +127,17 @@ PySurfexExp start -dtg <span class="m">202301010300</span> -dtgend <span class="
 You might want to override them with local copies if needed.</p>
 </div></blockquote>
 </div>
+<div class="section" id="extra-environment-on-ppi-rhel8-needed-to-start-experiments">
+<h2>Extra environment on PPI-RHEL8 needed to start experiments<a class="headerlink" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module use /modules/MET/rhel8/user-modules/
+module load ecflow/5.8.1
+<span class="nb">export</span> <span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="trainings">
 <h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this headline">¶</a></h2>
-<p><cite>Budapest May 2022 &lt;https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/&gt;</cite> (Old version)</p>
+<p><a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/">Budapest May 2022</a> (Old version)</p>
 </div>
 <div class="section" id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
@@ -173,6 +181,7 @@ You might want to override them with local copies if needed.</p>
 <li><a class="reference internal" href="#general-dependencies-from-pypi">General dependencies (from pypi)</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments">Extra environment on PPI-RHEL8 needed to start experiments</a></li>
 <li><a class="reference internal" href="#trainings">Trainings</a></li>
 <li><a class="reference internal" href="#classes">Classes</a></li>
 <li><a class="reference internal" href="#class-methods">Class methods</a></li>

@@ -104,8 +104,17 @@ Following host tags are tested:
  The experiment specific file exp_dependencies.json will tell you the location of the system dependent files.
  You might want to override them with local copies if needed.
 
+Extra environment on PPI-RHEL8 needed to start experiments
+---------------------------------------------------------------
+
+.. code-block:: bash
+
+ module use /modules/MET/rhel8/user-modules/
+ module load ecflow/5.8.1
+ export ECF_SSL=1
+
 
 Trainings
 -----------------------
 
-`Budapest May 2022 <https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/>` (Old version)
+`Budapest May 2022 <https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/>`_ (Old version)
