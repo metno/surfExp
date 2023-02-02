@@ -165,7 +165,10 @@ class SurfexSuite():
             cycle_input = scheduler.EcflowSuiteFamily("CycleInput", dtg_node, ecf_files, triggers=triggers)
             cycle_input_dtg_node.update({dtg_str: cycle_input})
 
-            scheduler.EcflowSuiteTask("Forcing", cycle_input, config, task_settings, ecf_files, input_template=template)
+            forcing = scheduler.EcflowSuiteTask("Forcing", cycle_input, config, task_settings, ecf_files, input_template=template)
+            triggers = scheduler.EcflowSuiteTriggers([scheduler.EcflowSuiteTrigger(forcing)])
+            if config.get_setting("FORCING#MODIFY_FORCING"):
+                scheduler.EcflowSuiteTask("ModifyForcing", cycle_input, config, task_settings, ecf_files, input_template=template, triggers=triggers)
 
             triggers = scheduler.EcflowSuiteTriggers([static_complete,
                                                      prepare_cycle_complete])

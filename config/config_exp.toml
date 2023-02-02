@@ -78,5 +78,7 @@ CO2 = "constant"
 WIND_CONVERTER = "windspeed"
 WINDDIR_CONVERTER = "winddir"
 DEBUG = false
+TIMESTEP = 3600
+MODIFY_FORCING = true
 
 [SYSTEM]

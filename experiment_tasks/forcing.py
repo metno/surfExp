@@ -79,6 +79,7 @@ class Forcing(AbstractTask):
         wind_converter = self.config.get_setting("FORCING#WIND_CONVERTER")
         wind_dir_converter = self.config.get_setting("FORCING#WINDDIR_CONVERTER")
         debug = self.config.get_setting("FORCING#DEBUG")
+        timestep = self.config.get_setting("FORCING#TIMESTEP")
 
         kwargs.update({"input_format": input_format})
         kwargs.update({"pattern": pattern})
@@ -93,6 +94,7 @@ class Forcing(AbstractTask):
         kwargs.update({"wind_converter": wind_converter})
         kwargs.update({"wind_dir_converter": wind_dir_converter})
         kwargs.update({"debug": debug})
+        kwargs.update({"timestep": timestep})
 
         if os.path.exists(output):
             logging.info("Output already exists: %s", output)
@@ -457,3 +459,57 @@ class MetNordicForcing(AbstractTask):
         else:
             options, var_objs, att_objs = surfex.forcing.set_forcing_config(**kwargs)
             surfex.forcing.run_time_loop(options, var_objs, att_objs)
+            
+
+class ModifyForcing(AbstractTask):
+
+    """Create modify forcing task."""
+
+    def __init__(self, config):
+        """Construct modify forcing task.
+
+        Args:
+            config (dict): Actual configuration dict
+
+        """
+        AbstractTask.__init__(self, config)
+        self.var_name = self.config.get_setting("TASK#VAR_NAME")
+        user_config = None
+        # TODO fix this test
+        if "TASK" in self.config.settings:
+            if "FORCING_USER_CONFIG" in self.config.settings["TASK"]:
+                user_config = self.config.get_setting("TASK#FORCING_USER_CONFIG", default=None)
+        self.user_config = user_config
+
+    def execute(self):
+        """Execute the forcing task.
+
+        Raises:
+            NotImplementedError: _description_
+        """
+        dtg = self.dtg
+        fcint = self.fcint
+        dtg_prev = dtg - timedelta(seconds=fcint)
+        print("forcing.py_dtg_prev:", dtg, dtg_prev)
+        input_dir = self.exp_file_paths.get_system_path("forcing_dir", 
+                basedtg=dtg_prev, 
+                default_dir="default_forcing_dir")
+        output_dir = self.exp_file_paths.get_system_path("forcing_dir", 
+                basedtg=dtg, 
+                default_dir="default_forcing_dir")
+        input_file = input_dir + "FORCING.nc"
+        output_file = output_dir + "FORCING.nc"
+        time_step = -1
+        variables = ["LWdown", "DIR_SWdown"]
+        kwargs = {}
+
+        kwargs.update({"input_file": input_file})
+        kwargs.update({"output_file": output_file})
+        kwargs.update({"time_step": time_step})
+        kwargs.update({"variables": variables})
+        if os.path.exists(output_file) and os.path.exists(input_file):
+            surfex.forcing.modify_forcing(**kwargs)
+        else:
+            logging.info("Output or inut is missing: %s", output)
+
+
