@@ -25,34 +25,16 @@ class Progress():
         """
         # Update DTG
         self.dtg = dtg
-        if self.dtg is None:
-            self.dtg_string = None
-        else:
-            self.dtg_string = self.dtg.strftime("%Y%m%d%H%M")
 
         # Update DTGEND
         self.dtgend = dtgend
-        if dtgend is None:
-            self.dtgend = self.dtg
-        if self.dtgend is None:
-            self.dtgend_string = None
-        else:
-            self.dtgend_string = self.dtgend.strftime("%Y%m%d%H%M")
 
         # Update DTGBEG
         self.dtgbeg = dtgbeg
-        if dtgbeg is None:
-            self.dtgbeg_string = None
-        else:
-            self.dtgbeg_string = self.dtgbeg.strftime("%Y%m%d%H%M")
 
         self.dtgpp = dtgpp
         if dtgpp is None:
             self.dtgpp = self.dtg
-        if dtgpp is None:
-            self.dtgpp_string = None
-        else:
-            self.dtgpp_string = self.dtgpp.strftime("%Y%m%d%H%M")
 
         self.stream = stream
         logging.debug("DTG: %s", self.dtg_string)
@@ -78,6 +60,20 @@ class Progress():
             raise Exception("Unknown DTG input")
         return dtg
 
+    def __getattr__(self, name):
+        if name[-7:] == "_string":
+            base = name[0:-7]
+            if base in self.__dict__:
+                val = self.__dict__[base]
+                if isinstance(val, datetime):
+                    return val.strftime("%Y%m%d%H%M")
+                else:
+                    raise AttributeError
+            else:
+                raise AttributeError
+        else:
+            raise AttributeError
+
     def update(self, dtg=None, dtgpp=None):
         """_summary_
 
@@ -90,12 +86,10 @@ class Progress():
             dtg = self.string2datetime(dtg)
             # Update DTG
             self.dtg = dtg
-            self.dtg_string = self.dtg.strftime("%Y%m%d%H%M")
 
         if dtgpp is not None:
             dtgpp = self.string2datetime(dtgpp)
             self.dtgpp = dtgpp
-            self.dtgpp_string = self.dtgpp.strftime("%Y%m%d%H%M")
 
     def save_as_json(self, exp_dir, progress=False, progress_pp=False, indent=None):
         """Save progress to file.

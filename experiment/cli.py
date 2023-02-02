@@ -123,6 +123,8 @@ def surfex_script(**kwargs):
             progress = experiment.ProgressFromFiles(work_dir)
             if dtgend is not None:
                 progress.dtgend = datetime.strptime(dtgend, "%Y%m%d%H%M")
+            if dtg is not None:
+                progress.dtg = datetime.strptime(dtg, "%Y%m%d%H%M")
         else:
             if action == "start":
                 if dtg is None:
