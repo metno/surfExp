@@ -112,6 +112,7 @@ Extra environment on PPI-RHEL8 needed to start experiments
  module use /modules/MET/rhel8/user-modules/
  module load ecflow/5.8.1
  export ECF_SSL=1
+ export UDUNITS2_XML_PATH=/usr/share/udunits/udunits2.xml
 
 
 Trainings
