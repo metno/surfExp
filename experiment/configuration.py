@@ -946,7 +946,7 @@ class Configuration():
 
         expanded_hh_list = []
         expanded_ll_list = []
-        for __, lll in enumerate(hhs):
+        for __, lll in enumerate(lls):
             logging.debug("Hour: %s", lll)
             if lll.find(sep) > 0:
                 p_1, step = lll.split(sep)
