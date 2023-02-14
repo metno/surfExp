@@ -510,6 +510,6 @@ class ModifyForcing(AbstractTask):
         if os.path.exists(output_file) and os.path.exists(input_file):
             surfex.forcing.modify_forcing(**kwargs)
         else:
-            logging.info("Output or inut is missing: %s", output)
+            logging.info("Output or inut is missing: %s", output_file)
 
 
