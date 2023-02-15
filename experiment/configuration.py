@@ -943,23 +943,23 @@ class Configuration():
 
         if len(hhs) != len(lls):
             raise Exception
-
-        expanded_hh_list = []
-        expanded_ll_list = []
-        for __, lll in enumerate(lls):
-            logging.debug("Hour: %s", lll)
-            if lll.find(sep) > 0:
-                p_1, step = lll.split(sep)
-                h_1, h_2 = p_1.split("-")
-                for hour in range(int(h_1), int(h_2) + 1, int(step)):
-                    hour = f"{hour:02d}"
-                    expanded_hh_list.append(hour)
-                    expanded_ll_list.append(lll)
-            else:
-                hour = f"{int(lll):02d}"
-                expanded_hh_list.append(hour)
-                expanded_ll_list.append(lll)
-
+        expanded_hh_list = hhs
+        expanded_ll_list = lls
+        #expanded_hh_list = []
+        #expanded_ll_list = []
+        #for __, lll in enumerate(hhs):
+        #    logging.debug("Hour: %s", lll)
+        #    if lll.find(sep) > 0:
+        #        p_1, step = lll.split(sep)
+        #        h_1, h_2 = p_1.split("-")
+        #        for hour in range(int(h_1), int(h_2) + 1, int(step)):
+        #            hour = f"{hour:02d}"
+        #            expanded_hh_list.append(hour)
+        #            expanded_ll_list.append(lll)
+        #    else:
+        #        hour = f"{int(lll):02d}"
+        #        expanded_hh_list.append(hour)
+        #        expanded_ll_list.append(lll)
         logging.debug("Expanded hh list=%s, expanded ll list=%s",
                       expanded_hh_list, expanded_ll_list)
         return expanded_hh_list, expanded_ll_list
