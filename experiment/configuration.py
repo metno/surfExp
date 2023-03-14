@@ -104,7 +104,7 @@ class Configuration():
 
         server = self.settings["SCHEDULER"]
         self.server = scheduler.EcflowServer(ecf_host=server["ECF_HOST"], ecf_port=server["ECF_PORT"])
-        self.env_submit = self.settings["SUBMISSION"]
+        self.env_submit = self.settings["submission"]
 
         troika = None
         try:
@@ -252,7 +252,7 @@ class Configuration():
 
         """
         for key, value in overrides.items():
-            if isinstance(value, collections.Mapping) and value:
+            if isinstance(value, collections.abc.Mapping) and value:
                 returned = Configuration.deep_update(source.get(key, {}), value)
                 source[key] = returned
             else:

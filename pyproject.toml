@@ -24,6 +24,8 @@ demjson = "1.6"
 # pysurfex-scheduler = {git = "git@github.com:metno/pysurfex-scheduler.git", branch="feature/deode_similar", develop = true}
 pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true}
 troika = {git = "https://git.ecmwf.int/scm/ecsdk/troika.git", tag="0.1.8"}
+pytest-mock = "^3.10.0"
+pytest-cov = "^4.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.0"
@@ -34,5 +36,13 @@ pycodestyle = "^2.10.0"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.pytest.ini_options]
+    testpaths = ["tests/unit", "tests/smoke"]
+    addopts = "-v --cov-report=term-missing --cov-report=term:skip-covered --cov-report=html --cov=."
+    log_cli_level = "INFO"
+
+[tool.black]
+    line-length = 90
+
 [tool.pylint."FORMAT"]
-max-line-length = 120
+max-line-length = 90

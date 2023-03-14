@@ -13,7 +13,7 @@ class SurfexBinaryTask(AbstractTask):
         AbstractTask (object): Inheritance of base task class
     """
 
-    def __init__(self, config, mode):
+    def __init__(self, config, mode=None):
         """Construct a surfex binary task.
 
         Args:
@@ -23,6 +23,9 @@ class SurfexBinaryTask(AbstractTask):
         """
         AbstractTask.__init__(self, config)
 
+        if mode is None:
+            logging.info("No mode provided")
+            return
         self.mode = mode
         self.need_pgd = True
         self.need_prep = True
@@ -43,6 +46,7 @@ class SurfexBinaryTask(AbstractTask):
         if check_existence is None:
             check_existence = True
         self.check_existence = check_existence
+        logging.debug("check_existence %s", check_existence)
 
         force = kwargs.get("force")
         if force is None:
@@ -53,6 +57,7 @@ class SurfexBinaryTask(AbstractTask):
         if pert is not None:
             pert = int(pert)
         self.pert = pert
+        logging.debug("Pert %s", self.pert)
 
         self.ivar = kwargs.get("ivar")
 
@@ -68,11 +73,9 @@ class SurfexBinaryTask(AbstractTask):
 
     def execute(self):
         """Execute task.
-
-        Raises:
-            NotImplementedError: Should be implemented by child classes
         """
-        raise NotImplementedError
+        logging.debug("Using empty class execute")
+
 
     def execute_binary(self, binary, output, pgd_file_path=None, prep_file_path=None,
                        archive_data=None, forc_zs=False,

@@ -1,5 +1,5 @@
 """Experiment tasks module init file."""
-from .tasks import AbstractTask, Dummy, Oi2soda, Qc2obsmon, QualityControl, OptimalInterpolation, \
+from .tasks import AbstractTask, Oi2soda, Qc2obsmon, QualityControl, OptimalInterpolation, \
     FirstGuess, FirstGuess4OI, CycleFirstGuess, PrepareCycle
 from .surfex_binary_task import SurfexBinaryTask, Pgd, Prep, Soda, Forecast, PerturbedRun
 from .forcing import Forcing

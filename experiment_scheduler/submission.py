@@ -6,17 +6,18 @@ import subprocess
 import logging
 import collections.abc
 
+from experiment_tasks import get_task
 
 class TaskSettings(object):
     """Set the task specific setttings."""
 
-    def __init__(self, submission_defs):
+    def __init__(self, config):
         """Construct the task specific settings.
 
         Args:
              submission_defs(dict): Submission definitions
         """
-        self.submission_defs = submission_defs
+        self.submission_defs = config.get_setting("submission")
         self.job_type = None
 
     @staticmethod
@@ -240,8 +241,7 @@ class NoSchedulerSubmission:
         template_job,
         task_job,
         output,
-        troika="troika",
-        troika_config="/opt/troika/etc/troika.yml",
+        troika="troika"
     ):
         """Submit task.
 
@@ -252,14 +252,18 @@ class NoSchedulerSubmission:
             task_job (str): Task job file
             output(str): Output file
             troika (str, optional): troika binary. Defaults to "troika".
-            troika_config (str, optional): Troika config file.
-                                           Defaults to "/opt/troika/etc/troika.yml".
 
         Raises:
             Exception: Submission failure
 
         """
+        try:
+            get_task(task, config)
+        except KeyError:
+            raise KeyError(f"Task not found: {task}") from KeyError
+
         self.task_settings.parse_job(task, config, template_job, task_job)
+        troika_config = config.get_setting("TROIKA#CONFIG")
         cmd = (
             f"{troika} -c {troika_config} submit {self.task_settings.job_type} "
             f"{task_job} -o {output}"

@@ -11,7 +11,7 @@ import experiment
 class Exp(experiment.Configuration):
     """Experiment class."""
 
-    def __init__(self, exp_dependencies, merged_config):
+    def __init__(self, exp_dependencies, merged_config, env_system, system_file_paths, server, env_submit, progressObj, domains, stream=None):
         """Instaniate an object of the main experiment class.
 
         Args:
@@ -20,6 +20,33 @@ class Exp(experiment.Configuration):
 
         """
         logging.debug("Construct Exp")
+
+        # Stream
+        merged_config["GENERAL"].update({"STREAM": stream})
+
+        # Scheduler
+        merged_config.update({"SCHEDULER": server.settings})
+        # Submission
+        merged_config.update({"submission": env_submit})
+        # System path variables
+        merged_config.update({"SYSTEM_FILE_PATHS": system_file_paths})
+        # System settings
+        merged_config.update({"SYSTEM_VARS": env_system})
+        # Date/time
+        progress = {
+            "DTG": progressObj.dtg_string,
+            "DTGEND": progressObj.dtgend_string,
+            "DTGBEG": progressObj.dtgbeg_string,
+            "DTGPP": progressObj.dtgpp_string
+        }
+        merged_config.update({"PROGRESS": progress})
+
+        merged_config["GEOMETRY"].update({"DOMAINS": domains})
+
+        # Troika
+        troika_config = exp_dependencies["config"]["other_files"]["troika_config.yml"]
+        merged_config.update({"TROIKA": {"CONFIG": troika_config}})
+
         offline_source = exp_dependencies.get("offline_source")
         namelist_dir = exp_dependencies.get("namelist_dir")
         wdir = exp_dependencies.get("exp_dir")
@@ -36,6 +63,8 @@ class Exp(experiment.Configuration):
         merged_config["GENERAL"].update({"NAMELIST_DIR": namelist_dir})
         merged_config["GENERAL"].update({"PYSURFEX_EXPERIMENT": self.scripts})
         self.config_file = None
+        self.first_guess_yml = exp_dependencies["config"]["other_files"]["first_guess.yml"]
+        self.config_yml = exp_dependencies["config"]["other_files"]["config.yml"]
 
         experiment.Configuration.__init__(self, merged_config)
 
@@ -115,7 +144,7 @@ class ExpFromFiles(Exp):
         all_merged_settings = self.merge_dict_from_config_dicts(config_files_dict)
 
         # Stream
-        all_merged_settings["GENERAL"].update({"STREAM": stream})
+        # all_merged_settings["GENERAL"].update({"STREAM": stream})
 
         # Geometry
         domains = exp_dependencies.get("domains")
@@ -123,26 +152,27 @@ class ExpFromFiles(Exp):
         if os.path.exists(domains):
             with open(domains, mode="r", encoding="utf-8") as domains:
                 domains = json.load(domains)
-                all_merged_settings["GEOMETRY"].update({"DOMAINS": domains})
+                # all_merged_settings["GEOMETRY"].update({"DOMAINS": domains})
         else:
             raise FileNotFoundError("Domains not found " + domains)
 
         # Scheduler
-        all_merged_settings.update({"SCHEDULER": server.settings})
+        # all_merged_settings.update({"SCHEDULER": server.settings})
         # Submission
-        all_merged_settings.update({"SUBMISSION": env_submit})
+        # all_merged_settings.update({"SUBMISSION": env_submit})
         # System path variables
-        all_merged_settings.update({"SYSTEM_FILE_PATHS": system_file_paths})
+        # all_merged_settings.update({"SYSTEM_FILE_PATHS": system_file_paths})
         # System settings
-        all_merged_settings.update({"SYSTEM_VARS": env_system})
+        # all_merged_settings.update({"SYSTEM_VARS": env_system})
         # Date/time
-        all_merged_settings.update({"PROGRESS": progress})
+        # all_merged_settings.update({"PROGRESS": progress})
 
         # Troika
-        troika_config = exp_dependencies["config"]["other_files"]["troika_config.yml"]
-        all_merged_settings.update({"TROIKA": {"CONFIG": troika_config}})
+        # troika_config = exp_dependencies["config"]["other_files"]["troika_config.yml"]
+        # all_merged_settings.update({"TROIKA": {"CONFIG": troika_config}})
 
-        Exp.__init__(self, exp_dependencies, all_merged_settings)
+        Exp.__init__(self, exp_dependencies, all_merged_settings, env_system, system_file_paths,
+                     server, env_submit, progressObj, domains, stream=stream)
 
     @staticmethod
     def toml_load(fname):
@@ -342,34 +372,37 @@ class ExpFromFiles(Exp):
             Exception: _description_
 
         """
-
+        exp_dependencies = {}
         if talk:
             logging.info("Setting up for host %s", host)
-        exp_dependencies = {}
+
         # Create needed system files
-        system_files = {}
-        system_files.update({
-            "env_system": "config/system/" + host + ".toml",
-            "env": "config/env/" + host + ".py",
-            "env_submit": "config/submit/" + host + ".json",
-            "env_server": "config/server/" + host + ".json",
-            "input_paths": "config/input_paths/" + host + ".json",
-        })
+        if host is None:
+            logging.warning("No host specified")
+        else:
+            system_files = {}
+            system_files.update({
+                "env_system": "config/system/" + host + ".toml",
+                "env": "config/env/" + host + ".py",
+                "env_submit": "config/submit/" + host + ".json",
+                "env_server": "config/server/" + host + ".json",
+                "input_paths": "config/input_paths/" + host + ".json",
+            })
 
-        for key, fname in system_files.items():
-            lname = f"{wdir}/{fname}"
-            gname = f"{pysurfex_experiment}/{fname}"
-            if os.path.exists(lname):
-                if talk:
-                    logging.info("Using local host specific file %s as %s", lname, key)
-                exp_dependencies.update({key: fname})
-            elif os.path.exists(gname):
-                if talk:
-                    logging.info("Using general host specific file %s as %s", gname, key)
-                exp_dependencies.update({key: gname})
-            else:
-                raise FileNotFoundError(f"No host file found for lname={lname} or gname={gname}")
-
+            for key, fname in system_files.items():
+                lname = f"{wdir}/{fname}"
+                gname = f"{pysurfex_experiment}/{fname}"
+                if os.path.exists(lname):
+                    if talk:
+                        logging.info("Using local host specific file %s as %s", lname, key)
+                    exp_dependencies.update({key: fname})
+                elif os.path.exists(gname):
+                    if talk:
+                        logging.info("Using general host specific file %s as %s", gname, key)
+                    exp_dependencies.update({key: gname})
+                else:
+                    raise FileNotFoundError(f"No host file found for lname={lname} or gname={gname}")
+        
         # Check existence of needed config files
         lconfig = f"{wdir}/config/config.toml"
         gconfig = f"{pysurfex_experiment}/config/config.toml"
@@ -383,7 +416,6 @@ class ExpFromFiles(Exp):
             config = gconfig
         else:
             raise Exception
-
         c_files = ExpFromFiles.toml_load(config)["config_files"]
         blocks = ExpFromFiles.toml_load(config)
         pysurfex_files = ["config_exp_surfex.toml", "first_guess.yml",

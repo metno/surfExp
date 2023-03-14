@@ -141,7 +141,7 @@ class AbstractTask(object):
         if self.wdir is not None:
             shutil.rmtree(self.wdir)
 
-
+'''
 class Dummy(object):
     """A dummy task to test the containers.
 
@@ -172,7 +172,7 @@ class Dummy(object):
     def run(self):
         """Override run."""
         logging.debug("Dummy task %s is run")
-
+'''
 
 class PrepareCycle(AbstractTask):
     """Prepare for th cycle to be run.
@@ -776,9 +776,11 @@ class FirstGuess4OI(AbstractTask):
 
             logging.info("inputfile=%s, fileformat=%s", inputfile, fileformat)
             logging.info("converter=%s, input_geo_file=%s", converter, input_geo_file)
-            config_file = self.work_dir + "/config/first_guess.yml"
+            # config_file = self.work_dir + "/config/first_guess.yml"
+            config_file = self.config.first_guess_yml
             with open(config_file, mode="r", encoding="utf-8") as file_handler:
                 config = yaml.safe_load(file_handler)
+            logging.info("config_file=%s", config_file)
             defs = config[fileformat]
             geo_input = None
             if input_geo_file != "":

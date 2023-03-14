@@ -25,6 +25,8 @@ class SyncSourceCode(AbstractTask):
 
     def execute(self):
         """Execute."""
+        rte = os.environ
+        wrapper = ""
         rsync = self.config.system.get_var("RSYNC", self.host)
         sfx_lib = self.exp_file_paths.get_system_path("sfx_exp_lib") + "/offline"
         os.makedirs(sfx_lib, exist_ok=True)
@@ -34,10 +36,10 @@ class SyncSourceCode(AbstractTask):
         if os.path.exists(ifsaux):
             cmd = f"{rsync} {ifsaux}/* {ifsaux_copy}"
             logging.info(cmd)
-            os.system(cmd)
+            surfex.BatchJob(rte, wrapper=wrapper).run(cmd)
         cmd = f"{rsync} {offline_source}/ {sfx_lib}"
         logging.info(cmd)
-        os.system(cmd)
+        surfex.BatchJob(rte, wrapper=wrapper).run(cmd)
 
         # Add system files if not existing
         scripts = self.config.get_setting("GENERAL#PYSURFEX_EXPERIMENT")
