@@ -3,7 +3,9 @@ import os
 import logging
 import shutil
 import surfex
-from experiment_tasks import AbstractTask
+
+
+from ..tasks.tasks import AbstractTask
 
 
 class SyncSourceCode(AbstractTask):

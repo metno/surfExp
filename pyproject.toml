@@ -1,17 +1,15 @@
 [tool.poetry]
-name = "pysurfex-experiment"
+name = "experiment"
 version = "0.1.0"
 description = "pysurfex-experiment"
 authors = ["Trygve Aspelien <trygveasp@met.no>"]
 readme = "README.rst"
-packages = [{include = "experiment"}, {include = "experiment_scheduler"}, {include = "experiment_tasks"}, {include = "experiment_setup"}]
 
 [tool.poetry.scripts]
-PySurfexExp = "experiment:surfex_exp"
-PySurfexExpConfig = "experiment:surfex_exp_config"
-PySurfexExpSetup = "experiment_setup:surfex_exp_setup"
-SubmitTask = "experiment_scheduler:run_submit_cmd_exp"
-
+PySurfexExp = "experiment.cli:surfex_exp"
+PySurfexExpConfig = "experiment.cli:surfex_exp_config"
+PySurfexExpSetup = "experiment.setup.setup:surfex_exp_setup"
+SubmitTask = "experiment.cli:run_submit_cmd_exp"
 
 [tool.poetry.dependencies]
 python = "^3.7"

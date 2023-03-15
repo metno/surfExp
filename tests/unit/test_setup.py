@@ -1,19 +1,11 @@
 """Test setup of an experiment and merging of input."""
-# import os
-# import sys
 import unittest
 from pathlib import Path
-# import json
-# import inspect
-# import shutil
 import logging
-# import toml
-# import experiment_scheduler as scheduler
-import experiment
-import surfex
-# import experiment_setup
-# import experiment_tasks
-# import ecf
+
+
+from experiment.experiment import ExpFromFiles
+
 
 TESTDATA = f"{str((Path(__file__).parent).parent)}/testdata"
 ROOT = f"{str((Path(__file__).parent).parent)}"
@@ -63,5 +55,5 @@ class TestSetup(unittest.TestCase):
                 }
             }
         }
-        dict_n3 = experiment.ExpFromFiles.merge_dict(dict1, dict2)
+        dict_n3 = ExpFromFiles.merge_dict(dict1, dict2)
         self.assertEqual(dict3, dict_n3, "Dicts differ")

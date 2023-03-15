@@ -9,6 +9,10 @@ import yaml
 import surfex
 
 
+from ..toolbox import FileManager
+from ..logs import get_logger_from_config
+
+
 class AbstractTask(object):
     """General abstract task to be implemented by all tasks using default container."""
 
@@ -25,6 +29,7 @@ class AbstractTask(object):
 
         logging.debug("Create task")
         self.config = config
+        self.logger = get_logger_from_config(config)
         self.exp_file_paths = config.exp_file_paths
         system = config.system
         dtg = config.progress.dtg
@@ -54,6 +59,8 @@ class AbstractTask(object):
         geo = surfex.get_geo_object(domain_json)
         self.geo = geo
 
+        self.fmanager = FileManager(config)
+        self.platform = self.fmanager.platform
         wrapper = self.config.get_setting("TASK#WRAPPER")
         if wrapper is None:
             wrapper = ""
@@ -110,7 +117,8 @@ class AbstractTask(object):
             "rh2m": "relative_humidity_2m",
             "sd": "surface_snow_thickness"
         }
-        self.obs_types = self.config.get_setting("SURFEX#ASSIM#OBS#COBS_M")
+        # self.obs_types = self.config.get_setting("SURFEX#ASSIM#OBS#COBS_M")
+        self.obs_types = []
         self.nnco = self.config.get_nnco(dtg=self.config.progress.dtg)
         self.config.update_setting("SURFEX#ASSIM#OBS#NNCO", self.nnco)
         logging.debug("NNCO: %s", self.nnco)

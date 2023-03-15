@@ -4,26 +4,28 @@ import subprocess
 from pathlib import Path
 
 from unittest.mock import patch
+from datetime import datetime
 import pytest
 import tomlkit
-
-import experiment_tasks
-import experiment
-import surfex
 import numpy as np
-from experiment_tasks.discover_tasks import discover, get_task
-from experiment_tasks.tasks import AbstractTask
-from datetime import datetime
-from surfex import BatchJob
-import experiment_scheduler
 
+import surfex
+from surfex import BatchJob
+
+import experiment
+from experiment.progress import Progress
+from experiment.tasks.tasks import AbstractTask
+from experiment.tasks.discover_tasks import discover, get_task
+from experiment.scheduler.scheduler import EcflowServer
+from experiment.experiment import ExpFromFiles, Exp
 
 WORKING_DIR = Path.cwd()
 
 
 def classes_to_be_tested():
     """Return the names of the task-related classes to be tested."""
-    encountered_classes = discover(experiment_tasks, AbstractTask, attrname="__type_name__")
+    encountered_classes = discover(experiment.tasks, AbstractTask,
+                                   attrname="__type_name__")
     return encountered_classes.keys()
 
 
@@ -35,9 +37,9 @@ def get_config(tmp_path_factory):
     pysurfex = f"{str((Path(surfex.__file__).parent).parent)}"
     offline_source = "/tmp/source"
 
-    exp_dependencies = experiment.ExpFromFiles.setup_files(wdir, exp_name, None, pysurfex,
-                                                           pysurfex_experiment,
-                                                           offline_source=offline_source)
+    exp_dependencies = ExpFromFiles.setup_files(wdir, exp_name, None, pysurfex,
+                                                pysurfex_experiment,
+                                                offline_source=offline_source)
 
     scratch = f"{tmp_path_factory.getbasetemp().as_posix()}"
     env_system = {
@@ -65,35 +67,37 @@ def get_config(tmp_path_factory):
             }
         }
     }
-    system_file_paths = {}
+    system_file_paths = {
+        "soilgrid_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}"
+    }
     env_submit = {
-       "submit_types": ["background", "scalar"],
+        "submit_types": ["background", "scalar"],
         "default_submit_type": "scalar",
         "background": {
             "HOST": "0",
             "OMP_NUM_THREADS": "import os\nos.environ.update({\"OMP_NUM_THREADS\": \"1\"})",
             "tasks": [
-            "InitRun",
-            "LogProgress",
-            "LogProgressPP"
+                "InitRun",
+                "LogProgress",
+                "LogProgressPP"
             ]
         },
         "scalar": {
             "HOST": "1",
             "Not_existing_task": {
-            "DR_HOOK": "print(\"Hello world\")"
+                "DR_HOOK": "print(\"Hello world\")"
             }
         }
     }
-    progressObj = experiment.Progress(dtg=datetime(year=2023, month=1, day=1, hour=3),
-                                      dtgbeg=datetime(year=2023, month=1, day=1, hour=0),
-                                      dtgend=datetime(year=2023, month=1, day=1, hour=6),
-                                      dtgpp=datetime(year=2023, month=1, day=1, hour=3))
+    progressObj = Progress(dtg=datetime(year=2023, month=1, day=1, hour=3),
+                           dtgbeg=datetime(year=2023, month=1, day=1, hour=0),
+                           dtgend=datetime(year=2023, month=1, day=1, hour=6),
+                           dtgpp=datetime(year=2023, month=1, day=1, hour=3))
     domains = {
         "DRAMMEN": {
             "GSIZE": 2500.0,
             "LAT0": 60.0,
-            "LATC": 60.0 ,
+            "LATC": 60.0,
             "LON0": 10.0,
             "LONC": 10.0,
             "NLAT": 60,
@@ -103,17 +107,49 @@ def get_config(tmp_path_factory):
         }
     }
     # Configuration
-    config_files_dict = experiment.ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
-                                                                 exp_dependencies["config"]["blocks"])
-    merged_config = experiment.ExpFromFiles.merge_dict_from_config_dicts(config_files_dict)
+    config_files_dict = ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
+                                                      exp_dependencies["config"]["blocks"])
+    merged_config = ExpFromFiles.merge_dict_from_config_dicts(config_files_dict)
 
+    merged_config.update({
+        "general": {
+            "loglevel": "INFO",
+            "case": "my_case",
+            "realization": -1,
+            "os_macros": ["HOME"],
+            "platform": "unittest",
+            "cnmexp": "",
+            "tstep": 60,
+            "times": {
+                "basetime": "2023-02-19T00:00:00Z",
+                "validtime": "2023-02-19T00:00:00Z"
+            }
+        },
+        "system": {
+            "wrk": f"{tmp_path_factory.getbasetemp().as_posix()}",
+            "bindir": f"{tmp_path_factory.getbasetemp().as_posix()}/bin"
+        },
+        "platform": {
+            "deode_home": "{WORKING_DIR}",
+            "scratch": f"{tmp_path_factory.getbasetemp().as_posix()}",
+            "static_data": f"{tmp_path_factory.getbasetemp().as_posix()}",
+            "climdata": f"{tmp_path_factory.getbasetemp().as_posix()}",
+            "prep_input_file": f"{tmp_path_factory.getbasetemp().as_posix()}" +
+                               "/demo/ECMWF/archive/2023/02/18/18/fc20230218_18+006",
+            "soilgrid_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
+            "gmted2010_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}/GMTED2010",
+            "namelists": "{WORKING_DIR}/deode/data/namelists"
+        },
+        "domain": {
+            "name": "DRAMMEN"
+        }
+    })
     # Create Exp/Configuration object
     stream = None
-    with patch('experiment_scheduler.scheduler.ecflow') as mock_ecflow:
-        server = experiment_scheduler.scheduler.EcflowServer({"ECF_HOST": "localhost"})
-        sfx_exp = experiment.Exp(exp_dependencies, merged_config, env_system, system_file_paths,
-                     server, env_submit, progressObj, domains, stream=stream)
-        
+    with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
+        server = EcflowServer({"ECF_HOST": "localhost"})
+        sfx_exp = Exp(exp_dependencies, merged_config, env_system, system_file_paths,
+                      server, env_submit, progressObj, domains, stream=stream)
 
     # Template variables
     sfx_exp.update_setting("TASK#ARGS#check_existence", False)
@@ -194,7 +230,7 @@ def _mockers_for_task_run_tests(session_mocker, tmp_path_factory):
         validtime = datetime(year=2023, month=1, day=1, hour=3)
         dummy = np.empty([60, 50])
         return geo, validtime, dummy, dummy, dummy
-    
+
     def new_write_analysis_netcdf_file(*args, **kwargs):
         pass
 
@@ -217,7 +253,7 @@ def _mockers_for_task_run_tests(session_mocker, tmp_path_factory):
                 self, cmd="echo 'Running a dummy command' >| output"
             )
 
-    # Do the actual mocking    
+    # Do the actual mocking
     session_mocker.patch(
         "surfex.BatchJob.__init__", new=new_batchjob_init_method
     )
@@ -264,7 +300,7 @@ def _mockers_for_task_run_tests(session_mocker, tmp_path_factory):
         fpath.touch()
 
     # Mock things that we don't want to test here (e.g., external binaries)
-    # session_mocker.patch("deode.tasks.gmtedsoil._import_gdal")
+    session_mocker.patch("experiment.tasks.gmtedsoil._import_gdal")
     session_mocker.patch("surfex.SURFEXBinary")
 
 

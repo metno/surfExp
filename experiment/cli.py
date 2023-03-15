@@ -3,8 +3,17 @@ import sys
 from argparse import ArgumentParser
 from datetime import datetime
 import os
-import logging
-import experiment
+import shutil
+
+
+from . import PACKAGE_NAME, __version__
+
+from .experiment import ExpFromFilesDepFile
+from .configuration import ConfigurationFromJsonFile
+from .scheduler.submission import NoSchedulerSubmission, TaskSettings
+from .suites import get_defs
+from .progress import ProgressFromFiles, Progress
+from .logs import get_logger
 
 
 def parse_surfex_script(argv):
@@ -13,22 +22,29 @@ def parse_surfex_script(argv):
     parser.add_argument('action', type=str, help="Action",
                         choices=["start", "prod", "continue", "testbed",
                                  "install", "climate", "co"])
-    parser.add_argument('-exp_name', dest="exp", help="Experiment name", type=str, default=None)
-    parser.add_argument('--wd', help="Experiment working directory", type=str, default=None)
+    parser.add_argument('-exp_name', dest="exp", help="Experiment name",
+                        type=str, default=None)
+    parser.add_argument('--wd', help="Experiment working directory",
+                        type=str, default=None)
 
-    parser.add_argument('-dtg', help="DateTimeGroup (YYYYMMDDHH)", type=str, required=False,
+    parser.add_argument('-dtg', help="DateTimeGroup (YYYYMMDDHH)",
+                        type=str, required=False,
                         default=None)
-    parser.add_argument('-dtgend', help="DateTimeGroup (YYYYMMDDHH)", type=str, required=False,
+    parser.add_argument('-dtgend', help="DateTimeGroup (YYYYMMDDHH)",
+                        type=str, required=False,
                         default=None)
     parser.add_argument('--suite', type=str, default="surfex", required=False,
                         help="Type of suite definition")
-    parser.add_argument('--stream', type=str, default=None, required=False, help="Stream")
+    parser.add_argument('--stream', type=str, default=None, required=False,
+                        help="Stream")
 
     # co
-    parser.add_argument("--file", type=str, default=None, required=False, help="File to checkout")
+    parser.add_argument("--file", type=str, default=None, required=False,
+                        help="File to checkout")
 
-    parser.add_argument('--debug', dest="debug", action="store_true", help="Debug information")
-    parser.add_argument('--version', action='version', version=experiment.__version__)
+    parser.add_argument('--debug', dest="debug", action="store_true",
+                        help="Debug information")
+    parser.add_argument('--version', action='version', version=__version__)
 
     if len(argv) == 0:
         parser.print_help()
@@ -55,13 +71,14 @@ def surfex_script(**kwargs):
     debug = kwargs.get("debug")
     if debug is None:
         debug = False
-    if debug:
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)s %(message)s',
-                            level=logging.DEBUG)
-    else:
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
 
-    logging.info("************ PySurfexExp ******************")
+    if debug:
+        loglevel = "DEBUG"
+    else:
+        loglevel = "INFO"
+
+    logger = get_logger(PACKAGE_NAME, loglevel)
+    logger.info("************ PySurfexExp ******************")
 
     action = kwargs["action"]
     exp = kwargs.get("exp")
@@ -77,16 +94,17 @@ def surfex_script(**kwargs):
     if begin is None:
         begin = True
 
+    logger.info("debug %s", debug)
     work_dir = kwargs.get("wd")
     if work_dir is None:
         work_dir = f"{os.getcwd()}"
-        logging.info("Setting working directory from current directory: %s", work_dir)
+        logger.info("Setting working directory from current directory: %s", work_dir)
 
     # Find experiment
     if exp is None:
-        logging.info("Setting EXP from WD: %s", work_dir)
+        logger.info("Setting EXP from WD: %s", work_dir)
         exp = work_dir.split("/")[-1]
-        logging.info("EXP = %s", exp)
+        logger.info("EXP = %s", exp)
 
     if "action" == "mon":
         # TODO
@@ -115,12 +133,12 @@ def surfex_script(**kwargs):
                 dtg = "200806160000"
             raise NotImplementedError
 
-        progress_file = work_dir + "/progress.json"
-        progress_pp_file = work_dir + "/progressPP.json"
+        # progress_file = work_dir + "/progress.json"
+        # progress_pp_file = work_dir + "/progressPP.json"
 
         progress = None
         if action.lower() == "prod" or action.lower() == "continue":
-            progress = experiment.ProgressFromFiles(work_dir)
+            progress = ProgressFromFiles(work_dir)
             if dtgend is not None:
                 progress.dtgend = datetime.strptime(dtgend, "%Y%m%d%H%M")
             if dtg is not None:
@@ -131,16 +149,16 @@ def surfex_script(**kwargs):
                     raise Exception("No DTG was provided!")
 
                 # Convert dtg/dtgend to datetime
-                dtg = experiment.Progress.string2datetime(dtg)
-                dtgend = experiment.Progress.string2datetime(dtgend)
+                dtg = Progress.string2datetime(dtg)
+                dtgend = Progress.string2datetime(dtgend)
 
                 # Read progress from file. Returns None if no file exists or not set.
-                progress = experiment.ProgressFromFiles(work_dir, stream=stream)
+                progress = ProgressFromFiles(work_dir, stream=stream)
 
                 dtgbeg = dtg
                 if dtgend is None:
                     dtgend = progress.dtgend
-                progress = experiment.Progress(dtg, dtgbeg, dtgend=dtgend)
+                progress = Progress(dtg, dtgbeg, dtgend=dtgend)
 
         # Update progress
         if progress is not None:
@@ -148,13 +166,13 @@ def surfex_script(**kwargs):
 
         # Set experiment from files. Should be existing now after setup
         exp_dependencies_file = f"{work_dir}/exp_dependencies.json"
-        sfx_exp = experiment.ExpFromFilesDepFile(exp_dependencies_file, stream=stream)
+        sfx_exp = ExpFromFilesDepFile(exp_dependencies_file, stream=stream)
         sfx_exp.dump_exp_configuration(f"{work_dir}/exp_configuration.json", indent=2)
 
         # Create and start the suite
         def_file = f"{work_dir}/{suite}.def"
 
-        defs = experiment.get_defs(sfx_exp, suite)
+        defs = get_defs(sfx_exp, suite)
         defs.save_as_defs(def_file)
         sfx_exp.server.start_suite(defs.suite_name, def_file, begin=begin)
 
@@ -162,10 +180,14 @@ def surfex_script(**kwargs):
 def parse_update_config(argv):
     """Parse the command line input arguments."""
     parser = ArgumentParser("Update Surfex offline configuration")
-    parser.add_argument('-exp_name', dest="exp", help="Experiment name", type=str, default=None)
-    parser.add_argument('--wd', help="Experiment working directory", type=str, default=None)
-    parser.add_argument('--debug', dest="debug", action="store_true", help="Debug information")
-    parser.add_argument('--version', action='version', version=experiment.__version__)
+    parser.add_argument('-exp_name', dest="exp", help="Experiment name",
+                        type=str, default=None)
+    parser.add_argument('--wd', help="Experiment working directory",
+                        type=str, default=None)
+    parser.add_argument('--debug', dest="debug", action="store_true",
+                        help="Debug information")
+    parser.add_argument('--version', action='version',
+                        version=__version__)
 
     args = parser.parse_args(argv)
     kwargs = {}
@@ -180,11 +202,11 @@ def update_config(**kwargs):
     if debug is None:
         debug = False
     if debug:
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)s %(message)s',
-                            level=logging.DEBUG)
+        loglevel = "DEBUG"
     else:
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
+        loglevel = "INFO"
 
+    logger = get_logger(PACKAGE_NAME, loglevel)
     exp = kwargs.get("exp")
 
     work_dir = kwargs.get("wd")
@@ -192,27 +214,132 @@ def update_config(**kwargs):
     # Find experiment
     if work_dir is None:
         work_dir = os.getcwd()
-        logging.info("Setting current working directory as WD: %s", work_dir)
+        logger.info("Setting current working directory as WD: %s", work_dir)
     if exp is None:
-        logging.info("Setting EXP from WD: %s", work_dir)
+        logger.info("Setting EXP from WD: %s", work_dir)
         exp = work_dir.split("/")[-1]
-        logging.info("EXP = %s", exp)
+        logger.info("EXP = %s", exp)
 
     # Set experiment from files. Should be existing now after setup
     exp_dependencies_file = f"{work_dir}/exp_dependencies.json"
-    sfx_exp = experiment.ExpFromFilesDepFile(exp_dependencies_file)
+    sfx_exp = ExpFromFilesDepFile(exp_dependencies_file)
     sfx_exp.dump_exp_configuration(f"{work_dir}/exp_configuration.json", indent=2)
 
-    logging.info("Configuration was updated!")
+    logger.info("Configuration was updated!")
 
 
-def surfex_exp():
+def surfex_exp(argv=None):
     """Surfex exp script entry point."""
-    kwargs = parse_surfex_script(sys.argv[1:])
+    if argv is None:
+        argv = sys.argv[1:]
+    kwargs = parse_surfex_script(argv)
     surfex_script(**kwargs)
 
 
-def surfex_exp_config():
+def surfex_exp_config(argv=None):
     """Surfex exp config entry point."""
-    kwargs = parse_update_config(sys.argv[1:])
+    if argv is None:
+        argv = sys.argv[1:]
+    kwargs = parse_update_config(argv)
     update_config(**kwargs)
+
+
+def parse_submit_cmd_exp(argv):
+    """Parse the command line input arguments."""
+    parser = ArgumentParser("ECF_submit task to ecflow")
+    parser.add_argument('-config', dest="config_file", type=str,
+                        help="Configuration file")
+    parser.add_argument('-task', type=str, help="Task name")
+    parser.add_argument('-task_job', type=str, help="Task job file",
+                        required=False, default=None)
+    parser.add_argument('-output', type=str, help="Output file",
+                        required=False, default=None)
+    parser.add_argument('-template', dest="template_job", type=str,
+                        help="Template", required=False, default=None)
+    parser.add_argument('-troika', type=str, help="Troika", required=False,
+                        default=None)
+    parser.add_argument('--debug', dest="debug", action="store_true",
+                        help="Debug information")
+    parser.add_argument('--version', action='version', version=__version__)
+
+    if len(argv) == 0:
+        parser.print_help()
+        sys.exit()
+
+    args = parser.parse_args(argv)
+    kwargs = {}
+    for arg in vars(args):
+        kwargs.update({arg: getattr(args, arg)})
+    return kwargs
+
+
+def submit_cmd_exp(**kwargs):
+    """Submit task."""
+    debug = kwargs.get("debug")
+    if debug is None:
+        debug = False
+    if debug:
+        loglevel = "DEBUG"
+    else:
+        loglevel = "INFO"
+
+    logger = get_logger(PACKAGE_NAME, loglevel)
+    logger.info("************ ECF_submit_exp ******************")
+
+    logger.debug("kwargs %s", str(kwargs))
+    config_file = kwargs.get("config_file")
+    cwd = os.getcwd()
+    if config_file is None:
+        config_file = f"{cwd}/exp_configuration.json"
+        logger.info("Using config file=%s", config_file)
+        if os.path.exists("exp_configuration.json"):
+            logger.info("Using config file=%s", config_file)
+        else:
+            raise FileNotFoundError("Could not find config file " + config_file)
+    config = ConfigurationFromJsonFile(config_file)
+    task = kwargs.get("task")
+    troika = kwargs.get("troika")
+    if troika is None:
+        try:
+            troika = config.system.get_var("TROIKA", "0")
+        except Exception:
+            troika = shutil.which("troika")
+    troika_config = config.get_setting("TROIKA#CONFIG")
+    template_job = kwargs.get("template_job")
+    if template_job is None:
+        scripts = config.get_setting("GENERAL#PYSURFEX_EXPERIMENT")
+        if scripts is None:
+            raise Exception("Could not find GENERAL#PYSURFEX_EXPERIMENT")
+        else:
+            template_job = f"{scripts}/ecf/stand_alone.py"
+    task_job = kwargs.get("task_job")
+    if task_job is None:
+        task_job = f"{cwd}/{task}.job"
+    output = kwargs.get("output")
+    if output is None:
+        output = f"{cwd}/{task}.log"
+    logger.debug("Task: %s", task)
+    logger.debug("config: %s", config_file)
+    logger.debug("troika: %s", troika)
+    logger.debug("troika_config: %s", troika_config)
+    logger.debug("template_job: %s", template_job)
+    logger.debug("task_job: %s", task_job)
+    logger.debug("output: %s", output)
+    submission_defs = TaskSettings(config.env_submit)
+    sub = NoSchedulerSubmission(submission_defs)
+    sub.submit(
+        kwargs.get("task"),
+        config,
+        template_job,
+        task_job,
+        output,
+        troika
+    )
+
+
+def run_submit_cmd_exp(argv=None):
+    """Run submit."""
+    if argv is None:
+        argv = sys.argv[1:]
+    kwargs = parse_submit_cmd_exp(argv)
+    submit_cmd_exp(**kwargs)

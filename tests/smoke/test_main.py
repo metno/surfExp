@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Smoke tests."""
+import os
 import itertools
 import shutil
 from contextlib import redirect_stderr, redirect_stdout, suppress
@@ -9,10 +10,12 @@ from unittest import mock
 
 import pytest
 
-# from experiment import PACKAGE_NAME
-#from deode.argparse_wrapper import get_parsed_args
-#from experiment.main import main
-from experiment_scheduler import NoSchedulerSubmission, TaskSettings
+from experiment import PACKAGE_NAME
+from experiment.cli import parse_surfex_script, parse_submit_cmd_exp, \
+    parse_update_config, surfex_script, submit_cmd_exp, update_config, surfex_exp
+from experiment.setup.setup import surfex_exp_setup
+
+from experiment.scheduler.submission import NoSchedulerSubmission, TaskSettings
 
 WORKING_DIR = Path.cwd()
 
@@ -26,10 +29,7 @@ def config_path(tmp_path_factory):
 
 @pytest.fixture(scope="module")
 def _module_mockers(session_mocker, config_path, tmp_path_factory):
-    # Monkeypatching DEODE_CONFIG_PATH so tests use the generated config.toml.
-    # Otherwise, the program defaults to reading from ~/.deode/config.toml
-    # session_mocker.patch.dict("os.environ", {"DEODE_CONFIG_PATH": str(config_path)})
-
+    
     original_no_scheduler_submission_submit_method = NoSchedulerSubmission.submit
     original_submission_task_settings_parse_job = TaskSettings.parse_job
 
@@ -38,32 +38,30 @@ def _module_mockers(session_mocker, config_path, tmp_path_factory):
         with suppress(RuntimeError):
             original_no_scheduler_submission_submit_method(*args, **kwargs)
 
-    def new_submission_task_settings_parse_job(self, **kwargs):
-        kwargs["task_job"] = (tmp_path_factory.getbasetemp() / "task_job.txt").as_posix()
-        original_submission_task_settings_parse_job(self, **kwargs)
+    def new_submission_task_settings_parse_job(self, task, config, input_template_job, task_job, **kwargs):
+        task_job = (tmp_path_factory.getbasetemp() / "task_job.txt").as_posix()
+        original_submission_task_settings_parse_job(self,  task, config, input_template_job, task_job, **kwargs)
 
     session_mocker.patch(
-        "experiment_scheduler.submission.NoSchedulerSubmission.submit",
+        "experiment.scheduler.submission.NoSchedulerSubmission.submit",
         new=new_no_scheduler_submission_submit_method,
     )
-    session_mocker.patch("experiment_scheduler.scheduler.ecflow")
-    session_mocker.patch("experiment.suites.ecflow")
+    session_mocker.patch("experiment.scheduler.scheduler.ecflow")
+    session_mocker.patch("experiment.scheduler.suites.ecflow")
     session_mocker.patch(
-        "experiment_scheduler.submission.TaskSettings.parse_job",
+        "experiment.scheduler.submission.TaskSettings.parse_job",
         new=new_submission_task_settings_parse_job,
     )
 
-'''
 def test_package_executable_is_in_path():
-    assert shutil.which(PACKAGE_NAME)
+    assert shutil.which("PySurfexExp")
 
-
+'''
 @pytest.mark.parametrize("argv", [[], None])
 def test_cannot_run_without_arguments(argv):
     with redirect_stderr(StringIO()):
         with pytest.raises(SystemExit, match="2"):
-            main(argv)
-
+            parse_surfex_script(argv)
 
 @pytest.mark.usefixtures("_module_mockers")
 def test_correct_config_is_in_use(config_path, mocker):
@@ -91,23 +89,46 @@ class TestMainShowCommands:
                 main(["show", "config"])
 
 
-@pytest.mark.usefixtures("_module_mockers")
-def test_run_task_command(tmp_path):
-    main(
+'''
+
+@pytest.fixture(scope="module")
+def pysurfex_experiment():
+    return f"{str(((Path(__file__).parent).parent).parent)}"
+
+@pytest.fixture(scope="module")
+def setup_experiment(tmp_path_factory, pysurfex_experiment):
+
+    tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
+    os.chdir(tmpdir)
+    surfex_exp_setup(
         [
-            "run",
-            "--task",
-            "Forecast",
-            "--template",
-            f"{WORKING_DIR.as_posix()}/ecf/stand_alone.py",
-            "--job",
-            f"{tmp_path.as_posix()}/forecast.jo",
-            "-o",
-            f"{tmp_path.as_posix()}/forecast.log",
+            "-experiment",
+            pysurfex_experiment,
+            "-host",
+            "ECMWF-atos",
+            "--debug"
+        ]
+    )
+
+@pytest.mark.usefixtures("_module_mockers")
+def test_run_task_command(tmp_path_factory, setup_experiment):
+
+    setup_experiment
+    tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
+    os.chdir(tmpdir)
+    surfex_exp(
+        [
+            "start",
+            "-dtg",
+            "202301010300",
+            "-dtgend",
+            "202301010600",
+            "--debug"
         ]
     )
 
 
+'''
 @pytest.mark.usefixtures("_module_mockers")
 def test_start_suite_command(tmp_path):
     main(

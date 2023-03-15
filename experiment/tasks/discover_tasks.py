@@ -5,7 +5,11 @@ import logging
 import importlib
 import inspect
 import pkgutil
-import experiment_tasks
+
+
+from .. import tasks
+from ..logs import get_logger
+from .tasks import AbstractTask
 
 
 def discover_modules(package, what="plugin"):
@@ -77,11 +81,11 @@ def get_task(name, config):
         sys.path.insert(0, config.exp_dir)
         import experiment_plugin_tasks as plugin_namespace  # noqa
 
-    known_types = discover(experiment_tasks, experiment_tasks.AbstractTask, attrname="__type_name__")
+    known_types = discover(tasks, AbstractTask, attrname="__type_name__")
     logging.debug("Available task types: %s", ", ".join(known_types.keys()))
     plugin_known_types = {}
     if plugin_namespace is not None:
-        plugin_known_types = discover(plugin_namespace, experiment_tasks.AbstractTask, attrname="__type_name__")
+        plugin_known_types = discover(plugin_namespace, AbstractTask, attrname="__type_name__")
         logging.debug("Available plugin task types: %s", ", ".join(plugin_known_types.keys()))
 
     if task_name in plugin_known_types:

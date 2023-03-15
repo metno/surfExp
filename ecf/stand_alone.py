@@ -1,8 +1,10 @@
 """Default ecflow container."""
 # @ENV_SUB1@
 import logging
-from experiment import ConfigurationFromJsonFile
-from experiment_tasks import get_task
+
+
+from experiment.configuration import ConfigurationFromJsonFile
+from experiment.tasks.discover_tasks import get_task
 
 # @ENV_SUB2@
 

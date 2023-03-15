@@ -7,8 +7,14 @@ from datetime import timedelta, datetime
 import collections
 import copy
 import surfex
-import experiment_scheduler as scheduler
-import experiment
+
+
+from .scheduler.scheduler import EcflowServer
+from .system import System, SystemFilePathsFromSystem
+from .progress import ProgressFromDict
+
+
+NO_DEFAULT_PROVIDED = object()
 
 
 class Configuration():
@@ -30,6 +36,10 @@ class Configuration():
         self.sep = sep
         self.config_file = None
         conf_dict, member_conf_dict = self.split_member_settings(config)
+        if "general" in conf_dict:
+            conf_dict["general"].update({"loglevel": "INFO"})
+        else:
+            conf_dict.update({"general": {"loglevel": "INFO"}})
         self.sfx_config = surfex.Configuration(conf_dict.copy())
         self.settings = self.sfx_config.settings
 
@@ -73,7 +83,7 @@ class Configuration():
         self.exp_dir = exp_dir
         self.exp_name = exp_name
         if exp_name is not None and exp_dir is not None:
-            self.system = experiment.System(system, exp_name)
+            self.system = System(system, exp_name)
         else:
             raise Exception("Could not find EXP and/or EXP_DIR")
 
@@ -86,9 +96,9 @@ class Configuration():
         logging.debug("SYSTEM_FILE_PATHS: %s", self.settings["SYSTEM_FILE_PATHS"])
         # System file paths
         system_file_paths = self.settings["SYSTEM_FILE_PATHS"]
-        system_file_paths = experiment.SystemFilePathsFromSystem(system_file_paths, self.system,
-                                                                 hosts=self.system.hosts,
-                                                                 stream=stream, wdir=exp_dir)
+        system_file_paths = SystemFilePathsFromSystem(system_file_paths, self.system,
+                                                      hosts=self.system.hosts,
+                                                      stream=stream, wdir=exp_dir)
         # self.settings.update({"EXP_SYSTEM_FILE_PATHS": self.system_file_paths.paths["0"]})
         # TODO handle host
         self.host = "0"
@@ -103,7 +113,7 @@ class Configuration():
         self.config_file = None
 
         server = self.settings["SCHEDULER"]
-        self.server = scheduler.EcflowServer(ecf_host=server["ECF_HOST"], ecf_port=server["ECF_PORT"])
+        self.server = EcflowServer(ecf_host=server["ECF_HOST"], ecf_port=server["ECF_PORT"])
         self.env_submit = self.settings["submission"]
 
         troika = None
@@ -111,7 +121,7 @@ class Configuration():
             troika = self.system.get_var("TROIKA", "0")
         except Exception:
             troika = shutil.which("troika")
-        #if troika is None:
+        # if troika is None:
         #    raise Exception("Troika not found!")
 
         troika_config = None
@@ -130,7 +140,7 @@ class Configuration():
 
         # Date/time
         progress = self.settings["PROGRESS"]
-        self.progress = experiment.ProgressFromDict(progress)
+        self.progress = ProgressFromDict(progress)
 
         ##################################################################################
         # Update time information                     Is this needed????
@@ -533,6 +543,18 @@ class Configuration():
                                           validtime=validtime, basedtg=basedtg, tstep=tstep,
                                           pert=pert, var=var)
         return this_setting
+
+    def get_value(self, items, default=NO_DEFAULT_PROVIDED):
+
+        items = items.replace(".", "#")
+        this_setting = self.sfx_config.get_setting(items, check_parsing=False)
+        if this_setting is None:
+            if default == NO_DEFAULT_PROVIDED:
+                raise Exception("Setting not found")
+            else:
+                return default
+        else:
+            return this_setting
 
     def parse_setting(self, setting, check_parsing=True, validtime=None, basedtg=None, tstep=None,
                       pert=None, var=None):

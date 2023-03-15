@@ -6,7 +6,9 @@ import subprocess
 import logging
 import collections.abc
 
-from experiment_tasks import get_task
+
+from ..tasks.discover_tasks import get_task
+
 
 class TaskSettings(object):
     """Set the task specific setttings."""
@@ -28,8 +30,8 @@ class TaskSettings(object):
             else:
                 logging.debug("key=%s value=%s", k, v)
                 if k == "tasks":
-                     logging.debug("Skip tasks")
-                     return d
+                    logging.debug("Skip tasks")
+                    return d
                 d[k] = v
         return d
 

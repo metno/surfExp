@@ -2,16 +2,21 @@
 import sys
 from argparse import ArgumentParser
 import os
-import logging
-import experiment
 try:
     import surfex
 except:
     surfex = None
 
 
-def surfex_exp_setup():
-    kwargs = parse_surfex_script_setup(sys.argv[1:])
+from experiment import PACKAGE_NAME, __version__
+from experiment.experiment import ExpFromFiles
+from ..logs import get_logger
+
+
+def surfex_exp_setup(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+    kwargs = parse_surfex_script_setup(argv)
     surfex_script_setup(**kwargs)
 
 
@@ -35,7 +40,7 @@ def parse_surfex_script_setup(argv):
     parser.add_argument('--config', help="Config", type=str, required=False, default=None)
     parser.add_argument('--config_file', help="Config file", type=str, required=False, default=None)
     parser.add_argument('--debug', dest="debug", action="store_true", help="Debug information")
-    # parser.add_argument('--version', action='version', version=__version__)
+    parser.add_argument('--version', action='version', version=__version__)
 
     if len(argv) == 0:
         parser.print_help()
@@ -62,10 +67,11 @@ def surfex_script_setup(**kwargs):
     if debug is None:
         debug = False
     if debug:
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.DEBUG)
+        loglevel = "DEBUG"
     else:
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
-    logging.info("************ PySurfexExpSetup ******************")
+        loglevel = "INFO"
+    logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+    logger.info("************ PySurfexExpSetup ******************")
 
     # Setup
     exp_name = kwargs.get("exp")
@@ -84,28 +90,28 @@ def surfex_script_setup(**kwargs):
     # Find experiment
     if wdir is None:
         wdir = os.getcwd()
-        logging.info("Setting current working directory as WD: %s", wdir)
+        logger.info("Setting current working directory as WD: %s", wdir)
     if exp_name is None:
-        logging.info("Setting EXP from WD: %s", wdir)
+        logger.info("Setting EXP from WD: %s", wdir)
         exp_name = wdir.split("/")[-1]
-        logging.info("EXP = %s", exp_name)
+        logger.info("EXP = %s", exp_name)
 
     if offline_source is None:
-        logging.warning("No offline soure code set. Assume existing binaries")
+        logger.warning("No offline soure code set. Assume existing binaries")
 
-    exp_dependencies = experiment.ExpFromFiles.setup_files(wdir, exp_name, host, pysurfex,
-                                                           pysurfex_experiment,
-                                                           offline_source=offline_source,
-                                                           namelist_dir=namelist_dir)
+    exp_dependencies = ExpFromFiles.setup_files(wdir, exp_name, host, pysurfex,
+                                                pysurfex_experiment,
+                                                offline_source=offline_source,
+                                                namelist_dir=namelist_dir)
 
-    experiment.ExpFromFiles.write_exp_config(exp_dependencies, configuration=config,
-                                             configuration_file=config_file)
+    ExpFromFiles.write_exp_config(exp_dependencies, configuration=config,
+                                  configuration_file=config_file)
 
-    exp_dependencies = experiment.ExpFromFiles.setup_files(wdir, exp_name, host, pysurfex,
-                                                           pysurfex_experiment,
-                                                           offline_source=offline_source,
-                                                           namelist_dir=namelist_dir,
-                                                           talk=False)
+    exp_dependencies = ExpFromFiles.setup_files(wdir, exp_name, host, pysurfex,
+                                                pysurfex_experiment,
+                                                offline_source=offline_source,
+                                                namelist_dir=namelist_dir,
+                                                talk=False)
 
     exp_dependencies_file = wdir + "/exp_dependencies.json"
-    experiment.ExpFromFiles.dump_exp_dependencies(exp_dependencies, exp_dependencies_file)
+    ExpFromFiles.dump_exp_dependencies(exp_dependencies, exp_dependencies_file)

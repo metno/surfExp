@@ -1,10 +1,12 @@
 """Default ecflow container."""
 # @ENV_SUB1@
-import json
 import logging
-import experiment_scheduler as scheduler
-from experiment import ConfigurationFromJsonFile
-from experiment_tasks import get_task
+
+
+from experiment.scheduler.scheduler import EcflowTask, EcflowClient
+from experiment.configuration import ConfigurationFromJsonFile
+from experiment.tasks.discover_tasks import get_task
+
 # @ENV_SUB2@
 
 
@@ -51,7 +53,7 @@ def default_main(**kwargs):
     ecf_pass = kwargs.get("ECF_PASS")
     ecf_tryno = kwargs.get("ECF_TRYNO")
     ecf_rid = kwargs.get("ECF_RID")
-    task = scheduler.EcflowTask(ecf_name, ecf_tryno, ecf_pass, ecf_rid)
+    task = EcflowTask(ecf_name, ecf_tryno, ecf_pass, ecf_rid)
 
     task_name = kwargs.get("TASK_NAME")
     config = kwargs.get("CONFIG")
@@ -78,7 +80,7 @@ def default_main(**kwargs):
     config.update_setting("TASK", task_info)
 
     # This will also handle call to sys.exit(), i.e. Client.__exit__ will still be called.
-    with scheduler.EcflowClient(config.server, task):
+    with EcflowClient(config.server, task):
 
         logging.info("Running task %s", task_name)
         get_task(task.ecf_task, config).run()

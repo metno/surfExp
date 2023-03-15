@@ -4,8 +4,12 @@ from datetime import timedelta
 import json
 import logging
 import yaml
+
+
 import surfex
-from experiment_tasks import AbstractTask
+
+
+from ..tasks.tasks import AbstractTask
 
 
 class Forcing(AbstractTask):

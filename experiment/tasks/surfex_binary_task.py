@@ -2,8 +2,12 @@
 import os
 from datetime import timedelta
 import logging
+
+
 import surfex
-from experiment_tasks import AbstractTask
+
+
+from ..tasks.tasks import AbstractTask
 
 
 class SurfexBinaryTask(AbstractTask):

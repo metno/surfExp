@@ -4,14 +4,17 @@ import json
 import logging
 import shutil
 import tomlkit
-import experiment_scheduler as scheduler
-import experiment
+
+from .configuration import Configuration
+from .scheduler.scheduler import EcflowServerFromFile
+from .progress import ProgressFromFiles
 
 
-class Exp(experiment.Configuration):
+class Exp(Configuration):
     """Experiment class."""
 
-    def __init__(self, exp_dependencies, merged_config, env_system, system_file_paths, server, env_submit, progressObj, domains, stream=None):
+    def __init__(self, exp_dependencies, merged_config, env_system, system_file_paths, server, env_submit, progressObj,
+                 domains, stream=None):
         """Instaniate an object of the main experiment class.
 
         Args:
@@ -66,7 +69,7 @@ class Exp(experiment.Configuration):
         self.first_guess_yml = exp_dependencies["config"]["other_files"]["first_guess.yml"]
         self.config_yml = exp_dependencies["config"]["other_files"]["config.yml"]
 
-        experiment.Configuration.__init__(self, merged_config)
+        Configuration.__init__(self, merged_config)
 
     def dump_exp_configuration(self, filename, indent=None):
         """Dump the exp configuration.
@@ -125,12 +128,12 @@ class ExpFromFiles(Exp):
         # Scheduler settings
         env_server = exp_dependencies.get("env_server")
         if os.path.exists(env_server):
-            server = scheduler.EcflowServerFromFile(env_server)
+            server = EcflowServerFromFile(env_server)
         else:
             raise FileNotFoundError("Server settings missing " + env_server)
 
         # Date/time settings
-        progressObj = experiment.ProgressFromFiles(wdir, stream=stream)
+        progressObj = ProgressFromFiles(wdir, stream=stream)
         progress = {
             "DTG": progressObj.dtg_string,
             "DTGEND": progressObj.dtgend_string,
@@ -223,7 +226,7 @@ class ExpFromFiles(Exp):
         merged_env = {}
         for fff in config_files:
             modification = config_files[fff]["toml"]
-            merged_env = experiment.Configuration.merge_dict(merged_env, modification)
+            merged_env = Configuration.merge_dict(merged_env, modification)
         return merged_env
 
     @staticmethod
@@ -289,7 +292,7 @@ class ExpFromFiles(Exp):
                 block_config.update({block: hm_exp[block]})
                 if configuration is not None:
                     if block in configuration:
-                        merged_config = experiment.Configuration.merge_dict(hm_exp[block], configuration[block])
+                        merged_config = Configuration.merge_dict(hm_exp[block], configuration[block])
                         logging.info("Merged: %s %s", block, str(configuration[block]))
                     else:
                         merged_config = hm_exp[block]
@@ -298,8 +301,8 @@ class ExpFromFiles(Exp):
 
                 if testbed_configuration is not None:
                     if block in testbed_configuration:
-                        hm_testbed = experiment.Configuration.merge_dict(block_config[block],
-                                                                         testbed_configuration[block])
+                        hm_testbed = Configuration.merge_dict(block_config[block],
+                                                              testbed_configuration[block])
                     else:
                         hm_testbed = block_config[block]
                     block_config.update({block: hm_testbed})
@@ -309,7 +312,7 @@ class ExpFromFiles(Exp):
                         raise Exception("User settings should be a dict here!")
                     if block in user_settings:
                         logging.info("Merge user settings in block %s", block)
-                        user = experiment.Configuration.merge_dict(block_config[block], user_settings[block])
+                        user = Configuration.merge_dict(block_config[block], user_settings[block])
                         block_config.update({block: user})
 
             logging.debug("block config %s", block_config)
@@ -525,7 +528,7 @@ class ExpFromFiles(Exp):
         if conf is not None:
             if not os.path.exists(conf):
                 raise Exception("Can not find configuration " + configuration + " in: " + conf)
-            configuration = experiment.ExpFromFiles.toml_load(conf)
+            configuration = ExpFromFiles.toml_load(conf)
         else:
             configuration = None
 
@@ -564,8 +567,11 @@ class ExpFromFilesDepFile(ExpFromFiles):
         """
         logging.debug("Construct ExpFromFiles")
         if os.path.exists(exp_dependencies_file):
-            with open(exp_dependencies_file, mode="r", encoding="utf-8") as exp_dependencies_file:
+            with open(exp_dependencies_file, mode="r", encoding="utf-8")\
+                    as exp_dependencies_file:
                 exp_dependencies = json.load(exp_dependencies_file)
                 ExpFromFiles.__init__(self, exp_dependencies, stream=stream)
         else:
-            raise FileNotFoundError("Experiment dependencies not found " + exp_dependencies_file)
+            raise FileNotFoundError(
+                f"Experiment dependencies not found {exp_dependencies_file}"
+            )

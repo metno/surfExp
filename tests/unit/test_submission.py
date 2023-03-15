@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """Unit tests for the config file parsing module."""
 import pytest
-import tomlkit
-
-#from deode.config_parser import ParsedConfig
 
 from unittest.mock import patch
 from pathlib import Path
 from datetime import datetime
-import experiment
 import surfex
-import experiment_scheduler
-from experiment_scheduler import NoSchedulerSubmission, TaskSettings
+
+
+from experiment.experiment import ExpFromFiles, Exp
+from experiment.progress import Progress
+from experiment.scheduler.scheduler import EcflowServer
+from experiment.scheduler.submission import NoSchedulerSubmission, TaskSettings
 
 
 @pytest.fixture(scope="module")
@@ -20,11 +20,11 @@ def config(tmp_path_factory):
     exp_name = "test_config"
     pysurfex_experiment = f"{str(((Path(__file__).parent).parent).parent)}"
     pysurfex = f"{str((Path(surfex.__file__).parent).parent)}"
-    offline_source = "/tmp/source"
+    offline_source = f"{tmp_path_factory.getbasetemp().as_posix()}/source"
 
-    exp_dependencies = experiment.ExpFromFiles.setup_files(wdir, exp_name, None, pysurfex,
-                                                           pysurfex_experiment,
-                                                           offline_source=offline_source)
+    exp_dependencies = ExpFromFiles.setup_files(wdir, exp_name, None, pysurfex,
+                                                pysurfex_experiment,
+                                                offline_source=offline_source)
 
     scratch = f"{tmp_path_factory.getbasetemp().as_posix()}"
     env_system = {
@@ -52,35 +52,46 @@ def config(tmp_path_factory):
             }
         }
     }
-    system_file_paths = {}
+    system_file_paths = {
+        "sand_dir": "/tmp/host1/testdata/input_paths/sand_dir",
+        "clay_dir": "/tmp/host1/testdata/input_paths/clay_dir",
+        "soc_top_dir": "/tmp/host1/testdata/input_paths/soc_top_dir",
+        "soc_sub_dir": "/tmp/host1/testdata/input_paths/soc_sub_dir",
+        "flake_dir": "/tmp/host1/testdata/input_paths/flake_dir",
+        "ecoclimap_dir": "/tmp/host1/testdata/input_paths/ecoclimap_dir",
+        "ecoclimap_cover_dir": "/tmp/host1/testdata/input_paths/ecoclimap_cover_dir",
+        "ecoclimap_bin_dir": "/tmp/host1/testdata/input_paths/ecoclimap_bin_dir",
+        "oro_dir": "/tmp/host1/testdata/input_paths/oro_dir",
+        "obs_dir": "/tmp/host1/testdata/"
+    }
     env_submit = {
-       "submit_types": ["background", "scalar"],
+        "submit_types": ["background", "scalar"],
         "default_submit_type": "scalar",
         "background": {
             "HOST": "0",
             "OMP_NUM_THREADS": "import os\nos.environ.update({\"OMP_NUM_THREADS\": \"1\"})",
             "tasks": [
-            "InitRun",
-            "LogProgress",
-            "LogProgressPP"
+                "InitRun",
+                "LogProgress",
+                "LogProgressPP"
             ]
         },
         "scalar": {
             "HOST": "1",
             "Not_existing_task": {
-            "DR_HOOK": "print(\"Hello world\")"
+                "DR_HOOK": "print(\"Hello world\")"
             }
         }
     }
-    progressObj = experiment.Progress(dtg=datetime(year=2023, month=1, day=1, hour=3),
-                                      dtgbeg=datetime(year=2023, month=1, day=1, hour=0),
-                                      dtgend=datetime(year=2023, month=1, day=1, hour=6),
-                                      dtgpp=datetime(year=2023, month=1, day=1, hour=3))
+    progressObj = Progress(dtg=datetime(year=2023, month=1, day=1, hour=3),
+                           dtgbeg=datetime(year=2023, month=1, day=1, hour=0),
+                           dtgend=datetime(year=2023, month=1, day=1, hour=6),
+                           dtgpp=datetime(year=2023, month=1, day=1, hour=3))
     domains = {
         "DRAMMEN": {
             "GSIZE": 2500.0,
             "LAT0": 60.0,
-            "LATC": 60.0 ,
+            "LATC": 60.0,
             "LON0": 10.0,
             "LONC": 10.0,
             "NLAT": 60,
@@ -90,17 +101,22 @@ def config(tmp_path_factory):
         }
     }
     # Configuration
-    config_files_dict = experiment.ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
-                                                                 exp_dependencies["config"]["blocks"])
-    merged_config = experiment.ExpFromFiles.merge_dict_from_config_dicts(config_files_dict)
+    config_files_dict = ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
+                                                      exp_dependencies["config"]["blocks"])
+    merged_config = ExpFromFiles.merge_dict_from_config_dicts(config_files_dict)
+
+    merged_config.update({
+        "general": {
+            "loglevel": "INFO"
+        }
+    })
 
     # Create Exp/Configuration object
     stream = None
-    with patch('experiment_scheduler.scheduler.ecflow') as mock_ecflow:
-        server = experiment_scheduler.scheduler.EcflowServer({"ECF_HOST": "localhost"})
-        sfx_exp = experiment.Exp(exp_dependencies, merged_config, env_system, system_file_paths,
-                     server, env_submit, progressObj, domains, stream=stream)
-        
+    with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
+        server = EcflowServer({"ECF_HOST": "localhost"})
+        sfx_exp = Exp(exp_dependencies, merged_config, env_system, system_file_paths,
+                      server, env_submit, progressObj, domains, stream=stream)
 
     # Template variables
     sfx_exp.update_setting("TASK#ARGS#check_existence", False)
@@ -123,7 +139,7 @@ class TestSubmission:
                 "SCHOST": "localhost"
             }
         })
-        task = "PrepareCycle"
+        task = "preparecycle"
         template_job = f"{config.scripts}/ecf/stand_alone.py"
         task_job = f"{tmpdir}/{task}.job"
         output = f"{tmpdir}/{task}.log"
