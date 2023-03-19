@@ -2,13 +2,13 @@ config_files = ["config_exp.toml", "config_exp_observations.toml", "config_exp_s
                 "config_exp_eps.toml"]
 
 ["config_exp.toml"]
-blocks = ["GENERAL", "COMPILE", "GEOMETRY", "INITIAL_CONDITIONS", "FORECAST", "SYSTEM", "FORCING"]
+blocks = ["general", "compile", "domain", "initial_conditions", "forecast", "system", "forcing"]
 
 ["config_exp_observations.toml"]
-blocks = ["OBSERVATIONS"]
+blocks = ["observations"]
 
 ["config_exp_surfex.toml"]
 blocks = ["SURFEX"]
 
 ["config_exp_eps.toml"]
-blocks = ["EPS"]
+blocks = ["eps"]

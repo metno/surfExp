@@ -75,7 +75,7 @@ def get_task(name, config):
     """
     task_name = name.lower()
     plugin_namespace = None
-    plugin_namespace_location = f"{config.exp_dir}/experiment_plugin_tasks"
+    plugin_namespace_location = f"{config.get_value('system.exp_dir')}/experiment_plugin_tasks"
     if os.path.exists(plugin_namespace_location):
         logging.info("Using local plugin directory %s", plugin_namespace_location)
         sys.path.insert(0, config.exp_dir)

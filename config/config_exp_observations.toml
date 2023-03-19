@@ -1,34 +1,34 @@
-[OBSERVATIONS]
+[observations]
 
 #---------------------------------------------------
 #  TITAN observation settings
 #---------------------------------------------------
-SYNOP_OBS_T2M=true             # SYNOP 2m air temperature from bufr files
-SYNOP_OBS_RH2M=true            # SYNOP 2m relative humidity from bufr files
-SYNOP_OBS_SD=true              # SYNOP snow depth from bufr files
-NETATMO_OBS_T2M=true           # 2m air temperature observations from Netatmo stations
-NETATMO_OBS_RH2M=true          # 2m relative humidity observations from Netatmo stations
+synop_obs_t2m = true             # SYNOP 2m air temperature from bufr files
+synop_obs_rh2m = true            # SYNOP 2m relative humidity from bufr files
+synop_obs_sd = true              # SYNOP snow depth from bufr files
+netatmo_obs_t2m = true           # 2m air temperature observations from Netatmo stations
+netatmo_obs_rh2m = true          # 2m relative humidity observations from Netatmo stations
 # NETATMO_FILEPATTERN = ""@SFX_EXP_DATA@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/"
 # NETATMO_FILEPATTERN = "/lustre/storeB/project/metproduction/products/netatmo/@YYYY@/@MM@/@DD@/@YYYY@@MM@@DD@T@HH@@mm@01Z.json"
-NETATMO_FILEPATTERN = "/tmp/host1/testdata/@YYYY@@MM@@DD@T@HH@@mm@*Z_all.json"
+netatmo_filepattern = "/tmp/host1/testdata/@YYYY@@MM@@DD@T@HH@@mm@*Z_all.json"
 
-[OBSERVATIONS.QC]
+[observations.qc]
 # QC_TESTS = ["domain", "blacklist", "nometa", "redundancy", "plausibility", "sct"]
-TESTS = ["domain", "nometa", "plausibility", "sct"]
+tests = ["domain", "nometa", "plausibility", "sct"]
 
-[OBSERVATIONS.QC.SD]
-TESTS = ["domain", "blacklist", "nometa", "plausibility", "firstguess"]
+[observations.qc.sd]
+tests = ["domain", "blacklist", "nometa", "plausibility", "firstguess"]
 
 
-[OBSERVATIONS.OI.T2M]
-GRADIENT = -0.0065
-HLENGTH = 30000
-VLENGTH = 400
+[observations.oi.t2m]
+gradient = -0.0065
+hlength = 30000
+vlength = 400
 
-[OBSERVATIONS.OI.RH2M]
-HLENGTH = 30000
-VLENGTH = 400
+[Observations.oi.rh2m]
+hlength = 30000
+vlength = 400
 
-[OBSERVATIONS.OI.SD]
-HLENGTH = 60000
-VLENGTH = 300
+[observations.oi.sd]
+hlength = 60000
+vlength = 300

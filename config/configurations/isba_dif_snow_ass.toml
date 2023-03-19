@@ -1,13 +1,9 @@
-[GENERAL]
-HH_LIST="06"
-LL_LIST="24"
+[general]
+hh_list="06"
+ll_list="24"
 
-
-[GEOMETRY]
-DOMAIN = "DRAMMEN"
-
-[COMPILE]
-BUILD = true
+[compile]
+build = true
 
 [INITIAL_CONDITIONS.FG4OI]
 INPUTFILE = "@SFX_EXP_DATA@/archive/@YYYY@/@MM@/@DD@/03/SURFOUT.@YYYY@@MM@@DD@_06h00.nc"

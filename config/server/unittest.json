@@ -1,7 +1,0 @@
-{
-  "ECF_HOST": "localhost",
-  "ECF_PORT": 44855,
-  "ECF_PORT_OFFSET": 0,
-  "ECF_LOGSERVER": "localhost",
-  "ECF_LOGPORT": 44855
-}

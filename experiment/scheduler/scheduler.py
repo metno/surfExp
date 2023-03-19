@@ -102,7 +102,10 @@ class EcflowServer(Server):
         self.start_command = start_command
         self.ecf_client = ecflow.Client(self.ecf_host, self.ecf_port)
         logging.debug("self.ecf_client %s", self.ecf_client)
-        self.settings = {"ECF_HOST": self.ecf_host, "ECF_PORT": self.ecf_port}
+        self.settings = {
+            "ecf_host": self.ecf_host,
+            "ecf_port": self.ecf_port
+        }
 
     def start_server(self):
         """Start the server.
@@ -199,9 +202,9 @@ class EcflowServerFromFile(EcflowServer):
         else:
             raise FileNotFoundError("Could not find " + ecflow_server_file)
 
-        ecf_host = self.get_var("ECF_HOST")
-        ecf_port_offset = int(self.get_var("ECF_PORT_OFFSET", default=1500))
-        ecf_port = int(self.get_var("ECF_PORT", default=int(os.getuid())))
+        ecf_host = self.get_var("ecf_host")
+        ecf_port_offset = int(self.get_var("ecf_port_offset", default=1500))
+        ecf_port = int(self.get_var("ecf_port", default=int(os.getuid())))
         ecf_port = ecf_port + ecf_port_offset
 
         EcflowServer.__init__(self, ecf_host, ecf_port)
@@ -235,6 +238,37 @@ class EcflowServerFromFile(EcflowServer):
         """
         with open(fname, mode="w", encoding="utf-8") as server_file:
             json.dump(self.settings, server_file)
+
+
+class EcflowServerFromConfig(EcflowServer):
+    """Ecflow server from a config file.
+
+    Args:
+        EcflowServer (EcflowServer): EcflowServer.
+    """
+
+    def __init__(self, config):
+        """Construct the EcflowServer.
+
+        Args:
+            ecf_host(str): Ecflow server host.
+            ecf_port (int): Ecflow server port.
+            start_command: Ecflow start server command.
+
+        Raises:
+            Exception: If not ecflow is found.
+
+        """
+        ecf_host = config.get_value("scheduler.ecf_host")
+        ecf_port = config.get_value("scheduler.ecf_port")
+        try:
+            ecf_start_command = config.get_value("server.ecf_start_command")
+        except AttributeError:
+            ecf_start_command = None
+        self.ecf_host = ecf_host
+        self.ecf_port = ecf_port
+        EcflowServer.__init__(self, ecf_host, ecf_port=ecf_port,
+                              start_command=ecf_start_command)
 
 
 class EcflowLogServer():

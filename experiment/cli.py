@@ -3,17 +3,17 @@ import sys
 from argparse import ArgumentParser
 from datetime import datetime
 import os
-import shutil
 
 
 from . import PACKAGE_NAME, __version__
 
 from .experiment import ExpFromFilesDepFile
-from .configuration import ConfigurationFromJsonFile
-from .scheduler.submission import NoSchedulerSubmission, TaskSettings
+from .scheduler.submission import NoSchedulerSubmission, TaskSettings, TroikaSettings
+from .scheduler.scheduler import EcflowServerFromConfig
 from .suites import get_defs
 from .progress import ProgressFromFiles, Progress
 from .logs import get_logger
+from .config_parser import ParsedConfig
 
 
 def parse_surfex_script(argv):
@@ -153,12 +153,12 @@ def surfex_script(**kwargs):
                 dtgend = Progress.string2datetime(dtgend)
 
                 # Read progress from file. Returns None if no file exists or not set.
-                progress = ProgressFromFiles(work_dir, stream=stream)
+                try:
+                    progress = ProgressFromFiles(work_dir, dtg=dtg, dtgbeg=dtg, dtgend=dtgend,
+                                                 dtgpp=dtg, stream=stream)
+                except FileNotFoundError:
+                    progress = Progress(dtg, dtg, dtgend=dtgend, dtgpp=dtg, stream=stream)
 
-                dtgbeg = dtg
-                if dtgend is None:
-                    dtgend = progress.dtgend
-                progress = Progress(dtg, dtgbeg, dtgend=dtgend)
 
         # Update progress
         if progress is not None:
@@ -167,14 +167,15 @@ def surfex_script(**kwargs):
         # Set experiment from files. Should be existing now after setup
         exp_dependencies_file = f"{work_dir}/exp_dependencies.json"
         sfx_exp = ExpFromFilesDepFile(exp_dependencies_file, stream=stream)
-        sfx_exp.dump_exp_configuration(f"{work_dir}/exp_configuration.json", indent=2)
+        sfx_exp.dump_json(f"{work_dir}/exp_configuration.json", indent=2)
 
         # Create and start the suite
         def_file = f"{work_dir}/{suite}.def"
 
-        defs = get_defs(sfx_exp, suite)
+        defs = get_defs(sfx_exp.config, suite)
         defs.save_as_defs(def_file)
-        sfx_exp.server.start_suite(defs.suite_name, def_file, begin=begin)
+        server = EcflowServerFromConfig(sfx_exp.config)
+        server.start_suite(defs.suite_name, def_file, begin=begin)
 
 
 def parse_update_config(argv):
@@ -223,7 +224,7 @@ def update_config(**kwargs):
     # Set experiment from files. Should be existing now after setup
     exp_dependencies_file = f"{work_dir}/exp_dependencies.json"
     sfx_exp = ExpFromFilesDepFile(exp_dependencies_file)
-    sfx_exp.dump_exp_configuration(f"{work_dir}/exp_configuration.json", indent=2)
+    sfx_exp.dump_json(f"{work_dir}/exp_configuration.json", indent=2)
 
     logger.info("Configuration was updated!")
 
@@ -296,20 +297,14 @@ def submit_cmd_exp(**kwargs):
             logger.info("Using config file=%s", config_file)
         else:
             raise FileNotFoundError("Could not find config file " + config_file)
-    config = ConfigurationFromJsonFile(config_file)
+    config = ParsedConfig.from_file(config_file)
     task = kwargs.get("task")
-    troika = kwargs.get("troika")
-    if troika is None:
-        try:
-            troika = config.system.get_var("TROIKA", "0")
-        except Exception:
-            troika = shutil.which("troika")
-    troika_config = config.get_setting("TROIKA#CONFIG")
+    
     template_job = kwargs.get("template_job")
     if template_job is None:
-        scripts = config.get_setting("GENERAL#PYSURFEX_EXPERIMENT")
+        scripts = config.get_value("general.pysurfex_experiment")
         if scripts is None:
-            raise Exception("Could not find GENERAL#PYSURFEX_EXPERIMENT")
+            raise Exception("Could not find general.pysurfex_experiment")
         else:
             template_job = f"{scripts}/ecf/stand_alone.py"
     task_job = kwargs.get("task_job")
@@ -320,20 +315,17 @@ def submit_cmd_exp(**kwargs):
         output = f"{cwd}/{task}.log"
     logger.debug("Task: %s", task)
     logger.debug("config: %s", config_file)
-    logger.debug("troika: %s", troika)
-    logger.debug("troika_config: %s", troika_config)
     logger.debug("template_job: %s", template_job)
     logger.debug("task_job: %s", task_job)
     logger.debug("output: %s", output)
-    submission_defs = TaskSettings(config.env_submit)
+    submission_defs = TaskSettings(config)
     sub = NoSchedulerSubmission(submission_defs)
     sub.submit(
         kwargs.get("task"),
         config,
         template_job,
         task_job,
-        output,
-        troika
+        output
     )
 
 

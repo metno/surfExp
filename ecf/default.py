@@ -1,11 +1,11 @@
 """Default ecflow container."""
 # @ENV_SUB1@
-import logging
 
 
-from experiment.scheduler.scheduler import EcflowTask, EcflowClient
-from experiment.configuration import ConfigurationFromJsonFile
+from experiment.scheduler.scheduler import EcflowTask, EcflowClient, EcflowServerFromConfig
 from experiment.tasks.discover_tasks import get_task
+from experiment.config_parser import ParsedConfig
+from experiment.logs import get_logger_from_config
 
 # @ENV_SUB2@
 
@@ -37,54 +37,56 @@ def parse_ecflow_vars():
 
 def default_main(**kwargs):
     """Ecflow container default method."""
-    loglevel = kwargs.get("LOGLEVEL")
-    if loglevel.lower() == "debug":
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)s %(message)s',
-                            level=logging.DEBUG)
-    else:
-        level = logging.INFO
-        if loglevel.lower() == "warning":
-            level = logging.WARNING
-        elif loglevel.lower() == "critical":
-            level = logging.CRITICAL
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=level)
+    config = ParsedConfig.from_file(kwargs.get("CONFIG"))
+    update = {
+        "general": {
+            "loglevel": kwargs.get("LOGLEVEL")
+        }
+    }
+    config = config.copy(update=update)
+    logger = get_logger_from_config(config)
 
     ecf_name = kwargs.get("ECF_NAME")
     ecf_pass = kwargs.get("ECF_PASS")
     ecf_tryno = kwargs.get("ECF_TRYNO")
     ecf_rid = kwargs.get("ECF_RID")
     task = EcflowTask(ecf_name, ecf_tryno, ecf_pass, ecf_rid)
-
-    task_name = kwargs.get("TASK_NAME")
-    config = kwargs.get("CONFIG")
-    config = ConfigurationFromJsonFile(config)
-    config.update_setting("GENERAL#STREAM", kwargs.get("STREAM"))
-    config.update_setting("GENERAL#ENSMBR", kwargs.get("ENSMBR"))
-
-    args = kwargs.get("ARGS")
-    args_dict = {}
-    if args != "":
-        logging.debug("ARGS=%s", args)
-        for arg in args.split(";"):
-            parts = arg.split("=")
-            logging.debug("arg=%s parts=%s len(parts)=%s", arg, parts, len(parts))
-            if len(parts) == 2:
-                args_dict.update({parts[0]: parts[1]})
-
-    config.progress.update(dtg=kwargs.get("DTG"), dtgpp=kwargs.get("DTGPP"))
-    task_info = {
-        "WRAPPER": kwargs.get("WRAPPER"),
-        "VAR_NAME": kwargs.get("VAR_NAME"),
-        "ARGS": args_dict,
-    }
-    config.update_setting("TASK", task_info)
+    scheduler = EcflowServerFromConfig(config)
 
     # This will also handle call to sys.exit(), i.e. Client.__exit__ will still be called.
-    with EcflowClient(config.server, task):
+    with EcflowClient(scheduler, task):
 
-        logging.info("Running task %s", task_name)
+        task_name = kwargs.get("TASK_NAME")
+        logger.info("Running task %s", task_name)
+        args = kwargs.get("ARGS")   
+        args_dict = {}
+        if args != "":
+            logger.debug("args=%s", args)
+            for arg in args.split(";"):
+                parts = arg.split("=")
+                logger.debug("arg=%s parts=%s len(parts)=%s", arg, parts, len(parts))
+                if len(parts) == 2:
+                    args_dict.update({parts[0]: parts[1]})
+
+        update = {
+            "general": {
+                "stream": kwargs.get("STREAM"),
+                "realization": kwargs.get("ENSMBR"),
+                "times": {
+                    "basetime": kwargs.get("DTG"),
+                    "validtime": kwargs.get("DTG"),
+                    "basetime_pp": kwargs.get("DTGPP")
+                }
+            },
+            "task": {
+                "wrapper": kwargs.get("WRAPPER"),
+                "var_name": kwargs.get("VAR_NAME"),
+                "args": args_dict
+            }
+        }
+        config = config.copy(update=update)
         get_task(task.ecf_task, config).run()
-        logging.info("Finished task %s", task_name)
+        logger.info("Finished task %s", task_name)
 
 
 if __name__ == "__main__":

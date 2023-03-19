@@ -127,8 +127,7 @@ class Platform:
 
         """
         macro_list = []
-        # macros = self.config.get_value("platform").dict()
-        macros = self.config.get_value("platform")
+        macros = self.config.get_value("platform").dict()
         for macro in macros:
             macro_list.append(macro)
         self.logger.debug("Platform macro list: %s", macro_list)
@@ -142,8 +141,7 @@ class Platform:
 
         """
         macro_list = []
-        # macros = self.config.get_value("system").dict()
-        macros = self.config.get_value("system")
+        macros = self.config.get_value("system").dict()
         for macro in macros:
             macro_list.append(macro)
         self.logger.debug("System macro list: %s", macro_list)
@@ -173,7 +171,7 @@ class Platform:
             NotImplementedError: If provider not defined.
 
         """
-        # TODO handle platform differently archive etc
+        # TODO handle platform differently archive etc  # noqa W0511
         if provider_id == "symlink":
             return LocalFileSystemSymlink(self.config, target, fetch=fetch)
         elif provider_id == "copy":
@@ -320,7 +318,7 @@ class Platform:
                 )
 
                 lead_seconds = int(lead_time.total_seconds())
-                lead_minutes = int(lead_seconds / 3600)  # noqa
+                lead_minutes = int(lead_seconds / 3600)  # noqa W0612
                 lead_hours = int(lead_seconds / 3600)
                 pattern = self.sub_value(pattern, "LL", f"{lead_hours:02d}")
                 pattern = self.sub_value(pattern, "LLL", f"{lead_hours:03d}")
@@ -418,7 +416,7 @@ class FileManager:
                 return provider, destination
 
         # Try archive
-        # TODO check for archive
+        # TODO check for archive  # noqaW0511
         if check_archive:
             provider_id = "ecfs"
             target = target.replace("@ARCHIVE@", "ectmp:/@YYYY@/@MM@/@DD@/@HH@")
@@ -437,7 +435,7 @@ class FileManager:
                     return provider, destination
                 else:
                     self.logger.info("Could not archive %s", destination.identifier)
-                    pass
+
         # Else raise exception
         raise ProviderError(
             f"No provider found for {target} and provider_id {provider_id}"
@@ -521,7 +519,7 @@ class FileManager:
 
         aprovider = None
         if archive:
-            # TODO check for archive and modify macros
+            # TODO check for archive and modify macros   # noqa W0511
             provider_id = "ecfs"
             destination = destination.replace("@ARCHIVE@", "ectmp:/@YYYY@/@MM@/@DD@/@HH@")
 

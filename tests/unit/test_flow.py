@@ -1,28 +1,22 @@
 """Unit testing."""
-import os
 from pathlib import Path
 import json
-import logging
 import pytest
-import experiment
 import surfex
 from unittest.mock import patch
-from datetime import datetime
 
 
-from experiment.tasks.discover_tasks import get_task
 from experiment.suites import SurfexSuite
 from experiment.experiment import ExpFromFiles
-from experiment.configuration import ConfigurationFromJsonFile
 from experiment.scheduler.suites import EcflowSuiteTask, EcflowSuite, EcflowSuiteFamily
 from experiment.scheduler.submission import TaskSettings
 from experiment.scheduler.scheduler import EcflowTask, EcflowServer
+from experiment.datetime_utils import as_datetime
+from experiment.config_parser import ParsedConfig
 
 
 TESTDATA = f"{str((Path(__file__).parent).parent)}/testdata"
 ROOT = f"{str((Path(__file__).parent).parent)}"
-logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)s %(message)s',
-                    level=logging.DEBUG)
 
 
 @pytest.fixture(scope="module")
@@ -43,7 +37,7 @@ def get_exp_from_files(tmp_path_factory):
     tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
     wdir = f"{tmpdir}/test_config"
     exp_name = "test_config"
-    host = "unittest"
+    host = "ECMWF-atos"
     pysurfex_experiment = f"{str(((Path(__file__).parent).parent).parent)}"
     pysurfex = f"{str((Path(surfex.__file__).parent).parent)}"
     offline_source = f"{tmpdir}/source"
@@ -54,16 +48,9 @@ def get_exp_from_files(tmp_path_factory):
     with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
         sfx_exp = ExpFromFiles(exp_dependencies, stream=stream)
 
-    sfx_exp.settings.update({"PROGRESS": {
-        "DTG": "202201010000",
-        "DTGBEG": "202201010000",
-        "DTGPP": "202201010000"
-    }})
     exp_configuration_file = f"{tmpdir}/exp_configuration.json"
-    sfx_exp.dump_exp_configuration(exp_configuration_file)
-    with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
-        sfx_exp = ConfigurationFromJsonFile(exp_configuration_file)
-        return sfx_exp
+    sfx_exp.dump_json(exp_configuration_file)
+    return ParsedConfig.from_file(exp_configuration_file)
 
 
 class TestFlow():
@@ -156,23 +143,6 @@ class TestFlow():
                             ecf_files, input_template=input_template,
                             parse=True, variables=None, ecf_micro="%",
                             triggers=None, def_status=None)
-        # job_file = f"{ecf_files}/{suite_name}/{family_name}/{task_name}.py"
-        # self.assertTrue(os.path.exists(job_file), "Job file is missing")
-
-    '''
-    def test_default(self):
-        """Test default ecf container."""
-        kwargs_main = ecf.default.parse_ecflow_vars()
-        ecf.default_main(**kwargs_main)
-
-    @patch('experiment_tasks.tasks.AbstractTask')
-    def test_stand_alone(self, task):
-        """Test stand alone container."""
-        TASK_NAME = "Forecast"
-        CONFIG = self.exp_configuration_file
-        LOGLEVEL = "DEBUG"
-        ecf.stand_alone_main(TASK_NAME, CONFIG, LOGLEVEL)
-    '''
 
     @patch('experiment.scheduler.submission.TaskSettings.parse_job')
     def test_ecflow_sufex_suite(self, mock, tmp_path_factory, get_exp_from_files):
@@ -181,8 +151,8 @@ class TestFlow():
         joboutdir = f"{tmpdir}"
         config = get_exp_from_files
         task_settings = TaskSettings(config)
-        dtg1 = datetime(2022, 1, 1, 0, 0)
-        dtg2 = datetime(2022, 1, 1, 6, 0)
+        dtg1 = as_datetime("2022-01-01 T03:00:00Z")
+        dtg2 = as_datetime("2022-01-01 T06:00:00Z")
         dtgs = [dtg1, dtg2]
         dtgbeg = dtg1
         next_start_dtg = dtg2

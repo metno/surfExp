@@ -308,8 +308,7 @@ class Gmted(AbstractTask):
 
         Define run sequence.
         """
-        # climdir = self.platform.get_system_value("climdir")
-        climdir = self.exp_file_paths.get_system_path("default_climdir")
+        climdir = self.platform.get_system_value("climdir")
         os.makedirs(climdir, exist_ok=True)
 
         domain_properties = get_domain_properties(self.geo)
@@ -539,8 +538,7 @@ class Soil(AbstractTask):
                 find_size_and_corners = False
             ds = None
 
-        # climdir = self.platform.get_system_value("climdir")
-        climdir = self.exp_file_paths.get_system_path("default_climdir")
+        climdir = self.platform.get_system_value("climdir")
         os.makedirs(climdir, exist_ok=True)
         for subarea_file in soilgrid_tif_subarea_files:
             if subarea_file.startswith("SNDPPT"):

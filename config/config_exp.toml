@@ -1,98 +1,121 @@
 # SURFEX offline experiment configuration file
 #
 
-[GENERAL]
 ######################################################################################################
 # General (not grouped settings)
 ######################################################################################################
 
-HH_LIST="00-21:3"                       # Which cycles to run, replaces FCINT
-LL_LIST="48,3,3,3,3,3,3,3"              # Forecast lengths for the cycles [h], replaces LL, LLMAIN
+[general]
+loglevel = "INFO"
+cnmexp = ""
+tstep = 60
+realization =  -1
+realizations = []
+os_macros = ["HOME"]
+            
+hh_list="00-21:3"                       # Which cycles to run, replaces FCINT
+ll_list="48,3,3,3,3,3,3,3"              # Forecast lengths for the cycles [h], replaces LL, LLMAIN
                                         # The LL_LIST list is wrapped around if necessary, to fit HH_LIST
 
-[COMPILE]
+[general.times]
+cycle_length = "PT3H"
+
+[compile]
 ####################################################################################################
 # Compilation settings
 #####################################################################################################
-BUILD = true                         # Turn on or off the compilation and binary build (true/false)
+build = true                         # Turn on or off the compilation and binary build (true/false)
 
-[GEOMETRY]
+
 #####################################################################################################
 # Geometry
 #####################################################################################################
-DOMAIN = "DRAMMEN"                  # See definitions in config/Harmonie_domains.json
 
-[INITIAL_CONDITIONS]
-ANASURF = "gridpp"
+[domain]
+   name = "DRAMMEN"
+   nimax = 50
+   njmax = 60
+   xloncen = 10.0
+   xlatcen = 60.0
+   xdx = 2500.0
+   xdy = 2500.0
+   ilone = 0
+   ilate = 0
+   xlon0 = 10.0
+   xlat0 = 60.0
+
+
+[initial_conditions]
+anasurf = "gridpp"
 # "/nobackup/prod2/cooper/BD_archive/2020/09/16/00/fc20200916_00+003
-PREP_INPUT_FILE = "@PYSURFEX_EXPERIMENT@/nam/prep_from_namelist_values.json"
-PREP_INPUT_FILETYPE = "json"
-PREP_PGDFILE = ""
-PREP_PGDFILETYPE = ""
+prep_input_file = "@pysurfex_experiment@/nam/prep_from_namelist_values.json"
+prep_input_filetype = "json"
+prep_pgdfile = ""
+prep_pgdfiletype = ""
 
 
-[INITIAL_CONDITIONS.FG4OI]
-INPUTFILE = "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc"
-# INPUTFILE = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
-# INPUTFILE = "@SFX_EXP_DATA@/archive/@YYYY@/@MM@/@DD@/03/SURFOUT.@YYYY@@MM@@DD@_06h00.nc"
-FILEFORMAT = "netcdf"
-# FILEFORMAT = "grib2"
-# FILEFORMAT = "surfex"
-CONVERTER = "none"
-INPUT_GEO_FILE = ""     # Needed for some surfex file types
+[initial_conditions.fg4oi]
+inputfile = "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc"
+# inputfile = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
+# inputfile = "@SFX_EXP_DATA@/archive/@YYYY@/@MM@/@DD@/03/SURFOUT.@YYYY@@MM@@DD@_06h00.nc"
+fileformat = "netcdf"
+# fileformat = "grib2"
+# fileformat = "surfex"
+converter = "none"
+input_geo_file = ""     # Needed for some surfex file types
 
-[INITIAL_CONDITIONS.FG4OI.air_temperature_2m]
+[initial_conditions.fg4oi.air_temperature_2m]
 
-[INITIAL_CONDITIONS.FG4OI.relative_humidity_2m]
+[initial_conditions.fg4oi.relative_humidity_2m]
 
-[INITIAL_CONDITIONS.FG4OI.surface_snow_thickness]
-CONVERTER = "sweclim"
+[initial_conditions.fg4oi.surface_snow_thickness]
+converter = "sweclim"
 
-[INITIAL_CONDITIONS.FG4OI.altitude]
-CONVERTER = "phi2m"
+[initial_conditions.fg4oi.altitude]
+converter = "phi2m"
 
-[FORECAST]
+[forecast]
 #####################################################################################################
 #  Forecast model (physics + dynamics and output)
 #####################################################################################################
 
-PHYSICS = "arome"
-ENSMSEL = []                            # Ensemble members to run (list with member numbers)
+physics = "arome"
+ensmsel = []                            # Ensemble members to run (list with member numbers)
 
-FORC_ZS = true
+forc_zs = true
 
-[FORCING]
+[forcing]
 # After 2023013123
-# PATTERN = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+# pattern = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
 # Before 2023020100
-PATTERN = "https://thredds.met.no/thredds/dodsC/metpparchivev3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+pattern = "https://thredds.met.no/thredds/dodsC/metpparchivev3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
 # Local file system paths at MET-Norway
-# PATTERN = "/lustre/storeB/project/metproduction/products/yr_short/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
-# PATTERN = "/lustre/storeB/immutable/archive/projects/metproduction/yr_short//@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
-# PATTERN = "/lustre/storeB/project/metkl/klinogrid/archive/met_nordic_analysis/v3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
-INPUT_FORMAT = "netcdf"
-INPUT_GEO_FILE = ""      # Needed for some surfex file types
-# PATTERN = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
-# INPUT_FORMAT = "grib2"
-ZREF = "screen"
-ZVAL = "constant"
-UREF = "screen"
-UVAL = "constant"
-QA_CONVERTER = "rh2q_mslp"
-ZSORO_CONVERTER = "none"
-RAIN_CONVERTER = "calcrain"
-SNOW_CONVERTER = "calcsnow"
-DIR_SW_CONVERTER = "analysis"
-SCA_SW = "constant"
-LW_CONVERTER = "analysis"
-CO2 = "constant"
-WIND_CONVERTER = "none"
-WINDDIR_CONVERTER = "none"
-PS_CONVERTER = "mslp2ps"
-DEBUG = false
-TIMESTEP = 3600
-ANALYSIS = true
-MODIFY_FORCING = false
-INTERPOLATION = "bilinear"
+# pattern = "/lustre/storeB/project/metproduction/products/yr_short/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+# pattern = "/lustre/storeB/immutable/archive/projects/metproduction/yr_short//@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
+# pattern = "/lustre/storeB/project/metkl/klinogrid/archive/met_nordic_analysis/v3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+input_format = "netcdf"
+input_geo_file = ""      # Needed for some surfex file types
+# pattern = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
+# input_format = "grib2"
+zref = "screen"
+zval = "constant"
+uref = "screen"
+uval = "constant"
+qa_converter = "rh2q_mslp"
+zsoro_converter = "none"
+rain_converter = "calcrain"
+snow_converter = "calcsnow"
+dir_sw_converter = "analysis"
+sca_sw = "constant"
+lw_converter = "analysis"
+co2 = "constant"
+wind_converter = "none"
+winddir_converter = "none"
+ps_converter = "mslp2ps"
+debug = false
+timestep = 3600
+analysis = true
+modify_forcing = false
+interpolation = "bilinear"
 
-[SYSTEM]
+[system]

@@ -1,15 +1,16 @@
 """Default ecflow container."""
 # @ENV_SUB1@
-import logging
 
 
-from experiment.configuration import ConfigurationFromJsonFile
+from experiment.config_parser import ParsedConfig
 from experiment.tasks.discover_tasks import get_task
+from experiment.logs import get_logger_from_config
+
 
 # @ENV_SUB2@
 
 
-def stand_alone_main(task, config_file, loglevel):
+def stand_alone_main(task, config_file):
     """Execute default main.
 
     Args:
@@ -17,26 +18,17 @@ def stand_alone_main(task, config_file, loglevel):
         config (str.): Config file
         loglevel (str): Loglevel
     """
+    config = ParsedConfig.from_file(config_file)
+    logger = get_logger_from_config(config)
 
-    if loglevel.lower() == "debug":
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)s %(message)s',
-                            level=logging.DEBUG)
-    else:
-        level = logging.INFO
-        if loglevel.lower() == "warning":
-            level = logging.WARNING
-        logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=level)
-
-    logging.info("Running task %s", task)
-    config = ConfigurationFromJsonFile(config_file)
+    logger.info("Running task %s", task)
 
     get_task(task, config).run()
-    logging.info("Finished task %s", task)
+    logger.info("Finished task %s", task)
 
 
 if __name__ == "__main__":
     TASK_NAME = "@STAND_ALONE_TASK_NAME@"
-    LOGLEVEL = "@STAND_ALONE_TASK_LOGLEVEL@"
     CONFIG = "@STAND_ALONE_TASK_CONFIG@"
 
-    stand_alone_main(TASK_NAME, CONFIG, LOGLEVEL)
+    stand_alone_main(TASK_NAME, CONFIG)

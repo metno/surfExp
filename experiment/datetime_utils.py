@@ -20,3 +20,8 @@ def as_datetime(obj):
 def as_timedelta(obj):
     """Convert obj to string and parse into pd.Timedelta."""
     return pd.Timedelta(str(obj))
+
+
+def datetime_as_string(obj):
+    """Convert datetime obejct to string"""
+    return obj.isoformat(sep="T").replace('+00:00', 'Z')

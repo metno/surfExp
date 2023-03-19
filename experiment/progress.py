@@ -1,8 +1,10 @@
 """Handling of date/time information."""
 import os
-from datetime import datetime
 import logging
 import json
+
+
+from .datetime_utils import datetime_as_string, as_datetime
 
 
 class Progress():
@@ -25,76 +27,48 @@ class Progress():
         """
         # Update DTG
         self.dtg = dtg
+        if dtg is None:
+            raise AttributeError("You must set a basetime")
 
         # Update DTGEND
         self.dtgend = dtgend
+        if dtgend is None:
+            raise AttributeError("You must set end time")
 
         # Update DTGBEG
         self.dtgbeg = dtgbeg
-
+        if dtgbeg is None:
+            raise AttributeError("You must set start time")
         self.dtgpp = dtgpp
         if dtgpp is None:
             self.dtgpp = self.dtg
 
         self.stream = stream
-        logging.debug("DTG: %s", self.dtg_string)
-        logging.debug("DTGBEG: %s", self.dtgbeg_string)
-        logging.debug("DTGEND: %s", self.dtgend_string)
-        logging.debug("DTGPP: %s", self.dtgpp_string)
+        logging.debug("DTG: %s", self.dtg)
+        logging.debug("DTGBEG: %s", self.dtgbeg)
+        logging.debug("DTGEND: %s", self.dtgend)
+        logging.debug("DTGPP: %s", self.dtgpp)
         logging.debug("STREAM: %s", self.stream)
         logging.debug("Progress file name: %s", self.get_progress_file_name(""))
         logging.debug("Progress PP file name: %s", self.get_progress_pp_file_name(""))
 
     @staticmethod
     def string2datetime(dtg_string):
-        if isinstance(dtg_string, str):
-            if len(dtg_string) == 10:
-                dtg = datetime.strptime(dtg_string, "%Y%m%d%H")
-            elif len(dtg_string) == 12:
-                dtg = datetime.strptime(dtg_string, "%Y%m%d%H%M")
-            else:
-                raise Exception("DTG strings must be YYYYMMDDHH or YYYYMMDDHHmm")
-        elif isinstance(dtg_string, datetime):
-            dtg = dtg_string
-        else:
-            raise Exception("Unknown DTG input")
-        return dtg
+        return as_datetime(dtg_string)
 
-    def __getattr__(self, name):
-        if name[-7:] == "_string":
-            base = name[0:-7]
-            if base in self.__dict__:
-
-                val = self.__dict__[base]
-                logging.debug("%s %s", val, type(val))
-                if val is None:
-                    return None
-                else:
-                    if isinstance(val, datetime):
-                        return val.strftime("%Y%m%d%H%M")
-                    else:
-                        raise AttributeError
-            else:
-                raise AttributeError
-        else:
-            raise AttributeError
-
-    def update(self, dtg=None, dtgpp=None):
+    def print_config_times(self):
         """_summary_
 
         Args:
-            dtg (datetime.datetime, optional): _description_. Defaults to None.
-            dtgpp (datetime.datetime, optional): _description_. Defaults to None.
+            config (datetime.datetime, optional): _description_. Defaults to None.
         """
-
-        if dtg is not None:
-            dtg = self.string2datetime(dtg)
-            # Update DTG
-            self.dtg = dtg
-
-        if dtgpp is not None:
-            dtgpp = self.string2datetime(dtgpp)
-            self.dtgpp = dtgpp
+        update = {
+            "start": datetime_as_string(self.dtgbeg),
+            "end": datetime_as_string(self.dtgend),
+            "validtime": datetime_as_string(self.dtg),
+            "basetime": datetime_as_string(self.dtg)
+        }
+        return update
 
     def save_as_json(self, exp_dir, progress=False, progress_pp=False, indent=None):
         """Save progress to file.
@@ -107,12 +81,12 @@ class Progress():
 
         """
         progress_dict = {
-            "DTGBEG": self.dtgbeg_string,
-            "DTG": self.dtg_string,
-            "DTGEND": self.dtgend_string
+            "DTGBEG": datetime_as_string(self.dtgbeg),
+            "DTG": datetime_as_string(self.dtg),
+            "DTGEND": datetime_as_string(self.dtgend)
         }
         progress_pp_dict = {
-            "DTGPP": self.dtgpp_string,
+            "DTGPP": datetime_as_string(self.dtgpp)
         }
 
         if progress:
@@ -163,36 +137,10 @@ class Progress():
         return f"{exp_dir}/progress{stream_txt}PP.{suffix}"
 
 
-class ProgressFromDict(Progress):
-
-    """Create progress object from a dict."""
-
-    def __init__(self, progress):
-        """Initialize a progress object from a dict.
-
-        Args:
-            progress_file (dict): Progress dict
-
-        """
-        dtg = progress.get("DTG")
-        if dtg is not None:
-            dtg = datetime.strptime(dtg, "%Y%m%d%H%M")
-        dtgbeg = progress.get("DTGBEG")
-        if dtgbeg is not None:
-            dtgbeg = datetime.strptime(dtgbeg, "%Y%m%d%H%M")
-        dtgend = progress.get("DTGEND")
-        if dtgend is not None:
-            dtgend = datetime.strptime(dtgend, "%Y%m%d%H%M")
-        dtgpp = progress.get("DTGPP")
-        if dtgpp is not None:
-            dtgpp = datetime.strptime(dtgpp, "%Y%m%d%H%M")
-        Progress.__init__(self, dtg, dtgbeg, dtgend=dtgend, dtgpp=dtgpp)
-
-
 class ProgressFromFiles(Progress):
     """Create progress object from a json file."""
 
-    def __init__(self, exp_dir, stream=None):
+    def __init__(self, exp_dir, dtg=None, dtgbeg=None, dtgpp=None, dtgend=None, stream=None):
         """Initialize a progress object from files.
 
         Args:
@@ -205,26 +153,41 @@ class ProgressFromFiles(Progress):
         if os.path.exists(progress_file):
             with open(progress_file, mode="r", encoding="utf-8") as file_handler:
                 progress = json.load(file_handler)
-                dtg = progress.get("DTG")
-                if dtg is not None:
-                    dtg = datetime.strptime(dtg, "%Y%m%d%H%M")
-                dtgbeg = progress.get("DTGBEG")
-                if dtgbeg is not None:
-                    dtgbeg = datetime.strptime(dtgbeg, "%Y%m%d%H%M")
-                dtgend = progress.get("DTGEND")
-                if dtgend is not None:
-                    dtgend = datetime.strptime(dtgend, "%Y%m%d%H%M")
+                dtg_file = progress.get("DTG")
+                if dtg is None:
+                    dtg = as_datetime(dtg_file)
+                dtgbeg_file = progress.get("DTGBEG")
+                if dtgbeg is None:
+                    dtgbeg = as_datetime(dtgbeg_file)
+                dtgend_file = progress.get("DTGEND")
+                if dtgend is None:
+                    dtgend = as_datetime(dtgend_file)
         else:
-            dtg = None
-            dtgbeg = None
-            dtgend = None
-        dtgpp = None
+            raise FileNotFoundError(progress_file)
+
         if os.path.exists(progress_pp_file):
             with open(progress_pp_file, mode="r", encoding="utf-8") as file_handler:
-                dtgpp = json.load(file_handler).get("DTGPP")
-                if dtgpp is not None:
-                    dtgpp = datetime.strptime(dtgpp, "%Y%m%d%H%M")
+                dtgpp_file = json.load(file_handler).get("DTGPP")
+                if dtgpp is None:
+                    dtgpp = as_datetime(dtgpp_file)
         else:
-            dtgpp = None
+            raise FileNotFoundError(progress_pp_file)
 
         Progress.__init__(self, dtg, dtgbeg, dtgend=dtgend, dtgpp=dtgpp)
+
+
+class ProgressFromConfig(Progress):
+    """Create progress object from a json file."""
+
+    def __init__(self, config):
+        """Initialize a progress object from files.
+
+        Args:
+            config (str): Config
+
+        """
+        basetime = as_datetime(config.get_value("general.times.basetime"))
+        starttime = as_datetime(config.get_value("general.times.start"))
+        endtime = as_datetime(config.get_value("general.times.end"))
+        basetime_pp = as_datetime(config.get_value("general.times.basetime"))
+        Progress.__init__(self, basetime, starttime, dtgend=endtime, dtgpp=basetime_pp)

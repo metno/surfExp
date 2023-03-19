@@ -1,23 +1,23 @@
-[HOST_SYSTEM]
+[host_system]
 
 # Define computer centre.
-COMPCENTRE="ECMWF"
+compcentre="ECMWF"
 
 # Define hosts
-HOSTS = ["hpc-login"]
+hosts = ["hpc-login"]
 
 # Location of working data, fast and large system
 # Experiment identifier and directories
 # EXP is defined when an experiment is started by "Harmonie start ..."
-SFX_EXP_DATA = "/scratch/@USER@/sfx_data/@EXP@"
+sfx_exp_data = "/scratch/@USER@/sfx_data/@EXP@"
 # directory for scripts, compiled objects, executables
-SFX_EXP_LIB = "/scratch/@USER@/sfx_data/@EXP@/lib@STREAM@"
-JOBOUTDIR = "/perm/@USER@/sfx_data/"
-LOGIN_HOST = "hpc-login"
-HM_CS = "gfortran"
-PARCH = ""
-MKDIR = "mkdir -p"
-RSYNC = "rsync  -rltoDvhL"
-SCHEDULER_PYTHONPATH = "/perm/sbu/offline_modules/apps/pysurfex-scheduler/:/usr/local/apps/ecflow/5.8.1/lib/python3.8/site-packages/"
-SURFEX_CONFIG = "atos-gnu"
-TROIKA = "troika"
+sfx_exp_lib = "/scratch/@USER@/sfx_data/@EXP@/lib@STREAM@"
+joboutdir = "/perm/@USER@/sfx_data/"
+login_host = "hpc-login"
+hm_cs = "gfortran"
+parch = ""
+mkdir = "mkdir -p"
+rsync = "rsync  -rltoDvhL"
+scheduler_pythonpath = "/perm/sbu/offline_modules/apps/pysurfex-scheduler/:/usr/local/apps/ecflow/5.8.1/lib/python3.8/site-packages/"
+surfex_config = "atos-gnu"
+troika = "troika"

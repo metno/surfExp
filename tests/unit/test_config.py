@@ -9,6 +9,7 @@ import surfex
 
 
 from experiment.experiment import ExpFromFiles
+from experiment.configuration import Configuration
 
 
 @pytest.fixture(scope="module")
@@ -22,7 +23,7 @@ def exp_dependencies(pysurfex_experiment, tmp_path_factory):
     tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
     wdir = f"{tmpdir}/test_config"
     exp_name = "test_config"
-    host = "unittest"
+    host = "ECMWF-atos"
 
     pysurfex = f"{str((Path(surfex.__file__).parent).parent)}"
     offline_source = f"{tmpdir}/source"
@@ -31,15 +32,27 @@ def exp_dependencies(pysurfex_experiment, tmp_path_factory):
                                     pysurfex_experiment,
                                     offline_source=offline_source)
 
+
+@pytest.fixture(scope="module")
+def settings(sfx_exp):
+
+    return Configuration(sfx_exp.config)
+
+
 @pytest.fixture(scope="module")
 def sfx_exp(exp_dependencies):
 
     stream = None
     with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
         sfx_exp = ExpFromFiles(exp_dependencies, stream=stream)
-        sfx_exp.update_setting("COMPILE#TEST_TRUE", True)
-        sfx_exp.update_setting("COMPILE#TEST_VALUES", [1, 2, 4])
-        sfx_exp.update_setting("COMPILE#TEST_SETTING", "SETTING")
+        update = {
+            "compile": {
+                "test_true": True,
+                "test_values": [1, 2, 4],
+                "test_setting": "SETTING"
+            }
+        }
+        sfx_exp.config = sfx_exp.config.copy(update=update)
         return sfx_exp
 
 
@@ -52,39 +65,36 @@ class TestConfig():
         str2 = pysurfex_experiment
         assert str1 == str2
 
-    def test_read_setting(self, sfx_exp):
+    def test_read_setting(self, settings):
         """Read normal settings."""
         logging.debug("Read setting")
-        build = sfx_exp.get_setting("COMPILE#TEST_TRUE")
+        build = settings.get_setting("compile#test_true")
         assert build is True
-
-    @patch('experiment.scheduler.scheduler.ecflow')
-    def test_update_setting(self, mock_ecflow, sfx_exp):
-        """Update setting."""
-        sfx_exp.update_setting("GENERAL#ENSMBR", 2)
-        assert sfx_exp.get_setting("GENERAL#ENSMBR") == 2
 
     def test_dump_json(self, sfx_exp, tmp_path_factory):
         tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
         sfx_exp.dump_json(f"{tmpdir}/dump_json.json", indent=2)
 
-    def test_max_fc_length(self, sfx_exp):
-        sfx_exp.max_fc_length()
+    # def test_max_fc_length(self, sfx_exp):
+    #    sfx_exp.max_fc_length()
 
-    def test_setting_is_not(self, sfx_exp):
-        assert sfx_exp.setting_is_not("COMPILE#TEST_TRUE", False) is True
+    def test_setting_is_not(self, settings):
+        assert settings.setting_is_not("compile#test_true", False) is True
 
-    def test_setting_is_not_one_of(self, sfx_exp):
-        assert sfx_exp.setting_is_not_one_of("COMPILE#TEST_SETTING", ["NOT_A_SETTING"]) is True
+    def test_setting_is_not_one_of(self, settings):
+        assert settings.setting_is_not_one_of("compile#test_setting",
+                                              ["NOT_A_SETTING"]) is True
 
-    def test_setting_is_one_of(self, sfx_exp):
-        assert sfx_exp.setting_is_one_of("COMPILE#TEST_SETTING", ["SETTING", "NOT_A_SETTING"]) is True
+    def test_setting_is_one_of(self, settings):
+        assert settings.setting_is_one_of("compile#test_setting",
+                                          ["SETTING", "NOT_A_SETTING"]) is True
 
-    def test_value_is_not_one_of(self, sfx_exp):
-        assert sfx_exp.value_is_not_one_of("COMPILE#TEST_VALUES", 3) is True
+    def test_value_is_not_one_of(self, settings):
+        assert settings.value_is_not_one_of("compile#test_values", 3) is True
 
-    def test_value_is_one_of(self, sfx_exp):
-        assert sfx_exp.value_is_one_of("COMPILE#TEST_VALUES", 1) is True
+    def test_value_is_one_of(self, settings):
+        assert settings.value_is_one_of("compile#test_values", 1) is True
 
     def test_write_exp_config(self, exp_dependencies):
-        ExpFromFiles.write_exp_config(exp_dependencies, configuration="sekf", configuration_file=None)
+        ExpFromFiles.write_exp_config(exp_dependencies, configuration="sekf",
+                                      configuration_file=None)

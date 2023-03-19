@@ -24,6 +24,7 @@ pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true}
 troika = {git = "https://git.ecmwf.int/scm/ecsdk/troika.git", tag="0.1.8"}
 pytest-mock = "^3.10.0"
 pytest-cov = "^4.0.0"
+fastjsonschema = "^2.16.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.0"

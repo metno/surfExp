@@ -1,12 +1,15 @@
 """Suite for experiment."""
-from datetime import datetime, timedelta
 import os
 
 
-from .scheduler.submission import TaskSettings
+from .scheduler.submission import TaskSettings, TroikaSettings
 from .scheduler.suites import EcflowSuite, EcflowSuiteFamily, EcflowSuiteTask,\
     EcflowSuiteTrigger, EcflowSuiteTriggers
 from .logs import get_logger_from_config
+from .datetime_utils import as_datetime, as_timedelta
+from .progress import ProgressFromConfig
+from .toolbox import Platform
+from .configuration import Configuration
 
 
 class SurfexSuite():
@@ -33,11 +36,14 @@ class SurfexSuite():
         # config = exp_config.sfx_config
         self.config = config
         logger = get_logger_from_config(self.config)
-        exp_dir = f"{config.get_setting('GENERAL#EXP_DIR')}"
+        settings = Configuration(config)
+        platform = Platform(config)
+        progress = ProgressFromConfig(config)
+        exp_dir = f"{platform.get_system_value('exp_dir')}"
         ecf_include = exp_dir + "/ecf"
         ecf_files = joboutdir
         os.makedirs(ecf_files, exist_ok=True)
-        template = f"{config.get_setting('GENERAL#PYSURFEX_EXPERIMENT')}/ecf/default.py"
+        template = f"{platform.get_system_value('pysurfex_experiment')}/ecf/default.py"
         ecf_home = joboutdir
         ecf_out = joboutdir
         ecf_jobout = joboutdir + "/%ECF_NAME%.%ECF_TRYNO%"
@@ -66,7 +72,10 @@ class SurfexSuite():
             f"{ecf_micro}ECF_JOB{ecf_micro}"
         )
 
-        config_file = config.config_file
+        try:
+            config_file = config.get_value("metadata.source_file_path")
+        except AttributeError:
+            config_file = "NO_CONFIG_FOUND"
         loglevel = "INFO"
         variables = {
             "ECF_EXTN": ".py",
@@ -84,10 +93,10 @@ class SurfexSuite():
             "WRAPPER": "",
             "VAR_NAME": "",
             "CONFIG": str(config_file),
-            "TROIKA": config.troika,
-            "TROIKA_CONFIG": config.troika_config,
+            "TROIKA": TroikaSettings(config).command,
+            "TROIKA_CONFIG": TroikaSettings(config).config,
             "EXP_DIR": exp_dir,
-            "EXP": config.get_setting("GENERAL#EXP"),
+            "EXP": config.get_value("general.case"),
             "DTG": dtgbeg_str,
             "DTGPP": dtgbeg_str,
             "STREAM": "",
@@ -97,12 +106,12 @@ class SurfexSuite():
             "CHECK_EXISTENCE": "",
             "PRINT_NAMELIST": ""
         }
-
+        realization = None
         self.suite_name = suite_name
         logger.debug("variables: %s", variables)
         self.suite = EcflowSuite(self.suite_name, ecf_files, variables=variables, dry_run=False)
 
-        if config.get_setting("COMPILE#BUILD"):
+        if config.get_value("compile.build"):
             comp = EcflowSuiteFamily("Compilation", self.suite, ecf_files)
             sync = EcflowSuiteTask("SyncSourceCode", comp,
                                    config, task_settings, ecf_files, input_template=template)
@@ -145,13 +154,14 @@ class SurfexSuite():
             triggers = EcflowSuiteTriggers([static_complete])
 
             dtg_node = EcflowSuiteFamily(dtg_str, self.suite, ecf_files, variables=variables,
-                                                   triggers=triggers)
+                                         triggers=triggers)
 
             ahead_trigger = None
-            for dtg_str2, tname in prediction_dtg_node.items():
-                validtime = datetime.strptime(dtg_str2, "%Y%m%d%H%M")
+            for dtg_str2 in prediction_dtg_node:
+                tname = prediction_dtg_node[dtg_str2]["node"]
+                validtime = as_datetime(prediction_dtg_node[dtg_str2]["dtg"])
                 if validtime < dtg:
-                    if validtime + timedelta(hours=hours_ahead) <= dtg:
+                    if validtime + as_timedelta(f"PT{hours_ahead}H") <= dtg:
                         ahead_trigger = EcflowSuiteTrigger(tname)
 
             if ahead_trigger is None:
@@ -172,17 +182,18 @@ class SurfexSuite():
 
             forcing = EcflowSuiteTask("Forcing", cycle_input, config, task_settings, ecf_files, input_template=template)
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing)])
-            if config.get_setting("FORCING#MODIFY_FORCING"):
-                EcflowSuiteTask("ModifyForcing", cycle_input, config, task_settings, ecf_files, input_template=template, triggers=triggers)
+            if config.get_value("forcing.modify_forcing"):
+                EcflowSuiteTask("ModifyForcing", cycle_input, config, task_settings, ecf_files,
+                                input_template=template, triggers=triggers)
 
             triggers = EcflowSuiteTriggers([static_complete,
                                             prepare_cycle_complete])
             if prev_dtg is not None:
                 prev_dtg_str = prev_dtg.strftime("%Y%m%d%H%M")
-                trigger = EcflowSuiteTrigger(prediction_dtg_node[prev_dtg_str])
+                trigger = EcflowSuiteTrigger(prediction_dtg_node[prev_dtg_str]["node"])
                 triggers.add_triggers([trigger])
 
-            ########################################################################################
+            # Initialization
             initialization = EcflowSuiteFamily("Initialization", dtg_node, ecf_files, triggers=triggers)
 
             analysis = None
@@ -195,14 +206,14 @@ class SurfexSuite():
 
             else:
 
-                schemes = config.get_setting("SURFEX#ASSIM#SCHEMES")
+                schemes = config.get_value("SURFEX.ASSIM.SCHEMES").dict()
                 do_soda = False
                 for scheme in schemes:
                     if schemes[scheme].upper() != "NONE":
                         do_soda = True
 
-                obs_types = config.get_setting("SURFEX#ASSIM#OBS#COBS_M")
-                nnco = config.get_nnco(dtg=dtg)
+                obs_types = config.get_value("SURFEX.ASSIM.OBS.COBS_M")
+                nnco = settings.get_nnco(dtg=dtg)
                 for ivar in range(0, len(nnco)):
                     if nnco[ivar] == 1 and obs_types[ivar] == "SWE":
                         do_soda = True
@@ -217,14 +228,14 @@ class SurfexSuite():
                                               triggers=triggers, input_template=template)
 
                     perturbations = None
-                    if config.setting_is("SURFEX#ASSIM#SCHEMES#ISBA", "EKF"):
+                    if settings.setting_is("SURFEX.ASSIM.SCHEMES.ISBA", "EKF", realization=realization):
 
                         perturbations = EcflowSuiteFamily("Perturbations", initialization, ecf_files)
-                        nncv = config.get_setting("SURFEX#ASSIM#ISBA#EKF#NNCV")
-                        names = config.get_setting("SURFEX#ASSIM#ISBA#EKF#CVAR_M")
+                        nncv = config.get_value("SURFEX.ASSIM.ISBA.EKF.NNCV")
+                        names = config.get_value("SURFEX.ASSIM.ISBA.EKF.CVAR_M")
                         triggers = None
-                        fgint = config.get_fgint(config.progress.dtg)
-                        fg_dtg = (config.progress.dtg - timedelta(hours=fgint)).strftime("%Y%m%d%H%M")
+                        fgint = settings.get_fgint(realization=realization)
+                        fg_dtg = progress.dtg - fgint
                         if fg_dtg in cycle_input_dtg_node:
                             triggers = EcflowSuiteTriggers(
                                 EcflowSuiteTrigger(cycle_input_dtg_node[fg_dtg]))
@@ -255,7 +266,7 @@ class SurfexSuite():
 
                     prepare_oi_soil_input = None
                     prepare_oi_climate = None
-                    if config.setting_is("SURFEX#ASSIM#SCHEMES#ISBA", "OI"):
+                    if settings.setting_is("SURFEX.ASSIM.SCHEMES.ISBA", "OI"):
                         prepare_oi_soil_input = EcflowSuiteTask("PrepareOiSoilInput",
                                                                 initialization,
                                                                 config, task_settings, ecf_files,
@@ -266,15 +277,15 @@ class SurfexSuite():
                                                              input_template=template)
 
                     prepare_sst = None
-                    if config.setting_is("SURFEX#ASSIM#SCHEMES#SEA", "INPUT"):
-                        if config.setting_is("SURFEX#ASSIM#SEA#CFILE_FORMAT_SST", "ASCII"):
+                    if settings.setting_is("SURFEX.ASSIM.SCHEMES.SEA", "INPUT"):
+                        if settings.setting_is("SURFEX.ASSIM.SEA.CFILE_FORMAT_SST", "ASCII"):
                             prepare_sst = EcflowSuiteTask("PrepareSST", initialization,
                                                           config, task_settings, ecf_files,
                                                           input_template=template)
 
                     an_variables = {"t2m": False, "rh2m": False, "sd": False}
-                    obs_types = config.get_setting("SURFEX#ASSIM#OBS#COBS_M")
-                    nnco = config.get_nnco(dtg=dtg)
+                    obs_types = config.get_value("SURFEX.ASSIM.OBS.COBS_M")
+                    nnco = settings.get_nnco(dtg=dtg)
                     for t_ind, val in enumerate(obs_types):
                         if nnco[t_ind] == 1:
                             if obs_types[t_ind] == "T2M" or obs_types[t_ind] == "T2M_P":
@@ -317,10 +328,10 @@ class SurfexSuite():
 
                     prepare_lsm = None
                     need_lsm = False
-                    if config.setting_is("SURFEX#ASSIM#SCHEMES#ISBA", "OI"):
+                    if settings.setting_is("SURFEX.ASSIM.SCHEMES.ISBA", "OI"):
                         need_lsm = True
-                    if config.setting_is("SURFEX#ASSIM#SCHEMES#INLAND_WATER", "WATFLX"):
-                        if config.get_setting("SURFEX#ASSIM#INLAND_WATER#LEXTRAP_WATER"):
+                    if settings.setting_is("SURFEX.ASSIM.SCHEMES.INLAND_WATER", "WATFLX"):
+                        if config.get_value("SURFEX.ASSIM.INLAND_WATER.LEXTRAP_WATER"):
                             need_lsm = True
                     if need_lsm:
                         triggers = EcflowSuiteTriggers(fg4oi_complete)
@@ -347,7 +358,7 @@ class SurfexSuite():
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(cycle_input),
                                             EcflowSuiteTrigger(initialization)])
             prediction = EcflowSuiteFamily("Prediction", dtg_node, ecf_files, triggers=triggers)
-            prediction_dtg_node.update({dtg_str: prediction})
+            prediction_dtg_node.update({dtg_str: {"node": prediction, "dtg": dtg}})
 
             forecast = EcflowSuiteTask("Forecast", prediction, config, task_settings, ecf_files,
                                        input_template=template)
@@ -374,7 +385,7 @@ class SurfexSuite():
         hours_behind = 24
         for dtg in dtgs:
             dtg_str = dtg.strftime("%Y%m%d%H%M")
-            pp_dtg_str = (dtg - timedelta(hours=hours_behind)).strftime("%Y%m%d%H%M")
+            pp_dtg_str = (dtg - as_timedelta(f"PT{hours_behind}H")).strftime("%Y%m%d%H%M")
             if pp_dtg_str in post_processing_dtg_node:
                 triggers = EcflowSuiteTriggers(
                     EcflowSuiteTrigger(post_processing_dtg_node[pp_dtg_str]))
@@ -406,45 +417,42 @@ def get_defs(config, suite_type):
         SuiteDefinition: A suite definitition
     """
     logger = get_logger_from_config(config)
-    suite_name = config.name.replace("-", "_")
+    name = config.get_value("general.case")
+    settings = Configuration(config)
+    suite_name = name.replace("-", "_")
     suite_name = suite_name.replace(".", "_")
-    logger.debug("Config name %s", config.name)
+    logger.debug("Config name %s", name)
     logger.debug("Get defs for %s", suite_name)
-    system = config.system
-    progress = config.progress
-    joboutdir = system.get_var("JOBOUTDIR", "0")
-    env_submit = config.env_submit
+
+    # system = config.system
+    progress = ProgressFromConfig(config)
+    platform = Platform(config)
+    joboutdir = platform.get_system_value("joboutdir")
     task_settings = TaskSettings(config)
-    hh_list = config.get_total_unique_cycle_list()
+    unique_cycles = settings.get_total_unique_cycle_list()
     dtgstart = progress.dtg
     dtgbeg = progress.dtgbeg
     dtgend = progress.dtgend
-    logger.debug("%s: DTGSTART: %s DTGBEG: %s DTGEND: %s", __file__, dtgstart, dtgbeg, dtgend)
+    logger.debug("%s: DTGSTART: %s DTGBEG: %s DTGEND: %s", __file__,
+                 dtgstart, dtgbeg, dtgend)
     if dtgbeg is None:
         dtgbeg = dtgstart
     dtgs = []
     dtg = dtgstart
     logger.debug("Building list of DTGs")
-    while dtg <= dtgend:
-        dtgs.append(dtg)
-        # hour = dtg.strftime("%H")
-        fcint = config.get_fcint(dtg)
-        logger.debug("DTG: %s, unique HH_LIST: %s. FCINT: %s", str(dtg), str(hh_list), fcint)
-        # if len(hh_list) > 1:
-        #    for h in range(0, len(hh_list)):
-        #        logging.debug("%s %s %s", h, hh_list[h], hour)
-        #        if int(hh_list[h]) == int(hour):
-        #            if h == len(hh_list) - 1:
-        #                fcint = ((int(hh_list[len(hh_list) - 1]) % 24) - int(hh_list[0])) % 24
-        #            else:
-        #                fcint = int(hh_list[h + 1]) - int(hh_list[h])
-        # else:
-        #    fcint = 24
-        # if fcint is None:
-        #    raise Exception
-        dtg = dtg + timedelta(seconds=fcint)
+    cont = True
+    while cont:
+        for cycle in unique_cycles:
+            while dtg <= dtgend:
+                dtgs.append(dtg)
+                logger.debug("DTG: %s, fcint: %s",
+                             dtg, cycle)
+                dtg = dtg + cycle
+            if dtg >= dtgend:
+                cont = False
 
     logger.debug("Built DTGS: %s", dtgs)
     if suite_type == "surfex":
-        return SurfexSuite(suite_name, config, joboutdir, task_settings, dtgs, dtg, dtgbeg=dtgbeg)
+        return SurfexSuite(suite_name, config, joboutdir, task_settings,
+                           dtgs, dtg, dtgbeg=dtgbeg)
     raise NotImplementedError(f"Suite definition for {suite_type} is not implemented!")

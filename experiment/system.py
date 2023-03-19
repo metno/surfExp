@@ -19,38 +19,38 @@ class System():
             Exception: _description_
         """
         logging.debug(str(host_system))
-        self.system_variables = ["SFX_EXP_DATA", "SFX_EXP_LIB", "JOBOUTDIR", "MKDIR",
-                                 "RSYNC", "HOSTS", "TROIKA",
-                                 "SYNC_DATA", "SURFEX_CONFIG"]
+        self.system_variables = ["sfx_exp_data", "sfx_exp_lib", "joboutdir", "mkdir",
+                                 "rsync", "hosts", "troika",
+                                 "sync_data", "surfex_config"]
         self.hosts = None
         self.exp_name = exp_name
 
         # Set system0 from system_dict
         system0 = {}
         for var in self.system_variables:
-            if var == "HOSTS":
-                self.hosts = host_system["HOST_SYSTEM"]["HOSTS"]
-            elif var == "HOST":
+            if var == "hosts":
+                self.hosts = host_system["host_system"]["hosts"]
+            elif var == "host":
                 pass
             else:
-                if var in host_system["HOST_SYSTEM"]:
-                    system0.update({var: host_system["HOST_SYSTEM"][var]})
+                if var in host_system["host_system"]:
+                    system0.update({var: host_system["host_system"][var]})
 
                 # Always sync for HOST0
-                elif var == "SYNC_DATA" or var == "TROIKA":
+                elif var == "sync_data" or var == "troika":
                     pass
                 else:
                     raise Exception("Variable is missing: " + var)
 
         system = {}
-        system.update({"HOSTS": self.hosts})
+        system.update({"hosts": self.hosts})
         for host, host_label in enumerate(self.hosts):
             systemn = system0.copy()
-            systemn.update({"HOST": host_label})
-            hostn = "HOST" + str(host)
-            if hostn in host_system["HOST_SYSTEM"]:
-                for key in host_system["HOST_SYSTEM"][hostn]:
-                    value = host_system["HOST_SYSTEM"][hostn][key]
+            systemn.update({"host": host_label})
+            hostn = "host" + str(host)
+            if hostn in host_system["host_system"]:
+                for key in host_system["host_system"][hostn]:
+                    value = host_system["host_system"][hostn][key]
                     systemn.update({key: value})
             system.update({str(host): systemn})
 
@@ -70,9 +70,9 @@ class System():
             host = str(host)
             var_host = {}
             for key in self.system_variables:
-                if key == "HOSTS":
+                if key == "hosts":
                     value = self.get_var(key, host, stream=stream)
-                    var_host.update({"HOSTNAME": value[int(host)]})
+                    var_host.update({"hostname": value[int(host)]})
                 else:
                     value = self.get_var(key, host, stream=stream)
                     var_host.update({key: value})
@@ -97,11 +97,11 @@ class System():
             _type_: variable value.
 
         """
-        if var == "HOSTS":
+        if var == "hosts":
             if self.hosts is not None:
                 return self.hosts
-            raise Exception("HOSTS not found in system")
-        if var == "SYNC_DATA" and str(host) == "0":
+            raise Exception("hosts not found in system")
+        if var == "sync_data" and str(host) == "0":
             return None
 
         if var in self.system[str(host)]:
@@ -142,6 +142,7 @@ class SystemFromFile(System):
         System.__init__(self, host_system, exp_name)
 
 
+'''
 class SystemFilePathsFromSystem():
     """Set system file paths from a system object.
 
@@ -173,8 +174,8 @@ class SystemFilePathsFromSystem():
             if wdir is not None:
                 paths_host.update({"exp_dir": wdir})
 
-            sfx_data = system.get_var("SFX_EXP_DATA", host=host, stream=stream)
-            sfx_lib = system.get_var("SFX_EXP_LIB", host=host, stream=stream)
+            sfx_data = system.get_var("sfx_exp_data", host=host, stream=stream)
+            sfx_lib = system.get_var("sfx_exp_lib", host=host, stream=stream)
 
             default_bin_dir = sfx_data + "/lib/offline/exe/"
             default_clim_dir = sfx_data + "/climate/"
@@ -235,3 +236,4 @@ class SystemFilePathsFromSystemFile(SystemFilePathsFromSystem):
         system = SystemFromFile(system, name)
         SystemFilePathsFromSystem.__init__(self, system_file_paths, system, hosts=hosts,
                                            stream=stream, wdir=wdir)
+'''

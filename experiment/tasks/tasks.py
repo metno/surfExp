@@ -1,9 +1,7 @@
 """General task module."""
-from datetime import timedelta, datetime
 import os
 import json
 import shutil
-import logging
 import numpy as np
 import yaml
 import surfex
@@ -11,6 +9,9 @@ import surfex
 
 from ..toolbox import FileManager
 from ..logs import get_logger_from_config
+from ..datetime_utils import as_datetime, as_timedelta
+from ..configuration import Configuration
+from ..progress import ProgressFromConfig
 
 
 class AbstractTask(object):
@@ -27,85 +28,98 @@ class AbstractTask(object):
         if surfex is None:
             raise Exception("Surfex module not properly loaded!")
 
-        logging.debug("Create task")
         self.config = config
         self.logger = get_logger_from_config(config)
-        self.exp_file_paths = config.exp_file_paths
-        system = config.system
-        dtg = config.progress.dtg
-        dtgbeg = config.progress.dtgbeg
-        self.dtg = dtg
-        self.dtgbeg = dtgbeg
-
+        self.logger.debug("Create task")
+        self.fmanager = FileManager(self.config)
+        self.platform = self.fmanager.platform
+        self.settings = Configuration(self.config)
+        self.progress = ProgressFromConfig(self.config)
+        self.dtg = as_datetime(config.get_value("general.times.basetime"))
+        self.basetime = as_datetime(config.get_value("general.times.basetime"))
+        self.starttime = as_datetime(config.get_value("general.times.start"))
+        self.dtgbeg = as_datetime(config.get_value("general.times.start"))
+      
         self.host = "0"
-        # self.exp_file_paths = surfex.SystemFilePaths(exp_file_paths)
-        self.work_dir = self.exp_file_paths.get_system_path("exp_dir")
-        self.lib = self.exp_file_paths.get_system_path("sfx_exp_lib")
-        self.stream = config.get_setting("GENERAL#STREAM")
-        self.surfex_config = system.get_var("SURFEX_CONFIG", self.host)
-        self.sfx_exp_vars = None
-        logging.debug("        config: %s", json.dumps(config.settings, sort_keys=True, indent=2))
-        logging.debug("        system: %s", json.dumps(system.system, sort_keys=True, indent=2))
-        logging.debug("exp_file_paths: %s", json.dumps(self.exp_file_paths.system_file_paths,
-                                                       sort_keys=True, indent=2))
+        self.work_dir = self.platform.get_system_value("sfx_exp_data")
+        self.lib = self.platform.get_system_value("sfx_exp_lib")
+        #self.stream = self.config.get_value("general.stream")
+        self.stream = None
 
-        self.mbr = config.ensmbr
-        self.members = config.members
+        self.surfex_config = self.platform.get_system_value("surfex_config")
+        self.sfx_exp_vars = None
+        self.logger.debug("        config: %s", json.dumps(config.dict(), sort_keys=True, indent=2))
+
+        self.mbr = self.config.get_value("general.realization")
+        self.members = self.config.get_value("general.realizations")
 
         # Domain/geo
-        domain = self.config.get_setting("GEOMETRY#DOMAIN")
-        domains = self.config.get_setting("GEOMETRY#DOMAINS")
-        domain_json = surfex.set_domain(domains, domain, hm_mode=True)
-        geo = surfex.get_geo_object(domain_json)
-        self.geo = geo
+        conf_proj = {
+            "nam_conf_proj_grid": {
+                "nimax": self.config.get_value("domain.nimax"),
+                "njmax": self.config.get_value("domain.njmax"),
+                "xloncen": self.config.get_value("domain.xloncen"),
+                "xlatcen": self.config.get_value("domain.xlatcen"),
+                "xdx": self.config.get_value("domain.xdx"),
+                "xdy": self.config.get_value("domain.xdy"),
+                "ilone": self.config.get_value("domain.ilone"),
+                "ilate": self.config.get_value("domain.ilate"),
+            },
+            "nam_conf_proj": {
+                "xlon0": self.config.get_value("domain.xlon0"),
+                "xlat0": self.config.get_value("domain.xlat0"),
+            }
+        }
 
+        self.geo = surfex.ConfProj(conf_proj)
         self.fmanager = FileManager(config)
         self.platform = self.fmanager.platform
-        wrapper = self.config.get_setting("TASK#WRAPPER")
+        wrapper = self.config.get_value("task.wrapper")
         if wrapper is None:
             wrapper = ""
         self.wrapper = wrapper
 
         masterodb = False
-        lfagmap = self.config.get_setting("SURFEX#IO#LFAGMAP")
-        self.csurf_filetype = self.config.get_setting("SURFEX#IO#CSURF_FILETYPE")
+        try:
+            lfagmap = self.config.get_value("SURFEX.IO.LFAGMAP")
+        except AttributeError:
+            lfagmap = False
+        self.csurf_filetype = self.config.get_value("SURFEX.IO.CSURF_FILETYPE")
         self.suffix = surfex.SurfFileTypeExtension(self.csurf_filetype, lfagmap=lfagmap,
                                                    masterodb=masterodb).suffix
 
         # TODO Move to config
         ###########################################################################
-        self.wrk = self.exp_file_paths.get_system_path("wrk_dir", default_dir="default_wrk_dir", basedtg=self.dtg)
-        self.archive = self.exp_file_paths.get_system_path("archive_dir", default_dir="default_archive_dir",
-                                                           basedtg=self.dtg)
+        self.wrk = self.platform.get_system_value("wrk")
+        os.makedirs(self.wrk, exist_ok=True)
+        archive = self.platform.get_system_value("archive_dir")
+        self.archive = self.platform.substitute(archive)
+
         os.makedirs(self.archive, exist_ok=True)
-        self.bindir = self.exp_file_paths.get_system_path("bin_dir", default_dir="default_bin_dir")
+        self.bindir = self.platform.get_system_value("bin_dir")
 
-        self.extrarch = self.exp_file_paths.get_system_path("extrarch_dir", default_dir="default_extrarch_dir",
-                                                            basedtg=self.dtg)
+        self.extrarch = self.platform.get_system_value("extrarch_dir")
+
         os.makedirs(self.extrarch, exist_ok=True)
-        self.obsdir = self.exp_file_paths.get_system_path("obs_dir", default_dir="default_obs_dir",
-                                                          basedtg=self.dtg)
-
-        self.exp_file_paths.add_system_file_path("wrk_dir", self.wrk)
-        self.exp_file_paths.add_system_file_path("bin_dir", self.bindir)
-        self.exp_file_paths.add_system_file_path("archive_dir", self.archive)
-        self.exp_file_paths.add_system_file_path("extrarch_dir", self.extrarch)
-        self.exp_file_paths.add_system_file_path("obs_dir", self.obsdir)
+        self.obsdir = self.platform.get_system_value("obs_dir")
         os.makedirs(self.obsdir, exist_ok=True)
-        self.fcint = self.config.get_fcint(self.dtg)
-        self.fgint = self.config.get_fgint(self.dtg)
-        self.fg_dtg = self.dtg - timedelta(seconds=self.fgint)
-        self.next_dtg = self.dtg + timedelta(seconds=self.fcint)
+
+        # TODO
+        self.fgint = as_timedelta(self.config.get_value("general.times.cycle_length"))
+        self.fcint = as_timedelta(self.config.get_value("general.times.cycle_length"))
+        self.fg_dtg = self.dtg - self.fgint
+        self.next_dtg = self.dtg + self.fcint
         self.next_dtgpp = self.next_dtg
-        self.first_guess_dir = self.exp_file_paths.get_system_path("first_guess_dir",
-                                                                   default_dir="default_first_guess_dir",
-                                                                   basedtg=self.fg_dtg)
-        self.input_path = self.config.get_setting("GENERAL#NAMELIST_DIR")
+
+        first_guess_dir = self.platform.get_system_value("archive_dir")
+        first_guess_dir = self.platform.substitute(first_guess_dir, basetime=self.fg_dtg)
+        self.first_guess_dir = first_guess_dir
+        self.input_path = self.platform.get_system_value("namelist_dir")
         ###########################################################################
 
         self.wdir = str(os.getpid())
         self.wdir = self.wrk + "/" + self.wdir
-        logging.info("WDIR=" + self.wdir)
+        self.logger.info("WDIR=%s", self.wdir)
         os.makedirs(self.wdir, exist_ok=True)
         os.chdir(self.wdir)
 
@@ -117,11 +131,23 @@ class AbstractTask(object):
             "rh2m": "relative_humidity_2m",
             "sd": "surface_snow_thickness"
         }
-        # self.obs_types = self.config.get_setting("SURFEX#ASSIM#OBS#COBS_M")
-        self.obs_types = []
-        self.nnco = self.config.get_nnco(dtg=self.config.progress.dtg)
-        self.config.update_setting("SURFEX#ASSIM#OBS#NNCO", self.nnco)
-        logging.debug("NNCO: %s", self.nnco)
+        self.obs_types = self.config.get_value("SURFEX.ASSIM.OBS.COBS_M")
+
+        # TODO
+        # self.nnco = self.config.get_nnco(dtg=self.basetime)
+        self.nnco = [1, 1, 0, 0, 1]
+
+        update = {
+            "SURFEX": {
+                "ASSIM": {
+                    "OBS": {
+                        "NNCO": self.nnco
+                    }
+                }
+            }
+        }
+        self.config = self.config.copy(update=update)
+        self.logger.debug("NNCO: %s", self.nnco)
 
     def run(self):
         """Run task.
@@ -134,7 +160,7 @@ class AbstractTask(object):
 
     def execute(self):
         """Do nothing for base execute task."""
-        logging.warning("Using empty base class execute")
+        self.logger.warning("Using empty base class execute")
 
     def postfix(self):
         """Do default postfix.
@@ -142,45 +168,13 @@ class AbstractTask(object):
         Default is to clean.
 
         """
-        logging.info("Base class postfix")
+        self.logger.info("Base class postfix")
         if self.wrk is not None:
             os.chdir(self.wrk)
 
         if self.wdir is not None:
             shutil.rmtree(self.wdir)
 
-'''
-class Dummy(object):
-    """A dummy task to test the containers.
-
-    Args:
-        object (_type_): _description_
-    """
-
-    def __init__(self, config):
-        """Construct the Dummy task.
-
-        Args:
-            task (_type_): _description_
-            config (_type_): _description_
-            system (_type_): _description_
-            exp_file_paths (_type_): _description_
-            progress (_type_): _description_
-
-        """
-        exp_file_paths = config["SYSTEM_FILE_PATHS"]
-        system = config["SYSTEM_VARS"]
-        progress = config["PROGRESS"]
-        logging.debug("Dummy task initialized")
-        logging.debug("        Config: %s", json.dumps(config, sort_keys=True, indent=2))
-        logging.debug("        system: %s", json.dumps(system, sort_keys=True, indent=2))
-        logging.debug("exp_file_paths: %s", json.dumps(exp_file_paths, sort_keys=True, indent=2))
-        logging.debug("      progress: %s", json.dumps(progress, sort_keys=True, indent=2))
-
-    def run(self):
-        """Override run."""
-        logging.debug("Dummy task %s is run")
-'''
 
 class PrepareCycle(AbstractTask):
     """Prepare for th cycle to be run.
@@ -225,26 +219,22 @@ class QualityControl(AbstractTask):
         """Constuct the QualityControl task.
 
         Args:
-            task (_type_): _description_
             config (_type_): _description_
-            system (_type_): _description_
-            exp_file_paths (_type_): _description_
-            progress (_type_): _description_
 
         """
         AbstractTask.__init__(self, config)
-        print(self.config.get_setting("TASK"))
-        self.var_name = self.config.get_setting("TASK#VAR_NAME")
+        print(self.config.get_value("task"))
+        self.var_name = self.config.get_value("task.var_name")
         print(self.var_name)
 
     def execute(self):
         """Execute."""
         an_time = self.dtg
 
-        sfx_lib = self.exp_file_paths.get_system_path("sfx_exp_lib")
+        sfx_lib = self.platform.get_system_value("sfx_exp_lib")
 
-        fg_file = self.exp_file_paths.get_system_file("archive_dir", "raw.nc", basedtg=self.dtg,
-                                                      default_dir="default_archive_dir")
+        fg_file = f"{self.platform.get_system_value('archive_dir')}/raw.nc"
+        fg_file = self.platform.substitute(fg_file, basetime=self.dtg)
 
         # Default
         settings = {
@@ -273,7 +263,7 @@ class QualityControl(AbstractTask):
 
         # T2M
         if self.var_name == "t2m":
-            synop_obs = self.config.get_setting("OBSERVATIONS#SYNOP_OBS_T2M")
+            synop_obs = self.config.get_value("observations.synop_obs_t2m")
             data_sets = {}
             if synop_obs:
                 bufr_tests = default_tests
@@ -293,7 +283,7 @@ class QualityControl(AbstractTask):
                         "tests": bufr_tests
                     }
                 })
-            netatmo_obs = self.config.get_setting("OBSERVATIONS#NETATMO_OBS_T2M")
+            netatmo_obs = self.config.get_value("observations.netatmo_obs_t2m")
             if netatmo_obs:
                 netatmo_tests = default_tests
                 netatmo_tests.update({
@@ -306,8 +296,7 @@ class QualityControl(AbstractTask):
                         "minval": 200
                     }
                 })
-                filepattern = self.config.get_setting("OBSERVATIONS#NETATMO_FILEPATTERN",
-                                                      check_parsing=False)
+                filepattern = self.config.get_value("observations.netatmo_filepattern")
                 data_sets.update({
                     "netatmo": {
                         "filepattern": filepattern,
@@ -323,7 +312,7 @@ class QualityControl(AbstractTask):
 
         # RH2M
         elif self.var_name == "rh2m":
-            synop_obs = self.config.get_setting("OBSERVATIONS#SYNOP_OBS_RH2M")
+            synop_obs = self.config.get_value("observations.synop_obs_rh2m")
             data_sets = {}
             if synop_obs:
                 bufr_tests = default_tests
@@ -344,7 +333,7 @@ class QualityControl(AbstractTask):
                     }
                 })
 
-            netatmo_obs = self.config.get_setting("OBSERVATIONS#NETATMO_OBS_RH2M")
+            netatmo_obs = self.config.get_value("observations.netatmo_obs_rh2m")
             if netatmo_obs:
                 netatmo_tests = default_tests
                 netatmo_tests.update({
@@ -357,7 +346,7 @@ class QualityControl(AbstractTask):
                         "minval": 0
                     }
                 })
-                filepattern = self.config.get_setting("OBSERVATIONS#NETATMO_FILEPATTERN",
+                filepattern = self.config.get_value("observations.netatmo_filepattern",
                                                       check_parsing=False)
                 data_sets.update({
                     "netatmo": {
@@ -374,7 +363,7 @@ class QualityControl(AbstractTask):
 
         # Snow Depth
         elif self.var_name == "sd":
-            synop_obs = self.config.get_setting("OBSERVATIONS#SYNOP_OBS_SD")
+            synop_obs = self.config.get_value("observations.synop_obs_sd")
             data_sets = {}
             if synop_obs:
                 bufr_tests = default_tests
@@ -406,17 +395,17 @@ class QualityControl(AbstractTask):
         else:
             raise NotImplementedError
 
-        logging.debug("Settings %s", json.dumps(settings, indent=2, sort_keys=True))
+        self.logger.debug("Settings %s", json.dumps(settings, indent=2, sort_keys=True))
 
         output = self.obsdir + "/qc_" + self.translation[self.var_name] + ".json"
-        uname = self.var_name.upper()
-        print(uname)
-        print(f"OBSERVATIONS#QC#{uname}#TESTS")
-        tests = self.config.get_setting(f"OBSERVATIONS#QC#{uname}#TESTS")
-        print(tests)
-        if tests is None:
-            logging.info("Use default test OBSERVATIONS#QC#TESTS")
-            tests = self.config.get_setting("OBSERVATIONS#QC#TESTS")
+        lname = self.var_name.lower()
+
+        try:
+            tests = self.config.get_value(f"observations.qc.{lname}.tests")
+            self.logger.info("Using observations.qc.{lname}.tests")
+        except AttributeError:
+            self.logger.info("Using default test observations.qc.tests")
+            tests = self.config.get_value("observations.qc.tests")
 
         indent = 2
         blacklist = {}
@@ -428,7 +417,7 @@ class QualityControl(AbstractTask):
         data_set = surfex.TitanDataSet(self.var_name, settings, tests, datasources, an_time)
         data_set.perform_tests()
 
-        logging.debug("Write to %s", output)
+        self.logger.debug("Write to %s", output)
         data_set.write_output(output, indent=indent)
 
 
@@ -443,15 +432,11 @@ class OptimalInterpolation(AbstractTask):
         """Construct the OptimalInterpolation task.
 
         Args:
-            task (_type_): _description_
             config (_type_): _description_
-            system (_type_): _description_
-            exp_file_paths (_type_): _description_
-            progress (_type_): _description_
 
         """
         AbstractTask.__init__(self, config)
-        self.var_name = self.config.get_setting("TASK#VAR_NAME")
+        self.var_name = self.config.get_value("task.var_name")
 
     def execute(self):
         """Execute."""
@@ -467,16 +452,22 @@ class OptimalInterpolation(AbstractTask):
         elev_gradient = 0
         epsilon = 0.25
 
-        uname = self.var_name.upper()
-        hlength = self.config.get_setting(f"OBSERVATIONS#OI#{uname}#HLENGTH", default=hlength)
-        vlength = self.config.get_setting(f"OBSERVATIONS#OI#{uname}#VLENGTH", default=vlength)
-        wlength = self.config.get_setting(f"OBSERVATIONS#OI#{uname}#WLENGTH", default=wlength)
-        elev_gradient = self.config.get_setting(f"OBSERVATIONS#OI#{uname}#GRADIENT", default=elev_gradient)
-        max_locations = self.config.get_setting(f"OBSERVATIONS#OI#{uname}#MAX_LOCATIONS",
+        lname = self.var_name.lower()
+        hlength = self.config.get_value(f"observations.oi.{lname}.hlength", default=hlength)
+        vlength = self.config.get_value(f"observations.oi.{lname}.vlength", default=vlength)
+        wlength = self.config.get_value(f"observations.oi.{lname}.wlength", default=wlength)
+        elev_gradient = self.config.get_value(f"observations.oi.{lname}.gradient", default=elev_gradient)
+        max_locations = self.config.get_value(f"observations.oi.{lname}.max_locations",
                                                 default=max_locations)
-        epsilon = self.config.get_setting(f"OBSERVATIONS#OI#{uname}#EPSILON", default=epsilon)
-        minvalue = self.config.get_setting(f"OBSERVATIONS#OI#{uname}#MINVALUE", default=None, abort=False)
-        maxvalue = self.config.get_setting(f"OBSERVATIONS#OI#{uname}#MAXVALUE", default=None, abort=False)
+        epsilon = self.config.get_value(f"observations.oi.{lname}.epsilon", default=epsilon)
+        try:
+            minvalue = self.config.get_value(f"observations.oi.{lname}.minvalue", default=None)
+        except AttributeError:
+            minvalue = None
+        try:
+            maxvalue = self.config.get_value(f"observations.oi.{lname}.maxvalue", default=None)
+        except AttributeError:
+            maxvalue = None
         input_file = self.archive + "/raw_" + var + ".nc"
         output_file = self.archive + "/an_" + var + ".nc"
 
@@ -486,9 +477,7 @@ class OptimalInterpolation(AbstractTask):
 
         an_time = validtime
         # Read OK observations
-        obs_file = self.exp_file_paths.get_system_file("obs_dir", "qc_" + var + ".json",
-                                                       basedtg=self.dtg,
-                                                       default_dir="default_obs_dir")
+        obs_file = f"{self.platform.get_system_value('obs_dir')}/qc_{var}.json"
         observations = surfex.dataset_from_file(an_time, obs_file, qc_flag=0)
 
         field = surfex.horizontal_oi(geo, background, observations, gelevs=gelevs,
@@ -496,7 +485,7 @@ class OptimalInterpolation(AbstractTask):
                                      max_locations=max_locations, elev_gradient=elev_gradient,
                                      epsilon=epsilon, minvalue=minvalue, maxvalue=maxvalue)
 
-        logging.debug("Write output file %s", output_file)
+        self.logger.debug("Write output file %s", output_file)
         if os.path.exists(output_file):
             os.unlink(output_file)
         surfex.write_analysis_netcdf_file(output_file, field, var, validtime, gelevs, glafs,
@@ -517,18 +506,17 @@ class FirstGuess(AbstractTask):
             config (_type_): _description_
         """
         AbstractTask.__init__(self, config)
-        self.var_name = self.config.get_setting("TASK#VAR_NAME", default=None)
+        self.var_name = self.config.get_value("task.var_name", default=None)
 
     def execute(self):
         """Execute."""
-        firstguess = self.config.get_setting("SURFEX#IO#CSURFFILE") + self.suffix
-        logging.debug("DTG: %s BASEDTG: %s", self.dtg, self.fg_dtg)
-        fg_file = self.exp_file_paths.get_system_file("first_guess_dir", firstguess,
-                                                      basedtg=self.fg_dtg,
-                                                      validtime=self.dtg,
-                                                      default_dir="default_first_guess_dir")
+        firstguess = self.config.get_value("SURFEX.IO.CSURFFILE") + self.suffix
+        self.logger.debug("DTG: %s BASEDTG: %s", self.dtg, self.fg_dtg)
+        fg_dir = self.platform.get_system_value('archive_dir')
+        fg_dir = self.platform.substitute(fg_dir, basetime=self.fg_dtg)
+        fg_file = f"{fg_dir}/{firstguess}"
 
-        logging.info("Use first guess: %s", fg_file)
+        self.logger.info("Use first guess: %s", fg_file)
         if os.path.islink(self.fg_guess_sfx) or os.path.exists(self.fg_guess_sfx):
             os.unlink(self.fg_guess_sfx)
         os.symlink(fg_file, self.fg_guess_sfx)
@@ -551,11 +539,10 @@ class CycleFirstGuess(FirstGuess):
 
     def execute(self):
         """Execute."""
-        firstguess = self.config.get_setting("SURFEX#IO#CSURFFILE") + self.suffix
-        fg_file = self.exp_file_paths.get_system_file("first_guess_dir", firstguess,
-                                                      basedtg=self.fg_dtg,
-                                                      validtime=self.dtg,
-                                                      default_dir="default_first_guess_dir")
+        firstguess = self.config.get_value("SURFEX.IO.CSURFFILE") + self.suffix
+        fg_dir = self.platform.get_system_value('archive_dir')
+        fg_dir = self.platform.substitute(fg_dir, basetime=self.fg_dtg)
+        fg_file = f"{fg_dir}/{firstguess}"
 
         if os.path.islink(self.fc_start_sfx):
             os.unlink(self.fc_start_sfx)
@@ -576,7 +563,7 @@ class Oi2soda(AbstractTask):
             config (_type_): _description_
         """
         AbstractTask.__init__(self, config)
-        self.var_name = self.config.get_setting("TASK#VAR_NAME")
+        self.var_name = self.config.get_value("task.var_name")
 
     def execute(self):
         """Execute."""
@@ -585,8 +572,7 @@ class Oi2soda(AbstractTask):
         dd2 = self.dtg.strftime("%d")
         hh2 = self.dtg.strftime("%H")
         obfile = "OBSERVATIONS_" + yy2 + mm2 + dd2 + "H" + hh2 + ".DAT"
-        output = self.config.exp_file_paths.get_system_file("obs_dir", obfile, basedtg=self.dtg,
-                                                            default_dir="default_obs_dir")
+        output = f"{self.platform.get_system_value('obs_dir')}/{obfile}"
 
         t2m = None
         rh2m = None
@@ -594,9 +580,9 @@ class Oi2soda(AbstractTask):
 
         an_variables = {"t2m": False, "rh2m": False, "sd": False}
         obs_types = self.obs_types
-        logging.debug("NNCO: %s", self.nnco)
+        self.logger.debug("NNCO: %s", self.nnco)
         for ivar, __ in enumerate(obs_types):
-            logging.debug("ivar=%s NNCO[ivar]=%s obtype=%s", ivar, self.nnco[ivar], obs_types[ivar])
+            self.logger.debug("ivar=%s NNCO[ivar]=%s obtype=%s", ivar, self.nnco[ivar], obs_types[ivar])
             if self.nnco[ivar] == 1:
                 if obs_types[ivar] == "T2M" or obs_types[ivar] == "T2M_P":
                     an_variables.update({"t2m": True})
@@ -623,10 +609,10 @@ class Oi2soda(AbstractTask):
                         "file": self.archive + "/an_" + var_name + ".nc",
                         "var": var_name
                     }
-        logging.debug("t2m  %s ", t2m)
-        logging.debug("rh2m %s", rh2m)
-        logging.debug("sd   %s", s_d)
-        logging.debug("Write to %s", output)
+        self.logger.debug("t2m  %s ", t2m)
+        self.logger.debug("rh2m %s", rh2m)
+        self.logger.debug("sd   %s", s_d)
+        self.logger.debug("Write to %s", output)
         surfex.oi2soda(self.dtg, t2m=t2m, rh2m=rh2m, s_d=s_d, output=output)
 
 
@@ -640,7 +626,7 @@ class Qc2obsmon(AbstractTask):
     def __init__(self, config):
         """Construct the QC2obsmon data."""
         AbstractTask.__init__(self, config)
-        self.var_name = self.config.get_setting("TASK#VAR_NAME")
+        self.var_name = self.config.get_value("task.var_name")
 
     def execute(self):
         """Execute."""
@@ -648,7 +634,7 @@ class Qc2obsmon(AbstractTask):
         os.makedirs(outdir, exist_ok=True)
         output = outdir + "/ecma.db"
 
-        logging.debug("Write to %s", output)
+        self.logger.debug("Write to %s", output)
         if os.path.exists(output):
             os.unlink(output)
         obs_types = self.obs_types
@@ -685,7 +671,7 @@ class FirstGuess4OI(AbstractTask):
     def __init__(self, config):
         """Construct the FirstGuess4OI task."""
         AbstractTask.__init__(self, config)
-        self.var_name = self.config.get_setting("TASK#VAR_NAME")
+        self.var_name = self.config.get_value("task.var_name")
 
     def execute(self):
         """Execute."""
@@ -726,12 +712,9 @@ class FirstGuess4OI(AbstractTask):
 
         output = self.archive + "/raw" + extra + ".nc"
         cache_time = 3600
-        # if "cache_time" in kwargs:
-        #     cache_time = kwargs["cache_time"]
         cache = surfex.cache.Cache(cache_time)
-        # cache = None
         if os.path.exists(output):
-            logging.info("Output already exists " + output)
+            self.logger.info("Output already exists " + output)
         else:
             self.write_file(output, variables, self.geo, validtime, cache=cache)
 
@@ -757,38 +740,47 @@ class FirstGuess4OI(AbstractTask):
         """
         f_g = None
         for var in variables:
-            identifier = "INITIAL_CONDITIONS#FG4OI#" + var + "#"
-            inputfile = self.config.get_setting(identifier + "INPUTFILE", basedtg=self.fg_dtg,
-                                                    validtime=self.dtg)
-            if inputfile is None:
-                identifier = "INITIAL_CONDITIONS#FG4OI#"
-                inputfile = self.config.get_setting(identifier + "INPUTFILE", basedtg=self.fg_dtg,
-                                                    validtime=self.dtg)
-            identifier = "INITIAL_CONDITIONS#FG4OI#" + var + "#"
-            fileformat = self.config.get_setting(identifier + "FILEFORMAT")
-            if fileformat is None:
-                identifier = "INITIAL_CONDITIONS#FG4OI#"
-                fileformat = self.config.get_setting(identifier + "FILEFORMAT")
+            lvar = var.lower()
+            try:
+                identifier = "initial_conditions.fg4oi." + lvar + "#"
+                inputfile = self.config.get_value(identifier + "inputfile")
+            except AttributeError:
+                identifier = "initial_conditions.fg4oi."
+                inputfile = self.config.get_value(identifier + "inputfile")
 
-            identifier = "INITIAL_CONDITIONS#FG4OI#" + var + "#"
-            converter = self.config.get_setting(identifier + "CONVERTER")
-            if converter is None:
-                identifier = "INITIAL_CONDITIONS#FG4OI#"
-                converter = self.config.get_setting(identifier + "CONVERTER")
+            inputfile = self.platform.substitute(inputfile, basetime=self.fg_dtg,
+                                                 validtime=self.dtg)
+            
+            try:
+                identifier = "initial_conditions.fg4oi." + lvar + "#"
+                fileformat = self.config.get_value(identifier + "fileformat")
+            except AttributeError:
+                identifier = "initial_conditions.fg4oi."
+                fileformat = self.config.get_value(identifier + "fileformat")
+            fileformat = self.platform.substitute(fileformat, basetime=self.fg_dtg,
+                                                 validtime=self.dtg)
 
-            identifier = "INITIAL_CONDITIONS#FG4OI#" + var + "#"
-            input_geo_file = self.config.get_setting(identifier + "INPUT_GEO_FILE")
-            if input_geo_file is None:
-                identifier = "INITIAL_CONDITIONS#FG4OI#"
-                input_geo_file = self.config.get_setting(identifier + "INPUT_GEO_FILE")
+            try:
+                identifier = "initial_conditions.fg4oi." + lvar + "#"
+                converter = self.config.get_value(identifier + "converter")
+            except AttributeError:
+                identifier = "initial_conditions.fg4oi."
+                converter = self.config.get_value(identifier + "converter")
 
-            logging.info("inputfile=%s, fileformat=%s", inputfile, fileformat)
-            logging.info("converter=%s, input_geo_file=%s", converter, input_geo_file)
-            # config_file = self.work_dir + "/config/first_guess.yml"
-            config_file = self.config.first_guess_yml
+            try:
+                identifier = "initial_conditions.fg4oi." + lvar + "#"
+                input_geo_file = self.config.get_value(identifier + "input_geo_file")
+            except AttributeError:
+                identifier = "initial_conditions.fg4oi."
+                input_geo_file = self.config.get_value(identifier + "input_geo_file")
+
+            self.logger.info("inputfile=%s, fileformat=%s", inputfile, fileformat)
+            self.logger.info("converter=%s, input_geo_file=%s", converter, input_geo_file)
+
+            config_file = self.platform.get_system_value("first_guess_yml")
             with open(config_file, mode="r", encoding="utf-8") as file_handler:
                 config = yaml.safe_load(file_handler)
-            logging.info("config_file=%s", config_file)
+            self.logger.info("config_file=%s", config_file)
             defs = config[fileformat]
             geo_input = None
             if input_geo_file != "":
@@ -803,13 +795,13 @@ class FirstGuess4OI(AbstractTask):
                 raise Exception(f"No converter {converter} definition found in {config_file}!")
 
             defs.update({"fcint": self.fcint})
-            initial_basetime = validtime - timedelta(seconds=self.fgint)
-            logging.debug("Converter=%s", str(converter))
-            logging.debug("Converter_conf=%s", str(converter_conf))
-            logging.debug("Defs=%s", defs)
-            logging.debug("valitime=%s fcint=%s initial_basetime=%s", str(validtime),
+            initial_basetime = validtime - self.fgint
+            self.logger.debug("Converter=%s", str(converter))
+            self.logger.debug("Converter_conf=%s", str(converter_conf))
+            self.logger.debug("Defs=%s", defs)
+            self.logger.debug("valitime=%s fcint=%s initial_basetime=%s", str(validtime),
                           str(self.fcint), str(initial_basetime))
-            logging.debug("Fileformat: %s", fileformat)
+            self.logger.debug("Fileformat: %s", fileformat)
 
             converter = surfex.read.Converter(converter, initial_basetime, defs, converter_conf,
                                               fileformat)
@@ -849,9 +841,10 @@ class LogProgress(AbstractTask):
 
     def execute(self):
 
-        progress = self.config.progress
-        progress.update(dtg=self.next_dtg)
-        progress.save_as_json(self.config.exp_dir, progress=True)
+        exp_dir = self.platform.get_system_value("exp_dir")
+        progress = self.progress
+        progress.dtg = self.next_dtg
+        progress.save_as_json(exp_dir, progress=True)
 
 
 class LogProgressPP(AbstractTask):
@@ -867,6 +860,7 @@ class LogProgressPP(AbstractTask):
 
     def execute(self):
 
-        progress = self.config.progress
-        progress.update(dtgpp=self.next_dtg)
-        progress.save_as_json(self.config.exp_dir, progress_pp=True)
+        exp_dir = self.platform.get_system_value("exp_dir")
+        progress = self.progress
+        progress.dtgpp = self.next_dtgpp
+        progress.save_as_json(exp_dir, progress_pp=True)

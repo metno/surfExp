@@ -1,13 +1,13 @@
-[EPS]
+[eps]
 
-[EPS.MEMBER_SETTINGS.GENERAL]
-HH_LIST      = { 0 = '0-21:3', 1 = '0-21:3', 2 = '0-21:3' }
-LL_LIST      = { 0 = '3',  1 = '3',   2 = '3' }
-[EPS.MEMBER_SETTINGS.SURFEX.ASSIM.SCHEMES]
+[eps.member_settings.general]
+hh_list      = { 0 = '0-21:3', 1 = '0-21:3', 2 = '0-21:3' }
+ll_list      = { 0 = '3',  1 = '3',   2 = '3' }
+[eps.member_settings.SURFEX.ASSIM.SCHEMES]
 ISBA = {  0 = "OI", 1 = "OI", 2 = "OI" }
-[EPS.MEMBER_SETTINGS.SURFEX.SEA]
+[eps.member_settings.SURFEX.SEA]
 PERTFLUX  = { 0 = "none" }
-[EPS.MEMBER_SETTINGS.SURFEX.ISBA]
+[eps.member_settings.SURFEX.ISBA]
 PERTSURF = { 0 = "none" }
 
 

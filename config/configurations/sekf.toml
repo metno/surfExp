@@ -171,26 +171,21 @@ LLINCHECK = false
 # SURFEX offline experiment configuration file
 #
 
-[GENERAL]
+[general]
 ######################################################################################################
 # General (not grouped settings)
 ######################################################################################################
 
-HH_LIST="00-21:3"                       # Which cycles to run, replaces FCINT
-LL_LIST="48,3,3,3,3,3,3,3"              # Forecast lengths for the cycles [h], replaces LL, LLMAIN
+hh_list="00-21:3"                       # Which cycles to run, replaces FCINT
+ll_list="48,3,3,3,3,3,3,3"              # Forecast lengths for the cycles [h], replaces LL, LLMAIN
                                         # The LL_LIST list is wrapped around if necessary, to fit HH_LIST
 
-[COMPILE]
+[compile]
 ####################################################################################################
 # Compilation settings
 #####################################################################################################
-BUILD = true                           # Turn on or off the compilation and binary build (true/false)
+build = true                           # Turn on or off the compilation and binary build (true/false)
 
-[GEOMETRY]
-#####################################################################################################
-# Geometry
-#####################################################################################################
-DOMAIN="DRAMMEN"
 
 [OBSERVATIONS]
 NETATMO_FILEPATTERN = "@SFX_EXP_DATA@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@YYYY@@MM@@DD@T@HH@@mm@*Z*.json"

@@ -4,7 +4,6 @@ import pytest
 
 from unittest.mock import patch
 from pathlib import Path
-from datetime import datetime
 import surfex
 
 
@@ -12,6 +11,8 @@ from experiment.experiment import ExpFromFiles, Exp
 from experiment.progress import Progress
 from experiment.scheduler.scheduler import EcflowServer
 from experiment.scheduler.submission import NoSchedulerSubmission, TaskSettings
+from experiment.datetime_utils import as_datetime
+from experiment.system import System
 
 
 @pytest.fixture(scope="module")
@@ -28,30 +29,31 @@ def config(tmp_path_factory):
 
     scratch = f"{tmp_path_factory.getbasetemp().as_posix()}"
     env_system = {
-        "HOST_SYSTEM": {
-            "COMPCENTRE": "LOCAL",
-            "HOSTS": ["my_host_0", "my_host_1"],
-            "SFX_EXP_DATA": f"{scratch}/host0/@EXP@",
-            "SFX_EXP_LIB": f"{scratch}/host0/@EXP@/lib",
-            "HOST_NAME": "",
-            "JOBOUTDIR": f"{scratch}/host0/job",
-            "HM_CS": "gfortran",
-            "PARCH": "",
-            "MKDIR": "mkdir -p",
-            "RSYNC": 'rsync -avh -e \"ssh -i ~/.ssh/id_rsa\"',
-            "SURFEX_CONFIG": "my_harmonie_config",
-            "LOGIN_HOST": "localhost",
-            "SCHEDULER_PYTHONPATH": "",
-            "HOST1": {
-                "SFX_EXP_DATA": f"{scratch}/host1/@EXP@",
-                "SFX_EXP_LIB": f"{scratch}/host1/@EXP@/lib",
-                "HOST_NAME": "",
-                "JOBOUTDIR": f"{scratch}/host1/job",
-                "LOGIN_HOST": "localhost",
-                "SYNC_DATA": True
+        "host_system": {
+            "compcentre": "LOCAL",
+            "hosts": ["my_host_0", "my_host_1"],
+            "sfx_exp_data": f"{scratch}/host0/@EXP@",
+            "sfx_exp_lib": f"{scratch}/host0/@EXP@/lib",
+            "host_name": "",
+            "joboutdir": f"{scratch}/host0/job",
+            "hm_cs": "gfortran",
+            "parch": "",
+            "mkdir": "mkdir -p",
+            "rsync": 'rsync -avh -e \"ssh -i ~/.ssh/id_rsa\"',
+            "surfex_config": "my_harmonie_config",
+            "login_host": "localhost",
+            "scheduler_pythonpath": "",
+            "host1": {
+                "sfx_exp_data": f"{scratch}/host1/@EXP@",
+                "sfx_exp_lib": f"{scratch}/host1/@EXP@/lib",
+                "host_name": "",
+                "joboutdir": f"{scratch}/host1/job",
+                "login_host": "localhost",
+                "sync_data": True
             }
         }
     }
+    system = System(env_system, exp_name)
     system_file_paths = {
         "sand_dir": "/tmp/host1/testdata/input_paths/sand_dir",
         "clay_dir": "/tmp/host1/testdata/input_paths/clay_dir",
@@ -83,48 +85,35 @@ def config(tmp_path_factory):
             }
         }
     }
-    progressObj = Progress(dtg=datetime(year=2023, month=1, day=1, hour=3),
-                           dtgbeg=datetime(year=2023, month=1, day=1, hour=0),
-                           dtgend=datetime(year=2023, month=1, day=1, hour=6),
-                           dtgpp=datetime(year=2023, month=1, day=1, hour=3))
-    domains = {
-        "DRAMMEN": {
-            "GSIZE": 2500.0,
-            "LAT0": 60.0,
-            "LATC": 60.0,
-            "LON0": 10.0,
-            "LONC": 10.0,
-            "NLAT": 60,
-            "NLON": 50,
-            "TSTEP": 600,
-            "EZONE": 0
-        }
-    }
+    progress = Progress(dtg=as_datetime("2023-01-01 T03:00:00Z"),
+                        dtgbeg=as_datetime("2023-01-01 T00:00:00Z"),
+                        dtgend=as_datetime("2023-01-01 T06:00:00Z"),
+                        dtgpp=as_datetime("2023-01-01 T03:00:00Z"))
+   
     # Configuration
     config_files_dict = ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
                                                       exp_dependencies["config"]["blocks"])
     merged_config = ExpFromFiles.merge_dict_from_config_dicts(config_files_dict)
 
-    merged_config.update({
-        "general": {
-            "loglevel": "INFO"
-        }
-    })
-
     # Create Exp/Configuration object
     stream = None
     with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
         server = EcflowServer({"ECF_HOST": "localhost"})
-        sfx_exp = Exp(exp_dependencies, merged_config, env_system, system_file_paths,
-                      server, env_submit, progressObj, domains, stream=stream)
+        sfx_exp = Exp(exp_dependencies, merged_config, system, system_file_paths,
+                      server, env_submit, progress=progress, stream=stream)
 
     # Template variables
-    sfx_exp.update_setting("TASK#ARGS#check_existence", False)
-    sfx_exp.update_setting("TASK#ARGS#pert", 1)
-    sfx_exp.update_setting("TASK#ARGS#ivar", 1)
-    # force
-    # print_namelist
-    return sfx_exp
+    update = {
+        "task": {
+            "wrapper": "time",
+            "args": {
+                "check_existence": False,
+                "pert": 1,
+                "ivar": 1        
+            }
+        }
+    }
+    return sfx_exp.config.copy(update=update)
 
 
 class TestSubmission:
@@ -132,19 +121,22 @@ class TestSubmission:
 
     def test_submit(self, config, tmp_path_factory):
         tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
-        config.update_setting("submission", {
-            "submit_types": ["unittest"],
-            "default_submit_type": "unittest",
-            "unittest": {
-                "SCHOST": "localhost"
+        update = {
+            "submission": {
+                "submit_types": ["unittest"],
+                "default_submit_type": "unittest",
+                "unittest": {
+                    "SCHOST": "localhost"
+                }
             }
-        })
+        }
+        config = config.copy(update=update)
         task = "preparecycle"
-        template_job = f"{config.scripts}/ecf/stand_alone.py"
+        template_job = f"{config.get_value('system.pysurfex_experiment')}/ecf/stand_alone.py"
         task_job = f"{tmpdir}/{task}.job"
         output = f"{tmpdir}/{task}.log"
 
-        assert config.get_setting("submission#default_submit_type") == "unittest"
+        assert config.get_value("submission.default_submit_type") == "unittest"
         background = TaskSettings(config)
         sub = NoSchedulerSubmission(background)
         sub.submit(
@@ -153,39 +145,46 @@ class TestSubmission:
 
     def test_get_batch_info(self, config):
         arg = "#SBATCH UNITTEST"
-        config.update_setting("submission", {
-            "submit_types": ["unittest"],
-            "default_submit_type": "unittest",
-            "unittest": {
-                "BATCH": {
-                    "TEST": arg
-                }
-            }
-        })
-        task = TaskSettings(config)
-        settings = task.get_task_settings("unittest", key="BATCH")
-        assert settings["TEST"] == arg
-
-    def test_get_batch_info_exception(self, config):
-        arg = "#SBATCH UNITTEST"
-        config.update_setting("submission", {
-            "submit_types": ["unittest"],
-            "default_submit_type": "unittest",
-            "unittest": {
-                "tasks": ["unittest"],
-                "BATCH": {
-                    "TEST_INCLUDED": arg,
-                    "TEST": "NOT USED"
-                }
-            },
-            "task_exceptions": {
+        update = {
+            "submission": {
+                "submit_types": ["unittest"],
+                "default_submit_type": "unittest",
                 "unittest": {
                     "BATCH": {
                         "TEST": arg
                     }
                 }
             }
-        })
+        }
+        config = config.copy(update=update)
+        task = TaskSettings(config)
+        settings = task.get_task_settings("unittest", key="BATCH")
+        assert settings["TEST"] == arg
+
+    def test_get_batch_info_exception(self, config):
+        arg = "#SBATCH UNITTEST"
+        update = {
+            "submission": {
+                "submit_types": ["unittest"],
+                "default_submit_type": "unittest",
+                "unittest": {
+                    "tasks": ["unittest"],
+                    "BATCH": {
+                        "TEST_INCLUDED": arg,
+                        "TEST": "NOT USED"
+                    }
+                },
+                "task_exceptions": {
+                    "unittest": {
+                        "BATCH": {
+                            "TEST": arg
+                        }
+                    }
+                
+                }
+            }
+        }
+        config = config.copy(update=update)
         task = TaskSettings(config)
         settings = task.get_task_settings("unittest", key="BATCH")
         assert settings["TEST"] == arg
@@ -194,13 +193,16 @@ class TestSubmission:
 
     def test_submit_non_existing_task(self, config, tmp_path_factory):
         tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
-        config.update_setting("submission", {
-            "submit_types": ["unittest"],
-            "default_submit_type": "unittest",
-            "unittest": {
-                "SCHOST": "localhost"
+        update = {
+            "submission": {
+                "submit_types": ["unittest"],
+                "default_submit_type": "unittest",
+                "unittest": {
+                    "SCHOST": "localhost"
+                }
             }
-        })
+        }
+        config = config.copy(update=update)
         task = "not_existing"
         template_job = "ecf/stand_alone.py"
         task_job = f"{tmpdir}/{task}.job"

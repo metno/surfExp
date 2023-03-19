@@ -3,18 +3,27 @@ import os
 import json
 import logging
 import shutil
+import collections
 import tomlkit
 
-from .configuration import Configuration
+import surfex
+
 from .scheduler.scheduler import EcflowServerFromFile
-from .progress import ProgressFromFiles
+from .progress import ProgressFromFiles, Progress
+from .config_parser import ParsedConfig
+from .datetime_utils import as_datetime, as_timedelta
+from .system import System
 
 
-class Exp(Configuration):
+NO_DEFAULT_PROVIDED = object()
+
+
+class Exp():
     """Experiment class."""
 
-    def __init__(self, exp_dependencies, merged_config, env_system, system_file_paths, server, env_submit, progressObj,
-                 domains, stream=None):
+    def __init__(self, exp_dependencies, merged_config, system, system_file_paths,
+                 server, env_submit, progress=None,
+                 stream=None, **kwargs):
         """Instaniate an object of the main experiment class.
 
         Args:
@@ -24,52 +33,88 @@ class Exp(Configuration):
         """
         logging.debug("Construct Exp")
 
-        # Stream
-        merged_config["GENERAL"].update({"STREAM": stream})
-
-        # Scheduler
-        merged_config.update({"SCHEDULER": server.settings})
-        # Submission
-        merged_config.update({"submission": env_submit})
-        # System path variables
-        merged_config.update({"SYSTEM_FILE_PATHS": system_file_paths})
-        # System settings
-        merged_config.update({"SYSTEM_VARS": env_system})
-        # Date/time
-        progress = {
-            "DTG": progressObj.dtg_string,
-            "DTGEND": progressObj.dtgend_string,
-            "DTGBEG": progressObj.dtgbeg_string,
-            "DTGPP": progressObj.dtgpp_string
-        }
-        merged_config.update({"PROGRESS": progress})
-
-        merged_config["GEOMETRY"].update({"DOMAINS": domains})
-
-        # Troika
-        troika_config = exp_dependencies["config"]["other_files"]["troika_config.yml"]
-        merged_config.update({"TROIKA": {"CONFIG": troika_config}})
-
-        offline_source = exp_dependencies.get("offline_source")
-        namelist_dir = exp_dependencies.get("namelist_dir")
-        wdir = exp_dependencies.get("exp_dir")
-        exp_name = exp_dependencies.get("exp_name")
-
-        self.name = exp_name
-        merged_config["GENERAL"].update({"EXP": exp_name})
-        merged_config["GENERAL"].update({"EXP_DIR": wdir})
-        self.work_dir = wdir
-        self.scripts = exp_dependencies.get("pysurfex_experiment")
-        self.pysurfex = exp_dependencies.get("pysurfex")
-        self.offline_source = offline_source
-        merged_config["COMPILE"].update({"OFFLINE_SOURCE": offline_source})
-        merged_config["GENERAL"].update({"NAMELIST_DIR": namelist_dir})
-        merged_config["GENERAL"].update({"PYSURFEX_EXPERIMENT": self.scripts})
         self.config_file = None
-        self.first_guess_yml = exp_dependencies["config"]["other_files"]["first_guess.yml"]
-        self.config_yml = exp_dependencies["config"]["other_files"]["config.yml"]
+        # Date/time
+        times = merged_config["general"]["times"]
+        if progress is None:
+            basetime = as_datetime("1970-01-01T00:00:00Z")
+            progress = Progress(basetime, basetime, dtgpp=basetime, dtgend=basetime)
+    
+        times.update(progress.print_config_times())
+        merged_config["general"]["times"].update(times)
 
-        Configuration.__init__(self, merged_config)
+        case = exp_dependencies.get("exp_name")
+        host = "0"
+        
+        troika_config = exp_dependencies["config"]["other_files"]["troika_config.yml"]
+        troika = None
+        try:
+            troika = system.get_var("troika", "0")
+        except Exception:
+            troika = shutil.which("troika")
+
+        sfx_config = surfex.Configuration(merged_config)
+
+        sfx_data = system.get_var("sfx_exp_data", host)
+        update = {
+            "general": {
+                "stream": stream,
+                "case": case,
+                "times": progress.print_config_times()
+            },
+            "system": {
+                "joboutdir": system.get_var("joboutdir", host),
+                "wrk": sfx_data + "/@YYYY@@MM@@DD@_@HH@/@RRR@/",
+                "bin_dir": sfx_data + "/lib/offline/exe/",
+                "clim_dir": sfx_data + "/climate/@DOMAIN@",
+                "archive_dir": sfx_data + "/archive/@YYYY@/@MM@/@DD@/@HH@/@EEE@/",
+                "extrarch_dir": sfx_data + "/archive/extract/",
+                "forcing_dir": sfx_data + "/forcing/@YYYY@@MM@@DD@@HH@/@EEE@/",
+                "obs_dir": sfx_data + "/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@EEE@/",
+                "namelist_dir":  exp_dependencies.get("namelist_dir"),
+                "exp_dir": exp_dependencies.get("exp_dir"),
+                "sfx_exp_lib": system.get_var("sfx_exp_lib", host),
+                "sfx_exp_data": system.get_var("sfx_exp_data", host),
+                "pysurfex": exp_dependencies.get("pysurfex"),
+                "pysurfex_experiment": exp_dependencies.get("pysurfex_experiment"),
+                "first_guess_yml": exp_dependencies["config"]["other_files"]["first_guess.yml"],
+                "config_yml": exp_dependencies["config"]["other_files"]["config.yml"],
+                "surfex_config": system.get_var("surfex_config", host),
+                "rsync": system.get_var("rsync", host)
+            },
+            "platform": system_file_paths,
+            "compile": {
+                "offline_source": exp_dependencies.get("offline_source")
+            },
+            "scheduler": server.settings,
+            "submission": env_submit,
+            "troika": {
+                "command": troika,
+                "config": troika_config
+            },
+            "SURFEX": sfx_config.settings["SURFEX"]
+        }
+
+        # Initialize task settings
+        if "task" not in merged_config:
+            merged_config.update({"task": {}})
+        task = {}
+        task_attrs = ["wrapper", "var_name", "args"]
+        for att in task_attrs:
+            if not att in merged_config["task"]:
+                if att == "args":
+                    val = {}
+                else:
+                    val = ""
+                task.update({att: val})
+            else:
+                task.update({att: merged_config["task"][att]})
+        merged_config["task"].update(task)
+
+        json_schema = None
+        parsed_config = ParsedConfig.parse_obj(merged_config, json_schema=json_schema)
+        parsed_config = parsed_config.copy(update=update)
+        self.config = parsed_config
 
     def dump_exp_configuration(self, filename, indent=None):
         """Dump the exp configuration.
@@ -80,14 +125,29 @@ class Exp(Configuration):
             filename (str): filename to dump to
             indent (int, optional): indentation in json file. Defaults to None.
         """
-        json.dump(self.settings, open(filename, mode="w", encoding="utf-8"), indent=indent)
+        json.dump(self.config.dict(), open(filename, mode="w", encoding="utf-8"), indent=indent)
         self.config_file = filename
+
+
+    def dump_json(self, filename, indent=None):
+        """Dump a json file with configuration.
+
+        Args:
+            filename (str): Filename of json file to write
+            indent (int): Indentation in filename
+
+        Returns:
+            None
+
+        """
+        with open(filename, mode="w", encoding="UTF-8") as file_handler:
+            json.dump(self.config.dict(), file_handler, indent=indent)
 
 
 class ExpFromFiles(Exp):
     """Generate Exp object from existing files. Use config files from a setup."""
 
-    def __init__(self, exp_dependencies, stream=None):
+    def __init__(self, exp_dependencies, stream=None, **kwargs):
         """Construct an Exp object from files.
 
         Args:
@@ -100,12 +160,15 @@ class ExpFromFiles(Exp):
         logging.debug("Construct ExpFromFiles")
 
         wdir = exp_dependencies.get("exp_dir")
-        self.work_dir = wdir
+        logging.info("%s", exp_dependencies)
+        logging.info("%s", exp_dependencies.get("exp_dir"))
+        # self.work_dir = wdir
 
         # System
+        exp_name = exp_dependencies.get("exp_name")
         env_system = exp_dependencies.get("env_system")
         if os.path.exists(env_system):
-            env_system = ExpFromFiles.toml_load(env_system)
+            system = System(self.toml_load(env_system), exp_name)
         else:
             raise FileNotFoundError("System settings not found " + env_system)
 
@@ -133,49 +196,18 @@ class ExpFromFiles(Exp):
             raise FileNotFoundError("Server settings missing " + env_server)
 
         # Date/time settings
-        progressObj = ProgressFromFiles(wdir, stream=stream)
-        progress = {
-            "DTG": progressObj.dtg_string,
-            "DTGEND": progressObj.dtgend_string,
-            "DTGBEG": progressObj.dtgbeg_string,
-            "DTGPP": progressObj.dtgpp_string
-        }
+        try:
+            progress = ProgressFromFiles(wdir, stream=stream)
+        except FileNotFoundError:
+            progress = None
 
         # Configuration
         config_files_dict = ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
                                                           exp_dependencies["config"]["blocks"])
         all_merged_settings = self.merge_dict_from_config_dicts(config_files_dict)
 
-        # Stream
-        # all_merged_settings["GENERAL"].update({"STREAM": stream})
-
-        # Geometry
-        domains = exp_dependencies.get("domains")
-        # domains = wdir + "/config/domains/Harmonie_domains.json"
-        if os.path.exists(domains):
-            with open(domains, mode="r", encoding="utf-8") as domains:
-                domains = json.load(domains)
-                # all_merged_settings["GEOMETRY"].update({"DOMAINS": domains})
-        else:
-            raise FileNotFoundError("Domains not found " + domains)
-
-        # Scheduler
-        # all_merged_settings.update({"SCHEDULER": server.settings})
-        # Submission
-        # all_merged_settings.update({"SUBMISSION": env_submit})
-        # System path variables
-        # all_merged_settings.update({"SYSTEM_FILE_PATHS": system_file_paths})
-        # System settings
-        # all_merged_settings.update({"SYSTEM_VARS": env_system})
-        # Date/time
-        # all_merged_settings.update({"PROGRESS": progress})
-
-        # Troika
-        # troika_config = exp_dependencies["config"]["other_files"]["troika_config.yml"]
-        # all_merged_settings.update({"TROIKA": {"CONFIG": troika_config}})
-
-        Exp.__init__(self, exp_dependencies, all_merged_settings, env_system, system_file_paths,
-                     server, env_submit, progressObj, domains, stream=stream)
+        Exp.__init__(self, exp_dependencies, all_merged_settings, system, system_file_paths,
+                     server, env_submit, progress=progress, stream=stream, **kwargs)
 
     @staticmethod
     def toml_load(fname):
@@ -226,8 +258,47 @@ class ExpFromFiles(Exp):
         merged_env = {}
         for fff in config_files:
             modification = config_files[fff]["toml"]
-            merged_env = Configuration.merge_dict(merged_env, modification)
+            merged_env = ExpFromFiles.merge_dict(merged_env, modification)
         return merged_env
+
+    @staticmethod
+    def deep_update(source, overrides):
+        """Update a nested dictionary or similar mapping.
+
+        Modify ``source`` in place.
+
+        Args:
+            source (_type_): _description_
+            overrides (_type_): _description_
+
+        Returns:
+            _type_: _description_
+
+        """
+        for key, value in overrides.items():
+            if isinstance(value, collections.abc.Mapping) and value:
+                returned = ExpFromFiles.deep_update(source.get(key, {}), value)
+                source[key] = returned
+            else:
+                override = overrides[key]
+
+                source[key] = override
+
+        return source
+
+    @staticmethod
+    def merge_dict(old_env, mods):
+        """Merge the dicts from toml by a deep update.
+
+        Args:
+            old_env (_type_): _description_
+            mods (_type_): _description_
+
+        Returns:
+            _type_: _description_
+
+        """
+        return ExpFromFiles.deep_update(old_env, mods)
 
     @staticmethod
     def get_config_files(config_files_in, blocks):
@@ -292,7 +363,7 @@ class ExpFromFiles(Exp):
                 block_config.update({block: hm_exp[block]})
                 if configuration is not None:
                     if block in configuration:
-                        merged_config = Configuration.merge_dict(hm_exp[block], configuration[block])
+                        merged_config = ExpFromFiles.merge_dict(hm_exp[block], configuration[block])
                         logging.info("Merged: %s %s", block, str(configuration[block]))
                     else:
                         merged_config = hm_exp[block]
@@ -301,7 +372,7 @@ class ExpFromFiles(Exp):
 
                 if testbed_configuration is not None:
                     if block in testbed_configuration:
-                        hm_testbed = Configuration.merge_dict(block_config[block],
+                        hm_testbed = ExpFromFiles.merge_dict(block_config[block],
                                                               testbed_configuration[block])
                     else:
                         hm_testbed = block_config[block]
@@ -312,7 +383,7 @@ class ExpFromFiles(Exp):
                         raise Exception("User settings should be a dict here!")
                     if block in user_settings:
                         logging.info("Merge user settings in block %s", block)
-                        user = Configuration.merge_dict(block_config[block], user_settings[block])
+                        user = ExpFromFiles.merge_dict(block_config[block], user_settings[block])
                         block_config.update({block: user})
 
             logging.debug("block config %s", block_config)
@@ -405,7 +476,7 @@ class ExpFromFiles(Exp):
                     exp_dependencies.update({key: gname})
                 else:
                     raise FileNotFoundError(f"No host file found for lname={lname} or gname={gname}")
-        
+ 
         # Check existence of needed config files
         lconfig = f"{wdir}/config/config.toml"
         gconfig = f"{pysurfex_experiment}/config/config.toml"
@@ -469,21 +540,12 @@ class ExpFromFiles(Exp):
             }
         })
 
-        ldomains = f"{wdir}/config/domains/Harmonie_domains.json"
-        gdomains = f"{pysurfex_experiment}/config/domains/Harmonie_domains.json"
-        if os.path.exists(ldomains):
-            domains = ldomains
-        elif os.path.exists(gdomains):
-            domains = gdomains
-        else:
-            raise Exception
-
         if namelist_dir is None:
             namelist_dir = f"{pysurfex_experiment}/nam"
             if talk:
                 logging.info("Using default namelist directory %s", namelist_dir)
 
-        exp_dependencies.update({"domains": domains})
+        # exp_dependencies.update({"domains": domains})
         exp_dependencies.update({
             "exp_dir": wdir,
             "exp_name": exp_name,

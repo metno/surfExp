@@ -2,9 +2,9 @@
 """Unit tests for the config file parsing module."""
 import subprocess
 from pathlib import Path
+import os
 
 from unittest.mock import patch
-from datetime import datetime
 import pytest
 import tomlkit
 import numpy as np
@@ -18,6 +18,9 @@ from experiment.tasks.tasks import AbstractTask
 from experiment.tasks.discover_tasks import discover, get_task
 from experiment.scheduler.scheduler import EcflowServer
 from experiment.experiment import ExpFromFiles, Exp
+from experiment.datetime_utils import as_datetime
+from experiment.system import System
+
 
 WORKING_DIR = Path.cwd()
 
@@ -43,33 +46,40 @@ def get_config(tmp_path_factory):
 
     scratch = f"{tmp_path_factory.getbasetemp().as_posix()}"
     env_system = {
-        "HOST_SYSTEM": {
-            "COMPCENTRE": "LOCAL",
-            "HOSTS": ["my_host_0", "my_host_1"],
-            "SFX_EXP_DATA": f"{scratch}/host0/@EXP@",
-            "SFX_EXP_LIB": f"{scratch}/host0/@EXP@/lib",
-            "HOST_NAME": "",
-            "JOBOUTDIR": f"{scratch}/host0/job",
-            "HM_CS": "gfortran",
-            "PARCH": "",
-            "MKDIR": "mkdir -p",
-            "RSYNC": 'rsync -avh -e \"ssh -i ~/.ssh/id_rsa\"',
-            "SURFEX_CONFIG": "my_harmonie_config",
-            "LOGIN_HOST": "localhost",
-            "SCHEDULER_PYTHONPATH": "",
-            "HOST1": {
-                "SFX_EXP_DATA": f"{scratch}/host1/@EXP@",
-                "SFX_EXP_LIB": f"{scratch}/host1/@EXP@/lib",
-                "HOST_NAME": "",
-                "JOBOUTDIR": f"{scratch}/host1/job",
-                "LOGIN_HOST": "localhost",
-                "SYNC_DATA": True
+        "host_system": {
+            "compcentre": "LOCAL",
+            "hosts": ["my_host_0", "my_host_1"],
+            "sfx_exp_data": f"{scratch}/host0/@EXP@",
+            "sfx_exp_lib": f"{scratch}/host0/@EXP@/lib",
+            "host_name": "",
+            "joboutdir": f"{scratch}/host0/job",
+            "hm_cs": "gfortran",
+            "parch": "",
+            "mkdir": "mkdir -p",
+            "rsync": 'rsync -avh -e \"ssh -i ~/.ssh/id_rsa\"',
+            "surfex_config": "my_harmonie_config",
+            "login_host": "localhost",
+            "scheduler_pythonpath": "",
+            "host1": {
+                "sfx_exp_data": f"{scratch}/host1/@EXP@",
+                "sfx_exp_lib": f"{scratch}/host1/@EXP@/lib",
+                "host_name": "",
+                "joboutdir": f"{scratch}/host1/job",
+                "login_host": "localhost",
+                "sync_data": True
             }
         }
     }
+
+    system = System(env_system, exp_name)
     system_file_paths = {
-        "soilgrid_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}"
+        "soilgrid_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "ecoclimap_bin_dir": f"{tmp_path_factory.getbasetemp().as_posix()}"
     }
+    os.system(f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapI_covers_param.bin")
+    os.system(f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapII_af_covers_param.bin")
+    os.system(f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapII_eu_covers_param.bin")
+    
     env_submit = {
         "submit_types": ["background", "scalar"],
         "default_submit_type": "scalar",
@@ -89,48 +99,26 @@ def get_config(tmp_path_factory):
             }
         }
     }
-    progressObj = Progress(dtg=datetime(year=2023, month=1, day=1, hour=3),
-                           dtgbeg=datetime(year=2023, month=1, day=1, hour=0),
-                           dtgend=datetime(year=2023, month=1, day=1, hour=6),
-                           dtgpp=datetime(year=2023, month=1, day=1, hour=3))
-    domains = {
-        "DRAMMEN": {
-            "GSIZE": 2500.0,
-            "LAT0": 60.0,
-            "LATC": 60.0,
-            "LON0": 10.0,
-            "LONC": 10.0,
-            "NLAT": 60,
-            "NLON": 50,
-            "TSTEP": 600,
-            "EZONE": 0
-        }
-    }
+    progress = Progress(dtg=as_datetime("2023-01-01 T03:00:00Z"),
+                        dtgbeg=as_datetime("2023-01-01 T00:00:00Z"),
+                        dtgend=as_datetime("2023-01-01 T06:00:00Z"),
+                        dtgpp=as_datetime("2023-01-01 T03:00:00Z"))
+
     # Configuration
     config_files_dict = ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
                                                       exp_dependencies["config"]["blocks"])
     merged_config = ExpFromFiles.merge_dict_from_config_dicts(config_files_dict)
 
     merged_config.update({
-        "general": {
-            "loglevel": "INFO",
-            "case": "my_case",
-            "realization": -1,
-            "os_macros": ["HOME"],
-            "platform": "unittest",
-            "cnmexp": "",
-            "tstep": 60,
-            "times": {
-                "basetime": "2023-02-19T00:00:00Z",
-                "validtime": "2023-02-19T00:00:00Z"
-            }
-        },
         "system": {
             "wrk": f"{tmp_path_factory.getbasetemp().as_posix()}",
-            "bindir": f"{tmp_path_factory.getbasetemp().as_posix()}/bin"
+            "bindir": f"{tmp_path_factory.getbasetemp().as_posix()}/bin",
+            "climdir": f"{tmp_path_factory.getbasetemp().as_posix()}/climate/@DOMAIN@",
         },
         "platform": {
             "deode_home": "{WORKING_DIR}",
+            "ecosg_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
+            "pgd_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
             "scratch": f"{tmp_path_factory.getbasetemp().as_posix()}",
             "static_data": f"{tmp_path_factory.getbasetemp().as_posix()}",
             "climdata": f"{tmp_path_factory.getbasetemp().as_posix()}",
@@ -139,25 +127,28 @@ def get_config(tmp_path_factory):
             "soilgrid_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
             "gmted2010_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}/GMTED2010",
             "namelists": "{WORKING_DIR}/deode/data/namelists"
-        },
-        "domain": {
-            "name": "DRAMMEN"
         }
     })
     # Create Exp/Configuration object
     stream = None
     with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
         server = EcflowServer({"ECF_HOST": "localhost"})
-        sfx_exp = Exp(exp_dependencies, merged_config, env_system, system_file_paths,
-                      server, env_submit, progressObj, domains, stream=stream)
+        sfx_exp = Exp(exp_dependencies, merged_config, system, system_file_paths,
+                      server, env_submit, progress=progress, stream=stream)
 
-    # Template variables
-    sfx_exp.update_setting("TASK#ARGS#check_existence", False)
-    sfx_exp.update_setting("TASK#ARGS#pert", 1)
-    sfx_exp.update_setting("TASK#ARGS#ivar", 1)
-    # force
-    # print_namelist
-    return sfx_exp
+        # Template variables
+        update = {
+            "task": {
+                "args": {
+                    "check_existence": False,
+                    "pert": 1,
+                    "ivar": 1,
+                    "print_namelist": True
+                }
+            }
+        }
+        config = sfx_exp.config.copy(update=update)
+        return config
 
 
 @pytest.fixture(params=classes_to_be_tested())
@@ -166,14 +157,6 @@ def task_name_and_configs(request, get_config, tmp_path_factory):
     task_name = request.param
     # task_config = ParsedConfig.parse_obj(base_raw_config, json_schema={})
     task_config = get_config
-
-    config_patch = tomlkit.parse(
-        f"""
-        [general]
-            case = "my_case"
-        """
-        )
-
     return task_name, task_config
 
 
@@ -227,7 +210,7 @@ def _mockers_for_task_run_tests(session_mocker, tmp_path_factory):
             }
         }
         geo = surfex.ConfProj(geo_dict)
-        validtime = datetime(year=2023, month=1, day=1, hour=3)
+        validtime = as_datetime("2023-01-01 T03:00:00Z")
         dummy = np.empty([60, 50])
         return geo, validtime, dummy, dummy, dummy
 

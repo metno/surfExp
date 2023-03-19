@@ -19,7 +19,7 @@ class TaskSettings(object):
         Args:
              submission_defs(dict): Submission definitions
         """
-        self.submission_defs = config.get_setting("submission")
+        self.submission_defs = config.get_value("submission").dict()
         self.job_type = None
 
     @staticmethod
@@ -29,9 +29,9 @@ class TaskSettings(object):
                 d[k] = TaskSettings.update_task_setting(d.get(k, {}), v)
             else:
                 logging.debug("key=%s value=%s", k, v)
-                if k == "tasks":
-                    logging.debug("Skip tasks")
-                    return d
+                #if k == "tasks":
+                #    logging.debug("Skip tasks")
+                #    return d
                 d[k] = v
         return d
 
@@ -197,7 +197,10 @@ class TaskSettings(object):
             input_content = input_content.replace("# @ENV_SUB1@", python_task_env)
             input_content = input_content.replace("@STAND_ALONE_TASK_NAME@", task)
             # TODO
-            config_file = config.config_file
+            try:
+                config_file = config.get_value("metadata.source_file_path")
+            except AttributeError:
+                config_file = None
             if config_file is not None:
                 input_content = input_content.replace(
                     "@STAND_ALONE_TASK_CONFIG@", str(config_file)
@@ -242,8 +245,7 @@ class NoSchedulerSubmission:
         config,
         template_job,
         task_job,
-        output,
-        troika="troika"
+        output
     ):
         """Submit task.
 
@@ -253,7 +255,6 @@ class NoSchedulerSubmission:
             template_job (str): Task template job file
             task_job (str): Task job file
             output(str): Output file
-            troika (str, optional): troika binary. Defaults to "troika".
 
         Raises:
             Exception: Submission failure
@@ -265,12 +266,21 @@ class NoSchedulerSubmission:
             raise KeyError(f"Task not found: {task}") from KeyError
 
         self.task_settings.parse_job(task, config, template_job, task_job)
-        troika_config = config.get_setting("TROIKA#CONFIG")
+
+        troika = TroikaSettings(config)
         cmd = (
-            f"{troika} -c {troika_config} submit {self.task_settings.job_type} "
+            f"{troika.command} -c {troika.config} submit {self.task_settings.job_type} "
             f"{task_job} -o {output}"
         )
         try:
             subprocess.check_call(cmd.split())
         except Exception as exc:
             raise Exception(f"Submission failed with {repr(exc)}") from exc
+
+
+class TroikaSettings():
+
+    def __init__(self, config):
+
+        self.command = config.get_value("troika.command")
+        self.config = config.get_value("troika.config")
