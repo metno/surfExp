@@ -137,7 +137,7 @@ class TestFlow():
         task_name = "task"
         config = get_exp_from_files
         task_settings = TaskSettings(config)
-        input_template = f"{ROOT}/ecf/stand_alone.py"
+        input_template = f"{ROOT}/experiment/templates/stand_alone.py"
         with patch('experiment.scheduler.submission.TaskSettings.parse_job') as mock_task:
             EcflowSuiteTask(task_name, family, config, task_settings,
                             ecf_files, input_template=input_template,

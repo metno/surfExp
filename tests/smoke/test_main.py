@@ -184,7 +184,7 @@ def test_run_submit_task_command(tmp_path_factory, setup_experiment, update_conf
     os.chdir(tmpdir)
     job = tmpdir + "/Task.job"
     log = tmpdir + "/Task.log"
-    template = WORKING_DIR.as_posix() + "/ecf/stand_alone.py"
+    template = WORKING_DIR.as_posix() + "/experiment/templates/stand_alone.py"
 
     run_submit_cmd_exp(
         [

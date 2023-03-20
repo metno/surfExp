@@ -132,7 +132,7 @@ class TestSubmission:
         }
         config = config.copy(update=update)
         task = "preparecycle"
-        template_job = f"{config.get_value('system.pysurfex_experiment')}/ecf/stand_alone.py"
+        template_job = f"{config.get_value('system.pysurfex_experiment')}/experiment/templates/stand_alone.py"
         task_job = f"{tmpdir}/{task}.job"
         output = f"{tmpdir}/{task}.log"
 

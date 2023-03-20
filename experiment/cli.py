@@ -306,7 +306,7 @@ def submit_cmd_exp(**kwargs):
         if scripts is None:
             raise Exception("Could not find general.pysurfex_experiment")
         else:
-            template_job = f"{scripts}/ecf/stand_alone.py"
+            template_job = f"{scripts}/experiment/templates/stand_alone.py"
     task_job = kwargs.get("task_job")
     if task_job is None:
         task_job = f"{cwd}/{task}.job"
