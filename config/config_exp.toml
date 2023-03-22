@@ -1,9 +1,6 @@
-# SURFEX offline experiment configuration file
+# 
+# SURFEX experiment configuration file
 #
-
-######################################################################################################
-# General (not grouped settings)
-######################################################################################################
 
 [general]
 loglevel = "INFO"
@@ -19,6 +16,8 @@ ll_list="48,3,3,3,3,3,3,3"              # Forecast lengths for the cycles [h], r
 
 [general.times]
 cycle_length = "PT3H"
+
+
 
 [compile]
 ####################################################################################################
@@ -56,8 +55,8 @@ prep_pgdfiletype = ""
 
 [initial_conditions.fg4oi]
 inputfile = "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc"
+# inputfile = "@sfx_exp_data@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
 # inputfile = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
-# inputfile = "@SFX_EXP_DATA@/archive/@YYYY@/@MM@/@DD@/03/SURFOUT.@YYYY@@MM@@DD@_06h00.nc"
 fileformat = "netcdf"
 # fileformat = "grib2"
 # fileformat = "surfex"
@@ -74,6 +73,8 @@ converter = "sweclim"
 [initial_conditions.fg4oi.altitude]
 converter = "phi2m"
 
+
+
 [forecast]
 #####################################################################################################
 #  Forecast model (physics + dynamics and output)
@@ -81,7 +82,6 @@ converter = "phi2m"
 
 physics = "arome"
 ensmsel = []                            # Ensemble members to run (list with member numbers)
-
 forc_zs = true
 
 [forcing]
@@ -118,4 +118,3 @@ analysis = true
 modify_forcing = false
 interpolation = "bilinear"
 
-[system]

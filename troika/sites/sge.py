@@ -59,8 +59,9 @@ def sge_add_output(sin, script, user, output):
 def sge_bubble(sin, script, user, output):
     """Make sure all SGE directives are at the top"""
     directives = []
-    with tempfile.SpooledTemporaryFile(max_size=1024**3, mode='w+b',
-            dir=script.parent, prefix=script.name) as tmp:
+    with tempfile.SpooledTemporaryFile(
+        max_size=1024**3, mode="w+b", dir=script.parent, prefix=script.name
+    ) as tmp:
         first = True
         for line in sin:
             if line.isspace():
@@ -88,26 +89,29 @@ def sge_bubble(sin, script, user, output):
 class SGESite(Site):
     """Site managed using SGE"""
 
-
     def __init__(self, config, connection, global_config):
         super().__init__(config, connection, global_config)
-        self._qsub = config.get('qsub_command', 'qsub')
-        self._qdel = config.get('qdel_command', 'qdel')
-        self._qsig = config.get('qsig_command', 'qsig')
-        self._qstat = config.get('qstat_command', 'qstat')
-        self._copy_script = config.get('copy_script', False)
+        self._qsub = config.get("qsub_command", "qsub")
+        self._qdel = config.get("qdel_command", "qdel")
+        self._qsig = config.get("qsig_command", "qsig")
+        self._qstat = config.get("qstat_command", "qstat")
+        self._copy_script = config.get("copy_script", False)
 
     def submit(self, script, user, output, dryrun=False):
         """See `troika.sites.Site.submit`"""
         script = pathlib.Path(script)
         sub_output = script.with_suffix(script.suffix + ".sub")
         if sub_output.exists():
-            _logger.warning("Submission output file %r already exists, " +
-                "overwriting", str(sub_output))
+            _logger.warning(
+                "Submission output file %r already exists, " + "overwriting",
+                str(sub_output),
+            )
         sub_error = script.with_suffix(script.suffix + ".suberr")
         if sub_error.exists():
-            _logger.warning("Submission error file %r already exists, " +
-                "overwriting", str(sub_error))
+            _logger.warning(
+                "Submission error file %r already exists, " + "overwriting",
+                str(sub_error),
+            )
 
         cmd = [self._qsub]
 
@@ -125,7 +129,7 @@ class SGESite(Site):
             sge_lines = ""
             with open(script.resolve(), mode="r", encoding="utf-8") as fhandler:
                 for line in fhandler.readlines():
-                    if line.find('#$ ') == 0:
+                    if line.find("#$ ") == 0:
                         sge_lines = line + "" + sge_lines
 
             with open(sge_job_file.resolve(), mode="w", encoding="utf-8") as fhandler:
@@ -141,22 +145,27 @@ class SGESite(Site):
             outf = sub_output.open(mode="wb")
             errf = sub_error.open(mode="wb")
 
-        proc = self._connection.execute(cmd, stdin=inpf, stdout=outf, stderr=errf,
-            dryrun=dryrun)
+        proc = self._connection.execute(
+            cmd, stdin=inpf, stdout=outf, stderr=errf, dryrun=dryrun
+        )
         if dryrun:
             return
 
         retcode = proc.wait()
-        check_retcode(retcode, what="Submission",
-            suffix=f", check {str(sub_output)!r} and {str(sub_error)!r}")
+        check_retcode(
+            retcode,
+            what="Submission",
+            suffix=f", check {str(sub_output)!r} and {str(sub_error)!r}",
+        )
 
         jobid = sub_output.read_text().strip()
         _logger.debug("SGE job ID: %s", jobid)
 
         jid_output = script.with_suffix(script.suffix + ".jid")
         if jid_output.exists():
-            _logger.warning("Job ID output file %r already exists, " +
-                "overwriting", str(jid_output))
+            _logger.warning(
+                "Job ID output file %r already exists, " + "overwriting", str(jid_output)
+            )
         jid_output.write_text(str(jobid) + "\n")
 
         return jobid
@@ -170,8 +179,9 @@ class SGESite(Site):
 
         stat_output = script.with_suffix(script.suffix + ".stat")
         if stat_output.exists():
-            _logger.warning("Status file %r already exists, overwriting",
-                str(stat_output))
+            _logger.warning(
+                "Status file %r already exists, overwriting", str(stat_output)
+            )
         outf = None
         if not dryrun:
             outf = stat_output.open(mode="wb")

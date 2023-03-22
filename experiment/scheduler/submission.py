@@ -29,7 +29,7 @@ class TaskSettings(object):
                 d[k] = TaskSettings.update_task_setting(d.get(k, {}), v)
             else:
                 logging.debug("key=%s value=%s", k, v)
-                #if k == "tasks":
+                # if k == "tasks":
                 #    logging.debug("Skip tasks")
                 #    return d
                 d[k] = v
@@ -61,12 +61,16 @@ class TaskSettings(object):
         if task_submit_type in all_defs:
             for setting in all_defs[task_submit_type]:
                 logging.debug("task_submit_type for task %s: %s", task, task_submit_type)
-                task_settings = self.update_task_setting(task_settings, all_defs[task_submit_type])
+                task_settings = self.update_task_setting(
+                    task_settings, all_defs[task_submit_type]
+                )
 
         if "task_exceptions" in all_defs:
             if task in all_defs["task_exceptions"]:
                 logging.debug("Task task_exceptions for task %s", task)
-                task_settings = self.update_task_setting(task_settings, all_defs["task_exceptions"][task])
+                task_settings = self.update_task_setting(
+                    task_settings, all_defs["task_exceptions"][task]
+                )
 
         if "SCHOST" in task_settings:
             self.job_type = task_settings["SCHOST"]
@@ -239,14 +243,7 @@ class NoSchedulerSubmission:
         """
         self.task_settings = task_settings
 
-    def submit(
-        self,
-        task,
-        config,
-        template_job,
-        task_job,
-        output
-    ):
+    def submit(self, task, config, template_job, task_job, output):
         """Submit task.
 
         Args:
@@ -278,9 +275,7 @@ class NoSchedulerSubmission:
             raise Exception(f"Submission failed with {repr(exc)}") from exc
 
 
-class TroikaSettings():
-
+class TroikaSettings:
     def __init__(self, config):
-
         self.command = config.get_value("troika.command")
         self.config = config.get_value("troika.config")

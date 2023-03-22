@@ -13,7 +13,7 @@ def suite_name():
 
 
 @pytest.fixture()
-@patch('experiment.scheduler.scheduler.ecflow')
+@patch("experiment.scheduler.scheduler.ecflow")
 def ecflow_task(__):
     ecf_name = f"/{suite_name}/family/Task"
     ecf_tryno = "1"
@@ -24,7 +24,7 @@ def ecflow_task(__):
 
 
 @pytest.fixture()
-@patch('experiment.scheduler.scheduler.ecflow')
+@patch("experiment.scheduler.scheduler.ecflow")
 def ecflow_server(__):
     ecf_host = "localhost"
     return EcflowServer(ecf_host)
@@ -36,7 +36,7 @@ class TestScheduler:
     def test_ecflow_client(self, ecflow_server, ecflow_task):
         EcflowClient(ecflow_server, ecflow_task)
 
-    @patch('experiment.scheduler.scheduler.ecflow')
+    @patch("experiment.scheduler.scheduler.ecflow")
     def test_start_suite(self, mock, ecflow_server):
         logging.debug("Print mock: %s", mock)
         def_file = f"/tmp/{suite_name()}.def"  # noqa

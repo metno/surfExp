@@ -3,19 +3,37 @@ import os
 
 
 from .scheduler.submission import TaskSettings, TroikaSettings
-from .scheduler.suites import EcflowSuite, EcflowSuiteFamily, EcflowSuiteTask,\
-    EcflowSuiteTrigger, EcflowSuiteTriggers
+from .scheduler.suites import (
+    EcflowSuite,
+    EcflowSuiteFamily,
+    EcflowSuiteTask,
+    EcflowSuiteTrigger,
+    EcflowSuiteTriggers,
+)
 from .logs import get_logger_from_config
-from .datetime_utils import as_datetime, as_timedelta
-from .progress import ProgressFromConfig
+from .datetime_utils import (
+    as_datetime,
+    as_timedelta,
+    datetime2ecflow,
+    ProgressFromConfig
+)
 from .toolbox import Platform
 from .configuration import Configuration
 
 
-class SurfexSuite():
+class SurfexSuite:
     """Surfex suite."""
 
-    def __init__(self, suite_name, config, joboutdir, task_settings, dtgs, next_start_dtg, dtgbeg=None, ecf_micro="%"):
+    def __init__(
+        self,
+        suite_name,
+        config,
+        joboutdir,
+        task_settings,
+        dtgs,
+        dtgbeg=None,
+        ecf_micro="%",
+    ):
         """Initialize a SurfexSuite object.
 
         Args:
@@ -24,21 +42,19 @@ class SurfexSuite():
             joboutdir (str): Directory for job and log files
             TaskSettings (TaskSettings): Submission environment for jobs
             dtgs (list): The DTGs you want to run
-            next_start_dtg (datetime): Next DTG to run after this DTG
             dtgbeg (datetime, optional): First DTG the experiment run. Defaults to None.
 
         """
         if dtgbeg is None:
-            dtgbeg_str = dtgs[0].strftime("%Y%m%d%H%M")
+            dtgbeg_str = datetime2ecflow(dtgs[0])
         else:
-            dtgbeg_str = dtgbeg.strftime("%Y%m%d%H%M")
+            dtgbeg_str = datetime2ecflow(dtgbeg)
 
         # config = exp_config.sfx_config
         self.config = config
         logger = get_logger_from_config(self.config)
         settings = Configuration(config)
         platform = Platform(config)
-        progress = ProgressFromConfig(config)
         exp_dir = f"{platform.get_system_value('exp_dir')}"
         ecf_include = exp_dir + "/ecf"
         ecf_files = joboutdir
@@ -104,34 +120,87 @@ class SurfexSuite():
             "ARGS": "",
             "FORCE": "",
             "CHECK_EXISTENCE": "",
-            "PRINT_NAMELIST": ""
+            "PRINT_NAMELIST": "",
         }
         realization = None
         self.suite_name = suite_name
         logger.debug("variables: %s", variables)
-        self.suite = EcflowSuite(self.suite_name, ecf_files, variables=variables, dry_run=False)
+        self.suite = EcflowSuite(
+            self.suite_name, ecf_files, variables=variables, dry_run=False
+        )
 
         if config.get_value("compile.build"):
             comp = EcflowSuiteFamily("Compilation", self.suite, ecf_files)
-            sync = EcflowSuiteTask("SyncSourceCode", comp,
-                                   config, task_settings, ecf_files, input_template=template)
+            sync = EcflowSuiteTask(
+                "SyncSourceCode",
+                comp,
+                config,
+                task_settings,
+                ecf_files,
+                input_template=template,
+            )
             sync_complete = EcflowSuiteTrigger(sync, mode="complete")
-            configure = EcflowSuiteTask("ConfigureOfflineBinaries", comp,
-                                        config, task_settings, ecf_files, input_template=template,
-                                        triggers=EcflowSuiteTriggers([sync_complete]))
+            configure = EcflowSuiteTask(
+                "ConfigureOfflineBinaries",
+                comp,
+                config,
+                task_settings,
+                ecf_files,
+                input_template=template,
+                triggers=EcflowSuiteTriggers([sync_complete]),
+            )
             configure_complete = EcflowSuiteTrigger(configure, mode="complete")
-            EcflowSuiteTask("MakeOfflineBinaries", comp, config, task_settings, ecf_files,
-                            input_template=template,
-                            triggers=EcflowSuiteTriggers([configure_complete]))
+            EcflowSuiteTask(
+                "MakeOfflineBinaries",
+                comp,
+                config,
+                task_settings,
+                ecf_files,
+                input_template=template,
+                triggers=EcflowSuiteTriggers([configure_complete]),
+            )
             comp_complete = EcflowSuiteTrigger(comp, mode="complete")
         else:
             comp_complete = None
 
         triggers = EcflowSuiteTriggers([comp_complete])
-        static = EcflowSuiteFamily("StaticData", self.suite, ecf_files, triggers=triggers)
-        EcflowSuiteTask("Pgd", static, config, task_settings, ecf_files, input_template=template)
+        static_data = EcflowSuiteFamily(
+            "StaticData", self.suite, ecf_files, triggers=triggers
+        )
 
-        static_complete = EcflowSuiteTrigger(static)
+        pgd_input = EcflowSuiteFamily("PgdInput", static_data, ecf_files)
+        EcflowSuiteTask(
+            "Gmted",
+            pgd_input,
+            config,
+            task_settings,
+            ecf_files,
+            input_template=template,
+            variables=None,
+        )
+
+        EcflowSuiteTask(
+            "Soil",
+            pgd_input,
+            config,
+            task_settings,
+            ecf_files,
+            input_template=template,
+            variables=None,
+        )
+
+        pgd_trigger = EcflowSuiteTriggers([EcflowSuiteTrigger(pgd_input)])
+        EcflowSuiteTask(
+            "Pgd",
+            static_data,
+            config,
+            task_settings,
+            ecf_files,
+            input_template=template,
+            triggers=pgd_trigger,
+        )
+
+        static_complete = EcflowSuiteTrigger(static_data)
 
         prep_complete = None
         hours_ahead = 24
@@ -140,21 +209,13 @@ class SurfexSuite():
         post_processing_dtg_node = {}
         prev_dtg = None
         for idtg, dtg in enumerate(dtgs):
-            if idtg < (len(dtgs) - 1):
-                next_dtg = dtgs[idtg + 1]
-            else:
-                next_dtg = next_start_dtg
-            next_dtg_str = next_dtg.strftime("%Y%m%d%H%M")
-            dtg_str = dtg.strftime("%Y%m%d%H%M")
-            variables = {
-                "DTG": dtg_str,
-                "DTG_NEXT": next_dtg_str,
-                "DTGBEG": dtgbeg_str
-            }
+            dtg_str = datetime2ecflow(dtg)
+            variables = {"DTG": dtg_str, "DTGBEG": dtgbeg_str}
             triggers = EcflowSuiteTriggers([static_complete])
 
-            dtg_node = EcflowSuiteFamily(dtg_str, self.suite, ecf_files, variables=variables,
-                                         triggers=triggers)
+            dtg_node = EcflowSuiteFamily(
+                dtg_str, self.suite, ecf_files, variables=variables, triggers=triggers
+            )
 
             ahead_trigger = None
             for dtg_str2 in prediction_dtg_node:
@@ -167,45 +228,71 @@ class SurfexSuite():
             if ahead_trigger is None:
                 triggers = EcflowSuiteTriggers([static_complete])
             else:
-                triggers = EcflowSuiteTriggers([static_complete,
-                                                ahead_trigger])
+                triggers = EcflowSuiteTriggers([static_complete, ahead_trigger])
 
-            prepare_cycle = EcflowSuiteTask("PrepareCycle", dtg_node, config,
-                                            task_settings, ecf_files,
-                                            triggers=triggers, input_template=template)
+            prepare_cycle = EcflowSuiteTask(
+                "PrepareCycle",
+                dtg_node,
+                config,
+                task_settings,
+                ecf_files,
+                triggers=triggers,
+                input_template=template,
+            )
             prepare_cycle_complete = EcflowSuiteTrigger(prepare_cycle)
 
             triggers.add_triggers([EcflowSuiteTrigger(prepare_cycle)])
 
-            cycle_input = EcflowSuiteFamily("CycleInput", dtg_node, ecf_files, triggers=triggers)
+            cycle_input = EcflowSuiteFamily(
+                "CycleInput", dtg_node, ecf_files, triggers=triggers
+            )
             cycle_input_dtg_node.update({dtg_str: cycle_input})
 
-            forcing = EcflowSuiteTask("Forcing", cycle_input, config, task_settings, ecf_files, input_template=template)
+            forcing = EcflowSuiteTask(
+                "Forcing",
+                cycle_input,
+                config,
+                task_settings,
+                ecf_files,
+                input_template=template,
+            )
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing)])
             if config.get_value("forcing.modify_forcing"):
-                EcflowSuiteTask("ModifyForcing", cycle_input, config, task_settings, ecf_files,
-                                input_template=template, triggers=triggers)
+                EcflowSuiteTask(
+                    "ModifyForcing",
+                    cycle_input,
+                    config,
+                    task_settings,
+                    ecf_files,
+                    input_template=template,
+                    triggers=triggers,
+                )
 
-            triggers = EcflowSuiteTriggers([static_complete,
-                                            prepare_cycle_complete])
+            triggers = EcflowSuiteTriggers([static_complete, prepare_cycle_complete])
             if prev_dtg is not None:
-                prev_dtg_str = prev_dtg.strftime("%Y%m%d%H%M")
+                prev_dtg_str = datetime2ecflow(prev_dtg)
                 trigger = EcflowSuiteTrigger(prediction_dtg_node[prev_dtg_str]["node"])
                 triggers.add_triggers([trigger])
 
             # Initialization
-            initialization = EcflowSuiteFamily("Initialization", dtg_node, ecf_files, triggers=triggers)
+            initialization = EcflowSuiteFamily(
+                "Initialization", dtg_node, ecf_files, triggers=triggers
+            )
 
             analysis = None
             if dtg == dtgbeg:
-
-                prep = EcflowSuiteTask("Prep", initialization, config, task_settings, ecf_files,
-                                       input_template=template)
+                prep = EcflowSuiteTask(
+                    "Prep",
+                    initialization,
+                    config,
+                    task_settings,
+                    ecf_files,
+                    input_template=template,
+                )
                 prep_complete = EcflowSuiteTrigger(prep)
                 # Might need an extra trigger for input
 
             else:
-
                 schemes = config.get_value("SURFEX.ASSIM.SCHEMES").dict()
                 do_soda = False
                 for scheme in schemes:
@@ -220,25 +307,48 @@ class SurfexSuite():
 
                 triggers = EcflowSuiteTriggers(prep_complete)
                 if not do_soda:
-                    EcflowSuiteTask("CycleFirstGuess", initialization, config, task_settings, ecf_files,
-                                    triggers=triggers, input_template=template)
+                    EcflowSuiteTask(
+                        "CycleFirstGuess",
+                        initialization,
+                        config,
+                        task_settings,
+                        ecf_files,
+                        triggers=triggers,
+                        input_template=template,
+                    )
                 else:
-                    fg_task = EcflowSuiteTask("FirstGuess", initialization,
-                                              config, task_settings, ecf_files,
-                                              triggers=triggers, input_template=template)
+                    fg_task = EcflowSuiteTask(
+                        "FirstGuess",
+                        initialization,
+                        config,
+                        task_settings,
+                        ecf_files,
+                        triggers=triggers,
+                        input_template=template,
+                    )
 
                     perturbations = None
-                    if settings.setting_is("SURFEX.ASSIM.SCHEMES.ISBA", "EKF", realization=realization):
-
-                        perturbations = EcflowSuiteFamily("Perturbations", initialization, ecf_files)
+                    logger.debug(
+                        "Perturbations: %s",
+                        settings.setting_is(
+                            "SURFEX.ASSIM.SCHEMES.ISBA", "EKF", realization=realization
+                        ),
+                    )
+                    if settings.setting_is(
+                        "SURFEX.ASSIM.SCHEMES.ISBA", "EKF", realization=realization
+                    ):
+                        perturbations = EcflowSuiteFamily(
+                            "Perturbations", initialization, ecf_files
+                        )
                         nncv = config.get_value("SURFEX.ASSIM.ISBA.EKF.NNCV")
                         names = config.get_value("SURFEX.ASSIM.ISBA.EKF.CVAR_M")
                         triggers = None
                         fgint = settings.get_fgint(realization=realization)
-                        fg_dtg = progress.dtg - fgint
+                        fg_dtg = dtg - fgint
                         if fg_dtg in cycle_input_dtg_node:
                             triggers = EcflowSuiteTriggers(
-                                EcflowSuiteTrigger(cycle_input_dtg_node[fg_dtg]))
+                                EcflowSuiteTrigger(cycle_input_dtg_node[fg_dtg])
+                            )
 
                         nivar = 1
                         for ivar, val in enumerate(nncv):
@@ -249,39 +359,72 @@ class SurfexSuite():
                                 logger.debug("args: %s", args)
                                 variables = {"ARGS": args}
 
-                                pert = EcflowSuiteFamily(name, perturbations, ecf_files,
-                                                         variables=variables)
-                                EcflowSuiteTask("PerturbedRun", pert, config, task_settings, ecf_files,
-                                                triggers=triggers, input_template=template)
+                                pert = EcflowSuiteFamily(
+                                    name, perturbations, ecf_files, variables=variables
+                                )
+                                EcflowSuiteTask(
+                                    "PerturbedRun",
+                                    pert,
+                                    config,
+                                    task_settings,
+                                    ecf_files,
+                                    triggers=triggers,
+                                    input_template=template,
+                                )
                             if val == 1:
                                 name = names[ivar]
-                                args = f"pert={str(ivar + 1)};name={name};ivar={str(nivar)}"
+                                args = (
+                                    f"pert={str(ivar + 1)};name={name};ivar={str(nivar)}"
+                                )
                                 logger.debug("args: %s", args)
                                 variables = {"ARGS": args}
-                                pert = EcflowSuiteFamily(name, perturbations, ecf_files,
-                                                         variables=variables)
-                                EcflowSuiteTask("PerturbedRun", pert, config, task_settings, ecf_files,
-                                                triggers=triggers, input_template=template)
+                                pert = EcflowSuiteFamily(
+                                    name, perturbations, ecf_files, variables=variables
+                                )
+                                EcflowSuiteTask(
+                                    "PerturbedRun",
+                                    pert,
+                                    config,
+                                    task_settings,
+                                    ecf_files,
+                                    triggers=triggers,
+                                    input_template=template,
+                                )
                                 nivar = nivar + 1
 
                     prepare_oi_soil_input = None
                     prepare_oi_climate = None
                     if settings.setting_is("SURFEX.ASSIM.SCHEMES.ISBA", "OI"):
-                        prepare_oi_soil_input = EcflowSuiteTask("PrepareOiSoilInput",
-                                                                initialization,
-                                                                config, task_settings, ecf_files,
-                                                                input_template=template)
-                        prepare_oi_climate = EcflowSuiteTask("PrepareOiClimate",
-                                                             initialization,
-                                                             config, task_settings, ecf_files,
-                                                             input_template=template)
+                        prepare_oi_soil_input = EcflowSuiteTask(
+                            "PrepareOiSoilInput",
+                            initialization,
+                            config,
+                            task_settings,
+                            ecf_files,
+                            input_template=template,
+                        )
+                        prepare_oi_climate = EcflowSuiteTask(
+                            "PrepareOiClimate",
+                            initialization,
+                            config,
+                            task_settings,
+                            ecf_files,
+                            input_template=template,
+                        )
 
                     prepare_sst = None
                     if settings.setting_is("SURFEX.ASSIM.SCHEMES.SEA", "INPUT"):
-                        if settings.setting_is("SURFEX.ASSIM.SEA.CFILE_FORMAT_SST", "ASCII"):
-                            prepare_sst = EcflowSuiteTask("PrepareSST", initialization,
-                                                          config, task_settings, ecf_files,
-                                                          input_template=template)
+                        if settings.setting_is(
+                            "SURFEX.ASSIM.SEA.CFILE_FORMAT_SST", "ASCII"
+                        ):
+                            prepare_sst = EcflowSuiteTask(
+                                "PrepareSST",
+                                initialization,
+                                config,
+                                task_settings,
+                                ecf_files,
+                                input_template=template,
+                            )
 
                     an_variables = {"t2m": False, "rh2m": False, "sd": False}
                     obs_types = config.get_value("SURFEX.ASSIM.OBS.COBS_M")
@@ -290,40 +433,69 @@ class SurfexSuite():
                         if nnco[t_ind] == 1:
                             if obs_types[t_ind] == "T2M" or obs_types[t_ind] == "T2M_P":
                                 an_variables.update({"t2m": True})
-                            elif obs_types[t_ind] == "HU2M" or obs_types[t_ind] == "HU2M_P":
+                            elif (
+                                obs_types[t_ind] == "HU2M" or obs_types[t_ind] == "HU2M_P"
+                            ):
                                 an_variables.update({"rh2m": True})
                             elif obs_types[t_ind] == "SWE":
                                 an_variables.update({"sd": True})
 
                     analysis = EcflowSuiteFamily("Analysis", initialization, ecf_files)
-                    fg4oi = EcflowSuiteTask("FirstGuess4OI", analysis,
-                                            config, task_settings, ecf_files, input_template=template)
+                    fg4oi = EcflowSuiteTask(
+                        "FirstGuess4OI",
+                        analysis,
+                        config,
+                        task_settings,
+                        ecf_files,
+                        input_template=template,
+                    )
                     fg4oi_complete = EcflowSuiteTrigger(fg4oi)
 
                     triggers = []
                     for var, active in an_variables.items():
                         if active:
                             variables = {"VAR_NAME": var}
-                            an_var_fam = EcflowSuiteFamily(var, analysis, ecf_files, variables=variables)
+                            an_var_fam = EcflowSuiteFamily(
+                                var, analysis, ecf_files, variables=variables
+                            )
                             qc_triggers = None
                             if var == "sd":
                                 qc_triggers = EcflowSuiteTriggers(fg4oi_complete)
-                            qc_task = EcflowSuiteTask("QualityControl", an_var_fam,
-                                                      config, task_settings, ecf_files, triggers=qc_triggers,
-                                                      input_template=template)
-                            oi_triggers = EcflowSuiteTriggers([
-                                EcflowSuiteTrigger(qc_task),
-                                EcflowSuiteTrigger(fg4oi)])
-                            EcflowSuiteTask("OptimalInterpolation", an_var_fam,
-                                            config, task_settings, ecf_files, triggers=oi_triggers,
-                                            input_template=template)
+                            qc_task = EcflowSuiteTask(
+                                "QualityControl",
+                                an_var_fam,
+                                config,
+                                task_settings,
+                                ecf_files,
+                                triggers=qc_triggers,
+                                input_template=template,
+                            )
+                            oi_triggers = EcflowSuiteTriggers(
+                                [EcflowSuiteTrigger(qc_task), EcflowSuiteTrigger(fg4oi)]
+                            )
+                            EcflowSuiteTask(
+                                "OptimalInterpolation",
+                                an_var_fam,
+                                config,
+                                task_settings,
+                                ecf_files,
+                                triggers=oi_triggers,
+                                input_template=template,
+                            )
                             triggers.append(EcflowSuiteTrigger(an_var_fam))
 
                     oi2soda_complete = None
                     if len(triggers) > 0:
                         triggers = EcflowSuiteTriggers(triggers)
-                        oi2soda = EcflowSuiteTask("Oi2soda", analysis, config, task_settings, ecf_files,
-                                                  triggers=triggers, input_template=template)
+                        oi2soda = EcflowSuiteTask(
+                            "Oi2soda",
+                            analysis,
+                            config,
+                            task_settings,
+                            ecf_files,
+                            triggers=triggers,
+                            input_template=template,
+                        )
                         oi2soda_complete = EcflowSuiteTrigger(oi2soda)
 
                     prepare_lsm = None
@@ -335,9 +507,15 @@ class SurfexSuite():
                             need_lsm = True
                     if need_lsm:
                         triggers = EcflowSuiteTriggers(fg4oi_complete)
-                        prepare_lsm = EcflowSuiteTask("PrepareLSM", initialization,
-                                                      config, task_settings, ecf_files,
-                                                      triggers=triggers, input_template=template)
+                        prepare_lsm = EcflowSuiteTask(
+                            "PrepareLSM",
+                            initialization,
+                            config,
+                            task_settings,
+                            ecf_files,
+                            triggers=triggers,
+                            input_template=template,
+                        )
 
                     triggers = [EcflowSuiteTrigger(fg_task), oi2soda_complete]
                     if perturbations is not None:
@@ -352,43 +530,82 @@ class SurfexSuite():
                         triggers.append(EcflowSuiteTrigger(prepare_lsm))
 
                     triggers = EcflowSuiteTriggers(triggers)
-                    EcflowSuiteTask("Soda", analysis, config, task_settings, ecf_files, triggers=triggers,
-                                    input_template=template)
+                    EcflowSuiteTask(
+                        "Soda",
+                        analysis,
+                        config,
+                        task_settings,
+                        ecf_files,
+                        triggers=triggers,
+                        input_template=template,
+                    )
 
-            triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(cycle_input),
-                                            EcflowSuiteTrigger(initialization)])
-            prediction = EcflowSuiteFamily("Prediction", dtg_node, ecf_files, triggers=triggers)
+            triggers = EcflowSuiteTriggers(
+                [EcflowSuiteTrigger(cycle_input), EcflowSuiteTrigger(initialization)]
+            )
+            prediction = EcflowSuiteFamily(
+                "Prediction", dtg_node, ecf_files, triggers=triggers
+            )
             prediction_dtg_node.update({dtg_str: {"node": prediction, "dtg": dtg}})
 
-            forecast = EcflowSuiteTask("Forecast", prediction, config, task_settings, ecf_files,
-                                       input_template=template)
+            forecast = EcflowSuiteTask(
+                "Forecast",
+                prediction,
+                config,
+                task_settings,
+                ecf_files,
+                input_template=template,
+            )
             triggers = EcflowSuiteTriggers(EcflowSuiteTrigger(forecast))
-            EcflowSuiteTask("LogProgress", prediction,
-                            config, task_settings, ecf_files, triggers=triggers, input_template=template)
+            EcflowSuiteTask(
+                "LogProgress",
+                prediction,
+                config,
+                task_settings,
+                ecf_files,
+                triggers=triggers,
+                input_template=template,
+            )
 
             triggers = EcflowSuiteTriggers(EcflowSuiteTrigger(prediction))
-            pp_fam = EcflowSuiteFamily("PostProcessing", dtg_node, ecf_files, triggers=triggers)
+            pp_fam = EcflowSuiteFamily(
+                "PostProcessing", dtg_node, ecf_files, triggers=triggers
+            )
             post_processing_dtg_node.update({dtg_str: pp_fam})
 
             log_pp_trigger = None
             if analysis is not None:
-                qc2obsmon = EcflowSuiteTask("Qc2obsmon", pp_fam, config, task_settings, ecf_files,
-                                            input_template=template)
+                qc2obsmon = EcflowSuiteTask(
+                    "Qc2obsmon",
+                    pp_fam,
+                    config,
+                    task_settings,
+                    ecf_files,
+                    input_template=template,
+                )
                 trigger = EcflowSuiteTrigger(qc2obsmon)
                 log_pp_trigger = EcflowSuiteTriggers(trigger)
 
-            EcflowSuiteTask("LogProgressPP", pp_fam, config, task_settings, ecf_files,
-                            triggers=log_pp_trigger, input_template=template)
+            EcflowSuiteTask(
+                "LogProgressPP",
+                pp_fam,
+                config,
+                task_settings,
+                ecf_files,
+                triggers=log_pp_trigger,
+                input_template=template,
+            )
 
             prev_dtg = dtg
 
         hours_behind = 24
         for dtg in dtgs:
-            dtg_str = dtg.strftime("%Y%m%d%H%M")
-            pp_dtg_str = (dtg - as_timedelta(f"PT{hours_behind}H")).strftime("%Y%m%d%H%M")
+            dtg_str = datetime2ecflow(dtg)
+            pp_dtg_str = datetime2ecflow(dtg - as_timedelta(f"PT{hours_behind}H"))
             if pp_dtg_str in post_processing_dtg_node:
                 triggers = EcflowSuiteTriggers(
-                    EcflowSuiteTrigger(post_processing_dtg_node[pp_dtg_str]))
+                    EcflowSuiteTrigger(post_processing_dtg_node[pp_dtg_str])
+                )
                 cycle_input_dtg_node[dtg_str].add_part_trigger(triggers)
 
     def save_as_defs(self, def_file):
@@ -430,29 +647,29 @@ def get_defs(config, suite_type):
     joboutdir = platform.get_system_value("joboutdir")
     task_settings = TaskSettings(config)
     unique_cycles = settings.get_total_unique_cycle_list()
-    dtgstart = progress.dtg
-    dtgbeg = progress.dtgbeg
-    dtgend = progress.dtgend
-    logger.debug("%s: DTGSTART: %s DTGBEG: %s DTGEND: %s", __file__,
-                 dtgstart, dtgbeg, dtgend)
-    if dtgbeg is None:
-        dtgbeg = dtgstart
-    dtgs = []
-    dtg = dtgstart
+    progress = ProgressFromConfig(config)
+    basetime = progress.basetime
+    starttime = progress.starttime
+    endtime = progress.endtime
+    logger.debug(
+        "DTGSTART: %s DTGBEG: %s DTGEND: %s", basetime, starttime, endtime
+    )
+    basetime_list = []
+    dtg = basetime
     logger.debug("Building list of DTGs")
     cont = True
     while cont:
         for cycle in unique_cycles:
-            while dtg <= dtgend:
-                dtgs.append(dtg)
-                logger.debug("DTG: %s, fcint: %s",
-                             dtg, cycle)
+            while dtg <= endtime:
+                basetime_list.append(dtg)
+                logger.debug("DTG: %s, fcint: %s", dtg, cycle)
                 dtg = dtg + cycle
-            if dtg >= dtgend:
+            if dtg >= endtime:
                 cont = False
 
-    logger.debug("Built DTGS: %s", dtgs)
+    logger.debug("Built DTGS: %s", basetime_list)
     if suite_type == "surfex":
-        return SurfexSuite(suite_name, config, joboutdir, task_settings,
-                           dtgs, dtg, dtgbeg=dtgbeg)
+        return SurfexSuite(
+            suite_name, config, joboutdir, task_settings, basetime_list, dtgbeg=starttime
+        )
     raise NotImplementedError(f"Suite definition for {suite_type} is not implemented!")

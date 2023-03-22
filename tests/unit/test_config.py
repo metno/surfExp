@@ -19,7 +19,6 @@ def pysurfex_experiment():
 
 @pytest.fixture(scope="module")
 def exp_dependencies(pysurfex_experiment, tmp_path_factory):
-
     tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
     wdir = f"{tmpdir}/test_config"
     exp_name = "test_config"
@@ -28,35 +27,33 @@ def exp_dependencies(pysurfex_experiment, tmp_path_factory):
     pysurfex = f"{str((Path(surfex.__file__).parent).parent)}"
     offline_source = f"{tmpdir}/source"
 
-    return ExpFromFiles.setup_files(wdir, exp_name, host, pysurfex,
-                                    pysurfex_experiment,
-                                    offline_source=offline_source)
+    return ExpFromFiles.setup_files(
+        wdir, exp_name, host, pysurfex, pysurfex_experiment, offline_source=offline_source
+    )
 
 
 @pytest.fixture(scope="module")
 def settings(sfx_exp):
-
     return Configuration(sfx_exp.config)
 
 
 @pytest.fixture(scope="module")
 def sfx_exp(exp_dependencies):
-
     stream = None
-    with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
+    with patch("experiment.scheduler.scheduler.ecflow") as mock_ecflow:
         sfx_exp = ExpFromFiles(exp_dependencies, stream=stream)
         update = {
             "compile": {
                 "test_true": True,
                 "test_values": [1, 2, 4],
-                "test_setting": "SETTING"
+                "test_setting": "SETTING",
             }
         }
         sfx_exp.config = sfx_exp.config.copy(update=update)
         return sfx_exp
 
 
-class TestConfig():
+class TestConfig:
     """Test config."""
 
     def test_check_experiment_path(self, exp_dependencies, pysurfex_experiment):
@@ -82,12 +79,18 @@ class TestConfig():
         assert settings.setting_is_not("compile#test_true", False) is True
 
     def test_setting_is_not_one_of(self, settings):
-        assert settings.setting_is_not_one_of("compile#test_setting",
-                                              ["NOT_A_SETTING"]) is True
+        assert (
+            settings.setting_is_not_one_of("compile#test_setting", ["NOT_A_SETTING"])
+            is True
+        )
 
     def test_setting_is_one_of(self, settings):
-        assert settings.setting_is_one_of("compile#test_setting",
-                                          ["SETTING", "NOT_A_SETTING"]) is True
+        assert (
+            settings.setting_is_one_of(
+                "compile#test_setting", ["SETTING", "NOT_A_SETTING"]
+            )
+            is True
+        )
 
     def test_value_is_not_one_of(self, settings):
         assert settings.value_is_not_one_of("compile#test_values", 3) is True
@@ -96,5 +99,6 @@ class TestConfig():
         assert settings.value_is_one_of("compile#test_values", 1) is True
 
     def test_write_exp_config(self, exp_dependencies):
-        ExpFromFiles.write_exp_config(exp_dependencies, configuration="sekf",
-                                      configuration_file=None)
+        ExpFromFiles.write_exp_config(
+            exp_dependencies, configuration="sekf", configuration_file=None
+        )

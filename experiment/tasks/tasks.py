@@ -9,9 +9,10 @@ import surfex
 
 from ..toolbox import FileManager
 from ..logs import get_logger_from_config
-from ..datetime_utils import as_datetime, as_timedelta
+from ..datetime_utils import as_datetime, as_timedelta, datetime_as_string
 from ..configuration import Configuration
-from ..progress import ProgressFromConfig
+from ..config_parser import ParsedConfig
+from ..experiment import ExpFromConfig
 
 
 class AbstractTask(object):
@@ -20,13 +21,14 @@ class AbstractTask(object):
     def __init__(self, config):
         """Initialize a task run by the default ecflow container.
 
-        All tasks implelementing this base class will work with the default ecflow container
+        All tasks implelementing this base class will work with the default
+        ecflow container
 
         Args:
 
         """
         if surfex is None:
-            raise Exception("Surfex module not properly loaded!")
+            raise RuntimeError("Surfex module not properly loaded!")
 
         self.config = config
         self.logger = get_logger_from_config(config)
@@ -34,23 +36,31 @@ class AbstractTask(object):
         self.fmanager = FileManager(self.config)
         self.platform = self.fmanager.platform
         self.settings = Configuration(self.config)
-        self.progress = ProgressFromConfig(self.config)
         self.dtg = as_datetime(config.get_value("general.times.basetime"))
         self.basetime = as_datetime(config.get_value("general.times.basetime"))
         self.starttime = as_datetime(config.get_value("general.times.start"))
         self.dtgbeg = as_datetime(config.get_value("general.times.start"))
-      
+
         self.host = "0"
         self.work_dir = self.platform.get_system_value("sfx_exp_data")
         self.lib = self.platform.get_system_value("sfx_exp_lib")
-        #self.stream = self.config.get_value("general.stream")
-        self.stream = None
+        try:
+            self.stream = self.config.get_value("general.stream")
+        except AttributeError:
+            self.stream = None
 
         self.surfex_config = self.platform.get_system_value("surfex_config")
         self.sfx_exp_vars = None
-        self.logger.debug("        config: %s", json.dumps(config.dict(), sort_keys=True, indent=2))
+        self.logger.debug(
+            "   config: %s", json.dumps(config.dict(), sort_keys=True, indent=2)
+        )
 
-        self.mbr = self.config.get_value("general.realization")
+        mbr = self.config.get_value("general.realization")
+        if isinstance(mbr, str) and mbr == "":
+            mbr = None
+        if mbr is not None:
+            mbr = int(mbr)
+        self.mbr = mbr
         self.members = self.config.get_value("general.realizations")
 
         # Domain/geo
@@ -68,7 +78,7 @@ class AbstractTask(object):
             "nam_conf_proj": {
                 "xlon0": self.config.get_value("domain.xlon0"),
                 "xlat0": self.config.get_value("domain.xlat0"),
-            }
+            },
         }
 
         self.geo = surfex.ConfProj(conf_proj)
@@ -85,12 +95,14 @@ class AbstractTask(object):
         except AttributeError:
             lfagmap = False
         self.csurf_filetype = self.config.get_value("SURFEX.IO.CSURF_FILETYPE")
-        self.suffix = surfex.SurfFileTypeExtension(self.csurf_filetype, lfagmap=lfagmap,
-                                                   masterodb=masterodb).suffix
+        self.suffix = surfex.SurfFileTypeExtension(
+            self.csurf_filetype, lfagmap=lfagmap, masterodb=masterodb
+        ).suffix
 
         # TODO Move to config
         ###########################################################################
-        self.wrk = self.platform.get_system_value("wrk")
+        wrk = self.config.get_value("system.wrk")
+        self.wrk = self.platform.substitute(wrk)
         os.makedirs(self.wrk, exist_ok=True)
         archive = self.platform.get_system_value("archive_dir")
         self.archive = self.platform.substitute(archive)
@@ -129,23 +141,12 @@ class AbstractTask(object):
         self.translation = {
             "t2m": "air_temperature_2m",
             "rh2m": "relative_humidity_2m",
-            "sd": "surface_snow_thickness"
+            "sd": "surface_snow_thickness",
         }
         self.obs_types = self.config.get_value("SURFEX.ASSIM.OBS.COBS_M")
 
-        # TODO
-        # self.nnco = self.config.get_nnco(dtg=self.basetime)
-        self.nnco = [1, 1, 0, 0, 1]
-
-        update = {
-            "SURFEX": {
-                "ASSIM": {
-                    "OBS": {
-                        "NNCO": self.nnco
-                    }
-                }
-            }
-        }
+        self.nnco = self.settings.get_nnco(dtg=self.basetime)
+        update = {"SURFEX": {"ASSIM": {"OBS": {"NNCO": self.nnco}}}}
         self.config = self.config.copy(update=update)
         self.logger.debug("NNCO: %s", self.nnco)
 
@@ -238,27 +239,16 @@ class QualityControl(AbstractTask):
 
         # Default
         settings = {
-            "domain": {
-                "domain_file": sfx_lib + "/domain.json"
-            },
-            "firstguess": {
-                "fg_file": fg_file,
-                "fg_var": self.translation[self.var_name]
-            }
+            "domain": {"domain_file": sfx_lib + "/domain.json"},
+            "firstguess": {"fg_file": fg_file, "fg_var": self.translation[self.var_name]},
         }
         default_tests = {
-            "nometa": {
-                "do_test": True
-            },
+            "nometa": {"do_test": True},
             "domain": {
                 "do_test": True,
             },
-            "blacklist": {
-                "do_test": True
-            },
-            "redundancy": {
-                "do_test": True
-            }
+            "blacklist": {"do_test": True},
+            "redundancy": {"do_test": True},
         }
 
         # T2M
@@ -267,48 +257,42 @@ class QualityControl(AbstractTask):
             data_sets = {}
             if synop_obs:
                 bufr_tests = default_tests
-                bufr_tests.update({
-                    "plausibility": {
-                        "do_test": True,
-                        "maxval": 340,
-                        "minval": 200
-                    }
-                })
+                bufr_tests.update(
+                    {"plausibility": {"do_test": True, "maxval": 340, "minval": 200}}
+                )
                 filepattern = self.obsdir + "/ob@YYYY@@MM@@DD@@HH@"
-                data_sets.update({
-                    "bufr": {
-                        "filepattern": filepattern,
-                        "filetype": "bufr",
-                        "varname": "airTemperatureAt2M",
-                        "tests": bufr_tests
+                data_sets.update(
+                    {
+                        "bufr": {
+                            "filepattern": filepattern,
+                            "filetype": "bufr",
+                            "varname": "airTemperatureAt2M",
+                            "tests": bufr_tests,
+                        }
                     }
-                })
+                )
             netatmo_obs = self.config.get_value("observations.netatmo_obs_t2m")
             if netatmo_obs:
                 netatmo_tests = default_tests
-                netatmo_tests.update({
-                    "sct": {
-                        "do_test": True
-                    },
-                    "plausibility": {
-                        "do_test": True,
-                        "maxval": 340,
-                        "minval": 200
+                netatmo_tests.update(
+                    {
+                        "sct": {"do_test": True},
+                        "plausibility": {"do_test": True, "maxval": 340, "minval": 200},
                     }
-                })
+                )
                 filepattern = self.config.get_value("observations.netatmo_filepattern")
-                data_sets.update({
-                    "netatmo": {
-                        "filepattern": filepattern,
-                        "varname": "Temperature",
-                        "filetype": "netatmo",
-                        "tests": netatmo_tests
+                data_sets.update(
+                    {
+                        "netatmo": {
+                            "filepattern": filepattern,
+                            "varname": "Temperature",
+                            "filetype": "netatmo",
+                            "tests": netatmo_tests,
+                        }
                     }
-                })
+                )
 
-            settings.update({
-                "sets": data_sets
-            })
+            settings.update({"sets": data_sets})
 
         # RH2M
         elif self.var_name == "rh2m":
@@ -316,50 +300,43 @@ class QualityControl(AbstractTask):
             data_sets = {}
             if synop_obs:
                 bufr_tests = default_tests
-                bufr_tests.update({
-                    "plausibility": {
-                        "do_test": True,
-                        "maxval": 100,
-                        "minval": 0
-                    }
-                })
+                bufr_tests.update(
+                    {"plausibility": {"do_test": True, "maxval": 100, "minval": 0}}
+                )
                 filepattern = self.obsdir + "/ob@YYYY@@MM@@DD@@HH@"
-                data_sets.update({
-                    "bufr": {
-                        "filepattern": filepattern,
-                        "filetype": "bufr",
-                        "varname": "relativeHumidityAt2M",
-                        "tests": bufr_tests
+                data_sets.update(
+                    {
+                        "bufr": {
+                            "filepattern": filepattern,
+                            "filetype": "bufr",
+                            "varname": "relativeHumidityAt2M",
+                            "tests": bufr_tests,
+                        }
                     }
-                })
+                )
 
             netatmo_obs = self.config.get_value("observations.netatmo_obs_rh2m")
             if netatmo_obs:
                 netatmo_tests = default_tests
-                netatmo_tests.update({
-                    "sct": {
-                        "do_test": True
-                    },
-                    "plausibility": {
-                        "do_test": True,
-                        "maxval": 10000,
-                        "minval": 0
+                netatmo_tests.update(
+                    {
+                        "sct": {"do_test": True},
+                        "plausibility": {"do_test": True, "maxval": 10000, "minval": 0},
                     }
-                })
-                filepattern = self.config.get_value("observations.netatmo_filepattern",
-                                                      check_parsing=False)
-                data_sets.update({
-                    "netatmo": {
-                        "filepattern": filepattern,
-                        "varname": "Humidity",
-                        "filetype": "netatmo",
-                        "tests": netatmo_tests
+                )
+                filepattern = self.config.get_value("observations.netatmo_filepattern")
+                data_sets.update(
+                    {
+                        "netatmo": {
+                            "filepattern": filepattern,
+                            "varname": "Humidity",
+                            "filetype": "netatmo",
+                            "tests": netatmo_tests,
+                        }
                     }
-                })
+                )
 
-            settings.update({
-                "sets": data_sets
-            })
+            settings.update({"sets": data_sets})
 
         # Snow Depth
         elif self.var_name == "sd":
@@ -367,31 +344,25 @@ class QualityControl(AbstractTask):
             data_sets = {}
             if synop_obs:
                 bufr_tests = default_tests
-                bufr_tests.update({
-                    "plausibility": {
-                        "do_test": True,
-                        "maxval": 1000,
-                        "minval": 0
-                    },
-                    "firstguess": {
-                        "do_test": True,
-                        "negdiff": 0.5,
-                        "posdiff": 0.5
+                bufr_tests.update(
+                    {
+                        "plausibility": {"do_test": True, "maxval": 1000, "minval": 0},
+                        "firstguess": {"do_test": True, "negdiff": 0.5, "posdiff": 0.5},
                     }
-                })
+                )
                 filepattern = self.obsdir + "/ob@YYYY@@MM@@DD@@HH@"
-                data_sets.update({
-                    "bufr": {
-                        "filepattern": filepattern,
-                        "filetype": "bufr",
-                        "varname": "totalSnowDepth",
-                        "tests": bufr_tests
+                data_sets.update(
+                    {
+                        "bufr": {
+                            "filepattern": filepattern,
+                            "filetype": "bufr",
+                            "varname": "totalSnowDepth",
+                            "tests": bufr_tests,
+                        }
                     }
-                })
+                )
 
-            settings.update({
-                "sets": data_sets
-            })
+            settings.update({"sets": data_sets})
         else:
             raise NotImplementedError
 
@@ -410,11 +381,14 @@ class QualityControl(AbstractTask):
         indent = 2
         blacklist = {}
         json.dump(settings, open("settings.json", mode="w", encoding="utf-8"), indent=2)
-        tests = surfex.titan.define_quality_control(tests, settings, an_time, domain_geo=self.geo,
-                                                    blacklist=blacklist)
+        tests = surfex.titan.define_quality_control(
+            tests, settings, an_time, domain_geo=self.geo, blacklist=blacklist
+        )
 
         datasources = surfex.obs.get_datasources(an_time, settings["sets"])
-        data_set = surfex.TitanDataSet(self.var_name, settings, tests, datasources, an_time)
+        data_set = surfex.TitanDataSet(
+            self.var_name, settings, tests, datasources, an_time
+        )
         data_set.perform_tests()
 
         self.logger.debug("Write to %s", output)
@@ -443,7 +417,7 @@ class OptimalInterpolation(AbstractTask):
         if self.var_name in self.translation:
             var = self.translation[self.var_name]
         else:
-            raise Exception(f"No translation for {self.var_name}")
+            raise KeyError(f"No translation for {self.var_name}")
 
         hlength = 30000
         vlength = 100000
@@ -453,43 +427,70 @@ class OptimalInterpolation(AbstractTask):
         epsilon = 0.25
 
         lname = self.var_name.lower()
-        hlength = self.config.get_value(f"observations.oi.{lname}.hlength", default=hlength)
-        vlength = self.config.get_value(f"observations.oi.{lname}.vlength", default=vlength)
-        wlength = self.config.get_value(f"observations.oi.{lname}.wlength", default=wlength)
-        elev_gradient = self.config.get_value(f"observations.oi.{lname}.gradient", default=elev_gradient)
-        max_locations = self.config.get_value(f"observations.oi.{lname}.max_locations",
-                                                default=max_locations)
-        epsilon = self.config.get_value(f"observations.oi.{lname}.epsilon", default=epsilon)
+        hlength = self.config.get_value(
+            f"observations.oi.{lname}.hlength", default=hlength
+        )
+        vlength = self.config.get_value(
+            f"observations.oi.{lname}.vlength", default=vlength
+        )
+        wlength = self.config.get_value(
+            f"observations.oi.{lname}.wlength", default=wlength
+        )
+        elev_gradient = self.config.get_value(
+            f"observations.oi.{lname}.gradient", default=elev_gradient
+        )
+        max_locations = self.config.get_value(
+            f"observations.oi.{lname}.max_locations", default=max_locations
+        )
+        epsilon = self.config.get_value(
+            f"observations.oi.{lname}.epsilon", default=epsilon
+        )
         try:
-            minvalue = self.config.get_value(f"observations.oi.{lname}.minvalue", default=None)
+            minvalue = self.config.get_value(
+                f"observations.oi.{lname}.minvalue", default=None
+            )
         except AttributeError:
             minvalue = None
         try:
-            maxvalue = self.config.get_value(f"observations.oi.{lname}.maxvalue", default=None)
+            maxvalue = self.config.get_value(
+                f"observations.oi.{lname}.maxvalue", default=None
+            )
         except AttributeError:
             maxvalue = None
         input_file = self.archive + "/raw_" + var + ".nc"
         output_file = self.archive + "/an_" + var + ".nc"
 
         # Get input fields
-        geo, validtime, background, glafs, gelevs = \
-            surfex.read_first_guess_netcdf_file(input_file, var)
+        geo, validtime, background, glafs, gelevs = surfex.read_first_guess_netcdf_file(
+            input_file, var
+        )
 
         an_time = validtime
         # Read OK observations
         obs_file = f"{self.platform.get_system_value('obs_dir')}/qc_{var}.json"
         observations = surfex.dataset_from_file(an_time, obs_file, qc_flag=0)
 
-        field = surfex.horizontal_oi(geo, background, observations, gelevs=gelevs,
-                                     hlength=hlength, vlength=vlength, wlength=wlength,
-                                     max_locations=max_locations, elev_gradient=elev_gradient,
-                                     epsilon=epsilon, minvalue=minvalue, maxvalue=maxvalue)
+        field = surfex.horizontal_oi(
+            geo,
+            background,
+            observations,
+            gelevs=gelevs,
+            hlength=hlength,
+            vlength=vlength,
+            wlength=wlength,
+            max_locations=max_locations,
+            elev_gradient=elev_gradient,
+            epsilon=epsilon,
+            minvalue=minvalue,
+            maxvalue=maxvalue,
+        )
 
         self.logger.debug("Write output file %s", output_file)
         if os.path.exists(output_file):
             os.unlink(output_file)
-        surfex.write_analysis_netcdf_file(output_file, field, var, validtime, gelevs, glafs,
-                                          new_file=True, geo=geo)
+        surfex.write_analysis_netcdf_file(
+            output_file, field, var, validtime, gelevs, glafs, new_file=True, geo=geo
+        )
 
 
 class FirstGuess(AbstractTask):
@@ -512,8 +513,10 @@ class FirstGuess(AbstractTask):
         """Execute."""
         firstguess = self.config.get_value("SURFEX.IO.CSURFFILE") + self.suffix
         self.logger.debug("DTG: %s BASEDTG: %s", self.dtg, self.fg_dtg)
-        fg_dir = self.platform.get_system_value('archive_dir')
-        fg_dir = self.platform.substitute(fg_dir, basetime=self.fg_dtg)
+        fg_dir = self.config.get_value("system.archive_dir")
+        fg_dir = self.platform.substitute(
+            fg_dir, basetime=self.fg_dtg, validtime=self.dtg
+        )
         fg_file = f"{fg_dir}/{firstguess}"
 
         self.logger.info("Use first guess: %s", fg_file)
@@ -540,8 +543,10 @@ class CycleFirstGuess(FirstGuess):
     def execute(self):
         """Execute."""
         firstguess = self.config.get_value("SURFEX.IO.CSURFFILE") + self.suffix
-        fg_dir = self.platform.get_system_value('archive_dir')
-        fg_dir = self.platform.substitute(fg_dir, basetime=self.fg_dtg)
+        fg_dir = self.config.get_value("system.archive_dir")
+        fg_dir = self.platform.substitute(
+            fg_dir, basetime=self.fg_dtg, validtime=self.dtg
+        )
         fg_file = f"{fg_dir}/{firstguess}"
 
         if os.path.islink(self.fc_start_sfx):
@@ -582,7 +587,9 @@ class Oi2soda(AbstractTask):
         obs_types = self.obs_types
         self.logger.debug("NNCO: %s", self.nnco)
         for ivar, __ in enumerate(obs_types):
-            self.logger.debug("ivar=%s NNCO[ivar]=%s obtype=%s", ivar, self.nnco[ivar], obs_types[ivar])
+            self.logger.debug(
+                "ivar=%s NNCO[ivar]=%s obtype=%s", ivar, self.nnco[ivar], obs_types[ivar]
+            )
             if self.nnco[ivar] == 1:
                 if obs_types[ivar] == "T2M" or obs_types[ivar] == "T2M_P":
                     an_variables.update({"t2m": True})
@@ -597,17 +604,17 @@ class Oi2soda(AbstractTask):
                 if var == "t2m":
                     t2m = {
                         "file": self.archive + "/an_" + var_name + ".nc",
-                        "var": var_name
+                        "var": var_name,
                     }
                 elif var == "rh2m":
                     rh2m = {
                         "file": self.archive + "/an_" + var_name + ".nc",
-                        "var": var_name
+                        "var": var_name,
                     }
                 elif var == "sd":
                     s_d = {
                         "file": self.archive + "/an_" + var_name + ".nc",
-                        "var": var_name
+                        "var": var_name,
                     }
         self.logger.debug("t2m  %s ", t2m)
         self.logger.debug("rh2m %s", rh2m)
@@ -655,10 +662,15 @@ class Qc2obsmon(AbstractTask):
                         q_c = self.obsdir + "/qc_" + var_name + ".json"
                         fg_file = self.archive + "/raw_" + var_name + ".nc"
                         an_file = self.archive + "/an_" + var_name + ".nc"
-                        surfex.write_obsmon_sqlite_file(dtg=self.dtg, output=output, qc=q_c,
-                                                        fg_file=fg_file,
-                                                        an_file=an_file, varname=var_in,
-                                                        file_var=var_name)
+                        surfex.write_obsmon_sqlite_file(
+                            dtg=self.dtg,
+                            output=output,
+                            qc=q_c,
+                            fg_file=fg_file,
+                            an_file=an_file,
+                            varname=var_in,
+                            file_var=var_name,
+                        )
 
 
 class FirstGuess4OI(AbstractTask):
@@ -704,7 +716,9 @@ class FirstGuess4OI(AbstractTask):
                 for var in var_in:
                     var_name = self.translation[var]
                     variables.append(var_name)
-                    symlink_files.update({self.archive + "/raw_" + var_name + ".nc": "raw.nc"})
+                    symlink_files.update(
+                        {self.archive + "/raw_" + var_name + ".nc": "raw.nc"}
+                    )
             except ValueError as ex:
                 raise Exception("Variables could not be translated") from ex
 
@@ -748,17 +762,20 @@ class FirstGuess4OI(AbstractTask):
                 identifier = "initial_conditions.fg4oi."
                 inputfile = self.config.get_value(identifier + "inputfile")
 
-            inputfile = self.platform.substitute(inputfile, basetime=self.fg_dtg,
-                                                 validtime=self.dtg)
-            
+            print(inputfile)
+            inputfile = self.platform.substitute(
+                inputfile, basetime=self.fg_dtg, validtime=self.dtg
+            )
+
             try:
                 identifier = "initial_conditions.fg4oi." + lvar + "#"
                 fileformat = self.config.get_value(identifier + "fileformat")
             except AttributeError:
                 identifier = "initial_conditions.fg4oi."
                 fileformat = self.config.get_value(identifier + "fileformat")
-            fileformat = self.platform.substitute(fileformat, basetime=self.fg_dtg,
-                                                 validtime=self.dtg)
+            fileformat = self.platform.substitute(
+                fileformat, basetime=self.fg_dtg, validtime=self.dtg
+            )
 
             try:
                 identifier = "initial_conditions.fg4oi." + lvar + "#"
@@ -784,35 +801,45 @@ class FirstGuess4OI(AbstractTask):
             defs = config[fileformat]
             geo_input = None
             if input_geo_file != "":
-                geo_input = surfex.get_geo_object(open(input_geo_file, mode="r", encoding="utf-8"))
-            defs.update({
-                "filepattern": inputfile,
-                "geo_input": geo_input
-            })
+                geo_input = surfex.get_geo_object(
+                    open(input_geo_file, mode="r", encoding="utf-8")
+                )
+            defs.update({"filepattern": inputfile, "geo_input": geo_input})
 
             converter_conf = config[var][fileformat]["converter"]
             if converter not in config[var][fileformat]["converter"]:
-                raise Exception(f"No converter {converter} definition found in {config_file}!")
+                raise ValueError(
+                    f"No converter {converter} definition found in {config_file}!"
+                )
 
-            defs.update({"fcint": self.fcint})
+            defs.update({"fcint": self.fcint.total_seconds()})
             initial_basetime = validtime - self.fgint
             self.logger.debug("Converter=%s", str(converter))
             self.logger.debug("Converter_conf=%s", str(converter_conf))
             self.logger.debug("Defs=%s", defs)
-            self.logger.debug("valitime=%s fcint=%s initial_basetime=%s", str(validtime),
-                          str(self.fcint), str(initial_basetime))
+            self.logger.debug(
+                "valitime=%s fcint=%s initial_basetime=%s",
+                str(validtime),
+                str(self.fcint),
+                str(initial_basetime),
+            )
             self.logger.debug("Fileformat: %s", fileformat)
 
-            converter = surfex.read.Converter(converter, initial_basetime, defs, converter_conf,
-                                              fileformat)
-            field = surfex.read.ConvertedInput(geo, var, converter).read_time_step(validtime, cache)
+            converter = surfex.read.Converter(
+                converter, initial_basetime, defs, converter_conf, fileformat
+            )
+            field = surfex.read.ConvertedInput(geo, var, converter).read_time_step(
+                validtime, cache
+            )
             field = np.reshape(field, [geo.nlons, geo.nlats])
 
             # Create file
             if f_g is None:
                 n_x = geo.nlons
                 n_y = geo.nlats
-                f_g = surfex.create_netcdf_first_guess_template(variables, n_x, n_y, output)
+                f_g = surfex.create_netcdf_first_guess_template(
+                    variables, n_x, n_y, output
+                )
                 f_g.variables["time"][:] = float(validtime.strftime("%s"))
                 f_g.variables["longitude"][:] = np.transpose(geo.lons)
                 f_g.variables["latitude"][:] = np.transpose(geo.lats)
@@ -840,11 +867,16 @@ class LogProgress(AbstractTask):
         AbstractTask.__init__(self, config)
 
     def execute(self):
+        progress = {
+            "basetime": datetime_as_string(self.next_dtg),
+            "validtime": datetime_as_string(self.next_dtg),
+        }
+        loglevel = self.config.get_value("general.loglevel")
 
-        exp_dir = self.platform.get_system_value("exp_dir")
-        progress = self.progress
-        progress.dtg = self.next_dtg
-        progress.save_as_json(exp_dir, progress=True)
+        config_file = self.config.get_value("metadata.source_file_path")
+        config = ParsedConfig.from_file(config_file)
+        sfx_exp = ExpFromConfig(config.dict(), progress, loglevel=loglevel)
+        sfx_exp.dump_json(config_file, indent=2)
 
 
 class LogProgressPP(AbstractTask):
@@ -859,8 +891,10 @@ class LogProgressPP(AbstractTask):
         AbstractTask.__init__(self, config)
 
     def execute(self):
+        progress = {"basetime_pp": datetime_as_string(self.next_dtg)}
+        loglevel = self.config.get_value("general.loglevel")
 
-        exp_dir = self.platform.get_system_value("exp_dir")
-        progress = self.progress
-        progress.dtgpp = self.next_dtgpp
-        progress.save_as_json(exp_dir, progress_pp=True)
+        config_file = self.config.get_value("metadata.source_file_path")
+        config = ParsedConfig.from_file(config_file)
+        sfx_exp = ExpFromConfig(config.dict(), progress, loglevel=loglevel)
+        sfx_exp.dump_json(config_file, indent=2)

@@ -236,7 +236,7 @@ class Platform:
                     val = None
                 if val is not None:
                     self.logger.debug(
-                         "before replace macro=%s pattern=%s", macro, pattern
+                        "before replace macro=%s pattern=%s", macro, pattern
                     )
                     pattern = self.sub_value(pattern, macro, val)
                     self.logger.debug("after replace macro=%s pattern=%s", macro, pattern)
@@ -275,11 +275,19 @@ class Platform:
             pattern = self.sub_value(pattern, "case", exp_case)
             self.logger.debug("Substituted domain: %s pattern=%s", domain, pattern)
             realization = self.config.get_value("general.realization")
-            if realization is not None and realization >= 0:
-                pattern = self.sub_value(pattern, "RRR", f"{realization:03d}")
-                pattern = self.sub_value(pattern, "MRRR", f"mbr{realization:03d}")
+            if isinstance(realization, str):
+                if realization == "":
+                    realization = None
+            if realization is not None:
+                if int(realization) >= 0:
+                    pattern = self.sub_value(pattern, "RRR", f"{realization:03d}")
+                    pattern = self.sub_value(pattern, "MRRR", f"mbr{realization:03d}")
+                else:
+                    pattern = self.sub_value(pattern, "RRR", "")
+                    pattern = self.sub_value(pattern, "MRRR", "")
             else:
                 pattern = self.sub_value(pattern, "RRR", "")
+                pattern = self.sub_value(pattern, "MRRR", "")
 
             self.logger.debug(
                 "Substituted realization: %s pattern=%s", realization, pattern

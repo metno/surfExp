@@ -90,14 +90,16 @@ class ConfigureOfflineBinaries(AbstractTask):
         rte = os.environ
         sfx_lib = f"{self.platform.get_system_value('sfx_exp_lib')}"
         flavour = self.surfex_config
-        cmd = f"export OFFLINE_CONFIG={flavour} && cd {sfx_lib}/offline/src && " \
-              f"./configure OfflineNWP ../conf//system.{flavour}"
+        cmd = (
+            f"export OFFLINE_CONFIG={flavour} && cd {sfx_lib}/offline/src && "
+            f"./configure OfflineNWP ../conf//system.{flavour}"
+        )
         self.logger.debug(cmd)
         surfex.BatchJob(rte, wrapper=self.wrapper).run(cmd)
 
         conf_file = sfx_lib + "/offline/conf/profile_surfex-" + flavour
         xyz_file = sfx_lib + "/xyz"
-        cmd = ". " + conf_file + "; echo \"$XYZ\" > " + xyz_file
+        cmd = ". " + conf_file + '; echo "$XYZ" > ' + xyz_file
         self.logger.info(cmd)
         try:
             os.system(cmd)

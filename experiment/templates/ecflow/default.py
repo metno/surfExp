@@ -1,11 +1,15 @@
 """Default ecflow container."""
 # @ENV_SUB1@
 
-
-from experiment.scheduler.scheduler import EcflowTask, EcflowClient, EcflowServerFromConfig
+from experiment.scheduler.scheduler import (
+    EcflowTask,
+    EcflowClient,
+    EcflowServerFromConfig,
+)
 from experiment.tasks.discover_tasks import get_task
 from experiment.config_parser import ParsedConfig
 from experiment.logs import get_logger_from_config
+from experiment.datetime_utils import ecflow2datetime_string
 
 # @ENV_SUB2@
 
@@ -26,23 +30,19 @@ def parse_ecflow_vars():
         "ECF_NAME": "%ECF_NAME%",
         "ECF_PASS": "%ECF_PASS%",
         "ECF_TRYNO": "%ECF_TRYNO%",
-        "ECF_RID": "%ECF_RID%"
+        "ECF_RID": "%ECF_RID%",
     }
 
 
-'''
+"""
 %nopp"
-'''
+"""
 
 
 def default_main(**kwargs):
     """Ecflow container default method."""
     config = ParsedConfig.from_file(kwargs.get("CONFIG"))
-    update = {
-        "general": {
-            "loglevel": kwargs.get("LOGLEVEL")
-        }
-    }
+    update = {"general": {"loglevel": kwargs.get("LOGLEVEL")}}
     config = config.copy(update=update)
     logger = get_logger_from_config(config)
 
@@ -55,10 +55,9 @@ def default_main(**kwargs):
 
     # This will also handle call to sys.exit(), i.e. Client.__exit__ will still be called.
     with EcflowClient(scheduler, task):
-
         task_name = kwargs.get("TASK_NAME")
         logger.info("Running task %s", task_name)
-        args = kwargs.get("ARGS")   
+        args = kwargs.get("ARGS")
         args_dict = {}
         if args != "":
             logger.debug("args=%s", args)
@@ -73,16 +72,16 @@ def default_main(**kwargs):
                 "stream": kwargs.get("STREAM"),
                 "realization": kwargs.get("ENSMBR"),
                 "times": {
-                    "basetime": kwargs.get("DTG"),
-                    "validtime": kwargs.get("DTG"),
-                    "basetime_pp": kwargs.get("DTGPP")
-                }
+                    "basetime": ecflow2datetime_string(kwargs.get("DTG")),
+                    "validtime": ecflow2datetime_string(kwargs.get("DTG")),
+                    "basetime_pp": ecflow2datetime_string(kwargs.get("DTGPP")),
+                },
             },
             "task": {
                 "wrapper": kwargs.get("WRAPPER"),
                 "var_name": kwargs.get("VAR_NAME"),
-                "args": args_dict
-            }
+                "args": args_dict,
+            },
         }
         config = config.copy(update=update)
         get_task(task.ecf_task, config).run()
@@ -95,6 +94,6 @@ if __name__ == "__main__":
 
     default_main(**kwargs_main)
 
-'''    # noqa
+"""    # noqa
 %end"  # noqa
-'''    # noqa
+"""  # noqa

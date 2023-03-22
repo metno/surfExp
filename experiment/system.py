@@ -5,7 +5,7 @@ import json
 import toml
 
 
-class System():
+class System:
     """Main system class."""
 
     def __init__(self, host_system, exp_name):
@@ -19,9 +19,17 @@ class System():
             Exception: _description_
         """
         logging.debug(str(host_system))
-        self.system_variables = ["sfx_exp_data", "sfx_exp_lib", "joboutdir", "mkdir",
-                                 "rsync", "hosts", "troika",
-                                 "sync_data", "surfex_config"]
+        self.system_variables = [
+            "sfx_exp_data",
+            "sfx_exp_lib",
+            "joboutdir",
+            "mkdir",
+            "rsync",
+            "hosts",
+            "troika",
+            "sync_data",
+            "surfex_config",
+        ]
         self.hosts = None
         self.exp_name = exp_name
 
@@ -40,7 +48,7 @@ class System():
                 elif var == "sync_data" or var == "troika":
                     pass
                 else:
-                    raise Exception("Variable is missing: " + var)
+                    raise KeyError("Variable is missing: " + var)
 
         system = {}
         system.update({"hosts": self.hosts})
@@ -100,13 +108,13 @@ class System():
         if var == "hosts":
             if self.hosts is not None:
                 return self.hosts
-            raise Exception("hosts not found in system")
+            raise KeyError("hosts not found in system")
         if var == "sync_data" and str(host) == "0":
             return None
 
         if var in self.system[str(host)]:
             if self.system[str(host)][var] is None:
-                raise Exception(var + " is None!")
+                raise KeyError(var + " is None!")
 
             if stream is None:
                 stream = ""
@@ -117,7 +125,7 @@ class System():
                 value = value.replace("@EXP@", self.exp_name)
                 value = value.replace("@USER@", os.environ["USER"])
             return value
-        raise Exception("Variable " + var + " not found in system")
+        raise KeyError("Variable " + var + " not found in system")
 
 
 class SystemFromFile(System):
@@ -140,100 +148,3 @@ class SystemFromFile(System):
         else:
             raise FileNotFoundError(env_system_file)
         System.__init__(self, host_system, exp_name)
-
-
-'''
-class SystemFilePathsFromSystem():
-    """Set system file paths from a system object.
-
-    Also set SFX_EXP system variables (File stucture/ssh etc)
-
-    """
-
-    def __init__(self, paths_in, system, hosts=None, stream=None, wdir=None):
-        """Construct a SystemFilePathsFromSystem object.
-
-        Args:
-            paths_in (_type_): _description_
-            system (_type_): _description_
-            hosts (_type_, optional): _description_. Defaults to None.
-            stream (_type_, optional): _description_. Defaults to None.
-            wdir (_type_, optional): _description_. Defaults to None.
-
-        """
-        # surfex.SystemFilePaths.__init__(self, paths)
-        if hosts is None:
-            hosts = ["0"]
-
-        # override paths from system file
-        paths = {}
-        for host in range(0, len(hosts)):
-            host = str(host)
-            paths_host = {}
-            paths_host.update(paths_in)
-            if wdir is not None:
-                paths_host.update({"exp_dir": wdir})
-
-            sfx_data = system.get_var("sfx_exp_data", host=host, stream=stream)
-            sfx_lib = system.get_var("sfx_exp_lib", host=host, stream=stream)
-
-            default_bin_dir = sfx_data + "/lib/offline/exe/"
-            default_clim_dir = sfx_data + "/climate/"
-            default_archive_dir = sfx_data + "/archive/@YYYY@/@MM@/@DD@/@HH@/@EEE@/"
-            default_first_guess_dir = default_archive_dir
-            default_extarch_dir = sfx_data + "/archive/extract/"
-            default_forcing_dir = sfx_data + "/forcing/@YYYY@@MM@@DD@@HH@/@EEE@/"
-            default_obs_dir = sfx_data + "/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@EEE@/"
-            wrk_dir = sfx_data + "/@YYYY@@MM@@DD@_@HH@/@EEE@/"
-            paths_host.update({
-                "sfx_exp_data": sfx_data,
-                "sfx_exp_lib": sfx_lib,
-                "default_bin_dir": default_bin_dir,
-                "default_archive_dir": default_archive_dir,
-                "default_first_guess_dir": default_first_guess_dir,
-                "default_extrarch_dir": default_extarch_dir,
-                "default_climdir": default_clim_dir,
-                "default_wrk_dir": wrk_dir,
-                "default_forcing_dir": default_forcing_dir,
-                "default_pgd_dir": default_clim_dir,
-                "default_prep_dir": default_archive_dir,
-                "default_obs_dir": default_obs_dir
-            })
-            paths.update({host: paths_host})
-        self.paths = paths
-
-    def dump_system(self, filename, indent=None):
-        """Dump the system to a json file.
-
-        Args:
-            filename (str): filename
-            indent (int, optional): indentation in file. Defaults to None.
-        """
-        json.dump(self.paths, open(filename, mode="w", encoding="utf-8"), indent=indent)
-
-
-class SystemFilePathsFromSystemFile(SystemFilePathsFromSystem):
-    """Set systemfilepaths from a system file.
-
-    Also set SFX_EXP system variables (File stucture/ssh etc)
-
-    """
-
-    def __init__(self, system_file_paths, system, name, hosts=None, stream=None, wdir=None):
-        """Construct the SystemFilePathsFromSystem object.
-
-        From a systemfilepath file and a system file.
-
-        Args:
-            system_file_paths (_type_): _description_
-            system (_type_): _description_
-            name (_type_): _description_
-            hosts (_type_, optional): _description_. Defaults to None.
-            stream (_type_, optional): _description_. Defaults to None.
-            wdir (_type_, optional): _description_. Defaults to None.
-        """
-        system_file_paths = json.load(open(system_file_paths, mode="r", encoding="UTF-8"))
-        system = SystemFromFile(system, name)
-        SystemFilePathsFromSystem.__init__(self, system_file_paths, system, hosts=hosts,
-                                           stream=stream, wdir=wdir)
-'''

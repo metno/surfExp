@@ -36,15 +36,13 @@ class Forcing(AbstractTask):
         """
         kwargs = {}
         if self.user_config is not None:
-            user_config = yaml.safe_load(open(self.user_config, mode="r", encoding="utf-8"))
+            user_config = yaml.safe_load(
+                open(self.user_config, mode="r", encoding="utf-8")
+            )
             kwargs.update({"user_config": user_config})
 
         domain_json = self.geo.json
-        domain_json.update({
-            "nam_pgd_grid": {
-                "cgrid": "CONF PROJ"
-            }
-        })
+        domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
         with open(self.wdir + "/domain.json", mode="w", encoding="utf-8") as file_handler:
             json.dump(domain_json, file_handler, indent=2)
         kwargs.update({"domain": self.wdir + "/domain.json"})
@@ -149,7 +147,7 @@ class ModifyForcing(AbstractTask):
         dtg = self.dtg
         dtg_prev = dtg - self.fcint
         self.logger.debug("modify forcing dtg=%s dtg_prev=%s", dtg, dtg_prev)
-        forcing_dir = self.platform.get_system_value('forcing_dir')
+        forcing_dir = self.platform.get_system_value("forcing_dir")
         input_dir = self.platform.substitute(forcing_dir, basetime=dtg_prev)
         output_dir = self.platform.substitute(forcing_dir, basetime=dtg)
         input_file = input_dir + "FORCING.nc"
@@ -166,5 +164,3 @@ class ModifyForcing(AbstractTask):
             surfex.forcing.modify_forcing(**kwargs)
         else:
             self.logger.info("Output or inut is missing: %s", output_file)
-
-

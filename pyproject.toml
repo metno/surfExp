@@ -22,11 +22,12 @@ demjson = "1.6"
 # pysurfex-scheduler = {git = "git@github.com:metno/pysurfex-scheduler.git", branch="feature/deode_similar", develop = true}
 pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true}
 troika = {git = "https://git.ecmwf.int/scm/ecsdk/troika.git", tag="0.1.8"}
-pytest-mock = "^3.10.0"
-pytest-cov = "^4.0.0"
 fastjsonschema = "^2.16.3"
 
 [tool.poetry.dev-dependencies]
+black = "^23.1.0"
+pytest-cov = "^4.0.0"
+pytest-mock = "^3.10.0"
 pytest = "^7.0.0"
 coverage = "^7.0.4"
 pycodestyle = "^2.10.0"

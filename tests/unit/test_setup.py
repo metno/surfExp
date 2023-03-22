@@ -9,8 +9,10 @@ from experiment.experiment import ExpFromFiles
 
 TESTDATA = f"{str((Path(__file__).parent).parent)}/testdata"
 ROOT = f"{str((Path(__file__).parent).parent)}"
-logging.basicConfig(format='%(asctime)s %(levelname)s %(pathname)s:%(lineno)s %(message)s',
-                    level=logging.DEBUG)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(pathname)s:%(lineno)s %(message)s",
+    level=logging.DEBUG,
+)
 
 
 class TestSetup(unittest.TestCase):
@@ -28,7 +30,7 @@ class TestSetup(unittest.TestCase):
                 "key_l2": {
                     "key_l3": "value_l3",
                     "key_l3_extra": "value_l3_extra",
-                }
+                },
             }
         }
         dict2 = {
@@ -36,10 +38,8 @@ class TestSetup(unittest.TestCase):
                 "key_l2_extra": "value_l2_extra",
                 "key_l2": {
                     "key_l3": "value_l3_modified",
-                    "key_l3_dict": {
-                        "key_l4": "value_l4"
-                    }
-                }
+                    "key_l3_dict": {"key_l4": "value_l4"},
+                },
             }
         }
         dict3 = {
@@ -49,10 +49,8 @@ class TestSetup(unittest.TestCase):
                 "key_l2": {
                     "key_l3": "value_l3_modified",
                     "key_l3_extra": "value_l3_extra",
-                    "key_l3_dict": {
-                        "key_l4": "value_l4"
-                    }
-                }
+                    "key_l3_dict": {"key_l4": "value_l4"},
+                },
             }
         }
         dict_n3 = ExpFromFiles.merge_dict(dict1, dict2)

@@ -9,6 +9,7 @@ import traceback
 import sys
 import json
 import logging
+
 try:
     import ecflow  # noqa reportMissingImports
 except ModuleNotFoundError:
@@ -95,17 +96,14 @@ class EcflowServer(Server):
 
         """
         if ecflow is None:
-            raise Exception("Ecflow was not found")
+            raise ModuleNotFoundError("Ecflow was not found")
         Server.__init__(self)
         self.ecf_host = ecf_host
         self.ecf_port = ecf_port
         self.start_command = start_command
         self.ecf_client = ecflow.Client(self.ecf_host, self.ecf_port)
         logging.debug("self.ecf_client %s", self.ecf_client)
-        self.settings = {
-            "ecf_host": self.ecf_host,
-            "ecf_port": self.ecf_port
-        }
+        self.settings = {"ecf_host": self.ecf_host, "ecf_port": self.ecf_port}
 
     def start_server(self):
         """Start the server.
@@ -179,9 +177,7 @@ class EcflowServer(Server):
                 self.ecf_client.delete("/" + suite_name)
                 self.ecf_client.replace("/" + suite_name, def_file)
             except RuntimeError:
-                raise Exception(
-                    "Could not replace suite " + suite_name
-                ) from RuntimeError
+                raise Exception("Could not replace suite " + suite_name) from RuntimeError
 
 
 class EcflowServerFromFile(EcflowServer):
@@ -267,11 +263,12 @@ class EcflowServerFromConfig(EcflowServer):
             ecf_start_command = None
         self.ecf_host = ecf_host
         self.ecf_port = ecf_port
-        EcflowServer.__init__(self, ecf_host, ecf_port=ecf_port,
-                              start_command=ecf_start_command)
+        EcflowServer.__init__(
+            self, ecf_host, ecf_port=ecf_port, start_command=ecf_start_command
+        )
 
 
-class EcflowLogServer():
+class EcflowLogServer:
     """Ecflow log server."""
 
     def __init__(self, config):
@@ -285,7 +282,7 @@ class EcflowLogServer():
         self.ecf_logport = config.get("ECF_LOGPORT")
 
 
-class EcflowTask():
+class EcflowTask:
     """Ecflow scheduler task."""
 
     def __init__(self, ecf_name, ecf_tryno, ecf_pass, ecf_rid, ecf_timeout=20):
@@ -411,7 +408,9 @@ class EcflowClient(object):
         Returns:
             _type_: _description_
         """
-        logging.info("   Client:__exit__: ex_type: %s value: %s", str(ex_type), str(value))
+        logging.info(
+            "   Client:__exit__: ex_type: %s value: %s", str(ex_type), str(value)
+        )
         if ex_type is not None:
             logging.info("Calling abort %s", self.at_time())
             self.client.child_abort(

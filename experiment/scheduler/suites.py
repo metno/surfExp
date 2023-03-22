@@ -2,20 +2,29 @@
 import os
 import sys
 import logging
+
 try:
     import ecflow  # noqa reportMissingImports
 except ImportError:
     ecflow = None
 
 
-class EcflowNode():
+class EcflowNode:
     """A Node class is the abstract base class for Suite, Family and Task.
 
     Every Node instance has a name, and a path relative to a suite
     """
 
-    def __init__(self, name, node_type, parent, ecf_files, variables=None, triggers=None,
-                 def_status=None):
+    def __init__(
+        self,
+        name,
+        node_type,
+        parent,
+        ecf_files,
+        variables=None,
+        triggers=None,
+        def_status=None,
+    ):
         """Construct the EcflowNode.
 
         Args:
@@ -108,8 +117,16 @@ class EcflowNodeContainer(EcflowNode):
         EcflowNode (EcflowNode): Parent class.
     """
 
-    def __init__(self, name, node_type, parent, ecf_files, variables=None,
-                 triggers=None, def_status=None):
+    def __init__(
+        self,
+        name,
+        node_type,
+        parent,
+        ecf_files,
+        variables=None,
+        triggers=None,
+        def_status=None,
+    ):
         """Construct EcflowNodeContainer.
 
         Args:
@@ -122,8 +139,14 @@ class EcflowNodeContainer(EcflowNode):
             def_status (str, optional): Default status. Defaults to False.
         """
         EcflowNode.__init__(
-            self, name, node_type, parent, variables=variables, ecf_files=ecf_files,
-            triggers=triggers, def_status=def_status
+            self,
+            name,
+            node_type,
+            parent,
+            variables=variables,
+            ecf_files=ecf_files,
+            triggers=triggers,
+            def_status=def_status,
         )
 
 
@@ -135,8 +158,15 @@ class EcflowSuite(EcflowNodeContainer):
         (EcflowNodeContainer): A child of the EcflowNodeContainer class.
     """
 
-    def __init__(self, name, ecf_files, variables=None, def_status=None,
-                 triggers=None, dry_run=False):
+    def __init__(
+        self,
+        name,
+        ecf_files,
+        variables=None,
+        def_status=None,
+        triggers=None,
+        dry_run=False,
+    ):
         """Construct the Ecflow suite.
 
         Args:
@@ -155,8 +185,13 @@ class EcflowSuite(EcflowNodeContainer):
             self.defs = ecflow.Defs({})
 
         EcflowNodeContainer.__init__(
-            self, name, "suite", self.defs, ecf_files, variables=variables,
-            def_status=def_status
+            self,
+            name,
+            "suite",
+            self.defs,
+            ecf_files,
+            variables=variables,
+            def_status=def_status,
         )
 
     def save_as_defs(self, def_file):
@@ -170,7 +205,7 @@ class EcflowSuite(EcflowNodeContainer):
         logging.info("def file saved to %s", def_file)
 
 
-class EcflowSuiteTriggers():
+class EcflowSuiteTriggers:
     """Triggers to an ecflow suite."""
 
     def __init__(self, triggers, **kwargs):
@@ -220,8 +255,13 @@ class EcflowSuiteTriggers():
                     trigger_string = trigger_string + cat + trigger.trigger_string
                 else:
                     if isinstance(trigger, EcflowSuiteTrigger):
-                        trigger_string = trigger_string + cat + trigger.node.path + " == " +\
-                                                                                    trigger.mode
+                        trigger_string = (
+                            trigger_string
+                            + cat
+                            + trigger.node.path
+                            + " == "
+                            + trigger.mode
+                        )
                     else:
                         raise Exception("Trigger must be a Trigger object")
                 first = False
@@ -245,7 +285,7 @@ class EcflowSuiteTriggers():
             self.trigger_string = self.trigger_string + cat_string + trigger_string
 
 
-class EcflowSuiteTrigger():
+class EcflowSuiteTrigger:
     """EcFlow Trigger in a suite."""
 
     def __init__(self, node, mode="complete"):
@@ -267,7 +307,9 @@ class EcflowSuiteFamily(EcflowNodeContainer):
         EcflowNodeContainer (_type_): _description_
     """
 
-    def __init__(self, name, parent, ecf_files, variables=None, triggers=None, def_status=None):
+    def __init__(
+        self, name, parent, ecf_files, variables=None, triggers=None, def_status=None
+    ):
         """Construct the family.
 
         Args:
@@ -280,8 +322,14 @@ class EcflowSuiteFamily(EcflowNodeContainer):
 
         """
         EcflowNodeContainer.__init__(
-            self, name, "family", parent, ecf_files, variables=variables, triggers=triggers,
-            def_status=def_status
+            self,
+            name,
+            "family",
+            parent,
+            ecf_files,
+            variables=variables,
+            triggers=triggers,
+            def_status=def_status,
         )
         logging.debug(self.ecf_container_path)
         if self.ecf_node is not None:
@@ -307,7 +355,7 @@ class EcflowSuiteTask(EcflowNode):
         variables=None,
         ecf_micro="%",
         triggers=None,
-        def_status=None
+        def_status=None,
     ):
         """Constuct the EcflowSuiteTask.
 
@@ -330,8 +378,16 @@ class EcflowSuiteTask(EcflowNode):
             FileNotFoundError: If the task container is not found.
 
         """
-        EcflowNode.__init__(self, name, "task", parent, ecf_files, variables=variables,
-                            triggers=triggers, def_status=def_status)
+        EcflowNode.__init__(
+            self,
+            name,
+            "task",
+            parent,
+            ecf_files,
+            variables=variables,
+            triggers=triggers,
+            def_status=def_status,
+        )
 
         logging.debug(parent.path)
         logging.debug(parent.ecf_container_path)

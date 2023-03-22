@@ -1,133 +1,53 @@
 """Experiment classes and methods."""
 import os
 import json
-import logging
 import shutil
 import collections
 import tomlkit
 
 import surfex
 
-from .scheduler.scheduler import EcflowServerFromFile
-from .progress import ProgressFromFiles, Progress
+from . import PACKAGE_NAME
 from .config_parser import ParsedConfig
-from .datetime_utils import as_datetime, as_timedelta
+from .logs import get_logger
 from .system import System
 
 
 NO_DEFAULT_PROVIDED = object()
 
 
-class Exp():
+class ExpFromConfig:
     """Experiment class."""
 
-    def __init__(self, exp_dependencies, merged_config, system, system_file_paths,
-                 server, env_submit, progress=None,
-                 stream=None, **kwargs):
+    def __init__(self, merged_config, progress, loglevel="INFO", **kwargs):
         """Instaniate an object of the main experiment class.
 
         Args:
-            exp_dependencies (dict):  Eperiment dependencies
-            merged_config (dict): Experiment configuration
+            config (ParsedConfig): Experiment configuration
 
         """
-        logging.debug("Construct Exp")
-
-        self.config_file = None
-        # Date/time
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug("Construct ExpFromConfig")
+        merged_config = merged_config.copy()
         times = merged_config["general"]["times"]
-        if progress is None:
-            basetime = as_datetime("1970-01-01T00:00:00Z")
-            progress = Progress(basetime, basetime, dtgpp=basetime, dtgend=basetime)
-    
-        times.update(progress.print_config_times())
-        merged_config["general"]["times"].update(times)
-
-        case = exp_dependencies.get("exp_name")
-        host = "0"
-        
-        troika_config = exp_dependencies["config"]["other_files"]["troika_config.yml"]
-        troika = None
-        try:
-            troika = system.get_var("troika", "0")
-        except Exception:
-            troika = shutil.which("troika")
-
-        sfx_config = surfex.Configuration(merged_config)
-
-        sfx_data = system.get_var("sfx_exp_data", host)
-        update = {
-            "general": {
-                "stream": stream,
-                "case": case,
-                "times": progress.print_config_times()
-            },
-            "system": {
-                "joboutdir": system.get_var("joboutdir", host),
-                "wrk": sfx_data + "/@YYYY@@MM@@DD@_@HH@/@RRR@/",
-                "bin_dir": sfx_data + "/lib/offline/exe/",
-                "clim_dir": sfx_data + "/climate/@DOMAIN@",
-                "archive_dir": sfx_data + "/archive/@YYYY@/@MM@/@DD@/@HH@/@EEE@/",
-                "extrarch_dir": sfx_data + "/archive/extract/",
-                "forcing_dir": sfx_data + "/forcing/@YYYY@@MM@@DD@@HH@/@EEE@/",
-                "obs_dir": sfx_data + "/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@EEE@/",
-                "namelist_dir":  exp_dependencies.get("namelist_dir"),
-                "exp_dir": exp_dependencies.get("exp_dir"),
-                "sfx_exp_lib": system.get_var("sfx_exp_lib", host),
-                "sfx_exp_data": system.get_var("sfx_exp_data", host),
-                "pysurfex": exp_dependencies.get("pysurfex"),
-                "pysurfex_experiment": exp_dependencies.get("pysurfex_experiment"),
-                "first_guess_yml": exp_dependencies["config"]["other_files"]["first_guess.yml"],
-                "config_yml": exp_dependencies["config"]["other_files"]["config.yml"],
-                "surfex_config": system.get_var("surfex_config", host),
-                "rsync": system.get_var("rsync", host)
-            },
-            "platform": system_file_paths,
-            "compile": {
-                "offline_source": exp_dependencies.get("offline_source")
-            },
-            "scheduler": server.settings,
-            "submission": env_submit,
-            "troika": {
-                "command": troika,
-                "config": troika_config
-            },
-            "SURFEX": sfx_config.settings["SURFEX"]
-        }
-
-        # Initialize task settings
-        if "task" not in merged_config:
-            merged_config.update({"task": {}})
-        task = {}
-        task_attrs = ["wrapper", "var_name", "args"]
-        for att in task_attrs:
-            if not att in merged_config["task"]:
-                if att == "args":
-                    val = {}
-                else:
-                    val = ""
-                task.update({att: val})
+        logger.info("Times before=%s", times)
+        epoch = "1970-01-01T00:00:00Z"
+        keys = ["start", "end", "basetime", "basetime_pp", "validtime"]
+        for key in keys:
+            if key in progress:
+                times.update({key: progress[key]})
             else:
-                task.update({att: merged_config["task"][att]})
-        merged_config["task"].update(task)
+                if key not in times:
+                    times.update({key: epoch})
+            logger.info("key=%s value%s", key, times[key])
+        if "end" not in times:
+            times.update({"end": times["basetime"]})
+        logger.info("Times after=%s", times)
+        merged_config["general"]["times"].update(times)
+        merged_config["general"]["loglevel"] = loglevel
 
         json_schema = None
-        parsed_config = ParsedConfig.parse_obj(merged_config, json_schema=json_schema)
-        parsed_config = parsed_config.copy(update=update)
-        self.config = parsed_config
-
-    def dump_exp_configuration(self, filename, indent=None):
-        """Dump the exp configuration.
-
-        The configuration has two keys. One for general config and one for member config.
-
-        Args:
-            filename (str): filename to dump to
-            indent (int, optional): indentation in json file. Defaults to None.
-        """
-        json.dump(self.config.dict(), open(filename, mode="w", encoding="utf-8"), indent=indent)
-        self.config_file = filename
-
+        self.config = ParsedConfig.parse_obj(merged_config, json_schema=json_schema)
 
     def dump_json(self, filename, indent=None):
         """Dump a json file with configuration.
@@ -144,10 +64,133 @@ class Exp():
             json.dump(self.config.dict(), file_handler, indent=indent)
 
 
+class Exp(ExpFromConfig):
+    """Experiment class."""
+
+    def __init__(
+        self,
+        exp_dependencies,
+        merged_config,
+        system,
+        system_file_paths,
+        env_server,
+        env_submit,
+        progress,
+        stream=None,
+        loglevel="INFO",
+        **kwargs,
+    ):
+        """Instaniate an object of the main experiment class.
+
+        Args:
+            exp_dependencies (dict):  Eperiment dependencies
+            merged_config (dict): Experiment configuration
+
+        """
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug("Construct Exp")
+
+        # self.config_file = None
+        # Date/time
+        times = merged_config["general"]["times"]
+        epoch = "1970-01-01T00:00:00Z"
+        keys = ["start", "end", "basetime", "basetime_pp", "validtime"]
+        for key in keys:
+            if key in progress:
+                times.update({key: progress[key]})
+            else:
+                if key not in times:
+                    times.update({key: epoch})
+        if "validtime" not in progress:
+            times.update({"validtime": times["basetime"]})
+        if "end" not in times:
+            times.update({"end": times["basetime"]})
+        merged_config["general"]["times"].update(times)
+        logger.info("Progress: %s", progress)
+
+        case = exp_dependencies.get("exp_name")
+        host = "0"
+
+        troika_config = exp_dependencies["config"]["other_files"]["troika_config.yml"]
+        troika = None
+        try:
+            troika = system.get_var("troika", "0")
+        except KeyError:
+            try:
+                troika = shutil.which("troika")
+            except RuntimeError:
+                logger.warning("Troika not found!")
+
+        sfx_config = surfex.Configuration(merged_config)
+
+        sfx_data = system.get_var("sfx_exp_data", host)
+        exp_dir = exp_dependencies.get("exp_dir")
+        if exp_dir is None:
+            exp_dir = sfx_data
+        update = {
+            "general": {"stream": stream, "case": case, "times": times},
+            "system": {
+                "joboutdir": system.get_var("joboutdir", host),
+                "wrk": sfx_data + "/@YYYY@@MM@@DD@_@HH@/@RRR@/",
+                "bin_dir": sfx_data + "/lib/offline/exe/",
+                "climdir": sfx_data + "/climate/@domain@",
+                "archive_dir": sfx_data + "/archive/@YYYY@/@MM@/@DD@/@HH@/@RRR@/",
+                "extrarch_dir": sfx_data + "/archive/extract/",
+                "forcing_dir": sfx_data + "/forcing/@YYYY@@MM@@DD@@HH@/@RRR@/",
+                "obs_dir": f"{sfx_data}/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@RRR@/",
+                "namelist_dir": exp_dependencies.get("namelist_dir"),
+                "exp_dir": exp_dir,
+                "sfx_exp_lib": system.get_var("sfx_exp_lib", host),
+                "sfx_exp_data": system.get_var("sfx_exp_data", host),
+                "pysurfex": exp_dependencies.get("pysurfex"),
+                "pysurfex_experiment": exp_dependencies.get("pysurfex_experiment"),
+                "first_guess_yml": exp_dependencies["config"]["other_files"][
+                    "first_guess.yml"
+                ],
+                "config_yml": exp_dependencies["config"]["other_files"]["config.yml"],
+                "surfex_config": system.get_var("surfex_config", host),
+                "rsync": system.get_var("rsync", host),
+            },
+            "platform": system_file_paths,
+            "compile": {"offline_source": exp_dependencies.get("offline_source")},
+            "scheduler": env_server,
+            "submission": env_submit,
+            "troika": {"command": troika, "config": troika_config},
+            "SURFEX": sfx_config.settings["SURFEX"],
+        }
+
+        # Initialize task settings
+        if "task" not in merged_config:
+            merged_config.update({"task": {}})
+        task = {}
+        task_attrs = ["wrapper", "var_name", "args"]
+        for att in task_attrs:
+            if att not in merged_config["task"]:
+                if att == "args":
+                    val = {}
+                else:
+                    val = ""
+                task.update({att: val})
+            else:
+                task.update({att: merged_config["task"][att]})
+        merged_config["task"].update(task)
+        json_schema = None
+        config = ParsedConfig.parse_obj(merged_config, json_schema=json_schema)
+        config = config.copy(update=update)
+        ExpFromConfig.__init__(self, config.dict(), progress, loglevel=loglevel)
+
+
 class ExpFromFiles(Exp):
     """Generate Exp object from existing files. Use config files from a setup."""
 
-    def __init__(self, exp_dependencies, stream=None, **kwargs):
+    def __init__(
+        self,
+        exp_dependencies,
+        stream=None,
+        config_settings=None,
+        loglevel="INFO",
+        progress=None,
+    ):
         """Construct an Exp object from files.
 
         Args:
@@ -157,12 +200,9 @@ class ExpFromFiles(Exp):
             FileNotFoundError: If file is not found
 
         """
-        logging.debug("Construct ExpFromFiles")
-
-        wdir = exp_dependencies.get("exp_dir")
-        logging.info("%s", exp_dependencies)
-        logging.info("%s", exp_dependencies.get("exp_dir"))
-        # self.work_dir = wdir
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug("Construct ExpFromFiles")
+        logger.debug("Experiment dependencies: %s", exp_dependencies)
 
         # System
         exp_name = exp_dependencies.get("exp_name")
@@ -191,23 +231,34 @@ class ExpFromFiles(Exp):
         # Scheduler settings
         env_server = exp_dependencies.get("env_server")
         if os.path.exists(env_server):
-            server = EcflowServerFromFile(env_server)
+            with open(env_server, mode="r", encoding="utf-8") as env_server:
+                env_server = json.load(env_server)
         else:
             raise FileNotFoundError("Server settings missing " + env_server)
 
         # Date/time settings
-        try:
-            progress = ProgressFromFiles(wdir, stream=stream)
-        except FileNotFoundError:
-            progress = None
+        if progress is None:
+            progress = {}
 
         # Configuration
-        config_files_dict = ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
-                                                          exp_dependencies["config"]["blocks"])
-        all_merged_settings = self.merge_dict_from_config_dicts(config_files_dict)
+        if config_settings is None:
+            config_files_dict = ExpFromFiles.get_config_files(
+                exp_dependencies["config"]["config_files"],
+                exp_dependencies["config"]["blocks"],
+            )
+            config_settings = self.merge_dict_from_config_dicts(config_files_dict)
 
-        Exp.__init__(self, exp_dependencies, all_merged_settings, system, system_file_paths,
-                     server, env_submit, progress=progress, stream=stream, **kwargs)
+        Exp.__init__(
+            self,
+            exp_dependencies,
+            config_settings,
+            system,
+            system_file_paths,
+            env_server,
+            env_submit,
+            progress,
+            stream=stream,
+        )
 
     @staticmethod
     def toml_load(fname):
@@ -244,7 +295,7 @@ class ExpFromFiles(Exp):
         f_h.close()
 
     @staticmethod
-    def merge_dict_from_config_dicts(config_files):
+    def merge_dict_from_config_dicts(config_files, loglevel="INFO"):
         """Merge the settings in a config dict.
 
         Args:
@@ -254,7 +305,8 @@ class ExpFromFiles(Exp):
             _type_: _description_
 
         """
-        logging.debug("config_files: %s", str(config_files))
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug("config_files: %s", str(config_files))
         merged_env = {}
         for fff in config_files:
             modification = config_files[fff]["toml"]
@@ -320,19 +372,20 @@ class ExpFromFiles(Exp):
             if os.path.exists(fname):
                 toml_dict = ExpFromFiles.toml_load(fname)
             else:
-                raise Exception("No config file found for " + fname)
-
-            config_files.update({
-                ftype: {
-                    "toml": toml_dict,
-                    "blocks": blocks[ftype]["blocks"]
-                }
-            })
+                raise FileNotFoundError("No config file found for " + fname)
+            config_files.update(
+                {ftype: {"toml": toml_dict, "blocks": blocks[ftype]["blocks"]}}
+            )
         return config_files
 
     @staticmethod
-    def merge_config_files_dict(config_files, configuration=None, testbed_configuration=None,
-                                user_settings=None):
+    def merge_config_files_dict(
+        config_files,
+        configuration=None,
+        testbed_configuration=None,
+        user_settings=None,
+        loglevel="INFO",
+    ):
         """Merge config files dicts.
 
         Args:
@@ -348,23 +401,28 @@ class ExpFromFiles(Exp):
             _type_: _description_
 
         """
-        logging.debug("Merge config files")
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug("Merge config files")
         for this_config_file in config_files:
-            logging.debug("This config file %s", this_config_file)
+            logger.debug("This config file %s", this_config_file)
             hm_exp = config_files[this_config_file]["toml"].copy()
 
             block_config = tomlkit.document()
             if configuration is not None:
                 fff = this_config_file.split("/")[-1]
                 if fff == "config_exp.toml":
-                    block_config.add(tomlkit.comment("\n# SURFEX experiment configuration file\n#"))
+                    block_config.add(
+                        tomlkit.comment("\n# SURFEX experiment configuration file\n#")
+                    )
 
             for block in config_files[this_config_file]["blocks"]:
                 block_config.update({block: hm_exp[block]})
                 if configuration is not None:
                     if block in configuration:
-                        merged_config = ExpFromFiles.merge_dict(hm_exp[block], configuration[block])
-                        logging.info("Merged: %s %s", block, str(configuration[block]))
+                        merged_config = ExpFromFiles.merge_dict(
+                            hm_exp[block], configuration[block]
+                        )
+                        logger.info("Merged: %s %s", block, str(configuration[block]))
                     else:
                         merged_config = hm_exp[block]
 
@@ -372,28 +430,37 @@ class ExpFromFiles(Exp):
 
                 if testbed_configuration is not None:
                     if block in testbed_configuration:
-                        hm_testbed = ExpFromFiles.merge_dict(block_config[block],
-                                                              testbed_configuration[block])
+                        hm_testbed = ExpFromFiles.merge_dict(
+                            block_config[block], testbed_configuration[block]
+                        )
                     else:
                         hm_testbed = block_config[block]
                     block_config.update({block: hm_testbed})
 
                 if user_settings is not None:
                     if not isinstance(user_settings, dict):
-                        raise Exception("User settings should be a dict here!")
+                        raise ValueError("User settings should be a dict here!")
                     if block in user_settings:
-                        logging.info("Merge user settings in block %s", block)
-                        user = ExpFromFiles.merge_dict(block_config[block], user_settings[block])
+                        logger.info("Merge user settings in block %s", block)
+                        user = ExpFromFiles.merge_dict(
+                            block_config[block], user_settings[block]
+                        )
                         block_config.update({block: user})
 
-            logging.debug("block config %s", block_config)
+            logger.debug("block config %s", block_config)
             config_files.update({this_config_file: {"toml": block_config}})
         return config_files
 
     @staticmethod
-    def merge_to_toml_config_files(config_files, wdir, configuration=None, testbed_configuration=None,
-                                   user_settings=None,
-                                   write_config_files=True):
+    def merge_to_toml_config_files(
+        config_files,
+        wdir,
+        configuration=None,
+        testbed_configuration=None,
+        user_settings=None,
+        loglevel="INFO",
+        write_config_files=True,
+    ):
         """Merge to toml config files.
 
         Args:
@@ -406,9 +473,13 @@ class ExpFromFiles(Exp):
 
         """
         config_files = config_files.copy()
-        config_files = ExpFromFiles.merge_config_files_dict(config_files, configuration=configuration,
-                                                            testbed_configuration=testbed_configuration,
-                                                            user_settings=user_settings)
+        config_files = ExpFromFiles.merge_config_files_dict(
+            config_files,
+            configuration=configuration,
+            testbed_configuration=testbed_configuration,
+            user_settings=user_settings,
+            loglevel=loglevel,
+        )
 
         for fname in config_files:
             this_config_file = f"config/{fname}"
@@ -427,10 +498,19 @@ class ExpFromFiles(Exp):
                 f_out = open(f_out, mode="w", encoding="utf-8")
                 f_out.write(tomlkit.dumps(block_config))
                 f_out.close()
+        return config_files
 
     @staticmethod
-    def setup_files(wdir, exp_name, host, pysurfex, pysurfex_experiment,
-                    offline_source=None, namelist_dir=None, talk=True):
+    def setup_files(
+        wdir,
+        exp_name,
+        host,
+        pysurfex,
+        pysurfex_experiment,
+        offline_source=None,
+        namelist_dir=None,
+        loglevel="INFO",
+    ):
         """Set up the files for an experiment.
 
         Args:
@@ -446,178 +526,234 @@ class ExpFromFiles(Exp):
             Exception: _description_
 
         """
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
         exp_dependencies = {}
-        if talk:
-            logging.info("Setting up for host %s", host)
+        logger.info("Setting up for host %s", host)
 
         # Create needed system files
         if host is None:
-            logging.warning("No host specified")
+            logger.warning("No host specified")
         else:
             system_files = {}
-            system_files.update({
-                "env_system": "config/system/" + host + ".toml",
-                "env": "config/env/" + host + ".py",
-                "env_submit": "config/submit/" + host + ".json",
-                "env_server": "config/server/" + host + ".json",
-                "input_paths": "config/input_paths/" + host + ".json",
-            })
+            system_files.update(
+                {
+                    "env_system": "config/system/" + host + ".toml",
+                    "env": "config/env/" + host + ".py",
+                    "env_submit": "config/submit/" + host + ".json",
+                    "env_server": "config/server/" + host + ".json",
+                    "input_paths": "config/input_paths/" + host + ".json",
+                }
+            )
 
             for key, fname in system_files.items():
-                lname = f"{wdir}/{fname}"
                 gname = f"{pysurfex_experiment}/{fname}"
-                if os.path.exists(lname):
-                    if talk:
-                        logging.info("Using local host specific file %s as %s", lname, key)
-                    exp_dependencies.update({key: fname})
-                elif os.path.exists(gname):
-                    if talk:
-                        logging.info("Using general host specific file %s as %s", gname, key)
-                    exp_dependencies.update({key: gname})
-                else:
-                    raise FileNotFoundError(f"No host file found for lname={lname} or gname={gname}")
- 
+                found = False
+                if wdir is not None:
+                    lname = f"{wdir}/{fname}"
+                    if os.path.exists(lname):
+                        logger.info("Using local host specific file %s as %s", lname, key)
+                        exp_dependencies.update({key: fname})
+                        found = True
+                if not found:
+                    if os.path.exists(gname):
+                        logger.info(
+                            "Using general host specific file %s as %s", gname, key
+                        )
+                        exp_dependencies.update({key: gname})
+                    else:
+                        raise FileNotFoundError(
+                            f"No host file found for lname={lname} or gname={gname}"
+                        )
+
         # Check existence of needed config files
-        lconfig = f"{wdir}/config/config.toml"
+        config = None
         gconfig = f"{pysurfex_experiment}/config/config.toml"
-        if os.path.exists(lconfig):
-            if talk:
-                logging.info("Local config definition %s", lconfig)
-            config = lconfig
-        elif os.path.exists(gconfig):
-            if talk:
-                logging.info("Global config definition %s", gconfig)
-            config = gconfig
-        else:
-            raise Exception
+        if wdir is not None:
+            lconfig = f"{wdir}/config/config.toml"
+            if os.path.exists(lconfig):
+                logger.info("Local config definition %s", lconfig)
+                config = lconfig
+        if config is None:
+            if os.path.exists(gconfig):
+                logger.info("Global config definition %s", gconfig)
+                config = gconfig
+            else:
+                raise FileNotFoundError
+
         c_files = ExpFromFiles.toml_load(config)["config_files"]
         blocks = ExpFromFiles.toml_load(config)
-        pysurfex_files = ["config_exp_surfex.toml", "first_guess.yml",
-                          "config.yml"]
+        pysurfex_files = ["config_exp_surfex.toml", "first_guess.yml", "config.yml"]
         c_files = c_files + ["config_exp_surfex.toml"]
-        if talk:
-            logging.info("Set up toml config files %s", str(c_files))
+        logger.info("Set up toml config files %s", str(c_files))
         cc_files = {}
         for c_f in c_files:
-            lname = f"{wdir}/config/{c_f}"
             gname = f"{pysurfex_experiment}/config/{c_f}"
             if c_f in pysurfex_files:
                 gname = f"{pysurfex}/surfex/cfg/{c_f}"
-            if os.path.exists(lname):
-                if talk:
-                    logging.info("Using local toml config file %s", lname)
-                cc_files.update({c_f: lname})
-            elif os.path.exists(gname):
-                if talk:
-                    logging.info("Using general toml config file %s", gname)
-                cc_files.update({c_f: gname})
-            else:
-                raise FileNotFoundError(f"No toml config file found for lname={lname} or gname={gname}")
+            found = False
+            if wdir is not None:
+                lname = f"{wdir}/config/{c_f}"
+                if os.path.exists(lname):
+                    logger.info("Using local toml config file %s", lname)
+                    cc_files.update({c_f: lname})
+                    found = True
+            if not found:
+                if os.path.exists(gname):
+                    logger.info("Using general toml config file %s", gname)
+                    cc_files.update({c_f: gname})
+                else:
+                    raise FileNotFoundError(
+                        f"No toml config file found for lname={lname} or gname={gname}"
+                    )
 
-        if talk:
-            logging.info("Set up other config files %s", str(c_files))
+        logger.info("Set up other config files %s", str(c_files))
         other_files = {}
         for c_f in ["first_guess.yml", "config.yml", "troika_config.yml"]:
-            lname = f"{wdir}/config/{c_f}"
             gname = f"{pysurfex_experiment}/config/{c_f}"
             if c_f in pysurfex_files:
                 gname = f"{pysurfex}/surfex/cfg/{c_f}"
-            if os.path.exists(lname):
-                if talk:
-                    logging.info("Using local extra file %s", lname)
-                other_files.update({c_f: lname})
-            elif os.path.exists(gname):
-                if talk:
-                    logging.info("Using general extra file %s", gname)
-                other_files.update({c_f: gname})
-            else:
-                raise FileNotFoundError(f"No extra file found for lname={lname} or gname={gname}")
+            found = False
+            if wdir is not None:
+                lname = f"{wdir}/config/{c_f}"
+                if os.path.exists(lname):
+                    logger.info("Using local extra file %s", lname)
+                    other_files.update({c_f: lname})
+                    found = True
+            if not found:
+                if os.path.exists(gname):
+                    logger.info("Using general extra file %s", gname)
+                    other_files.update({c_f: gname})
+                else:
+                    raise FileNotFoundError(
+                        f"No extra file found for lname={lname} or gname={gname}"
+                    )
 
-        exp_dependencies.update({"config": {
-            "config_files": cc_files,
-            "other_files": other_files,
-            "blocks": blocks
+        exp_dependencies.update(
+            {
+                "config": {
+                    "config_files": cc_files,
+                    "other_files": other_files,
+                    "blocks": blocks,
+                }
             }
-        })
+        )
 
         if namelist_dir is None:
             namelist_dir = f"{pysurfex_experiment}/nam"
-            if talk:
-                logging.info("Using default namelist directory %s", namelist_dir)
+            logger.info("Using default namelist directory %s", namelist_dir)
 
         # exp_dependencies.update({"domains": domains})
-        exp_dependencies.update({
-            "exp_dir": wdir,
-            "exp_name": exp_name,
-            "pysurfex_experiment": pysurfex_experiment,
-            "pysurfex": pysurfex,
-            "offline_source": offline_source,
-            "namelist_dir": namelist_dir
-        })
+        exp_dependencies.update(
+            {
+                "exp_dir": wdir,
+                "exp_name": exp_name,
+                "pysurfex_experiment": pysurfex_experiment,
+                "pysurfex": pysurfex,
+                "offline_source": offline_source,
+                "namelist_dir": namelist_dir,
+            }
+        )
         return exp_dependencies
 
     @staticmethod
-    def write_exp_config(exp_dependencies, configuration=None, configuration_file=None):
+    def write_exp_config(
+        exp_dependencies,
+        configuration=None,
+        configuration_file=None,
+        write_config_files=True,
+        loglevel="INFO",
+    ):
         """Write the exp config to files.
 
         Args:
             exp_dependencies (dict): _description_
             configuration (_type_, optional): _description_. Defaults to None.
             configuration_file (_type_, optional): _description_. Defaults to None.
+            write_config_files
 
         """
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
         wdir = exp_dependencies["exp_dir"]
         pysurfex_experiment = exp_dependencies["pysurfex_experiment"]
         other_files = exp_dependencies["config"]["other_files"]
-        conf = None
+        # First priority is config
         if configuration is not None:
-            logging.info("Using configuration %s", configuration)
-            lconf = f"{wdir}/config/configurations/{configuration.lower()}.toml"
+            logger.info("Using configuration %s", configuration)
             gconf = f"{pysurfex_experiment}/config/configurations/{configuration.lower()}.toml"
-            if os.path.exists(lconf):
-                logging.info("Local configuration file %s", lconf)
-                conf = lconf
-            elif os.path.exists(gconf):
-                logging.info("General configuration file %s", gconf)
-                conf = gconf
-            else:
-                raise Exception
+            found = False
+            if wdir is not None:
+                lconf = f"{wdir}/config/configurations/{configuration.lower()}.toml"
+                if os.path.exists(lconf):
+                    logger.info("Using local configuration file %s", lconf)
+                    configuration = ExpFromFiles.toml_load(lconf)
+                    found = True
+            if not found:
+                if os.path.exists(gconf):
+                    logger.info("Using general configuration file %s", gconf)
+                    configuration = ExpFromFiles.toml_load(gconf)
+                else:
+                    raise FileNotFoundError
 
-        elif configuration_file is not None:
-            logging.info("Using configuration from file %s", configuration_file)
-            conf = configuration_file
-
-        if conf is not None:
-            if not os.path.exists(conf):
-                raise Exception("Can not find configuration " + configuration + " in: " + conf)
-            configuration = ExpFromFiles.toml_load(conf)
-        else:
-            configuration = None
+        # Second check for configuration file
+        if configuration is None:
+            if configuration_file is not None:
+                if os.path.exists(configuration_file):
+                    logger.info("Using configuration from file %s", configuration_file)
+                    configuration = ExpFromFiles.toml_load(configuration_file)
+                else:
+                    raise FileNotFoundError(configuration_file)
 
         # Load config files
-        config_files = ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
-                                                     exp_dependencies["config"]["blocks"])
+        config_files = ExpFromFiles.get_config_files(
+            exp_dependencies["config"]["config_files"],
+            exp_dependencies["config"]["blocks"],
+        )
         # Merge dicts and write to toml config files
-        ExpFromFiles.merge_to_toml_config_files(config_files, wdir, configuration=configuration,
-                                                write_config_files=True)
+        ExpFromFiles.merge_to_toml_config_files(
+            config_files,
+            wdir,
+            configuration=configuration,
+            write_config_files=write_config_files,
+            loglevel=loglevel,
+        )
 
-        for ename, extra_file in other_files.items():
-            fname = f"config/{ename}"
-            if not os.path.exists(fname):
-                logging.info("Copy %s to %s", extra_file, fname)
-                shutil.copy(extra_file, fname)
-            else:
-                logging.info("File %s exists", fname)
+        logger.debug("Configuration is: %s", configuration)
+        if write_config_files:
+            for ename, extra_file in other_files.items():
+                fname = f"config/{ename}"
+                if not os.path.exists(fname):
+                    logger.info("Copy %s to %s", extra_file, fname)
+                    shutil.copy(extra_file, fname)
+                else:
+                    logger.info("File %s exists", fname)
+        return config_files
 
     @staticmethod
     def dump_exp_dependencies(exp_dependencies, exp_dependencies_file):
-        json.dump(exp_dependencies, open(exp_dependencies_file, mode="w", encoding="utf-8"), indent=2)
+        """Dump an experimet dependency file
+
+        Args:
+            exp_dependencies (_type_): _description_
+            exp_dependencies_file (_type_): _description_
+        """
+        json.dump(
+            exp_dependencies,
+            open(exp_dependencies_file, mode="w", encoding="utf-8"),
+            indent=2,
+        )
 
 
-class ExpFromFilesDepFile(ExpFromFiles):
+class ExpFromFilesDep(ExpFromFiles):
     """Generate Exp object from existing files. Use config files from a setup."""
 
-    def __init__(self, exp_dependencies_file, stream=None):
+    def __init__(
+        self,
+        exp_dependencies,
+        stream=None,
+        config_settings=None,
+        loglevel="INFO",
+        progress=None,
+    ):
         """Construct an Exp object from files.
 
         Args:
@@ -627,12 +763,53 @@ class ExpFromFilesDepFile(ExpFromFiles):
             FileNotFoundError: If file is not found
 
         """
-        logging.debug("Construct ExpFromFiles")
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug("Construct ExpFromFilesDep")
+        ExpFromFiles.__init__(
+            self,
+            exp_dependencies,
+            stream=stream,
+            config_settings=config_settings,
+            loglevel=loglevel,
+            progress=progress,
+        )
+
+
+class ExpFromFilesDepFile(ExpFromFiles):
+    """Generate Exp object from existing files. Use config files from a setup."""
+
+    def __init__(
+        self,
+        exp_dependencies_file,
+        config_settings=None,
+        stream=None,
+        loglevel="INFO",
+        progress=None,
+    ):
+        """Construct an Exp object from files.
+
+        Args:
+            exp_dependencies_file (str): File with exp dependencies
+
+        Raises:
+            FileNotFoundError: If file is not found
+
+        """
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug("Construct ExpFromFilesDepFile")
         if os.path.exists(exp_dependencies_file):
-            with open(exp_dependencies_file, mode="r", encoding="utf-8")\
-                    as exp_dependencies_file:
+            with open(
+                exp_dependencies_file, mode="r", encoding="utf-8"
+            ) as exp_dependencies_file:
                 exp_dependencies = json.load(exp_dependencies_file)
-                ExpFromFiles.__init__(self, exp_dependencies, stream=stream)
+                ExpFromFiles.__init__(
+                    self,
+                    exp_dependencies,
+                    stream=stream,
+                    config_settings=config_settings,
+                    loglevel=loglevel,
+                    progress=progress,
+                )
         else:
             raise FileNotFoundError(
                 f"Experiment dependencies not found {exp_dependencies_file}"

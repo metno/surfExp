@@ -13,13 +13,12 @@ import surfex
 from surfex import BatchJob
 
 import experiment
-from experiment.progress import Progress
 from experiment.tasks.tasks import AbstractTask
 from experiment.tasks.discover_tasks import discover, get_task
-from experiment.scheduler.scheduler import EcflowServer
 from experiment.experiment import ExpFromFiles, Exp
 from experiment.datetime_utils import as_datetime
 from experiment.system import System
+from experiment.config_parser import ParsedConfig
 
 
 WORKING_DIR = Path.cwd()
@@ -27,8 +26,9 @@ WORKING_DIR = Path.cwd()
 
 def classes_to_be_tested():
     """Return the names of the task-related classes to be tested."""
-    encountered_classes = discover(experiment.tasks, AbstractTask,
-                                   attrname="__type_name__")
+    encountered_classes = discover(
+        experiment.tasks, AbstractTask, attrname="__type_name__"
+    )
     return encountered_classes.keys()
 
 
@@ -40,9 +40,9 @@ def get_config(tmp_path_factory):
     pysurfex = f"{str((Path(surfex.__file__).parent).parent)}"
     offline_source = "/tmp/source"
 
-    exp_dependencies = ExpFromFiles.setup_files(wdir, exp_name, None, pysurfex,
-                                                pysurfex_experiment,
-                                                offline_source=offline_source)
+    exp_dependencies = ExpFromFiles.setup_files(
+        wdir, exp_name, None, pysurfex, pysurfex_experiment, offline_source=offline_source
+    )
 
     scratch = f"{tmp_path_factory.getbasetemp().as_posix()}"
     env_system = {
@@ -56,7 +56,7 @@ def get_config(tmp_path_factory):
             "hm_cs": "gfortran",
             "parch": "",
             "mkdir": "mkdir -p",
-            "rsync": 'rsync -avh -e \"ssh -i ~/.ssh/id_rsa\"',
+            "rsync": 'rsync -avh -e "ssh -i ~/.ssh/id_rsa"',
             "surfex_config": "my_harmonie_config",
             "login_host": "localhost",
             "scheduler_pythonpath": "",
@@ -66,89 +66,87 @@ def get_config(tmp_path_factory):
                 "host_name": "",
                 "joboutdir": f"{scratch}/host1/job",
                 "login_host": "localhost",
-                "sync_data": True
-            }
+                "sync_data": True,
+            },
         }
     }
 
     system = System(env_system, exp_name)
     system_file_paths = {
         "soilgrid_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
-        "ecoclimap_bin_dir": f"{tmp_path_factory.getbasetemp().as_posix()}"
+        "ecoclimap_bin_dir": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "ecosg_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "pgd_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "scratch": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "static_data": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "climdata": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "prep_input_file": f"{tmp_path_factory.getbasetemp().as_posix()}"
+        + "/demo/ECMWF/archive/2023/02/18/18/fc20230218_18+006",
+        "gmted2010_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}/GMTED2010",
+        "namelists": "{WORKING_DIR}/deode/data/namelists",
     }
-    os.system(f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapI_covers_param.bin")
-    os.system(f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapII_af_covers_param.bin")
-    os.system(f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapII_eu_covers_param.bin")
-    
+    os.system(
+        f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapI_covers_param.bin"
+    )
+    os.system(
+        f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapII_af_covers_param.bin"
+    )
+    os.system(
+        f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapII_eu_covers_param.bin"
+    )
+
     env_submit = {
         "submit_types": ["background", "scalar"],
         "default_submit_type": "scalar",
         "background": {
             "HOST": "0",
-            "OMP_NUM_THREADS": "import os\nos.environ.update({\"OMP_NUM_THREADS\": \"1\"})",
-            "tasks": [
-                "InitRun",
-                "LogProgress",
-                "LogProgressPP"
-            ]
+            "OMP_NUM_THREADS": 'import os\nos.environ.update({"OMP_NUM_THREADS": "1"})',
+            "tasks": ["InitRun", "LogProgress", "LogProgressPP"],
         },
-        "scalar": {
-            "HOST": "1",
-            "Not_existing_task": {
-                "DR_HOOK": "print(\"Hello world\")"
+        "scalar": {"HOST": "1", "Not_existing_task": {"DR_HOOK": 'print("Hello world")'}},
+    }
+    progress = {
+        "basetime": "2023-01-01T03:00:00Z",
+        "start": "2023-01-01T00:00:00Z",
+        "end": "2023-01-01T06:00:00Z",
+        "basetime_pp": "2023-01-01T03:00:00Z",
+    }
+    # Configuration
+    config_files_dict = ExpFromFiles.get_config_files(
+        exp_dependencies["config"]["config_files"], exp_dependencies["config"]["blocks"]
+    )
+    merged_config = ExpFromFiles.merge_dict_from_config_dicts(config_files_dict)
+
+    # Create Exp/Configuration object
+    stream = None
+    env_server = {"ECF_HOST": "localhost"}
+    sfx_exp = Exp(
+        exp_dependencies,
+        merged_config,
+        system,
+        system_file_paths,
+        env_server,
+        env_submit,
+        progress,
+        stream=stream,
+    )
+
+    config_file = f"{tmp_path_factory.getbasetemp().as_posix()}/config.json"
+    sfx_exp.dump_json(config_file)
+    config = ParsedConfig.from_file(config_file)
+    # Template variables
+    update = {
+        "task": {
+            "args": {
+                "check_existence": False,
+                "pert": 1,
+                "ivar": 1,
+                "print_namelist": True,
             }
         }
     }
-    progress = Progress(dtg=as_datetime("2023-01-01 T03:00:00Z"),
-                        dtgbeg=as_datetime("2023-01-01 T00:00:00Z"),
-                        dtgend=as_datetime("2023-01-01 T06:00:00Z"),
-                        dtgpp=as_datetime("2023-01-01 T03:00:00Z"))
-
-    # Configuration
-    config_files_dict = ExpFromFiles.get_config_files(exp_dependencies["config"]["config_files"],
-                                                      exp_dependencies["config"]["blocks"])
-    merged_config = ExpFromFiles.merge_dict_from_config_dicts(config_files_dict)
-
-    merged_config.update({
-        "system": {
-            "wrk": f"{tmp_path_factory.getbasetemp().as_posix()}",
-            "bindir": f"{tmp_path_factory.getbasetemp().as_posix()}/bin",
-            "climdir": f"{tmp_path_factory.getbasetemp().as_posix()}/climate/@DOMAIN@",
-        },
-        "platform": {
-            "deode_home": "{WORKING_DIR}",
-            "ecosg_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
-            "pgd_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
-            "scratch": f"{tmp_path_factory.getbasetemp().as_posix()}",
-            "static_data": f"{tmp_path_factory.getbasetemp().as_posix()}",
-            "climdata": f"{tmp_path_factory.getbasetemp().as_posix()}",
-            "prep_input_file": f"{tmp_path_factory.getbasetemp().as_posix()}" +
-                               "/demo/ECMWF/archive/2023/02/18/18/fc20230218_18+006",
-            "soilgrid_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
-            "gmted2010_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}/GMTED2010",
-            "namelists": "{WORKING_DIR}/deode/data/namelists"
-        }
-    })
-    # Create Exp/Configuration object
-    stream = None
-    with patch('experiment.scheduler.scheduler.ecflow') as mock_ecflow:
-        server = EcflowServer({"ECF_HOST": "localhost"})
-        sfx_exp = Exp(exp_dependencies, merged_config, system, system_file_paths,
-                      server, env_submit, progress=progress, stream=stream)
-
-        # Template variables
-        update = {
-            "task": {
-                "args": {
-                    "check_existence": False,
-                    "pert": 1,
-                    "ivar": 1,
-                    "print_namelist": True
-                }
-            }
-        }
-        config = sfx_exp.config.copy(update=update)
-        return config
+    config = config.copy(update=update)
+    return config
 
 
 @pytest.fixture(params=classes_to_be_tested())
@@ -191,13 +189,8 @@ def _mockers_for_task_run_tests(session_mocker, tmp_path_factory):
 
     def new_read_first_guess_netcdf_file(*args, **kwargs):
         geo_dict = {
-            "nam_pgd_grid": {
-                "cgrid": "CONF PROJ"
-            },
-            "nam_conf_proj": {
-                "xlat0": 59.5,
-                "xlon0": 9
-            },
+            "nam_pgd_grid": {"cgrid": "CONF PROJ"},
+            "nam_conf_proj": {"xlat0": 59.5, "xlon0": 9},
             "nam_conf_proj_grid": {
                 "ilone": 0,
                 "ilate": 0,
@@ -206,8 +199,8 @@ def _mockers_for_task_run_tests(session_mocker, tmp_path_factory):
                 "nimax": 50,
                 "njmax": 60,
                 "xdx": 2500.0,
-                "xdy": 2500.0
-            }
+                "xdy": 2500.0,
+            },
         }
         geo = surfex.ConfProj(geo_dict)
         validtime = as_datetime("2023-01-01 T03:00:00Z")
@@ -237,18 +230,12 @@ def _mockers_for_task_run_tests(session_mocker, tmp_path_factory):
             )
 
     # Do the actual mocking
-    session_mocker.patch(
-        "surfex.BatchJob.__init__", new=new_batchjob_init_method
-    )
+    session_mocker.patch("surfex.BatchJob.__init__", new=new_batchjob_init_method)
     session_mocker.patch(
         "surfex.write_obsmon_sqlite_file", new=new_write_obsmon_sqlite_file
     )
-    session_mocker.patch(
-        "surfex.read.Converter", new=new_converter
-    )
-    session_mocker.patch(
-        "surfex.oi2soda", new=new_oi2soda
-    )
+    session_mocker.patch("surfex.read.Converter", new=new_converter)
+    session_mocker.patch("surfex.oi2soda", new=new_oi2soda)
     session_mocker.patch(
         "surfex.read.ConvertedInput.read_time_step", new=new_converted_input
     )
@@ -258,21 +245,11 @@ def _mockers_for_task_run_tests(session_mocker, tmp_path_factory):
     session_mocker.patch(
         "surfex.write_analysis_netcdf_file", new=new_write_analysis_netcdf_file
     )
-    session_mocker.patch(
-        "surfex.horizontal_oi", new=new_horizontal_oi
-    )
-    session_mocker.patch(
-        "surfex.PgdInputData", new=new_get_system_path
-    )
-    session_mocker.patch(
-        "surfex.run.PerturbedOffline", new=new_surfex_binary
-    )
-    session_mocker.patch(
-        "surfex.run.SURFEXBinary", new=new_surfex_binary
-    )
-    session_mocker.patch(
-        "surfex.dataset_from_file", new=new_dataset_from_file
-    )
+    session_mocker.patch("surfex.horizontal_oi", new=new_horizontal_oi)
+    session_mocker.patch("surfex.PgdInputData", new=new_get_system_path)
+    session_mocker.patch("surfex.run.PerturbedOffline", new=new_surfex_binary)
+    session_mocker.patch("surfex.run.SURFEXBinary", new=new_surfex_binary)
+    session_mocker.patch("surfex.dataset_from_file", new=new_dataset_from_file)
     session_mocker.patch("surfex.BatchJob.run", new=new_batchjob_run_method)
 
     # Create files needed by gmtedsoil tasks

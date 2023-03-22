@@ -57,11 +57,14 @@ def get_logger(name, loglevel="INFO"):
     """Get logger with name "name" and loglevel "loglevel"."""
     logger = logging.getLogger(name)
     logger_handler = logging.StreamHandler()
+    logger_handler.setLevel(logging.getLevelName(loglevel.upper()))
     logger_handler.setFormatter(CustomFormatter())
     logging.basicConfig(
         level=logging.getLevelName(loglevel.upper()),
         handlers=[logger_handler],
     )
+    logger.setLevel(logging.getLevelName(loglevel.upper()))
+    logger.debug("returning logger with level %s %s", loglevel.upper(), logger.level)
     return logger
 
 
@@ -87,5 +90,5 @@ def get_logger_from_config(config):
         handlers=[logger_handler],
     )
     logger.setLevel(logging.getLevelName(loglevel.upper()))
-    logger.info("returning logger with level %s %s", loglevel.upper(), logger.level)
+    logger.debug("returning logger with level %s %s", loglevel.upper(), logger.level)
     return logger

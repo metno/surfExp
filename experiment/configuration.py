@@ -1,19 +1,18 @@
 """Experiment configuration."""
 
-from .datetime_utils import as_timedelta
+from .datetime_utils import as_timedelta, ProgressFromConfig
 from .logs import get_logger_from_config
-from .progress import ProgressFromConfig
+
 
 NO_DEFAULT_PROVIDED = object()
 
 
-class Configuration():
+class Configuration:
     """Configuration object for testing purposes."""
 
     def __init__(self, config):
         self.config = config
         self.logger = get_logger_from_config(config)
-
 
     def get_setting(self, setting, sep="#", realization=None):
         """Get setting
@@ -66,8 +65,9 @@ class Configuration():
         Returns:
             _type_: _description_
         """
-        cycle_length = as_timedelta(self.get_setting("general.times.cycle_length",
-                                                   realization=realization))
+        cycle_length = as_timedelta(
+            self.get_setting("general.times.cycle_length", realization=realization)
+        )
         cycle_list = []
         day = as_timedelta("PT24H")
 
@@ -87,7 +87,7 @@ class Configuration():
             _type_: _description_
         """
         raise NotImplementedError
-  
+
     def get_lead_time_list(self, realization=None):
         """Get a list of forecast lead times.
 
@@ -107,8 +107,9 @@ class Configuration():
             as_timedelta: fgint
 
         """
-        return as_timedelta(self.get_setting("general.times.cycle_length",
-                                             realization=realization))
+        return as_timedelta(
+            self.get_setting("general.times.cycle_length", realization=realization)
+        )
 
     def get_fcint(self, realization=None):
         """Get the fcint.
@@ -117,8 +118,9 @@ class Configuration():
             as_timedelta:: fcint in seconds
 
         """
-        return as_timedelta(self.get_setting("general.times.cycle_length",
-                                             realization=realization))
+        return as_timedelta(
+            self.get_setting("general.times.cycle_length", realization=realization)
+        )
 
     def setting_is(self, setting, value, realization=None):
         """Check if setting is value.
@@ -211,7 +213,6 @@ class Configuration():
         return found
 
     def setting_is_not_one_of(self, setting, values, realization=None):
-
         """Check if setting is not one of the provided list of values.
 
         Args:
@@ -240,7 +241,9 @@ class Configuration():
         # Some relevant assimilation settings
         obs_types = self.get_setting("SURFEX.ASSIM.OBS.COBS_M", realization=realization)
         nnco_r = self.get_setting("SURFEX.ASSIM.OBS.NNCO", realization=realization)
-        snow_ass = self.get_setting("SURFEX.ASSIM.ISBA.UPDATE_SNOW_CYCLES", realization=realization)
+        snow_ass = self.get_setting(
+            "SURFEX.ASSIM.ISBA.UPDATE_SNOW_CYCLES", realization=realization
+        )
         snow_ass_done = False
         progress = ProgressFromConfig(self.config)
         if dtg is None:
@@ -258,7 +261,10 @@ class Configuration():
                 ival = 1
                 if obs_types[ivar] == "SWE":
                     if not snow_ass_done:
-                        self.logger.info("Disabling snow assimilation since cycle is not in %s", snow_ass)
+                        self.logger.info(
+                            "Disabling snow assimilation since cycle is not in %s",
+                            snow_ass,
+                        )
                         ival = 0
             self.logger.debug("ivar=%s ival=%s", ivar, ival)
             nnco.append(ival)

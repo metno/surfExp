@@ -1,18 +1,18 @@
 """Discover tasks."""
 import os
 import sys
-import logging
 import importlib
 import inspect
 import pkgutil
 
 
+from .. import PACKAGE_NAME
 from .. import tasks
 from ..logs import get_logger
 from .tasks import AbstractTask
 
 
-def discover_modules(package, what="plugin"):
+def discover_modules(package, what="plugin", loglevel="INFO"):
     """Discover plugin modules.
 
     Args:
@@ -27,14 +27,15 @@ def discover_modules(package, what="plugin"):
     path = package.__path__
     prefix = package.__name__ + "."
 
-    logging.debug("%s search path: %r", what.capitalize(), path)
+    logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+    logger.debug("%s search path: %r", what.capitalize(), path)
     for _finder, mname, _ispkg in pkgutil.iter_modules(path):
         fullname = prefix + mname
-        logging.debug("Loading module %r", fullname)
+        logger.debug("Loading module %r", fullname)
         try:
             mod = importlib.import_module(fullname)
-        except Exception as exc:
-            logging.warning("Could not load %r %s", fullname, repr(exc))
+        except RuntimeError as exc:
+            logger.warning("Could not load %r %s", fullname, repr(exc))
             continue
         yield fullname, mod
 
@@ -62,7 +63,7 @@ def _get_name(cname, cls, suffix, attrname="__plugin_name__"):
     return name
 
 
-def get_task(name, config):
+def get_task(name, config, loglevel="INFO"):
     """Create a `AbstractTask` object from configuration.
 
     Args:
@@ -73,27 +74,34 @@ def get_task(name, config):
         _type_: _description_
 
     """
+    logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
     task_name = name.lower()
     plugin_namespace = None
-    plugin_namespace_location = f"{config.get_value('system.exp_dir')}/experiment_plugin_tasks"
+    plugin_namespace_location = (
+        f"{config.get_value('system.exp_dir')}/experiment_plugin_tasks"
+    )
     if os.path.exists(plugin_namespace_location):
-        logging.info("Using local plugin directory %s", plugin_namespace_location)
+        logger.info("Using local plugin directory %s", plugin_namespace_location)
         sys.path.insert(0, config.exp_dir)
         import experiment_plugin_tasks as plugin_namespace  # noqa
 
     known_types = discover(tasks, AbstractTask, attrname="__type_name__")
-    logging.debug("Available task types: %s", ", ".join(known_types.keys()))
+    logger.debug("Available task types: %s", ", ".join(known_types.keys()))
     plugin_known_types = {}
     if plugin_namespace is not None:
-        plugin_known_types = discover(plugin_namespace, AbstractTask, attrname="__type_name__")
-        logging.debug("Available plugin task types: %s", ", ".join(plugin_known_types.keys()))
+        plugin_known_types = discover(
+            plugin_namespace, AbstractTask, attrname="__type_name__"
+        )
+        logger.debug(
+            "Available plugin task types: %s", ", ".join(plugin_known_types.keys())
+        )
 
     if task_name in plugin_known_types:
         cls = plugin_known_types[task_name]
     else:
         cls = known_types[task_name]
     task = cls(config)
-    logging.debug("Created %r for %s", task, name)
+    logger.debug("Created %r for %s", task, name)
     return task
 
 
@@ -126,12 +134,12 @@ def discover(package, base, attrname="__plugin_name__"):
         for cname, cls in inspect.getmembers(mod, pred):
             tname = _get_name(cname, cls, what.lower(), attrname=attrname)
             if cls.__module__ != fullname:
-                logging.debug(
+                logger.debug(
                     "Skipping %s %r imported by %r", what.lower(), tname, fullname
                 )
                 continue
             if tname in discovered:
-                logging.warning(
+                logger.warning(
                     "%s type %r is defined more than once", what.capitalize(), tname
                 )
                 continue

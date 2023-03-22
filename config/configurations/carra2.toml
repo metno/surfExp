@@ -1,0 +1,45 @@
+
+[initial_conditions.fg4oi]
+inputfile = "@sfx_exp_data@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+fileformat = "surfex"
+
+
+[SURFEX.IO]
+CTIMESERIES_FILETYPE = "NC"         # Fileformat for timseries. Inline runs use FA
+LSELECT = true                      # Only write selected diagnostics
+XTSTEP_OUTPUT = 10800.0             # Output interval from the binary OFFLINE
+LSPLIT_PATCH = false                # Split patches into separate variables in output files
+
+ 
+[SURFEX.COVER]                      # Land cover information
+YCOVER = "ecosg_final_map.dir"      # Version of ECOCLIMAP for surfex (1,2,SG)
+SG = true                           # ECOCLIMAP second generation
+
+[SURFEX.ISBA]
+SCHEME = "DIF"                      # Type of ISBA scheme in SURFEX. Options: "3-L"|"2-L"|"DIF"
+MEB = true                          # Enable Multi Energy Budget (MEB) model
+SNOW = "3-L"                        # Type of snow scheme in SURFEX. Options: "D95" and "3-L"
+YSAND = "SAND_SOILGRID.dir"         # Soil texture input data: "sand_fao.dir"|"SAND_HWSD_MOY_V2.dir"|"sand_SOILGRID.dir"
+YCLAY = "CLAY_SOILGRID.dir"         # Soil texture input data: "clay_fao.dir"|"CLAY_HWSD_MOY_V2.dir"|"clay_SOILGRID.dir"
+
+[SURFEX.ASSIM.SCHEMES]
+# SEA = "INPUT" not implemented offline yet
+SEA = "NONE"                         # Assimilation method for sea tile: "INPUT"|"NONE"
+INLAND_WATER = "INPUT"               # Assimilation method for water tile: "INPUT"|"NONE"
+ISBA = "EKF"                         # Assimilation method for ISBA soil: "NONE"|"OI"|"EKF"
+TEB = "ROADT"                        # Assimilation method for TEB tile: "NONE"|"ROADT"
+
+[SURFEX.ASSIM.ISBA.EKF]
+NNCV = [0,1,0,1]                             # Active EKF control variables
+XSIGMA_M = [2.0, 2.0, 0.1 , 0.15]            # Background error
+CVAR_M = ["TG1", "TG2", "WG1" , "WG2"]       # Control variables
+XTPRT_M = [0.0001, 0.0001, 0.00001, 0.00001] # Perturbation magnitude
+LLINCHECK = false
+
+[SURFEX.ASSIM.ISBA]
+UPDATE_SNOW_CYCLES = ["06"]          # Cycles to update snow depths/SWE in assimilation.
+ 
+[SURFEX.ASSIM.OBS]
+COBS_M = ["T2M", "HU2M", "WG2 ", "LAI", "SWE"]
+NNCO = [1, 1, 0, 0, 1]
+XERROBS_M = [1.0, 0.1, 0.1, 0.1, 20.0]
