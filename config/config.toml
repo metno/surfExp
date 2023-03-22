@@ -2,7 +2,7 @@ config_files = ["config_exp.toml", "config_exp_observations.toml", "config_exp_s
                 "config_exp_eps.toml"]
 
 ["config_exp.toml"]
-blocks = ["general", "compile", "domain", "initial_conditions", "forecast", "system", "forcing"]
+blocks = ["general", "compile", "domain", "initial_conditions", "forecast", "forcing"]
 
 ["config_exp_observations.toml"]
 blocks = ["observations"]

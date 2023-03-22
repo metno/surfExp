@@ -79,7 +79,7 @@ jobs:
       #----------------------------------------------
       - name: Run tests
         run: |
-          poetry run pytest -n auto
+          poetry run pytest
 
       #- name: Upload test coverage report to Codecov
       #  uses: codecov/codecov-action@v3
