@@ -24,7 +24,10 @@ pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true}
 troika = {git = "https://git.ecmwf.int/scm/ecsdk/troika.git", tag="0.1.8"}
 fastjsonschema = "^2.16.3"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+
+
+[tool.poetry.group.test.dependencies]
 black = "^23.1.0"
 pytest-cov = "^4.0.0"
 pytest-mock = "^3.10.0"
@@ -44,5 +47,5 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
     line-length = 90
 
-[tool.pylint."FORMAT"]
+[tool.pylint.format]
 max-line-length = 90
