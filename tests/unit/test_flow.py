@@ -8,7 +8,7 @@ import surfex
 from experiment.config_parser import ParsedConfig
 from experiment.datetime_utils import as_datetime
 from experiment.experiment import ExpFromFiles
-from experiment.scheduler.scheduler import EcflowServer, EcflowTask, ecflow
+from experiment.scheduler.scheduler import EcflowServer, EcflowTask
 from experiment.scheduler.submission import TaskSettings
 from experiment.scheduler.suites import EcflowSuite, EcflowSuiteFamily, EcflowSuiteTask
 from experiment.suites import SurfexSuite
@@ -50,7 +50,8 @@ def get_exp_from_files(tmp_path_factory):
 
 @pytest.fixture(scope="module")
 def _mockers_for_ecflow(session_mocker):
-    session_mocker.patch("experiment.scheduler.scheduler.ecflow")
+    session_mocker.patch("experiment.scheduler.scheduler.ecflow.Client")
+    session_mocker.patch("experiment.scheduler.scheduler.ecflow.Defs")
     session_mocker.patch("experiment.scheduler.submission.TaskSettings.parse_job")
 
 
