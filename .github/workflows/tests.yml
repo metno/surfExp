@@ -10,6 +10,10 @@ on:
     branches:
       - '**' # Every branch
 
+env:
+  USER: "github_runner"
+  HOME: "/tmp"
+
 jobs:
   tests:
     if: github.repository_owner == 'metno'
