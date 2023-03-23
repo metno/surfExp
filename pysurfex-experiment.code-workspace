@@ -2,15 +2,10 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../../.cache/pypoetry/virtualenvs/pysurfex-experiment-PKPloB2P-py3.8/src/pysurfex-scheduler"
-		},
-		{
-			"path": "../../projects/Deode-Prototype"
 		}
 	],
 	"settings": {
-		"python.linting.pycodestyleArgs": ["--max-line-length", "120"]
+		"python.linting.pycodestyleArgs": ["--max-line-length", "90"],
+		"python.linting.flake8Args": ["--max-line-length", "90"] 
 	}
 }

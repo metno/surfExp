@@ -1,8 +1,8 @@
 """Compilation."""
 import os
 import shutil
-import surfex
 
+import surfex
 
 from ..tasks.tasks import AbstractTask
 
@@ -18,8 +18,7 @@ class SyncSourceCode(AbstractTask):
         """Construct SyncSourceCode task.
 
         Args:
-            task (_type_): _description_
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
 
         """
         AbstractTask.__init__(self, config)
@@ -79,8 +78,7 @@ class ConfigureOfflineBinaries(AbstractTask):
         """Construct ConfigureOfflineBinaries task.
 
         Args:
-            task (_type_): _description_
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
 
         """
         AbstractTask.__init__(self, config)
@@ -102,7 +100,7 @@ class ConfigureOfflineBinaries(AbstractTask):
         cmd = ". " + conf_file + '; echo "$XYZ" > ' + xyz_file
         self.logger.info(cmd)
         try:
-            os.system(cmd)
+            os.system(cmd)  # noqa
         except Exception as ex:
             raise Exception("Can not write XYZ ") from ex
 
@@ -118,15 +116,13 @@ class MakeOfflineBinaries(AbstractTask):
         """Construct MakeOfflineBinaries task.
 
         Args:
-            task (_type_): _description_
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
 
         """
         AbstractTask.__init__(self, config)
 
     def execute(self):
         """Execute."""
-
         rte = {**os.environ}
         wrapper = ""
         sfx_lib = f"{self.platform.get_system_value('sfx_exp_lib')}"

@@ -1,7 +1,7 @@
 """Ecflow suites."""
+import logging
 import os
 import sys
-import logging
 
 try:
     import ecflow  # noqa reportMissingImports
@@ -33,10 +33,12 @@ class EcflowNode:
             parent (EcflowNode): Parent node
             ecf_files (str): Location of ecf files
             variables (dict, optional): Variables to map. Defaults to None
-            triggers (): Triggers. Defaults to None
+            triggers (EcflowSuiteTriggers): Triggers. Defaults to None
             def_status (str, optional): Default status. Defaults to False.
+
         Raises:
             NotImplementedError: Node type not implemented
+            TypeError: If triggers is not EcflowSuiteTriggers
 
         """
         self.name = name
@@ -79,26 +81,26 @@ class EcflowNode:
                 else:
                     logging.warning("WARNING: Empty trigger")
             else:
-                raise Exception("Triggers must be a Triggers object")
+                raise TypeError("Triggers must be a Triggers object")
         self.triggers = triggers
 
         if def_status is not None:
             if isinstance(def_status, str):
-                self.ecf_node.add_defstatus(ecflow.Defstatus(def_status))
-            elif isinstance(def_status, ecflow.Defstatus):
+                self.ecf_node.add_defstatus(ecflow.Defstatus(def_status))  # noqa E1101
+            elif isinstance(def_status, ecflow.Defstatus):  # noqa E1101
                 self.ecf_node.add_defstatus(def_status)
             else:
-                raise Exception("Unknown defstatus")
+                raise NotImplementedError("Unknown defstatus")
 
     def add_part_trigger(self, triggers, mode=True):
         """Add a part trigger.
 
         Args:
-            triggers (_type_): _description_
-            mode (bool, optional): _description_. Defaults to True.
+            triggers (EcflowSuiteTriggers): Triggers
+            mode (bool, optional): Trigger mode. Defaults to True.
 
         Raises:
-            Exception: _description_
+            TypeError: _description_
 
         """
         if isinstance(triggers, EcflowSuiteTriggers):
@@ -107,7 +109,7 @@ class EcflowNode:
             else:
                 logging.warning("WARNING: Empty trigger")
         else:
-            raise Exception("Triggers must be a Triggers object")
+            raise TypeError("Triggers must be a Triggers object")
 
 
 class EcflowNodeContainer(EcflowNode):
@@ -135,7 +137,7 @@ class EcflowNodeContainer(EcflowNode):
             parent (EcflowNode): Parent to this node.
             ecf_files (str): Location of ecf files
             variables (dict, optional): Variables to map. Defaults to None
-            triggers (): Triggers. Defaults to None
+            triggers (EcflowSuiteTriggers): Triggers. Defaults to None
             def_status (str, optional): Default status. Defaults to False.
         """
         EcflowNode.__init__(
@@ -158,15 +160,7 @@ class EcflowSuite(EcflowNodeContainer):
         (EcflowNodeContainer): A child of the EcflowNodeContainer class.
     """
 
-    def __init__(
-        self,
-        name,
-        ecf_files,
-        variables=None,
-        def_status=None,
-        triggers=None,
-        dry_run=False,
-    ):
+    def __init__(self, name, ecf_files, variables=None, def_status=None):
         """Construct the Ecflow suite.
 
         Args:
@@ -174,16 +168,10 @@ class EcflowSuite(EcflowNodeContainer):
             ecf_files (str): Location of ecf files
             variables (dict, optional): Variables to map. Defaults to None
             def_status (str, optional): Default status. Defaults to False.
-            dry_run (bool, optional): Dry run not using ecflow. Defaults to False.
-            triggers (): Triggers. Defaults to None
             def_status (str, optional): Default status. Defaults to False.
 
         """
-        if dry_run:
-            self.defs = None
-        else:
-            self.defs = ecflow.Defs({})
-
+        self.defs = ecflow.Defs({})
         EcflowNodeContainer.__init__(
             self,
             name,
@@ -208,17 +196,14 @@ class EcflowSuite(EcflowNodeContainer):
 class EcflowSuiteTriggers:
     """Triggers to an ecflow suite."""
 
-    def __init__(self, triggers, **kwargs):
+    def __init__(self, triggers, mode="AND"):
         """Construct EcflowSuiteTriggers.
 
         Args:
             triggers (list): List of EcflowSuiteTrigger objects.
+            mode (str, optional): Trigger mode. Defaults to "AND"
 
         """
-        mode = kwargs.get("mode")
-        if mode is None:
-            mode = "AND"
-
         trigger_string = self.create_string(triggers, mode)
         self.trigger_string = trigger_string
 
@@ -228,11 +213,11 @@ class EcflowSuiteTriggers:
 
         Args:
             triggers (list): List of trigger objects
-            mode     (str): Concatenation type.
+            mode (str): Concatenation type.
 
-        Raises:
-            Exception: _description_
-            Exception: _description_
+         Raises:
+            RuntimeError: Empty trigger list
+            TypeError: If not a triggger object
 
         Returns:
             str: The trigger string based on trigger objects.
@@ -242,7 +227,7 @@ class EcflowSuiteTriggers:
             triggers = [triggers]
 
         if len(triggers) == 0:
-            raise Exception
+            raise RuntimeError("No triggers were provided")
 
         trigger_string = "("
         first = True
@@ -263,7 +248,7 @@ class EcflowSuiteTriggers:
                             + trigger.mode
                         )
                     else:
-                        raise Exception("Trigger must be a Trigger object")
+                        raise TypeError("Trigger must be a Trigger object")
                 first = False
         trigger_string = trigger_string + ")"
         # If no triggers were found/set
@@ -292,8 +277,8 @@ class EcflowSuiteTrigger:
         """Create a EcFlow trigger object.
 
         Args:
-            node (scheduler.EcflowNode): The node to trigger on
-            mode (str):
+            node (EcflowNode): The node to trigger on
+            mode (str, optional): Trigger mode. Defaults to "complete"
 
         """
         self.node = node
@@ -317,7 +302,7 @@ class EcflowSuiteFamily(EcflowNodeContainer):
             parent (EcflowNodeContainer): Parent node.
             ecf_files (str): Location of ecf files
             variables (dict, optional): Variables to map. Defaults to None
-            triggers (): Triggers. Defaults to None
+            triggers (EcflowSuiteTriggers): Triggers. Defaults to None
             def_status (str, optional): Default status. Defaults to False.
 
         """
@@ -362,20 +347,18 @@ class EcflowSuiteTask(EcflowNode):
         Args:
             name (str): Name of task
             parent (EcflowNode): Parent node.
+            config (ParsedConfig): Parsed config
             ecf_files (str): Path to ecflow containers
-            task_settings (TaskSettings): Submission configuration
-            config (deode.ParsedConfig): Configuration file
-            task_settings (deode.TaskSettings): Task settings
+            task_settings (TaskSettings): Task settings
             input_template(str, optional): Input template
             parse (bool, optional): To parse template file or not
             variables (dict, optional): Variables to map. Defaults to None
             ecf_micro (str, optional): ECF_MICRO. Defaults to %
-            triggers (): Triggers. Defaults to None
+            triggers (EcflowSuiteTriggers): Triggers. Defaults to None
             def_status (str, optional): Default status. Defaults to False.
 
         Raises:
-            Exception: Safety check
-            FileNotFoundError: If the task container is not found.
+            FileNotFoundError: Template or contianer is missing
 
         """
         EcflowNode.__init__(
@@ -394,7 +377,7 @@ class EcflowSuiteTask(EcflowNode):
         task_container = parent.ecf_container_path + "/" + name + ".py"
         if parse:
             if input_template is None:
-                raise Exception("Input template is missing")
+                raise FileNotFoundError("Input template is missing")
 
             variables = task_settings.get_settings(name)
             if "INTERPRETER" in variables:

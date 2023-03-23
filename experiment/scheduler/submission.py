@@ -1,11 +1,10 @@
 """Job submission setup."""
-import os
-import sys
-import json
-import subprocess
-import logging
 import collections.abc
-
+import json
+import logging
+import os
+import subprocess  # noqa S404
+import sys
 
 from ..tasks.discover_tasks import get_task
 
@@ -17,23 +16,21 @@ class TaskSettings(object):
         """Construct the task specific settings.
 
         Args:
-             submission_defs(dict): Submission definitions
+            config (ParsedConfig): Parsed config
+
         """
         self.submission_defs = config.get_value("submission").dict()
         self.job_type = None
 
     @staticmethod
-    def update_task_setting(d, u):
-        for k, v in u.items():
-            if isinstance(v, collections.abc.Mapping):
-                d[k] = TaskSettings.update_task_setting(d.get(k, {}), v)
+    def _update_task_setting(dic, upd):
+        for key, val in upd.items():
+            if isinstance(val, collections.abc.Mapping):
+                dic[key] = TaskSettings._update_task_setting(dic.get(key, {}), val)
             else:
-                logging.debug("key=%s value=%s", k, v)
-                # if k == "tasks":
-                #    logging.debug("Skip tasks")
-                #    return d
-                d[k] = v
-        return d
+                logging.debug("key=%s value=%s", key, val)
+                dic[key] = val
+        return dic
 
     def parse_submission_defs(self, task):
         """Parse the submssion definitions.
@@ -59,16 +56,16 @@ class TaskSettings(object):
             task_submit_type = default_submit_type
 
         if task_submit_type in all_defs:
-            for setting in all_defs[task_submit_type]:
+            for __ in all_defs[task_submit_type]:
                 logging.debug("task_submit_type for task %s: %s", task, task_submit_type)
-                task_settings = self.update_task_setting(
+                task_settings = self._update_task_setting(
                     task_settings, all_defs[task_submit_type]
                 )
 
         if "task_exceptions" in all_defs:
             if task in all_defs["task_exceptions"]:
                 logging.debug("Task task_exceptions for task %s", task)
-                task_settings = self.update_task_setting(
+                task_settings = self._update_task_setting(
                     task_settings, all_defs["task_exceptions"][task]
                 )
 
@@ -254,7 +251,8 @@ class NoSchedulerSubmission:
             output(str): Output file
 
         Raises:
-            Exception: Submission failure
+            KeyError: Task is not found
+            RuntimeError: Submission failure
 
         """
         try:
@@ -270,12 +268,20 @@ class NoSchedulerSubmission:
             f"{task_job} -o {output}"
         )
         try:
-            subprocess.check_call(cmd.split())
+            subprocess.check_call(cmd.split())  # noqaS601
         except Exception as exc:
-            raise Exception(f"Submission failed with {repr(exc)}") from exc
+            raise RuntimeError(f"Submission failed with {repr(exc)}") from exc
 
 
 class TroikaSettings:
+    """Group troika settings."""
+
     def __init__(self, config):
+        """Construct the troika relevant settings.
+
+        Args:
+            config (ParsedConfig): Parsed config
+
+        """
         self.command = config.get_value("troika.command")
         self.config = config.get_value("troika.config")

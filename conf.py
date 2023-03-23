@@ -11,15 +11,15 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+# import os                                         # noqa  E800
+# import sys                                        # noqa  E800
+# sys.path.insert(0, os.path.abspath('.'))          # noqa  E800
 
 
 # -- Project information -----------------------------------------------------
 
 project = "Pysurfex-experiment"
-copyright = "2020, Trygve Aspelien"
+copyright = "2020, Trygve Aspelien"  # noqa A001
 author = "Trygve Aspelien"
 
 
@@ -29,8 +29,8 @@ author = "Trygve Aspelien"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 #
-# extensions = []
-# extensions = ['sphinx.ext.autodoc']
+# extensions = []                                   # noqa  E800
+# extensions = ['sphinx.ext.autodoc']               # noqa  E800
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
@@ -57,7 +57,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
+# html_theme = 'alabaster'                              # noqa  E800
 html_theme = "default"
 
 # Add any paths that contain custom static files (such as style sheets) here,

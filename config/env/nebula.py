@@ -1,3 +1,3 @@
-# Environment specific file in python syntax
+"""Environment specific file in python syntax."""
 
 print("Hello environment!")

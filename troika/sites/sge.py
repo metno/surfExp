@@ -1,4 +1,4 @@
-"""SGE-managed site"""
+"""SGE-managed site."""
 
 import logging
 import os
@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 
 
 def _split_sge_directive(arg):
-    """Split the argument of a SGE directive
+    """Split the argument of a SGE directive.
 
     >>> _split_sge_directive(b"-o foo")
     (b'-o', b'foo')
@@ -25,13 +25,23 @@ def _split_sge_directive(arg):
     (b'-N', b'job')
     >>> _split_sge_directive(b"-V")
     (b'-V', None)
+
+    Args:
+        arg(str) : arg
+
+    Returns:
+        tuple: key, value
+
+    Raises:
+        RunError: Malformed qsub argument
+
     """
     m = re.match(rb"(\S+)(\s+)?(.*)?$", arg)
     if m is None:
         raise RunError(r"Malformed qsub argument: {arg!r}")
     key, sep, val = m.groups()
     if sep is None:
-        assert val == b""
+        assert val == b""  # noqa S101
         val = None
     return key, val
 
@@ -41,7 +51,17 @@ _DIRECTIVE_RE = re.compile(rb"^#\s*\$\s+(.+)$")
 
 @preprocess.register
 def sge_add_output(sin, script, user, output):
-    """Set the output file"""
+    """Set the output file.
+
+    Args:
+        sin (_type_): _description_
+        script (_type_): _description_
+        user (_type_): _description_
+        output (_type_): _description_
+
+    Yields:
+        _type_: _description_
+    """
     for line in sin:
         m = _DIRECTIVE_RE.match(line)
         if m is None:
@@ -57,7 +77,17 @@ def sge_add_output(sin, script, user, output):
 
 @preprocess.register
 def sge_bubble(sin, script, user, output):
-    """Make sure all SGE directives are at the top"""
+    """Make sure all SGE directives are at the top.
+
+    Args:
+        sin (_type_): _description_
+        script (_type_): _description_
+        user (_type_): _description_
+        output (_type_): _description_
+
+    Yields:
+        _type_: _description_
+    """
     directives = []
     with tempfile.SpooledTemporaryFile(
         max_size=1024**3, mode="w+b", dir=script.parent, prefix=script.name
@@ -87,9 +117,16 @@ def sge_bubble(sin, script, user, output):
 
 
 class SGESite(Site):
-    """Site managed using SGE"""
+    """Site managed using SGE."""
 
     def __init__(self, config, connection, global_config):
+        """Construct SGE.
+
+        Args:
+            config (_type_): _description_
+            connection (_type_): _description_
+            global_config (_type_): _description_
+        """
         super().__init__(config, connection, global_config)
         self._qsub = config.get("qsub_command", "qsub")
         self._qdel = config.get("qdel_command", "qdel")
@@ -98,18 +135,31 @@ class SGESite(Site):
         self._copy_script = config.get("copy_script", False)
 
     def submit(self, script, user, output, dryrun=False):
-        """See `troika.sites.Site.submit`"""
+        """See `troika.sites.Site.submit`.
+
+        Args:
+            script (_type_): _description_
+            user (_type_): _description_
+            output (_type_): _description_
+            dryrun (bool, optional): _description_. Defaults to False.
+
+        Raises:
+            InvocationError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         script = pathlib.Path(script)
         sub_output = script.with_suffix(script.suffix + ".sub")
         if sub_output.exists():
             _logger.warning(
-                "Submission output file %r already exists, " + "overwriting",
+                "Submission output file %r already exists, overwriting",
                 str(sub_output),
             )
         sub_error = script.with_suffix(script.suffix + ".suberr")
         if sub_error.exists():
             _logger.warning(
-                "Submission error file %r already exists, " + "overwriting",
+                "Submission error file %r already exists, overwriting",
                 str(sub_error),
             )
 
@@ -164,14 +214,21 @@ class SGESite(Site):
         jid_output = script.with_suffix(script.suffix + ".jid")
         if jid_output.exists():
             _logger.warning(
-                "Job ID output file %r already exists, " + "overwriting", str(jid_output)
+                "Job ID output file %r already exists, overwriting", str(jid_output)
             )
         jid_output.write_text(str(jobid) + "\n")
 
         return jobid
 
     def monitor(self, script, user, jid=None, dryrun=False):
-        """See `troika.sites.Site.monitor`"""
+        """See `troika.sites.Site.monitor`.
+
+        Args:
+            script (_type_): _description_
+            user (_type_): _description_
+            jid (_type_, optional): _description_. Defaults to None.
+            dryrun (bool, optional): _description_. Defaults to False.
+        """
         script = pathlib.Path(script)
 
         if jid is None:
@@ -191,7 +248,14 @@ class SGESite(Site):
         _logger.info("Output written to %r", str(stat_output))
 
     def kill(self, script, user, jid=None, dryrun=False):
-        """See `troika.sites.Site.kill`"""
+        """See `troika.sites.Site.kill`.
+
+        Args:
+            script (_type_): _description_
+            user (_type_): _description_
+            jid (_type_, optional): _description_. Defaults to None.
+            dryrun (bool, optional): _description_. Defaults to False.
+        """
         script = pathlib.Path(script)
 
         if jid is None:

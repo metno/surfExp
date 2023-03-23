@@ -1,14 +1,14 @@
 """Scheduler module."""
-from abc import ABC, abstractmethod
-import os
-from datetime import datetime
-import signal
-import time
-import platform
-import traceback
-import sys
 import json
 import logging
+import os
+import platform
+import signal
+import sys
+import time
+import traceback
+from abc import ABC, abstractmethod
+from datetime import datetime
 
 try:
     import ecflow  # noqa reportMissingImports
@@ -92,7 +92,7 @@ class EcflowServer(Server):
             start_command: Ecflow start server command.
 
         Raises:
-            Exception: If not ecflow is found.
+            ModuleNotFoundError: If not ecflow is found.
 
         """
         if ecflow is None:
@@ -247,12 +247,7 @@ class EcflowServerFromConfig(EcflowServer):
         """Construct the EcflowServer.
 
         Args:
-            ecf_host(str): Ecflow server host.
-            ecf_port (int): Ecflow server port.
-            start_command: Ecflow start server command.
-
-        Raises:
-            Exception: If not ecflow is found.
+            config(ParsedConfig): Parsed configuration
 
         """
         ecf_host = config.get_value("scheduler.ecf_host")

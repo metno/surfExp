@@ -1,15 +1,15 @@
 """Default ecflow container."""
 # @ENV_SUB1@
 
+from experiment.config_parser import ParsedConfig
+from experiment.datetime_utils import ecflow2datetime_string
+from experiment.logs import get_logger_from_config
 from experiment.scheduler.scheduler import (
-    EcflowTask,
     EcflowClient,
     EcflowServerFromConfig,
+    EcflowTask,
 )
 from experiment.tasks.discover_tasks import get_task
-from experiment.config_parser import ParsedConfig
-from experiment.logs import get_logger_from_config
-from experiment.datetime_utils import ecflow2datetime_string
 
 # @ENV_SUB2@
 

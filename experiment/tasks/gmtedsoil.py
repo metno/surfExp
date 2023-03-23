@@ -2,8 +2,8 @@
 import os
 import sys
 import time
-import numpy as np
 
+import numpy as np
 
 from ..tasks.tasks import AbstractTask
 
@@ -15,7 +15,8 @@ def _import_gdal():
 
         return gdal
     except ImportError as error:
-        msg = "Cannot use the installed gdal library, or there is no gdal library installed. "
+        msg = "Cannot use the installed gdal library, "
+        msg += "or there is no gdal library installed. "
         msg += "If you have not installed it, you may want to try running"
         msg += " 'pip install pygdal==\"`gdal-config --version`.*\"' "
         msg += "or, if you use conda,"
@@ -117,7 +118,7 @@ class Search:
 
 
 def get_domain_properties(geo):
-    """Get domain properties
+    """Get domain properties.
 
     Args:
         geo (_type_): _description_
@@ -153,8 +154,8 @@ class Gmted(AbstractTask):
 
         Args:
             config (Config): Config object
-        """
 
+        """
         AbstractTask.__init__(self, config)
 
         self.gmted2010_path = self.fmanager.platform.get_platform_value(
@@ -350,7 +351,6 @@ class Soil(AbstractTask):
             config (deode.ParsedConfig): Configuration
 
         """
-
         AbstractTask.__init__(self, config)
         self.logger.debug("Constructed Soil task")
 

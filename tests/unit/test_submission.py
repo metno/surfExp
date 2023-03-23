@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Unit tests for the config file parsing module."""
 from pathlib import Path
+
 import pytest
-
-
 import surfex
 
-
-from experiment.experiment import ExpFromFiles, Exp
+from experiment.config_parser import ParsedConfig
+from experiment.experiment import Exp, ExpFromFiles
 from experiment.scheduler.submission import NoSchedulerSubmission, TaskSettings
 from experiment.system import System
 
@@ -18,7 +17,7 @@ def config(tmp_path_factory):
     exp_name = "test_config"
     pysurfex_experiment = f"{str(((Path(__file__).parent).parent).parent)}"
     pysurfex = f"{str((Path(surfex.__file__).parent).parent)}"
-    offline_source = f"{tmp_path_factory.getbasetemp().as_posix()}/source"
+    offline_source = f"{wdir}/source"
 
     exp_dependencies = ExpFromFiles.setup_files(
         wdir, exp_name, None, pysurfex, pysurfex_experiment, offline_source=offline_source
@@ -50,19 +49,22 @@ def config(tmp_path_factory):
             },
         }
     }
+
     system = System(env_system, exp_name)
     system_file_paths = {
-        "sand_dir": "/tmp/host1/testdata/input_paths/sand_dir",
-        "clay_dir": "/tmp/host1/testdata/input_paths/clay_dir",
-        "soc_top_dir": "/tmp/host1/testdata/input_paths/soc_top_dir",
-        "soc_sub_dir": "/tmp/host1/testdata/input_paths/soc_sub_dir",
-        "flake_dir": "/tmp/host1/testdata/input_paths/flake_dir",
-        "ecoclimap_dir": "/tmp/host1/testdata/input_paths/ecoclimap_dir",
-        "ecoclimap_cover_dir": "/tmp/host1/testdata/input_paths/ecoclimap_cover_dir",
-        "ecoclimap_bin_dir": "/tmp/host1/testdata/input_paths/ecoclimap_bin_dir",
-        "oro_dir": "/tmp/host1/testdata/input_paths/oro_dir",
-        "obs_dir": "/tmp/host1/testdata/",
+        "soilgrid_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "ecoclimap_bin_dir": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "ecosg_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "pgd_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "scratch": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "static_data": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "climdata": f"{tmp_path_factory.getbasetemp().as_posix()}",
+        "prep_input_file": f"{tmp_path_factory.getbasetemp().as_posix()}"
+        + "/demo/ECMWF/archive/2023/02/18/18/fc20230218_18+006",
+        "gmted2010_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}/GMTED2010",
+        "namelists": "{WORKING_DIR}/deode/data/namelists",
     }
+
     env_submit = {
         "submit_types": ["background", "scalar"],
         "default_submit_type": "scalar",
@@ -77,6 +79,7 @@ def config(tmp_path_factory):
         "basetime": "2023-01-01T03:00:00Z",
         "start": "2023-01-01T00:00:00Z",
         "end": "2023-01-01T06:00:00Z",
+        "basetime_pp": "2023-01-01T03:00:00Z",
     }
 
     # Configuration
@@ -99,19 +102,33 @@ def config(tmp_path_factory):
         stream=stream,
     )
 
+    config_file = f"{tmp_path_factory.getbasetemp().as_posix()}/config.json"
+    sfx_exp.dump_json(config_file)
+    config = ParsedConfig.from_file(config_file)
     # Template variables
     update = {
         "task": {
-            "wrapper": "time",
-            "args": {"check_existence": False, "pert": 1, "ivar": 1},
+            "args": {
+                "check_existence": False,
+                "pert": 1,
+                "ivar": 1,
+                "print_namelist": True,
+            }
         }
     }
-    return sfx_exp.config.copy(update=update)
+    config = config.copy(update=update)
+    return config
+
+
+@pytest.fixture(scope="module")
+def _mockers_for_submission(session_mocker):
+    session_mocker.patch("experiment.scheduler.submission.TaskSettings.parse_job")
 
 
 class TestSubmission:
     # pylint: disable=no-self-use
 
+    @pytest.mark.usefixtures("_mockers_for_submission")
     def test_submit(self, config, tmp_path_factory):
         tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
         update = {
@@ -123,14 +140,16 @@ class TestSubmission:
         }
         config = config.copy(update=update)
         task = "preparecycle"
-        template_job = f"{config.get_value('system.pysurfex_experiment')}/experiment/templates/stand_alone.py"
+        pysurfex_experiment = config.get_value("system.pysurfex_experiment")
+        template_job = f"{pysurfex_experiment}/experiment/templates/stand_alone.py"
         task_job = f"{tmpdir}/{task}.job"
         output = f"{tmpdir}/{task}.log"
 
         assert config.get_value("submission.default_submit_type") == "unittest"
         background = TaskSettings(config)
         sub = NoSchedulerSubmission(background)
-        sub.submit(task, config, template_job, task_job, output)
+        with pytest.raises(RuntimeError):
+            sub.submit(task, config, template_job, task_job, output)
 
     def test_get_batch_info(self, config):
         arg = "#SBATCH UNITTEST"

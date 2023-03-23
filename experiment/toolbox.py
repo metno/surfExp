@@ -2,7 +2,6 @@
 import os
 import re
 
-
 from .datetime_utils import as_datetime
 from .logs import get_logger_from_config
 

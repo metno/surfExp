@@ -90,8 +90,6 @@ jobs:
       - name: Coveralls
         if: ${{ matrix.python-version == 3.8 }}
         run: |
-          cd ${GITHUB_WORKSPACE}
-          python3 -m pip install coveralls
           export COVERALLS_REPO_TOKEN=${{secrets.COVERALLS_REPO_TOKEN}}
           coveralls
 

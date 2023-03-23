@@ -1,24 +1,29 @@
 """Handle system specific settings."""
 import os
-import logging
-import json
+
 import toml
+
+from . import PACKAGE_NAME
+from .logs import get_logger
 
 
 class System:
     """Main system class."""
 
-    def __init__(self, host_system, exp_name):
+    def __init__(self, host_system, exp_name, loglevel="INFO"):
         """Constuct a system object.
 
         Args:
             host_system (dict): Dict describing the system
             exp_name (str): Experiment name.
+            loglevel(str, optional): Loglevel. Default to "INFO"
 
         Raises:
-            Exception: _description_
+            KeyError: Setting not found
+
         """
-        logging.debug(str(host_system))
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug(str(host_system))
         self.system_variables = [
             "sfx_exp_data",
             "sfx_exp_lib",
@@ -64,30 +69,6 @@ class System:
 
         self.system = system
 
-    def dump_system_vars(self, filename, indent=None, stream=None):
-        """Dump system variables to a json file.
-
-        Args:
-            filename (_type_): _description_
-            indent (_type_, optional): _description_. Defaults to None.
-            stream (_type_, optional): _description_. Defaults to None.
-
-        """
-        system_vars = {}
-        for host in range(0, len(self.hosts)):
-            host = str(host)
-            var_host = {}
-            for key in self.system_variables:
-                if key == "hosts":
-                    value = self.get_var(key, host, stream=stream)
-                    var_host.update({"hostname": value[int(host)]})
-                else:
-                    value = self.get_var(key, host, stream=stream)
-                    var_host.update({key: value})
-            logging.debug("HOST=%s KEY=%s VALUE=%s", str(host), str(key), str(value))
-            system_vars.update({host: var_host})
-        json.dump(system_vars, open(filename, mode="w", encoding="utf-8"), indent=indent)
-
     def get_var(self, var, host, stream=None):
         """Get the variable value.
 
@@ -97,12 +78,10 @@ class System:
             stream (int, optional): _description_. Defaults to None.
 
         Raises:
-            Exception: _description_
-            Exception: _description_
-            Exception: _description_
+            KeyError: variable not found
 
         Returns:
-            _type_: variable value.
+            any: Variable
 
         """
         if var == "hosts":
@@ -131,20 +110,22 @@ class System:
 class SystemFromFile(System):
     """Create a system from a toml file."""
 
-    def __init__(self, env_system_file, exp_name):
+    def __init__(self, env_system_file, exp_name, loglevel="INFO"):
         """Construct the System object from a system file.
 
         Args:
             env_system_file (str): System toml file.
             exp_name (str): Name of the experiment.
+            loglevel(str, optional): Loglevel. Default to "INFO"
 
         Raises:
             FileNotFoundError: If system file not found.
 
         """
-        logging.debug("Env_system_file: %s", env_system_file)
+        logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
+        logger.debug("Env_system_file: %s", env_system_file)
         if os.path.exists(env_system_file):
             host_system = toml.load(open(env_system_file, mode="r", encoding="utf-8"))
         else:
             raise FileNotFoundError(env_system_file)
-        System.__init__(self, host_system, exp_name)
+        System.__init__(self, host_system, exp_name, loglevel=loglevel)

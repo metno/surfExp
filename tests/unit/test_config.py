@@ -1,15 +1,12 @@
 """Unit testing."""
-from pathlib import Path
 import logging
-from unittest.mock import patch
+from pathlib import Path
+
 import pytest
-
-
 import surfex
 
-
-from experiment.experiment import ExpFromFiles
 from experiment.configuration import Configuration
+from experiment.experiment import ExpFromFiles
 
 
 @pytest.fixture(scope="module")
@@ -40,17 +37,23 @@ def settings(sfx_exp):
 @pytest.fixture(scope="module")
 def sfx_exp(exp_dependencies):
     stream = None
-    with patch("experiment.scheduler.scheduler.ecflow") as mock_ecflow:
-        sfx_exp = ExpFromFiles(exp_dependencies, stream=stream)
-        update = {
-            "compile": {
-                "test_true": True,
-                "test_values": [1, 2, 4],
-                "test_setting": "SETTING",
-            }
+    sfx_exp = ExpFromFiles(exp_dependencies, stream=stream)
+    update = {
+        "compile": {
+            "test_true": True,
+            "test_values": [1, 2, 4],
+            "test_setting": "SETTING",
         }
-        sfx_exp.config = sfx_exp.config.copy(update=update)
-        return sfx_exp
+    }
+    sfx_exp.config = sfx_exp.config.copy(update=update)
+    return sfx_exp
+
+
+@pytest.fixture(scope="module")
+def _mockers_for_ecflow(session_mocker):
+    session_mocker.patch("experiment.scheduler.scheduler.ecflow.Client")
+    session_mocker.patch("experiment.scheduler.submission.TaskSettings.parse_job")
+    session_mocker.patch("experiment.scheduler.suites.ecflow.Defs")
 
 
 class TestConfig:
@@ -71,9 +74,6 @@ class TestConfig:
     def test_dump_json(self, sfx_exp, tmp_path_factory):
         tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}"
         sfx_exp.dump_json(f"{tmpdir}/dump_json.json", indent=2)
-
-    # def test_max_fc_length(self, sfx_exp):
-    #    sfx_exp.max_fc_length()
 
     def test_setting_is_not(self, settings):
         assert settings.setting_is_not("compile#test_true", False) is True

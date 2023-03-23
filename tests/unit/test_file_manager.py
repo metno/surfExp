@@ -4,17 +4,13 @@ import logging
 import os
 from pathlib import Path
 
-from unittest.mock import patch
 import pytest
-import tomlkit
-
 import surfex
 
-
-from experiment.experiment import ExpFromFiles, Exp
+from experiment.datetime_utils import as_datetime
+from experiment.experiment import Exp, ExpFromFiles
 from experiment.system import System
 from experiment.toolbox import FileManager
-from experiment.datetime_utils import as_datetime
 
 
 @pytest.fixture(scope="module")
@@ -174,7 +170,8 @@ class TestFileManager:
         )
 
         os.makedirs(f"{tmp_path_factory.getbasetemp().as_posix()}/bin", exist_ok=True)
-        os.system(f"touch {tmp_path_factory.getbasetemp().as_posix()}/bin/MASTERODB")
+        expected_file = tmp_path_factory.getbasetemp() / "bin/MASTERODB"
+        expected_file.touch()
         provider, resource = fmanager.get_input(
             "@BINDIR@/MASTERODB", f"{tmp_path_factory.getbasetemp().as_posix()}/MASTERODB"
         )
@@ -186,6 +183,8 @@ class TestFileManager:
             resource.identifier
             == f"{tmp_path_factory.getbasetemp().as_posix()}/MASTERODB"
         )
+        expected_file = tmp_path_factory.getbasetemp() / "MASTERODB"
+        expected_file.touch()
         assert os.path.exists(f"{tmp_path_factory.getbasetemp().as_posix()}/MASTERODB")
         os.remove(f"{tmp_path_factory.getbasetemp().as_posix()}/MASTERODB")
         os.remove(f"{tmp_path_factory.getbasetemp().as_posix()}/bin/MASTERODB")
@@ -208,7 +207,8 @@ class TestFileManager:
             f"{tmp_path_factory.getbasetemp().as_posix()}/archive/2000/01/01/00/",
             exist_ok=True,
         )
-        os.system(f"touch {tmp_path_factory.getbasetemp().as_posix()}/ICMSHUNIT+0024")
+        expected_file = tmp_path_factory.getbasetemp() / "ICMSHUNIT+0024"
+        expected_file.touch()
         provider, aprovider, resource = fmanager.get_output(
             f"{tmp_path_factory.getbasetemp().as_posix()}/ICMSH@CNMEXP@+@LLLL@",
             "@ARCHIVE@/OUT_ICMSH@CNMEXP@+@LLLL@",

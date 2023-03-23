@@ -1,7 +1,9 @@
 """Suite for experiment."""
 import os
 
-
+from .configuration import Configuration
+from .datetime_utils import ProgressFromConfig, as_datetime, as_timedelta, datetime2ecflow
+from .logs import get_logger_from_config
 from .scheduler.submission import TaskSettings, TroikaSettings
 from .scheduler.suites import (
     EcflowSuite,
@@ -10,15 +12,7 @@ from .scheduler.suites import (
     EcflowSuiteTrigger,
     EcflowSuiteTriggers,
 )
-from .logs import get_logger_from_config
-from .datetime_utils import (
-    as_datetime,
-    as_timedelta,
-    datetime2ecflow,
-    ProgressFromConfig
-)
 from .toolbox import Platform
-from .configuration import Configuration
 
 
 class SurfexSuite:
@@ -38,11 +32,13 @@ class SurfexSuite:
 
         Args:
             suite_name (str): Name of the suite
-            exp (experiment.Exp): Configuration you want to run
+            config (ParsedConfig): Parsed configuration
             joboutdir (str): Directory for job and log files
-            TaskSettings (TaskSettings): Submission environment for jobs
+            task_settings (TaskSettings): Submission environment for jobs
             dtgs (list): The DTGs you want to run
-            dtgbeg (datetime, optional): First DTG the experiment run. Defaults to None.
+            dtgbeg (as_datetime, optional): First DTG the experiment run.
+                                            Defaults to None.
+            ecf_micro (str, optional): Ecflow micro. Defaults to "%"
 
         """
         if dtgbeg is None:
@@ -50,7 +46,6 @@ class SurfexSuite:
         else:
             dtgbeg_str = datetime2ecflow(dtgbeg)
 
-        # config = exp_config.sfx_config
         self.config = config
         logger = get_logger_from_config(self.config)
         settings = Configuration(config)
@@ -125,9 +120,7 @@ class SurfexSuite:
         realization = None
         self.suite_name = suite_name
         logger.debug("variables: %s", variables)
-        self.suite = EcflowSuite(
-            self.suite_name, ecf_files, variables=variables, dry_run=False
-        )
+        self.suite = EcflowSuite(self.suite_name, ecf_files, variables=variables)
 
         if config.get_value("compile.build"):
             comp = EcflowSuiteFamily("Compilation", self.suite, ecf_files)
@@ -208,7 +201,7 @@ class SurfexSuite:
         prediction_dtg_node = {}
         post_processing_dtg_node = {}
         prev_dtg = None
-        for idtg, dtg in enumerate(dtgs):
+        for __, dtg in enumerate(dtgs):
             dtg_str = datetime2ecflow(dtg)
             variables = {"DTG": dtg_str, "DTGBEG": dtgbeg_str}
             triggers = EcflowSuiteTriggers([static_complete])
@@ -431,13 +424,11 @@ class SurfexSuite:
                     nnco = settings.get_nnco(dtg=dtg)
                     for t_ind, val in enumerate(obs_types):
                         if nnco[t_ind] == 1:
-                            if obs_types[t_ind] == "T2M" or obs_types[t_ind] == "T2M_P":
+                            if val == "T2M" or val == "T2M_P":
                                 an_variables.update({"t2m": True})
-                            elif (
-                                obs_types[t_ind] == "HU2M" or obs_types[t_ind] == "HU2M_P"
-                            ):
+                            elif val == "HU2M" or val == "HU2M_P":
                                 an_variables.update({"rh2m": True})
-                            elif obs_types[t_ind] == "SWE":
+                            elif val == "SWE":
                                 an_variables.update({"sd": True})
 
                     analysis = EcflowSuiteFamily("Analysis", initialization, ecf_files)
@@ -627,7 +618,6 @@ def get_defs(config, suite_type):
         suite_type (str): What kind of suite
 
     Raises:
-        Exception: _description_
         NotImplementedError: _description_
 
     Returns:
@@ -641,7 +631,6 @@ def get_defs(config, suite_type):
     logger.debug("Config name %s", name)
     logger.debug("Get defs for %s", suite_name)
 
-    # system = config.system
     progress = ProgressFromConfig(config)
     platform = Platform(config)
     joboutdir = platform.get_system_value("joboutdir")
@@ -651,9 +640,7 @@ def get_defs(config, suite_type):
     basetime = progress.basetime
     starttime = progress.starttime
     endtime = progress.endtime
-    logger.debug(
-        "DTGSTART: %s DTGBEG: %s DTGEND: %s", basetime, starttime, endtime
-    )
+    logger.debug("DTGSTART: %s DTGBEG: %s DTGEND: %s", basetime, starttime, endtime)
     basetime_list = []
     dtg = basetime
     logger.debug("Building list of DTGs")

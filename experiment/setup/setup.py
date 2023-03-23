@@ -1,7 +1,7 @@
 """PySurfexExpSetup functionality."""
+import os
 import sys
 from argparse import ArgumentParser
-import os
 
 try:
     import surfex
@@ -11,11 +11,12 @@ except:  # noqa
 
 from experiment import PACKAGE_NAME, __version__
 from experiment.experiment import ExpFromFiles, ExpFromFilesDep
+
 from ..logs import get_logger
 
 
 def surfex_exp_setup(argv=None):
-    """Setup PySurfex experiment
+    """Set up PySurfex experiment.
 
     Args:
         argv (list, optional): Arguments. Defaults to None.
@@ -28,7 +29,14 @@ def surfex_exp_setup(argv=None):
 
 
 def parse_surfex_script_setup(argv):
-    """Parse the command line input arguments."""
+    """Parse the command line input arguments.
+
+    Args:
+        argv (list): Arguments
+
+    Returns:
+        dict: kwargs
+    """
     parser = ArgumentParser("Surfex offline setup script")
     parser.add_argument(
         "-exp_name", dest="exp", help="Experiment name", type=str, default=None
@@ -109,12 +117,11 @@ def parse_surfex_script_setup(argv):
 def surfex_script_setup(**kwargs):
     """Do experiment setup.
 
-    Raises:
-        Exception: _description_
-        Exception: _description_
-        Exception: _description_
-        Exception: _description_
+    Args:
+        kwargs (dict): Arguments
 
+    Raises:
+        RuntimeError: Setup failed
     """
     debug = kwargs.get("debug")
     if debug is None:

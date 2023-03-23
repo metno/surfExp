@@ -1,18 +1,16 @@
 """Client interfaces for offline experiment scripts."""
+import json
+import os
 import sys
 from argparse import ArgumentParser
-import os
-import json
-
 
 from . import PACKAGE_NAME, __version__
-
-from .experiment import ExpFromFilesDepFile, ExpFromConfig
-from .scheduler.submission import NoSchedulerSubmission, TaskSettings
-from .scheduler.scheduler import EcflowServerFromConfig
-from .suites import get_defs
-from .logs import get_logger
 from .config_parser import ParsedConfig
+from .experiment import ExpFromConfig, ExpFromFilesDepFile
+from .logs import get_logger
+from .scheduler.scheduler import EcflowServerFromConfig
+from .scheduler.submission import NoSchedulerSubmission, TaskSettings
+from .suites import get_defs
 
 
 def parse_surfex_script(argv):
@@ -77,13 +75,13 @@ def parse_surfex_script(argv):
 def surfex_script(**kwargs):
     """Modify or start an experiment suite.
 
+    Args:
+        kwargs (dict): Input arguments.
+
     Raises:
-        NotImplementedError: _description_
-        Exception: _description_
-        Exception: _description_
-        Exception: _description_
-        Exception: _description_
-        Exception: _description_
+        NotImplementedError: Options missing
+        RuntimeError: Could not start experiment
+
     """
     debug = kwargs.get("debug")
     if debug is None:
@@ -148,7 +146,7 @@ def surfex_script(**kwargs):
             if suite is not None and suite != "climate":
                 raise RuntimeError(
                     "Action was climate but you also specified a suite not being "
-                    + +f"climate: {suite}"
+                    + f"climate: {suite}"
                 )
             suite = "climate"
         elif action == "testbed":
@@ -170,7 +168,7 @@ def surfex_script(**kwargs):
         else:
             if action == "start":
                 if dtg is None:
-                    raise ValueError("No DTG was provided!")
+                    raise RuntimeError("No DTG was provided!")
 
                 progress.update({"start": dtg})
                 progress.update({"basetime": dtg})

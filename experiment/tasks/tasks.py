@@ -1,18 +1,18 @@
 """General task module."""
-import os
 import json
+import os
 import shutil
+
 import numpy as np
-import yaml
 import surfex
+import yaml
 
-
-from ..toolbox import FileManager
-from ..logs import get_logger_from_config
-from ..datetime_utils import as_datetime, as_timedelta, datetime_as_string
-from ..configuration import Configuration
 from ..config_parser import ParsedConfig
+from ..configuration import Configuration
+from ..datetime_utils import as_datetime, as_timedelta, datetime_as_string
 from ..experiment import ExpFromConfig
+from ..logs import get_logger_from_config
+from ..toolbox import FileManager
 
 
 class AbstractTask(object):
@@ -25,6 +25,10 @@ class AbstractTask(object):
         ecflow container
 
         Args:
+            config (ParsedObject): Parsed configuration
+
+        Raises:
+            RuntimeError: Surfex not loaded
 
         """
         if surfex is None:
@@ -190,11 +194,7 @@ class PrepareCycle(AbstractTask):
         """Construct the PrepareCycle task.
 
         Args:
-            task (_type_): _description_
-            config (_type_): _description_
-            system (_type_): _description_
-            exp_file_paths (_type_): _description_
-            progress (_type_): _description_
+            config (ParsedObject): Parsed configuration
 
         """
         AbstractTask.__init__(self, config)
@@ -220,7 +220,7 @@ class QualityControl(AbstractTask):
         """Constuct the QualityControl task.
 
         Args:
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
 
         """
         AbstractTask.__init__(self, config)
@@ -406,7 +406,7 @@ class OptimalInterpolation(AbstractTask):
         """Construct the OptimalInterpolation task.
 
         Args:
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
 
         """
         AbstractTask.__init__(self, config)
@@ -497,14 +497,14 @@ class FirstGuess(AbstractTask):
     """Find first guess.
 
     Args:
-        AbstractTask (_type_): _description_
+        AbstractTask (AbstractTask): Base class
     """
 
     def __init__(self, config):
         """Construct a FistGuess task.
 
         Args:
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
         """
         AbstractTask.__init__(self, config)
         self.var_name = self.config.get_value("task.var_name", default=None)
@@ -529,14 +529,15 @@ class CycleFirstGuess(FirstGuess):
     """Cycle the first guess.
 
     Args:
-        FirstGuess (_type_): _description_
+        FirstGuess (FirstGuess): Base class
     """
 
     def __init__(self, config):
         """Construct the cycled first guess object.
 
         Args:
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
+
         """
         FirstGuess.__init__(self, config)
 
@@ -558,14 +559,14 @@ class Oi2soda(AbstractTask):
     """Convert OI analysis to an ASCII file for SODA.
 
     Args:
-        AbstractTask (_type_): _description_
+        AbstractTask (AbstractClass): Base class
     """
 
     def __init__(self, config):
         """Construct the Oi2soda task.
 
         Args:
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
         """
         AbstractTask.__init__(self, config)
         self.var_name = self.config.get_value("task.var_name")
@@ -627,11 +628,16 @@ class Qc2obsmon(AbstractTask):
     """Convert QC data to obsmon SQLite data.
 
     Args:
-        AbstractTask (_type_): _description_
+        AbstractTask (AbstractClass): Base class
     """
 
     def __init__(self, config):
-        """Construct the QC2obsmon data."""
+        """Construct the QC2obsmon data.
+
+        Args:
+            config (ParsedObject): Parsed configuration
+
+        """
         AbstractTask.__init__(self, config)
         self.var_name = self.config.get_value("task.var_name")
 
@@ -677,11 +683,16 @@ class FirstGuess4OI(AbstractTask):
     """Create a first guess to be used for OI.
 
     Args:
-        AbstractTask (_type_): _description_
+        AbstractTask (AbstractClass): Base class
     """
 
     def __init__(self, config):
-        """Construct the FirstGuess4OI task."""
+        """Construct the FirstGuess4OI task.
+
+        Args:
+            config (ParsedObject): Parsed configuration
+
+        """
         AbstractTask.__init__(self, config)
         self.var_name = self.config.get_value("task.var_name")
 
@@ -719,8 +730,8 @@ class FirstGuess4OI(AbstractTask):
                     symlink_files.update(
                         {self.archive + "/raw_" + var_name + ".nc": "raw.nc"}
                     )
-            except ValueError as ex:
-                raise Exception("Variables could not be translated") from ex
+            except KeyError as exc:
+                raise KeyError("Variables could not be translated") from exc
 
         variables = variables + ["altitude", "land_area_fraction"]
 
@@ -728,7 +739,7 @@ class FirstGuess4OI(AbstractTask):
         cache_time = 3600
         cache = surfex.cache.Cache(cache_time)
         if os.path.exists(output):
-            self.logger.info("Output already exists " + output)
+            self.logger.info("Output already exists %s", output)
         else:
             self.write_file(output, variables, self.geo, validtime, cache=cache)
 
@@ -742,14 +753,14 @@ class FirstGuess4OI(AbstractTask):
         """Write the first guess file.
 
         Args:
-            output (_type_): _description_
-            variables (_type_): _description_
-            geo (_type_): _description_
-            validtime (_type_): _description_
-            cache (_type_, optional): _description_. Defaults to None.
+            output (str): Output file
+            variables (list): Variables
+            geo (Geo): Geometry
+            validtime (as_datetime): Validtime
+            cache (Cache, optional): Cache. Defaults to None.
 
         Raises:
-            Exception: _description_
+            KeyError: Converter not found
 
         """
         f_g = None
@@ -808,7 +819,7 @@ class FirstGuess4OI(AbstractTask):
 
             converter_conf = config[var][fileformat]["converter"]
             if converter not in config[var][fileformat]["converter"]:
-                raise ValueError(
+                raise KeyError(
                     f"No converter {converter} definition found in {config_file}!"
                 )
 
@@ -843,8 +854,8 @@ class FirstGuess4OI(AbstractTask):
                 f_g.variables["time"][:] = float(validtime.strftime("%s"))
                 f_g.variables["longitude"][:] = np.transpose(geo.lons)
                 f_g.variables["latitude"][:] = np.transpose(geo.lats)
-                f_g.variables["x"][:] = [i for i in range(0, n_x)]
-                f_g.variables["y"][:] = [i for i in range(0, n_y)]
+                f_g.variables["x"][:] = [range(0, n_x)]
+                f_g.variables["y"][:] = [range(0, n_y)]
 
             if var == "altitude":
                 field[field < 0] = 0
@@ -863,10 +874,16 @@ class LogProgress(AbstractTask):
     """
 
     def __init__(self, config):
-        """Construct the LogProgress task."""
+        """Construct the LogProgress task.
+
+        Args:
+            config (ParsedObject): Parsed configuration
+
+        """
         AbstractTask.__init__(self, config)
 
     def execute(self):
+        """Execute."""
         progress = {
             "basetime": datetime_as_string(self.next_dtg),
             "validtime": datetime_as_string(self.next_dtg),
@@ -887,10 +904,16 @@ class LogProgressPP(AbstractTask):
     """
 
     def __init__(self, config):
-        """Construct the LogProgressPP task."""
+        """Construct the LogProgressPP task.
+
+        Args:
+            config (ParsedObject): Parsed configuration
+
+        """
         AbstractTask.__init__(self, config)
 
     def execute(self):
+        """Execute."""
         progress = {"basetime_pp": datetime_as_string(self.next_dtg)}
         loglevel = self.config.get_value("general.loglevel")
 

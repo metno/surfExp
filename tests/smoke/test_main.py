@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """Smoke tests."""
+import json
 import os
 import shutil
 from pathlib import Path
-import json
-import toml
+
 import pytest
 
-from experiment.cli import update_config, surfex_exp, run_submit_cmd_exp
-from experiment.setup.setup import surfex_exp_setup
+import toml
+from experiment.cli import run_submit_cmd_exp, surfex_exp, update_config
 from experiment.scheduler.submission import TaskSettings
-
+from experiment.setup.setup import surfex_exp_setup
 
 WORKING_DIR = Path.cwd()
 
 
 @pytest.fixture(scope="module")
-def create_unit_test_files(tmp_path_factory):
+def _create_unit_test_files(tmp_path_factory):
     tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}/exp/config/"
     system_files = {
         "submit/unittest.json": {
@@ -39,7 +39,7 @@ def create_unit_test_files(tmp_path_factory):
                     "sfx_exp_data": f"{tmpdir}/sfx_home/@case@",
                     "sfx_exp_lib": f"{tmpdir}/sfx_home/@case@/lib",
                     "host_name": "",
-                    "joboutdir": "/tmp/host0/job",
+                    "joboutdir": f"{tmp_path_factory.getbasetemp().as_posix()}/host0/job",
                     "hm_cs": "gfortran",
                     "parch": "",
                     "mkdir": "mkdir -p",
@@ -65,14 +65,14 @@ def create_unit_test_files(tmp_path_factory):
             elif ftype == "toml":
                 toml.dump(data, open(full_name, mode="w", encoding="utf8"))
             elif ftype == "ascii":
-                os.system(f"touch {full_name}")
+                fpath = Path(full_name)
+                fpath.touch()
             else:
                 raise NotImplementedError
 
 
 @pytest.fixture(scope="module")
 def _module_mockers(session_mocker, tmp_path_factory):
-    # original_no_scheduler_submission_submit_method = NoSchedulerSubmission.submit
     original_submission_task_settings_parse_job = TaskSettings.parse_job
 
     def new_no_scheduler_submission_submit_method(*args):
@@ -104,18 +104,18 @@ def pysurfex_experiment():
 
 
 @pytest.fixture(scope="module")
-def setup_experiment(tmp_path_factory, pysurfex_experiment, create_unit_test_files):
+def setup_experiment(tmp_path_factory, pysurfex_experiment, _create_unit_test_files):
     tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}/exp"
     os.makedirs(tmpdir, exist_ok=True)
     os.chdir(tmpdir)
-    create_unit_test_files
+    _create_unit_test_files
     surfex_exp_setup(["-experiment", pysurfex_experiment, "-host", "unittest", "--debug"])
     return tmpdir + "/exp_dependencies.json"
 
 
 @pytest.fixture(scope="module")
 def update_config_command(tmp_path_factory, setup_experiment):
-    __ = setup_experiment
+    __ = setup_experiment  # noqa F841
     tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}/exp"
     os.chdir(tmpdir)
     update_config()
@@ -140,12 +140,12 @@ def test_submit_task_executable_is_in_path():
 
 @pytest.mark.usefixtures("_module_mockers")
 def test_run_setup_command(setup_experiment):
-    __ = setup_experiment
+    __ = setup_experiment  # noqa F841
 
 
 @pytest.mark.usefixtures("_module_mockers")
 def test_run_suite_command(tmp_path_factory, setup_experiment):
-    __ = setup_experiment
+    __ = setup_experiment  # noqa F841
     tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}/exp"
     os.chdir(tmpdir)
     surfex_exp(
@@ -164,7 +164,7 @@ def test_run_suite_command(tmp_path_factory, setup_experiment):
 def test_run_submit_task_command(
     tmp_path_factory, setup_experiment, update_config_command
 ):
-    __ = setup_experiment
+    __ = setup_experiment  # noqa F841
     exp_config = update_config_command
     tmpdir = f"{tmp_path_factory.getbasetemp().as_posix()}/exp"
     os.makedirs(tmpdir, exist_ok=True)
@@ -192,5 +192,5 @@ def test_run_submit_task_command(
 
 @pytest.mark.usefixtures("_module_mockers")
 def test_update_config_command(setup_experiment, update_config_command):
-    __ = setup_experiment
-    __ = update_config_command
+    __ = setup_experiment  # noqa F841
+    __ = update_config_command  # noqa F841

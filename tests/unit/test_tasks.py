@@ -2,24 +2,19 @@
 """Unit tests for the config file parsing module."""
 import subprocess
 from pathlib import Path
-import os
 
-from unittest.mock import patch
-import pytest
-import tomlkit
 import numpy as np
-
+import pytest
 import surfex
 from surfex import BatchJob
 
 import experiment
-from experiment.tasks.tasks import AbstractTask
-from experiment.tasks.discover_tasks import discover, get_task
-from experiment.experiment import ExpFromFiles, Exp
-from experiment.datetime_utils import as_datetime
-from experiment.system import System
 from experiment.config_parser import ParsedConfig
-
+from experiment.datetime_utils import as_datetime
+from experiment.experiment import Exp, ExpFromFiles
+from experiment.system import System
+from experiment.tasks.discover_tasks import discover, get_task
+from experiment.tasks.tasks import AbstractTask
 
 WORKING_DIR = Path.cwd()
 
@@ -38,7 +33,7 @@ def get_config(tmp_path_factory):
     exp_name = "test_config"
     pysurfex_experiment = f"{str(((Path(__file__).parent).parent).parent)}"
     pysurfex = f"{str((Path(surfex.__file__).parent).parent)}"
-    offline_source = "/tmp/source"
+    offline_source = f"{wdir}/source"
 
     exp_dependencies = ExpFromFiles.setup_files(
         wdir, exp_name, None, pysurfex, pysurfex_experiment, offline_source=offline_source
@@ -85,15 +80,6 @@ def get_config(tmp_path_factory):
         "gmted2010_data_path": f"{tmp_path_factory.getbasetemp().as_posix()}/GMTED2010",
         "namelists": "{WORKING_DIR}/deode/data/namelists",
     }
-    os.system(
-        f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapI_covers_param.bin"
-    )
-    os.system(
-        f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapII_af_covers_param.bin"
-    )
-    os.system(
-        f"touch {tmp_path_factory.getbasetemp().as_posix()}/ecoclimapII_eu_covers_param.bin"
-    )
 
     env_submit = {
         "submit_types": ["background", "scalar"],
@@ -111,6 +97,7 @@ def get_config(tmp_path_factory):
         "end": "2023-01-01T06:00:00Z",
         "basetime_pp": "2023-01-01T03:00:00Z",
     }
+
     # Configuration
     config_files_dict = ExpFromFiles.get_config_files(
         exp_dependencies["config"]["config_files"], exp_dependencies["config"]["blocks"]
@@ -150,10 +137,9 @@ def get_config(tmp_path_factory):
 
 
 @pytest.fixture(params=classes_to_be_tested())
-def task_name_and_configs(request, get_config, tmp_path_factory):
+def task_name_and_configs(request, get_config):
     """Return a ParsedConfig with a task-specific section according to `params`."""
     task_name = request.param
-    # task_config = ParsedConfig.parse_obj(base_raw_config, json_schema={})
     task_config = get_config
     return task_name, task_config
 

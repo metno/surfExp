@@ -1,8 +1,7 @@
 """Experiment configuration."""
 
-from .datetime_utils import as_timedelta, ProgressFromConfig
+from .datetime_utils import ProgressFromConfig, as_timedelta
 from .logs import get_logger_from_config
-
 
 NO_DEFAULT_PROVIDED = object()
 
@@ -11,18 +10,25 @@ class Configuration:
     """Configuration object for testing purposes."""
 
     def __init__(self, config):
+        """Construct configuration settings.
+
+        Args:
+            config (ParsedConfig): Parsed config
+
+        """
         self.config = config
         self.logger = get_logger_from_config(config)
 
     def get_setting(self, setting, sep="#", realization=None):
-        """Get setting
+        """Get setting.
 
         Args:
-            setting (_type_): _description_
+            setting (str): Setting
             sep (str, optional): _description_. Defaults to "#".
+            realization (int, optional): Realization number
 
         Returns:
-            _type_: _description_
+            any: Found setting
 
         """
         items = setting.replace(sep, ".")
@@ -54,16 +60,13 @@ class Configuration:
             return cycle_list
 
     def get_cycle_list(self, realization=None):
-        """Get cycle list as time deltas from midnight
+        """Get cycle list as time deltas from midnight.
 
         Args:
-            realization (_type_, optional): _description_. Defaults to None.
-
-        Raises:
-            NotImplementedError: _description_
+            realization (int, optional): Realization number
 
         Returns:
-            _type_: _description_
+            list: Cycle list
         """
         cycle_length = as_timedelta(
             self.get_setting("general.times.cycle_length", realization=realization)
@@ -81,27 +84,31 @@ class Configuration:
         """Calculate the max forecast time.
 
         Args:
-            mbr (int, optional): ensemble member. Defaults to None.
+            realization (int, optional): Realization number
 
         Returns:
-            _type_: _description_
+            NotImplementedError
+
         """
-        raise NotImplementedError
+        return NotImplementedError
 
     def get_lead_time_list(self, realization=None):
         """Get a list of forecast lead times.
 
         Args:
-            mbr (int, optional): ensemble member. Defaults to None.
+            realization (int, optional): Realization number
 
         Returns:
-            list: Forecast lead times.
+            NotImplementedError
 
         """
         return NotImplementedError
 
     def get_fgint(self, realization=None):
         """Get the fgint.
+
+        Args:
+            realization (int, optional): Realization number
 
         Returns:
             as_timedelta: fgint
@@ -113,6 +120,9 @@ class Configuration:
 
     def get_fcint(self, realization=None):
         """Get the fcint.
+
+        Args:
+            realization (int, optional): Realization number
 
         Returns:
             as_timedelta:: fcint in seconds
@@ -126,8 +136,9 @@ class Configuration:
         """Check if setting is value.
 
         Args:
-            setting (_type_): _description_
-            value (_type_): _description_
+            setting (str): Setting
+            value (any): Value
+            realization (int, optional): Realization number
 
         Returns:
             bool: True if found, False if not found.
@@ -140,8 +151,9 @@ class Configuration:
         """Check if setting is not value.
 
         Args:
-            setting (_type_): _description_
-            value (_type_): _description_
+            setting (str): Setting
+            value (any): Value
+            realization (int, optional): Realization number
 
         Returns:
             bool: True if not found, False if found.
@@ -159,8 +171,9 @@ class Configuration:
         """Check if the setting contains value.
 
         Args:
-            setting (str): _description_
-            value (list): _description_
+            setting (str): Setting
+            value (any): Value
+            realization (int, optional): Realization number
 
         Returns:
             bool: True if found, False if not found.
@@ -177,8 +190,9 @@ class Configuration:
         """Check if the setting does not contain value.
 
         Args:
-            setting (_type_): _description_
-            value (list): _description_
+            setting (str): Setting
+            value (any): Value
+            realization (int, optional): Realization number
 
         Returns:
             bool: True if not found, False if found.
@@ -193,11 +207,12 @@ class Configuration:
         """Check if setting is one of the provided list of values.
 
         Args:
-            setting (_type_): _description_
-            values (_type_): _description_
+            setting (str): Setting
+            values (list): Values
+            realization (int, optional): Realization number
 
         Raises:
-            Exception: _description_
+            TypeError: Values should be a list
 
         Returns:
             bool: True if found, False if not found.
@@ -216,8 +231,9 @@ class Configuration:
         """Check if setting is not one of the provided list of values.
 
         Args:
-            setting (_type_): _description_
-            values (_type_): _description_
+            setting (str): Setting
+            values (list): Values
+            realization (int, optional): Realization number
 
         Returns:
             bool: True if not found, False if found.
@@ -232,7 +248,8 @@ class Configuration:
         """Get the active observations.
 
         Args:
-            dtg (_type_, optional): datetime.datetime. Defaults to None.
+            dtg (as_datetime, optional): Basetime. Defaults to None.
+            realization (int, optional): Realization number
 
         Returns:
             list: List with either 0 or 1
@@ -247,7 +264,7 @@ class Configuration:
         snow_ass_done = False
         progress = ProgressFromConfig(self.config)
         if dtg is None:
-            dtg = progress.dtg
+            dtg = progress.basetime
         if len(snow_ass) > 0:
             if dtg is not None:
                 hhh = int(dtg.strftime("%H"))

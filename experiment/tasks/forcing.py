@@ -1,11 +1,9 @@
 """Forcing task."""
-import os
 import json
-import yaml
-
+import os
 
 import surfex
-
+import yaml
 
 from ..tasks.tasks import AbstractTask
 
@@ -120,14 +118,13 @@ class Forcing(AbstractTask):
 
 
 class ModifyForcing(AbstractTask):
-
     """Create modify forcing task."""
 
     def __init__(self, config):
         """Construct modify forcing task.
 
         Args:
-            config (dict): Actual configuration dict
+            config (ParsedObject): Parsed configuration
 
         """
         AbstractTask.__init__(self, config)
@@ -139,11 +136,7 @@ class ModifyForcing(AbstractTask):
         self.user_config = user_config
 
     def execute(self):
-        """Execute the forcing task.
-
-        Raises:
-            NotImplementedError: _description_
-        """
+        """Execute the forcing task."""
         dtg = self.dtg
         dtg_prev = dtg - self.fcint
         self.logger.debug("modify forcing dtg=%s dtg_prev=%s", dtg, dtg_prev)
@@ -163,4 +156,4 @@ class ModifyForcing(AbstractTask):
         if os.path.exists(output_file) and os.path.exists(input_file):
             surfex.forcing.modify_forcing(**kwargs)
         else:
-            self.logger.info("Output or inut is missing: %s", output_file)
+            self.logger.info("Output or input is missing: %s", output_file)

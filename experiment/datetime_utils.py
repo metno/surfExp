@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Implement helper routines to deal with dates and times."""
-from datetime import timezone, datetime
+from datetime import datetime, timezone
 
 import dateutil.parser
 import pandas as pd
@@ -23,21 +23,21 @@ def as_timedelta(obj):
 
 
 def datetime_as_string(obj):
-    """Convert datetime obejct to string"""
+    """Convert datetime obejct to string."""
     return obj.isoformat(sep="T").replace("+00:00", "Z")
 
 
 def ecflow2datetime_string(obj):
-    """Convert ecflow date string to ISO string"""
+    """Convert ecflow date string to ISO string."""
     return datetime_as_string(datetime.strptime(obj, "%Y%m%d%H%M")) + "Z"
 
 
 def datetime2ecflow(obj):
-    """Convert ISO datetime to EcFlow string"""
+    """Convert ISO datetime to EcFlow string."""
     return obj.strftime("%Y%m%d%H%M")
 
 
-class ProgressFromConfig():
+class ProgressFromConfig:
     """Create progress object from a json file."""
 
     def __init__(self, config):

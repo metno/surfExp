@@ -1,13 +1,11 @@
 """Discover tasks."""
-import os
-import sys
 import importlib
 import inspect
+import os
 import pkgutil
+import sys
 
-
-from .. import PACKAGE_NAME
-from .. import tasks
+from .. import PACKAGE_NAME, tasks
 from ..logs import get_logger
 from .tasks import AbstractTask
 
@@ -19,6 +17,7 @@ def discover_modules(package, what="plugin", loglevel="INFO"):
         package (types.ModuleType): Namespace package containing the plugins
         what (str, optional): String describing what is supposed to be discovered.
                               Defaults to "plugin".
+        loglevel(str, optional): Loglevel. Default to "INFO"
 
     Yields:
         str (types.ModuleType):  Imported module
@@ -67,11 +66,12 @@ def get_task(name, config, loglevel="INFO"):
     """Create a `AbstractTask` object from configuration.
 
     Args:
-        name (_type_): _description_
-        config (_type_): _description_
+        name (str): _description_
+        config (ParsedConfig): _description_
+        loglevel(str, optional): Loglevel. Default to "INFO"
 
     Returns:
-        _type_: _description_
+        AbstractTask: The task object
 
     """
     logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
@@ -105,7 +105,7 @@ def get_task(name, config, loglevel="INFO"):
     return task
 
 
-def discover(package, base, attrname="__plugin_name__"):
+def discover(package, base, attrname="__plugin_name__", loglevel="INFO"):
     """Discover task classes.
 
     Plugin classes are discovered in a given namespace package, deriving from
@@ -120,10 +120,13 @@ def discover(package, base, attrname="__plugin_name__"):
         package (types.ModuleType): Namespace package containing the plugins
         base (type): Base class for the plugins
         attrname (str): Name of the attribute that contains the name for the plugin
+        loglevel(str, optional): Loglevel. Default to "INFO"
 
     Returns:
         (dict of str: type): Discovered plugin classes
+
     """
+    logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
     what = base.__name__
 
     def pred(x):

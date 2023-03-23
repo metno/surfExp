@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Unit tests for the config file parsing module."""
-from unittest.mock import patch
 import logging
-import pytest
+from unittest.mock import patch
 
+import pytest
 
 from experiment.scheduler.scheduler import EcflowClient, EcflowServer, EcflowTask
 
@@ -17,7 +17,7 @@ def suite_name():
 def ecflow_task(__):
     ecf_name = f"/{suite_name}/family/Task"
     ecf_tryno = "1"
-    ecf_pass = "abc123"  # noqa
+    ecf_pass = "abc123"  # noqa S108
     ecf_rid = None
     ecf_timeout = 20
     return EcflowTask(ecf_name, ecf_tryno, ecf_pass, ecf_rid, ecf_timeout=ecf_timeout)

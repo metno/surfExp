@@ -1,9 +1,7 @@
 """Tasks running surfex binaries."""
 import os
 
-
 import surfex
-
 
 from ..tasks.tasks import AbstractTask
 
@@ -172,7 +170,6 @@ class SurfexBinaryTask(AbstractTask):
             )
         elif self.mode == "soda":
             self.soda = True
-            # print(kwargs)
             input_data = surfex.SodaInputData(
                 self.sfx_config,
                 self.exp_file_paths,
@@ -208,12 +205,10 @@ class SurfexBinaryTask(AbstractTask):
         self.logger.debug("rte %s", str(rte))
         batch = surfex.BatchJob(rte, wrapper=self.wrapper)
 
-        # settings = surfex.ascii2nml(json_settings)
         settings = self.namelist.get_namelist()
         self.geo.update_namelist(settings)
 
         # Create input
-        # my_ecoclimap = surfex.JsonInputDataFromFile(ecoclimap_file)
         filetype = settings["nam_io_offline"]["csurf_filetype"]
         pgdfile = settings["nam_io_offline"]["cpgdfile"]
         prepfile = settings["nam_io_offline"]["cprepfile"]
@@ -273,7 +268,6 @@ class SurfexBinaryTask(AbstractTask):
                 archive_file=output,
                 lfagmap=lfagmap,
             )
-            # print(input_data.data)
             surfex.SURFEXBinary(
                 binary,
                 batch,
@@ -318,17 +312,14 @@ class Pgd(SurfexBinaryTask):
         SurfexBinaryTask(AbstractTask): Inheritance of surfex binary task class
     """
 
-    def __init__(self, config, **kwargs):
+    def __init__(self, config):
         """Construct a Pgd task object.
 
         Args:
-            task (_type_): _description_
-            config (_type_): _description_
-            system (_type_): _description_
-            exp_file_paths (_type_): _description_
-            progress (_type_): _description_
+            config (ParsedObject): Parsed configuration
+
         """
-        SurfexBinaryTask.__init__(self, config, "pgd", **kwargs)
+        SurfexBinaryTask.__init__(self, config, "pgd")
 
     def execute(self):
         """Execute."""
@@ -353,7 +344,7 @@ class Prep(SurfexBinaryTask):
         """Construct Prep task.
 
         Args:
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
 
         """
         SurfexBinaryTask.__init__(self, config, "prep")
@@ -405,7 +396,8 @@ class Forecast(SurfexBinaryTask):
         """Construct the forecast task.
 
         Args:
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
+
         """
         SurfexBinaryTask.__init__(self, config, "offline")
 
@@ -475,7 +467,7 @@ class PerturbedRun(SurfexBinaryTask):
         """Construct a perturbed run task.
 
         Args:
-            config (dict): _description_
+            config (ParsedObject): Parsed configuration
 
         """
         SurfexBinaryTask.__init__(self, config, "perturbed")
@@ -534,7 +526,8 @@ class Soda(SurfexBinaryTask):
         """Construct a Soda task.
 
         Args:
-            config (_type_): _description_
+            config (ParsedObject): Parsed configuration
+
         """
         SurfexBinaryTask.__init__(self, config, "soda")
 
