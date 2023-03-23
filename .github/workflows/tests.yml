@@ -95,7 +95,7 @@ jobs:
         if: ${{ matrix.python-version == 3.8 }}
         run: |
           export COVERALLS_REPO_TOKEN=${{secrets.COVERALLS_REPO_TOKEN}}
-          coveralls
+          poetry run coveralls
 
       - name: Create documentation
         if: ${{ matrix.python-version == 3.8 }}
