@@ -16,9 +16,6 @@ except ModuleNotFoundError:
     Client = None
     State = None
 
-Client = None
-State = None
-
 
 # Base Scheduler server class
 class Server(ABC):

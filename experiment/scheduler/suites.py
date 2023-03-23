@@ -3,15 +3,12 @@ import logging
 import os
 import sys
 
-"""
+
 try:
     from ecflow  import Defs, Defstatus  # noqa reportMissingImports
 except ImportError:
     Defs = None
     Defstatus = None
-"""
-Defs = None
-Defstatus = None
 
 
 class EcflowNode:
