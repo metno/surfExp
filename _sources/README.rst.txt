@@ -58,6 +58,12 @@ To run commands interactively in the poetry environment you need to run either "
 Usage
 ---------------------------------------------
 
+There are two ways to set up an experiment. Either in an experiment with the config files inside the experiment,
+or as a self contained configuration file with all settings inside.
+
+Approach 1: All sub-config files in an experiment
+----------------------------------------------------
+
 Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings.
 Adjust it to your clone, host-tag and system. First you will set up an experiment. This will merge configuration based on your settings and split them back to configuration files.
 You have the following config files in the config directories:
@@ -67,9 +73,13 @@ You have the following config files in the config directories:
  * config_exp_observations.toml
  * config_exp_eps.toml
  
-In addition you will get some other config files used in the tasks.
+In addition you will get some other config files used in the tasks. An example on how to use it inside a poetry environment ("poetry shell")
 
 .. code-block:: bash
+
+ # First make sure you are in a poetry environment after executing "poetry shell"
+ cd ~/projects/pysurfex-experiment
+ poetry shell
 
  export PYSURFEX_EXPERIMENT_PATH="pysurfex-experiment-clone-dir"
  export HOST_TAG="my-host-tag"
@@ -87,12 +97,53 @@ In addition you will get some other config files used in the tasks.
 
  # Alternative way of setting up a pre-defined SEKF configuration
  PySurfexExpSetup -experiment $PYSURFEX_EXPERIMENT_PATH -host $HOST_TAG -offline $OFFLINE_SOURCE_CODE --config sekf
-
+ 
  # To re-configure your config and (re-)create exp_configuration.json
  PySurfexExpConfig
-
+ 
  # To start you experiment
  PySurfexExp start -dtg 202301010300 -dtgend 202301010600
+
+Alternative 2 is using the poetry run functionality:
+
+.. code-block:: bash
+
+ # First make sure you are in a poetry environment after executing "poetry shell"
+ cd ~/projects/pysurfex-experiment
+
+ export PYSURFEX_EXPERIMENT_PATH="pysurfex-experiment-clone-dir"
+ export HOST_TAG="my-host-tag"
+ export OFFLINE_SOURCE_CODE="path-to-your-offline-source-code"
+ export WD=$HOME/sfx_home/my_exp
+ 
+ # The -offline argument is optional if you want to run with existing binaries
+ poetry run PySurfexExpSetup -experiment $PYSURFEX_EXPERIMENT_PATH -host $HOST_TAG -offline $OFFLINE_SOURCE_CODE -exp_name my_exp --wd $WD
+ # This will create a file exp_dependencies.json
+ 
+ # Alternative way of setting up a pre-defined SEKF configuration
+ WD=$HOME/sfx_home/my_sekf_exp
+ poetry run PySurfexExpSetup -experiment $PYSURFEX_EXPERIMENT_PATH -host $HOST_TAG -offline $OFFLINE_SOURCE_CODE --config sekf -exp_name my_sekf_exp --wd $WD
+ 
+ # To re-configure your config and (re-)create exp_configuration.json
+ poetry run PySurfexExpConfig -exp_name my_sekf_exp --wd $WD
+ 
+ # To start you experiment
+ poetry run PySurfexExp start -dtg 202301010300 -dtgend 202301010600
+
+
+The second approach is to create a self-contained configuration file, can be started.
+The altering of the configuration must then be done by applying a defined configuration or a configuration file with patches from original configuration.
+Here is an example with CARRA2.
+
+.. code-block:: bash
+ cd ~/projects/pysurfex-experiment
+
+ # Create experiment in file CARRA2_MINI_NEW.json
+ poetry run PySurfexExpSetup -exp_name CARRA2_MINI -experiment $PWD -offline /perm/sbu/git/carra/CARRA2-Harmonie/util/offline/ -host ECMWF-atos --config carra2 -o CARRA2_MINI.json
+  
+ # Run experiment from config file CARRA2_MINI_NEW.json
+ poetry run PySurfexExp start -exp_name CARRA2_MINI -dtg "2017-09-01T03:00:00Z" -dtgend "2017-09-01T06:00:00Z" -config CARRA2_MINI.json
+
 
 
 Following host tags are tested:

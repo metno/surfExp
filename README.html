@@ -1,20 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>This repository is a setup to create and run offline SURFEX experiments. &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -25,7 +23,8 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="contents.html">Pysurfex-experiment  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">This repository is a setup to create and run offline SURFEX experiments.</a></li> 
       </ul>
     </div>  
 
@@ -75,19 +74,28 @@ poetry shell
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>There are two ways to set up an experiment. Either in an experiment with the config files inside the experiment,
+or as a self contained configuration file with all settings inside.</p>
+</div>
+<div class="section" id="approach-1-all-sub-config-files-in-an-experiment">
+<h2>Approach 1: All sub-config files in an experiment<a class="headerlink" href="#approach-1-all-sub-config-files-in-an-experiment" title="Permalink to this headline">¶</a></h2>
 <p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings.
 Adjust it to your clone, host-tag and system. First you will set up an experiment. This will merge configuration based on your settings and split them back to configuration files.
 You have the following config files in the config directories:</p>
 <blockquote>
 <div><ul class="simple">
-<li>config_exp.toml</li>
-<li>config_exp_surfex.toml</li>
-<li>config_exp_observations.toml</li>
-<li>config_exp_eps.toml</li>
+<li><p>config_exp.toml</p></li>
+<li><p>config_exp_surfex.toml</p></li>
+<li><p>config_exp_observations.toml</p></li>
+<li><p>config_exp_eps.toml</p></li>
 </ul>
 </div></blockquote>
-<p>In addition you will get some other config files used in the tasks.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
+<p>In addition you will get some other config files used in the tasks. An example on how to use it inside a poetry environment (“poetry shell”)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in a poetry environment after executing &quot;poetry shell&quot;</span>
+<span class="nb">cd</span> ~/projects/pysurfex-experiment
+poetry shell
+
+<span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
 <span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
 <span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
 
@@ -111,12 +119,39 @@ PySurfexExpConfig
 PySurfexExp start -dtg <span class="m">202301010300</span> -dtgend <span class="m">202301010600</span>
 </pre></div>
 </div>
+<p>Alternative 2 is using the poetry run functionality:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in a poetry environment after executing &quot;poetry shell&quot;</span>
+<span class="nb">cd</span> ~/projects/pysurfex-experiment
+
+<span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
+<span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
+<span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
+<span class="nb">export</span> <span class="nv">WD</span><span class="o">=</span><span class="nv">$HOME</span>/sfx_home/my_exp
+
+<span class="c1"># The -offline argument is optional if you want to run with existing binaries</span>
+poetry run PySurfexExpSetup -experiment <span class="nv">$PYSURFEX_EXPERIMENT_PATH</span> -host <span class="nv">$HOST_TAG</span> -offline <span class="nv">$OFFLINE_SOURCE_CODE</span> -exp_name my_exp --wd <span class="nv">$WD</span>
+<span class="c1"># This will create a file exp_dependencies.json</span>
+
+<span class="c1"># Alternative way of setting up a pre-defined SEKF configuration</span>
+<span class="nv">WD</span><span class="o">=</span><span class="nv">$HOME</span>/sfx_home/my_sekf_exp
+poetry run PySurfexExpSetup -experiment <span class="nv">$PYSURFEX_EXPERIMENT_PATH</span> -host <span class="nv">$HOST_TAG</span> -offline <span class="nv">$OFFLINE_SOURCE_CODE</span> --config sekf -exp_name my_sekf_exp --wd <span class="nv">$WD</span>
+
+<span class="c1"># To re-configure your config and (re-)create exp_configuration.json</span>
+poetry run PySurfexExpConfig -exp_name my_sekf_exp --wd <span class="nv">$WD</span>
+
+<span class="c1"># To start you experiment</span>
+poetry run PySurfexExp start -dtg <span class="m">202301010300</span> -dtgend <span class="m">202301010600</span>
+</pre></div>
+</div>
+<p>The second approach is to create a self-contained configuration file, can be started.
+The altering of the configuration must then be done by applying a defined configuration or a configuration file with patches from original configuration.
+Here is an example with CARRA2.</p>
 <p>Following host tags are tested:</p>
 <blockquote>
 <div><ul class="simple">
-<li>ECMWF-atos (ATOS at ECMWF)</li>
-<li>ppi-rhel8  (RH8 PPI at met.no)</li>
-<li>nebula     (nebula.nsc.liu.se)</li>
+<li><p>ECMWF-atos (ATOS at ECMWF)</p></li>
+<li><p>ppi-rhel8  (RH8 PPI at met.no)</p></li>
+<li><p>nebula     (nebula.nsc.liu.se)</p></li>
 </ul>
 <p>The experiment specific file exp_dependencies.json will tell you the location of the system dependent files.
 You might want to override them with local copies if needed.</p>
@@ -138,17 +173,19 @@ module load ecflow/5.8.1
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="contents.html">Table of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">This repository is a setup to create and run offline SURFEX experiments.</a><ul>
 <li><a class="reference internal" href="#general-dependencies-from-pypi">General dependencies (from pypi)</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#approach-1-all-sub-config-files-in-an-experiment">Approach 1: All sub-config files in an experiment</a></li>
 <li><a class="reference internal" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments">Extra environment on PPI-RHEL8 needed to start experiments</a></li>
 <li><a class="reference internal" href="#trainings">Trainings</a></li>
 </ul>
@@ -163,17 +200,15 @@ module load ecflow/5.8.1
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -184,12 +219,13 @@ module load ecflow/5.8.1
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="contents.html">Pysurfex-experiment  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">This repository is a setup to create and run offline SURFEX experiments.</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>

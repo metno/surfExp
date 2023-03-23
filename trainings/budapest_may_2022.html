@@ -1,20 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ACCORD training Budapest May 9-13 2022 &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -25,7 +23,8 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="../contents.html">Pysurfex-experiment  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ACCORD training Budapest May 9-13 2022</a></li> 
       </ul>
     </div>  
 
@@ -37,24 +36,21 @@
   <div class="section" id="accord-training-budapest-may-9-13-2022">
 <h1>ACCORD training Budapest May 9-13 2022<a class="headerlink" href="#accord-training-budapest-may-9-13-2022" title="Permalink to this headline">¶</a></h1>
 <p>Excercises are prepared for the ACCORD training in Budapest. More information can be found on the internal website <a class="reference external" href="https://opensource.umr-cnrm.fr/projects/accord/wiki/Spring_Surface_Working_Week_2022">https://opensource.umr-cnrm.fr/projects/accord/wiki/Spring_Surface_Working_Week_2022</a></p>
-<dl class="docutils">
-<dt>Sample data can be downloaded from ECMWF ecgate:</dt>
-<dd><ul class="first last simple">
-<li>/hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data.tgz</li>
-<li>/hpc/perm/ms/no/sbu/training/budapest_2022.tgz</li>
+<dl class="simple">
+<dt>Sample data can be downloaded from ECMWF ecgate:</dt><dd><ul class="simple">
+<li><p>/hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data.tgz</p></li>
+<li><p>/hpc/perm/ms/no/sbu/training/budapest_2022.tgz</p></li>
 </ul>
 </dd>
-<dt>Source code (needed for excercise E1.2, E1.3 and all in part 3):</dt>
-<dd><ul class="first last simple">
-<li>/hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz (Difference from AA preop2: Works with NC files and split_patch. Adds new snow also for positive temperatures)</li>
-<li>/hpc/perm/ms/no/sbu/training/auxlib.tgz</li>
+<dt>Source code (needed for excercise E1.2, E1.3 and all in part 3):</dt><dd><ul class="simple">
+<li><p>/hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz (Difference from AA preop2: Works with NC files and split_patch. Adds new snow also for positive temperatures)</p></li>
+<li><p>/hpc/perm/ms/no/sbu/training/auxlib.tgz</p></li>
 </ul>
 </dd>
-<dt>For installation of pysurfex, scheduler and experiment I reccomend to clone the repos to your system. Then install the extra dependencies from pip:</dt>
-<dd><ul class="first last simple">
-<li><a class="reference external" href="https://github.com/metno/pysurfex/blob/master/requirements.txt">https://github.com/metno/pysurfex/blob/master/requirements.txt</a></li>
-<li><a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></li>
-<li><a class="reference external" href="https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt">https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt</a></li>
+<dt>For installation of pysurfex, scheduler and experiment I reccomend to clone the repos to your system. Then install the extra dependencies from pip:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="https://github.com/metno/pysurfex/blob/master/requirements.txt">https://github.com/metno/pysurfex/blob/master/requirements.txt</a></p></li>
+<li><p><a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></p></li>
+<li><p><a class="reference external" href="https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt">https://github.com/metno/pysurfex-scheduler/blob/master/requirements.txt</a></p></li>
 </ul>
 </dd>
 </dl>
@@ -72,16 +68,17 @@
 The second part will focus on observation pre-processing, horizontal analysis and surface assimilation.</p>
 <p>Assumptions:</p>
 <ul class="simple">
-<li>Assume pysurfex is installed/cloned and in your path (<a class="reference external" href="https://github.com/metno/pysurfex">https://github.com/metno/pysurfex</a>)</li>
-<li>Assume pysurfex installation/clone directory is “path-to-pysurfex”</li>
-<li>Assume pysurfex-experiment installation/clone directory is “path-to-pysurfex-experiment”</li>
-<li>Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA</li>
-<li>Assume that you have system paths defined in a file called system.json<ul>
-<li>LAKE_LTA_NEW.nc (flake_dir) needed for PREP</li>
+<li><p>Assume pysurfex is installed/cloned and in your path (<a class="reference external" href="https://github.com/metno/pysurfex">https://github.com/metno/pysurfex</a>)</p></li>
+<li><p>Assume pysurfex installation/clone directory is “path-to-pysurfex”</p></li>
+<li><p>Assume pysurfex-experiment installation/clone directory is “path-to-pysurfex-experiment”</p></li>
+<li><p>Assume that you have your surfex binaries in PATH and that they are called PGD, PREP, OFFLINE and SODA</p></li>
+<li><p>Assume that you have system paths defined in a file called system.json</p>
+<ul>
+<li><p>LAKE_LTA_NEW.nc (flake_dir) needed for PREP</p></li>
 </ul>
 </li>
-<li>nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data. It is assumed to be relative to where you run.</li>
-<li>Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json</li>
+<li><p>nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data. It is assumed to be relative to where you run.</p></li>
+<li><p>Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json</p></li>
 </ul>
 <div class="section" id="e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds">
 <h3>E1.1: Create offline forcing using the MET-Nordic analysis from thredds<a class="headerlink" href="#e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds" title="Permalink to this headline">¶</a></h3>
@@ -391,15 +388,16 @@ Now you have pysurfex-experiment either as clone or installed as an editable pip
 <h3>1) Add your host<a class="headerlink" href="#add-your-host" title="Permalink to this headline">¶</a></h3>
 <p>You are probably now doing this on a new “host”. Define a name of your host.</p>
 <ul class="simple">
-<li>config/system/[host].toml - Define your system based on other examples<ul>
-<li>Set SURFEX_CONFIG in Env_system to be the same as you have called your host</li>
-<li>SCHEDULER_PYTHONPATH should be set on each host to whatever needed to import python modules from pysurfex-scheduler and ecflow.</li>
+<li><p>config/system/[host].toml - Define your system based on other examples</p>
+<ul>
+<li><p>Set SURFEX_CONFIG in Env_system to be the same as you have called your host</p></li>
+<li><p>SCHEDULER_PYTHONPATH should be set on each host to whatever needed to import python modules from pysurfex-scheduler and ecflow.</p></li>
 </ul>
 </li>
-<li>config/submit/[host].json - Look at other examples. Probably you will run a localhost setup on your laptop?</li>
-<li>config/input_paths/[host].json - Look at other examples. You need to set the variables you are going to use to where you have the data on your system. Typically for PGD input data.</li>
-<li>config/server/[host].json - Define your ecflow server name (host name on your laptop?) and port and/or port_offset</li>
-<li>config/env/[host].py - This file will be added to your batch script for all batch jobs. Most likely you can keep this empty.</li>
+<li><p>config/submit/[host].json - Look at other examples. Probably you will run a localhost setup on your laptop?</p></li>
+<li><p>config/input_paths/[host].json - Look at other examples. You need to set the variables you are going to use to where you have the data on your system. Typically for PGD input data.</p></li>
+<li><p>config/server/[host].json - Define your ecflow server name (host name on your laptop?) and port and/or port_offset</p></li>
+<li><p>config/env/[host].py - This file will be added to your batch script for all batch jobs. Most likely you can keep this empty.</p></li>
 </ul>
 </div>
 <div class="section" id="get-surfex-source-code">
@@ -588,12 +586,13 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <h3><a href="../index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">ACCORD training Budapest May 9-13 2022</a><ul>
 <li><a class="reference internal" href="#part-1-run-offline-binaries-and-create-a-first-guess">Part 1: Run offline binaries and create a first guess</a><ul>
@@ -646,17 +645,15 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -667,12 +664,13 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="../contents.html">Pysurfex-experiment  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">ACCORD training Budapest May 9-13 2022</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
     </div>
   </body>
 </html>
