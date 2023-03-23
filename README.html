@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
     <title>This repository is a setup to create and run offline SURFEX experiments. &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -35,50 +35,50 @@
             
   <img alt="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" id="readme" src="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" />
 <p><a class="reference external" href="https://coveralls.io/github/metno/pysurfex-experiment">https://coveralls.io/github/metno/pysurfex-experiment</a></p>
-<div class="section" id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
-<h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this headline">¶</a></h1>
+<section id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
+<h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this heading">¶</a></h1>
 <p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a>
 The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>)</p>
 <p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></p>
-<div class="section" id="general-dependencies-from-pypi">
-<h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this headline">¶</a></h2>
+<section id="general-dependencies-from-pypi">
+<h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pysurfex
 </pre></div>
 </div>
 <p>pysurfex bring extra dependencies like gridpp, titanlib. If you install from pypi with pip these should be handled automatically.</p>
-</div>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
 <p>The recommended installation method is using poetry. First install poetry. This can be done in several ways like a system package or ftom pypi. The recommended way is:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -sSL https://install.python-poetry.org <span class="p">|</span> python3 -
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-sSL<span class="w"> </span>https://install.python-poetry.org<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-
 </pre></div>
 </div>
 <p>When you have poetry installed make sure you have it in path. It might be installed in ~/.local/bin.
 To install the script system first clone <a class="reference external" href="https://github.com/metno/pysurfex-experiment">https://github.com/metno/pysurfex-experiment</a> and install it.
 To run commands interactively in the poetry environment you need to run either “poetry shell” or “poetry run [cmd]”</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
-mkdir -p projects
-<span class="nb">cd</span> projects
+mkdir<span class="w"> </span>-p<span class="w"> </span>projects
+<span class="nb">cd</span><span class="w"> </span>projects
 
 <span class="c1"># Clone the source code</span>
-clone https://github.com/metno/pysurfex-experiment
+clone<span class="w"> </span>https://github.com/metno/pysurfex-experiment
 
 <span class="c1"># Install the script system</span>
-<span class="nb">cd</span> pysurfex-experiment
-poetry install
+<span class="nb">cd</span><span class="w"> </span>pysurfex-experiment
+poetry<span class="w"> </span>install
 
 <span class="c1"># Enter the environment</span>
-poetry shell
+poetry<span class="w"> </span>shell
 </pre></div>
 </div>
-</div>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <p>There are two ways to set up an experiment. Either in an experiment with the config files inside the experiment,
 or as a self contained configuration file with all settings inside.</p>
-</div>
-<div class="section" id="approach-1-all-sub-config-files-in-an-experiment">
-<h2>Approach 1: All sub-config files in an experiment<a class="headerlink" href="#approach-1-all-sub-config-files-in-an-experiment" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="approach-1-all-sub-config-files-in-an-experiment">
+<h2>Approach 1: All sub-config files in an experiment<a class="headerlink" href="#approach-1-all-sub-config-files-in-an-experiment" title="Permalink to this heading">¶</a></h2>
 <p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings.
 Adjust it to your clone, host-tag and system. First you will set up an experiment. This will merge configuration based on your settings and split them back to configuration files.
 You have the following config files in the config directories:</p>
@@ -92,55 +92,55 @@ You have the following config files in the config directories:</p>
 </div></blockquote>
 <p>In addition you will get some other config files used in the tasks. An example on how to use it inside a poetry environment (“poetry shell”)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in a poetry environment after executing &quot;poetry shell&quot;</span>
-<span class="nb">cd</span> ~/projects/pysurfex-experiment
-poetry shell
+<span class="nb">cd</span><span class="w"> </span>~/projects/pysurfex-experiment
+poetry<span class="w"> </span>shell
 
-<span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
-<span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
-<span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
 
 <span class="nb">cd</span>
-mkdir -p sfx_home
-<span class="nb">cd</span> sfx_home
-mkdir -p my_exp
-<span class="nb">cd</span> my_exp
+mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="nb">cd</span><span class="w"> </span>sfx_home
+mkdir<span class="w"> </span>-p<span class="w"> </span>my_exp
+<span class="nb">cd</span><span class="w"> </span>my_exp
 
 <span class="c1"># The -offline argument is optional if you want to run with existing binaries</span>
-PySurfexExpSetup -experiment <span class="nv">$PYSURFEX_EXPERIMENT_PATH</span> -host <span class="nv">$HOST_TAG</span> -offline <span class="nv">$OFFLINE_SOURCE_CODE</span>
+PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span><span class="nv">$PYSURFEX_EXPERIMENT_PATH</span><span class="w"> </span>-host<span class="w"> </span><span class="nv">$HOST_TAG</span><span class="w"> </span>-offline<span class="w"> </span><span class="nv">$OFFLINE_SOURCE_CODE</span>
 <span class="c1"># This will create a file exp_dependencies.json</span>
 
 <span class="c1"># Alternative way of setting up a pre-defined SEKF configuration</span>
-PySurfexExpSetup -experiment <span class="nv">$PYSURFEX_EXPERIMENT_PATH</span> -host <span class="nv">$HOST_TAG</span> -offline <span class="nv">$OFFLINE_SOURCE_CODE</span> --config sekf
+PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span><span class="nv">$PYSURFEX_EXPERIMENT_PATH</span><span class="w"> </span>-host<span class="w"> </span><span class="nv">$HOST_TAG</span><span class="w"> </span>-offline<span class="w"> </span><span class="nv">$OFFLINE_SOURCE_CODE</span><span class="w"> </span>--config<span class="w"> </span>sekf
 
 <span class="c1"># To re-configure your config and (re-)create exp_configuration.json</span>
 PySurfexExpConfig
 
 <span class="c1"># To start you experiment</span>
-PySurfexExp start -dtg <span class="m">202301010300</span> -dtgend <span class="m">202301010600</span>
+PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">202301010300</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">202301010600</span>
 </pre></div>
 </div>
 <p>Alternative 2 is using the poetry run functionality:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in a poetry environment after executing &quot;poetry shell&quot;</span>
-<span class="nb">cd</span> ~/projects/pysurfex-experiment
+<span class="nb">cd</span><span class="w"> </span>~/projects/pysurfex-experiment
 
-<span class="nb">export</span> <span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
-<span class="nb">export</span> <span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
-<span class="nb">export</span> <span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
-<span class="nb">export</span> <span class="nv">WD</span><span class="o">=</span><span class="nv">$HOME</span>/sfx_home/my_exp
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">WD</span><span class="o">=</span><span class="nv">$HOME</span>/sfx_home/my_exp
 
 <span class="c1"># The -offline argument is optional if you want to run with existing binaries</span>
-poetry run PySurfexExpSetup -experiment <span class="nv">$PYSURFEX_EXPERIMENT_PATH</span> -host <span class="nv">$HOST_TAG</span> -offline <span class="nv">$OFFLINE_SOURCE_CODE</span> -exp_name my_exp --wd <span class="nv">$WD</span>
+poetry<span class="w"> </span>run<span class="w"> </span>PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span><span class="nv">$PYSURFEX_EXPERIMENT_PATH</span><span class="w"> </span>-host<span class="w"> </span><span class="nv">$HOST_TAG</span><span class="w"> </span>-offline<span class="w"> </span><span class="nv">$OFFLINE_SOURCE_CODE</span><span class="w"> </span>-exp_name<span class="w"> </span>my_exp<span class="w"> </span>--wd<span class="w"> </span><span class="nv">$WD</span>
 <span class="c1"># This will create a file exp_dependencies.json</span>
 
 <span class="c1"># Alternative way of setting up a pre-defined SEKF configuration</span>
 <span class="nv">WD</span><span class="o">=</span><span class="nv">$HOME</span>/sfx_home/my_sekf_exp
-poetry run PySurfexExpSetup -experiment <span class="nv">$PYSURFEX_EXPERIMENT_PATH</span> -host <span class="nv">$HOST_TAG</span> -offline <span class="nv">$OFFLINE_SOURCE_CODE</span> --config sekf -exp_name my_sekf_exp --wd <span class="nv">$WD</span>
+poetry<span class="w"> </span>run<span class="w"> </span>PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span><span class="nv">$PYSURFEX_EXPERIMENT_PATH</span><span class="w"> </span>-host<span class="w"> </span><span class="nv">$HOST_TAG</span><span class="w"> </span>-offline<span class="w"> </span><span class="nv">$OFFLINE_SOURCE_CODE</span><span class="w"> </span>--config<span class="w"> </span>sekf<span class="w"> </span>-exp_name<span class="w"> </span>my_sekf_exp<span class="w"> </span>--wd<span class="w"> </span><span class="nv">$WD</span>
 
 <span class="c1"># To re-configure your config and (re-)create exp_configuration.json</span>
-poetry run PySurfexExpConfig -exp_name my_sekf_exp --wd <span class="nv">$WD</span>
+poetry<span class="w"> </span>run<span class="w"> </span>PySurfexExpConfig<span class="w"> </span>-exp_name<span class="w"> </span>my_sekf_exp<span class="w"> </span>--wd<span class="w"> </span><span class="nv">$WD</span>
 
 <span class="c1"># To start you experiment</span>
-poetry run PySurfexExp start -dtg <span class="m">202301010300</span> -dtgend <span class="m">202301010600</span>
+poetry<span class="w"> </span>run<span class="w"> </span>PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">202301010300</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">202301010600</span>
 </pre></div>
 </div>
 <p>The second approach is to create a self-contained configuration file, can be started.
@@ -156,21 +156,21 @@ Here is an example with CARRA2.</p>
 <p>The experiment specific file exp_dependencies.json will tell you the location of the system dependent files.
 You might want to override them with local copies if needed.</p>
 </div></blockquote>
-</div>
-<div class="section" id="extra-environment-on-ppi-rhel8-needed-to-start-experiments">
-<h2>Extra environment on PPI-RHEL8 needed to start experiments<a class="headerlink" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module use /modules/MET/rhel8/user-modules/
-module load ecflow/5.8.1
-<span class="nb">export</span> <span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
-<span class="nb">export</span> <span class="nv">UDUNITS2_XML_PATH</span><span class="o">=</span>/usr/share/udunits/udunits2.xml
+</section>
+<section id="extra-environment-on-ppi-rhel8-needed-to-start-experiments">
+<h2>Extra environment on PPI-RHEL8 needed to start experiments<a class="headerlink" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>use<span class="w"> </span>/modules/MET/rhel8/user-modules/
+module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
+<span class="nb">export</span><span class="w"> </span><span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">UDUNITS2_XML_PATH</span><span class="o">=</span>/usr/share/udunits/udunits2.xml
 </pre></div>
 </div>
-</div>
-<div class="section" id="trainings">
-<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="trainings">
+<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/">Budapest May 2022</a> (Old version)</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -179,8 +179,9 @@ module load ecflow/5.8.1
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">This repository is a setup to create and run offline SURFEX experiments.</a><ul>
 <li><a class="reference internal" href="#general-dependencies-from-pypi">General dependencies (from pypi)</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
@@ -192,6 +193,7 @@ module load ecflow/5.8.1
 </li>
 </ul>
 
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -203,12 +205,12 @@ module load ecflow/5.8.1
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -225,7 +227,7 @@ module load ecflow/5.8.1
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

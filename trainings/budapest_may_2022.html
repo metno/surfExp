@@ -1,18 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
     <title>ACCORD training Budapest May 9-13 2022 &#8212; Pysurfex-experiment  documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -33,8 +33,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="accord-training-budapest-may-9-13-2022">
-<h1>ACCORD training Budapest May 9-13 2022<a class="headerlink" href="#accord-training-budapest-may-9-13-2022" title="Permalink to this headline">¶</a></h1>
+  <section id="accord-training-budapest-may-9-13-2022">
+<h1>ACCORD training Budapest May 9-13 2022<a class="headerlink" href="#accord-training-budapest-may-9-13-2022" title="Permalink to this heading">¶</a></h1>
 <p>Excercises are prepared for the ACCORD training in Budapest. More information can be found on the internal website <a class="reference external" href="https://opensource.umr-cnrm.fr/projects/accord/wiki/Spring_Surface_Working_Week_2022">https://opensource.umr-cnrm.fr/projects/accord/wiki/Spring_Surface_Working_Week_2022</a></p>
 <dl class="simple">
 <dt>Sample data can be downloaded from ECMWF ecgate:</dt><dd><ul class="simple">
@@ -56,14 +56,14 @@
 </dl>
 <p>You will need python3 and I reccomend to install either with “pip3 install [package] –user” or python3 -m pip install [package] –user. This does not require special permissions and will install in ~/.local. You can of course also install it system-wide but not everyone can do this.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># extra-dependencies is the path to ~/.local or wherever you put your extra needed dependencies installed above</span>
-<span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=[</span>path-to-pysurfex-clone<span class="o">]</span>:<span class="o">[</span>path-to-pysurfex-experimet-clone<span class="o">]</span>:<span class="o">[</span>path-to-pysurfex-experiment-clone<span class="o">]</span>:<span class="o">[</span>extra-dependencies<span class="o">]</span>:<span class="nv">$PYTHONPATH</span>
-<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=[</span>path-to-pysurfex-clone<span class="o">]</span>/bin:<span class="o">[</span>path-to-pysurfex-experiment-clone<span class="o">]</span>/bin:<span class="nv">$PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=[</span>path-to-pysurfex-clone<span class="o">]</span>:<span class="o">[</span>path-to-pysurfex-experimet-clone<span class="o">]</span>:<span class="o">[</span>path-to-pysurfex-experiment-clone<span class="o">]</span>:<span class="o">[</span>extra-dependencies<span class="o">]</span>:<span class="nv">$PYTHONPATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=[</span>path-to-pysurfex-clone<span class="o">]</span>/bin:<span class="o">[</span>path-to-pysurfex-experiment-clone<span class="o">]</span>/bin:<span class="nv">$PATH</span>
 </pre></div>
 </div>
 <p>This can for example be combined into a environment module if you for example do this on a hpc with a software module system. By running module use [path-to-module-files] you can always run user defined modules.</p>
 <p>The first and second parts in the exercises will be applications purely based on the pySurfex repository. The third part will be applications with pysurfex-experiment. Here instructions will be made on how to set it up yourself or use (pseudo) pre-configured setup on ecgate-cca at ECMWF.</p>
-<div class="section" id="part-1-run-offline-binaries-and-create-a-first-guess">
-<h2>Part 1: Run offline binaries and create a first guess<a class="headerlink" href="#part-1-run-offline-binaries-and-create-a-first-guess" title="Permalink to this headline">¶</a></h2>
+<section id="part-1-run-offline-binaries-and-create-a-first-guess">
+<h2>Part 1: Run offline binaries and create a first guess<a class="headerlink" href="#part-1-run-offline-binaries-and-create-a-first-guess" title="Permalink to this heading">¶</a></h2>
 <p>The first part demonstrates examples on how to make forcing and run offline SURFEX.
 The second part will focus on observation pre-processing, horizontal analysis and surface assimilation.</p>
 <p>Assumptions:</p>
@@ -80,62 +80,62 @@ The second part will focus on observation pre-processing, horizontal analysis an
 <li><p>nobackup/trainingData/config_exp.toml is consistent with AA preop2 and can be found in sample data. It is assumed to be relative to where you run.</p></li>
 <li><p>Examples will use a test domain called Drammen close to Oslo in Norway. Domain is found in [path-to-pysurfex]/examples/domains/drammen.json</p></li>
 </ul>
-<div class="section" id="e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds">
-<h3>E1.1: Create offline forcing using the MET-Nordic analysis from thredds<a class="headerlink" href="#e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds" title="Permalink to this headline">¶</a></h3>
+<section id="e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds">
+<h3>E1.1: Create offline forcing using the MET-Nordic analysis from thredds<a class="headerlink" href="#e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds" title="Permalink to this heading">¶</a></h3>
 <p>This exercise is reading 1 km re-analysed forcing from surfex forcing files located on thredds at MET-Norway. Many points and might be slow with a poor connection, but is the best avaliable forcing we can provide and you can get it from everywhere.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># You can also use forcing files from here: /hpc/perm/ms/no/sbu/training/budapest_2022_pysurfex_training_data.tgz</span>
 <span class="c1"># -p nobackup/trainingData/netcdf_forcing/FORCING_20220428T07Z.nc</span>
 
 <span class="nb">cd</span>
-mkdir -p sfx_home
-<span class="nb">cd</span> sfx_home
-mkdir forcing
-<span class="nb">cd</span> forcing
-create_forcing <span class="m">2022042803</span> <span class="m">2022042806</span> <span class="se">\</span>
--d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
--p https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
---zsoro_converter none <span class="se">\</span>
--i surfex <span class="se">\</span>
---rain_converter none <span class="se">\</span>
---wind_converter none <span class="se">\</span>
---wind_dir_converter none <span class="se">\</span>
--ig <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/met_nordic.json
+mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="nb">cd</span><span class="w"> </span>sfx_home
+mkdir<span class="w"> </span>forcing
+<span class="nb">cd</span><span class="w"> </span>forcing
+create_forcing<span class="w"> </span><span class="m">2022042803</span><span class="w"> </span><span class="m">2022042806</span><span class="w"> </span><span class="se">\</span>
+-d<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span><span class="se">\</span>
+-p<span class="w"> </span>https://thredds.met.no/thredds/dodsC/metusers/trygveasp/forcing/met_nordic/@YYYY@/@MM@/@DD@/FORCING_@YYYY@@MM@@DD@T@HH@Z.nc<span class="w"> </span><span class="se">\</span>
+--zsoro_converter<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
+-i<span class="w"> </span>surfex<span class="w"> </span><span class="se">\</span>
+--rain_converter<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
+--wind_converter<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
+--wind_dir_converter<span class="w"> </span>none<span class="w"> </span><span class="se">\</span>
+-ig<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/met_nordic.json
 </pre></div>
 </div>
-</div>
-<div class="section" id="e-1-1-1-same-exersice-with-meps-deterministic-from-thredds">
-<h3>E.1.1.1 Same exersice with MEPS deterministic from thredds<a class="headerlink" href="#e-1-1-1-same-exersice-with-meps-deterministic-from-thredds" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e-1-1-1-same-exersice-with-meps-deterministic-from-thredds">
+<h3>E.1.1.1 Same exersice with MEPS deterministic from thredds<a class="headerlink" href="#e-1-1-1-same-exersice-with-meps-deterministic-from-thredds" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
-mkdir -p sfx_home
-<span class="nb">cd</span> sfx_home
-mkdir forcing_meps
-<span class="nb">cd</span> forcing_meps
+mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="nb">cd</span><span class="w"> </span>sfx_home
+mkdir<span class="w"> </span>forcing_meps
+<span class="nb">cd</span><span class="w"> </span>forcing_meps
 
-create_forcing <span class="m">2022042803</span> <span class="m">2022042806</span> <span class="se">\</span>
--d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
--p https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc <span class="se">\</span>
---zsoro_converter phi2m <span class="se">\</span>
--i netcdf <span class="se">\</span>
---rain_converter totalprec <span class="se">\</span>
---wind_converter windspeed <span class="se">\</span>
---wind_dir_converter winddir <span class="se">\</span>
---uval constant <span class="se">\</span>
---zval constant <span class="se">\</span>
---sca_sw constant <span class="se">\</span>
---co2 constant
+create_forcing<span class="w"> </span><span class="m">2022042803</span><span class="w"> </span><span class="m">2022042806</span><span class="w"> </span><span class="se">\</span>
+-d<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span><span class="se">\</span>
+-p<span class="w"> </span>https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc<span class="w"> </span><span class="se">\</span>
+--zsoro_converter<span class="w"> </span>phi2m<span class="w"> </span><span class="se">\</span>
+-i<span class="w"> </span>netcdf<span class="w"> </span><span class="se">\</span>
+--rain_converter<span class="w"> </span>totalprec<span class="w"> </span><span class="se">\</span>
+--wind_converter<span class="w"> </span>windspeed<span class="w"> </span><span class="se">\</span>
+--wind_dir_converter<span class="w"> </span>winddir<span class="w"> </span><span class="se">\</span>
+--uval<span class="w"> </span>constant<span class="w"> </span><span class="se">\</span>
+--zval<span class="w"> </span>constant<span class="w"> </span><span class="se">\</span>
+--sca_sw<span class="w"> </span>constant<span class="w"> </span><span class="se">\</span>
+--co2<span class="w"> </span>constant
 </pre></div>
 </div>
-</div>
-<div class="section" id="e1-2-create-prep-file">
-<h3>E1.2: Create PREP file<a class="headerlink" href="#e1-2-create-prep-file" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e1-2-create-prep-file">
+<h3>E1.2: Create PREP file<a class="headerlink" href="#e1-2-create-prep-file" title="Permalink to this heading">¶</a></h3>
 <p>PGD file can be fetched from sample data. See Part 3.  Assumed to be in ~/sfx_home/[NAME-OF-EXP]/PGD_DIR/.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
-mkdir -p sfx_home/EXP
-<span class="nb">cd</span> sfx_home/EXP
-mkdir PREP_DIR
+mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home/EXP
+<span class="nb">cd</span><span class="w"> </span>sfx_home/EXP
+mkdir<span class="w"> </span>PREP_DIR
 
 <span class="c1"># Set openMP threads</span>
-<span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span>
 
 <span class="c1"># Create rte.json</span>
 dump_environ
@@ -144,70 +144,70 @@ dump_environ
 <span class="c1"># { &quot;flake_dir&quot;: &quot;dir-to-LAKE_LTA_NEW.nc&quot; }</span>
 
 <span class="c1"># run prep</span>
-prep -c nobackup/trainingData/config_example.toml <span class="se">\</span>
--r rte.json <span class="se">\</span>
---domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
--s system.json <span class="se">\</span>
--n <span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/nam/ <span class="se">\</span>
---pgd PGD_DIR/PGD.nc -o PREP_DIR/PREP.nc <span class="se">\</span>
---prep_file <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/prep_from_namelist_values.json --prep_filetype json  <span class="se">\</span>
---dtg <span class="m">2022042803</span> <span class="se">\</span>
+prep<span class="w"> </span>-c<span class="w"> </span>nobackup/trainingData/config_example.toml<span class="w"> </span><span class="se">\</span>
+-r<span class="w"> </span>rte.json<span class="w"> </span><span class="se">\</span>
+--domain<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span><span class="se">\</span>
+-s<span class="w"> </span>system.json<span class="w"> </span><span class="se">\</span>
+-n<span class="w"> </span><span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/nam/<span class="w"> </span><span class="se">\</span>
+--pgd<span class="w"> </span>PGD_DIR/PGD.nc<span class="w"> </span>-o<span class="w"> </span>PREP_DIR/PREP.nc<span class="w"> </span><span class="se">\</span>
+--prep_file<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/test/nam/prep_from_namelist_values.json<span class="w"> </span>--prep_filetype<span class="w"> </span>json<span class="w">  </span><span class="se">\</span>
+--dtg<span class="w"> </span><span class="m">2022042803</span><span class="w"> </span><span class="se">\</span>
 PREP
 </pre></div>
 </div>
-</div>
-<div class="section" id="e1-3-run-offline">
-<h3>E1.3: Run OFFLINE<a class="headerlink" href="#e1-3-run-offline" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e1-3-run-offline">
+<h3>E1.3: Run OFFLINE<a class="headerlink" href="#e1-3-run-offline" title="Permalink to this heading">¶</a></h3>
 <p>PGD file can be fetched from sample data. See Part 3. Assumed to be in ~/sfx_home/EXP/PGD/.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> <span class="nb">cd</span>
- mkdir -p sfx_home/EXP
- <span class="nb">cd</span> sfx_home/EXP
- mkdir OFFLINE_DIR
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="nb">cd</span>
+<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home/EXP
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>sfx_home/EXP
+<span class="w"> </span>mkdir<span class="w"> </span>OFFLINE_DIR
 
- <span class="c1"># Set openMP threads</span>
- <span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span>
+<span class="w"> </span><span class="c1"># Set openMP threads</span>
+<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span>
 
- <span class="c1"># Create rte.json</span>
- dump_environ
+<span class="w"> </span><span class="c1"># Create rte.json</span>
+<span class="w"> </span>dump_environ
 
- <span class="c1"># system.json can be empty, only with curly braces, like this:</span>
- <span class="c1"># {}</span>
+<span class="w"> </span><span class="c1"># system.json can be empty, only with curly braces, like this:</span>
+<span class="w"> </span><span class="c1"># {}</span>
 
- <span class="c1"># Run offline</span>
- offline -c nobackup/trainingData/config_example.toml <span class="se">\</span>
--r rte.json <span class="se">\</span>
---domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
--s system.json <span class="se">\</span>
--n <span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/nam/ <span class="se">\</span>
---pgd PGD_DIR/PGD.nc <span class="se">\</span>
---prep PREP_DIR/PREP.nc <span class="se">\</span>
--o OFFLINE_DIR/SURFOUT.nc <span class="se">\</span>
---forcing <span class="nv">$PWD</span>/forcing <span class="se">\</span>
---forc_zs <span class="se">\</span>
+<span class="w"> </span><span class="c1"># Run offline</span>
+<span class="w"> </span>offline<span class="w"> </span>-c<span class="w"> </span>nobackup/trainingData/config_example.toml<span class="w"> </span><span class="se">\</span>
+-r<span class="w"> </span>rte.json<span class="w"> </span><span class="se">\</span>
+--domain<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span><span class="se">\</span>
+-s<span class="w"> </span>system.json<span class="w"> </span><span class="se">\</span>
+-n<span class="w"> </span><span class="o">[</span>path-to-pysurfex-experiment<span class="o">]</span>/nam/<span class="w"> </span><span class="se">\</span>
+--pgd<span class="w"> </span>PGD_DIR/PGD.nc<span class="w"> </span><span class="se">\</span>
+--prep<span class="w"> </span>PREP_DIR/PREP.nc<span class="w"> </span><span class="se">\</span>
+-o<span class="w"> </span>OFFLINE_DIR/SURFOUT.nc<span class="w"> </span><span class="se">\</span>
+--forcing<span class="w"> </span><span class="nv">$PWD</span>/forcing<span class="w"> </span><span class="se">\</span>
+--forc_zs<span class="w"> </span><span class="se">\</span>
 OFFLINE
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="part-2-observations-and-surface-assimilation">
-<h2>Part 2: Observations and surface assimilation<a class="headerlink" href="#part-2-observations-and-surface-assimilation" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="part-2-observations-and-surface-assimilation">
+<h2>Part 2: Observations and surface assimilation<a class="headerlink" href="#part-2-observations-and-surface-assimilation" title="Permalink to this heading">¶</a></h2>
 <p>Prepare screen level observations (t2m, rh2m and snow depth)</p>
-<div class="section" id="e2-1-create-a-json-observation-file-from-a-bufr-file">
-<h3>E2.1: Create a json observation file from a bufr file<a class="headerlink" href="#e2-1-create-a-json-observation-file-from-a-bufr-file" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> sfx_home
-mkdir -p obsHandling
-<span class="nb">cd</span> obsHandling
-bufr2json -b archive/observations/2022/04/28/06/ob2022042806 -v airTemperatureAt2M relativeHumidityAt2M totalSnowDepth -o ob2022042806.json -dtg <span class="m">2022042806</span> -range <span class="m">1800</span>
+<section id="e2-1-create-a-json-observation-file-from-a-bufr-file">
+<h3>E2.1: Create a json observation file from a bufr file<a class="headerlink" href="#e2-1-create-a-json-observation-file-from-a-bufr-file" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>sfx_home
+mkdir<span class="w"> </span>-p<span class="w"> </span>obsHandling
+<span class="nb">cd</span><span class="w"> </span>obsHandling
+bufr2json<span class="w"> </span>-b<span class="w"> </span>archive/observations/2022/04/28/06/ob2022042806<span class="w"> </span>-v<span class="w"> </span>airTemperatureAt2M<span class="w"> </span>relativeHumidityAt2M<span class="w"> </span>totalSnowDepth<span class="w"> </span>-o<span class="w"> </span>ob2022042806.json<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042806</span><span class="w"> </span>-range<span class="w"> </span><span class="m">1800</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806">
-<h3>E2.2 Create FirstGuess4Gridpp.nc from MET-Norway thredds data valid for 2022042806<a class="headerlink" href="#e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806">
+<h3>E2.2 Create FirstGuess4Gridpp.nc from MET-Norway thredds data valid for 2022042806<a class="headerlink" href="#e2-2-create-firstguess4gridpp-nc-from-met-norway-thredds-data-valid-for-2022042806" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
-mkdir -p sfx_home
-<span class="nb">cd</span> sfx_home
-mkdir -p fg_meps
-<span class="nb">cd</span> fg_meps
+mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="nb">cd</span><span class="w"> </span>sfx_home
+mkdir<span class="w"> </span>-p<span class="w"> </span>fg_meps
+<span class="nb">cd</span><span class="w"> </span>fg_meps
 
 <span class="c1"># Create first guess netCDF file for the model equivalent variables:</span>
 <span class="c1"># Set paths to input and output files</span>
@@ -217,28 +217,28 @@ mkdir -p fg_meps
 <span class="nv">DTG</span><span class="o">=</span><span class="m">2022042806</span>
 
 
-FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
- -c nobackup/trainingData/first_guess.yml <span class="se">\</span>
- -i <span class="nv">$fg_ua</span> <span class="se">\</span>
- -if netcdf <span class="se">\</span>
- -d <span class="o">[</span>path_to_pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
- --sd_converter sweclim <span class="se">\</span>
- -laf_file <span class="nv">$climfile</span>  <span class="se">\</span>
- -laf_format surfex <span class="se">\</span>
- --laf_converter sea2land <span class="se">\</span>
- air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">\</span>
- -o <span class="nv">$raw</span>
+FirstGuess4gridpp<span class="w"> </span>-dtg<span class="w"> </span><span class="nv">$DTG</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-c<span class="w"> </span>nobackup/trainingData/first_guess.yml<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-i<span class="w"> </span><span class="nv">$fg_ua</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-if<span class="w"> </span>netcdf<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-d<span class="w"> </span><span class="o">[</span>path_to_pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>--sd_converter<span class="w"> </span>sweclim<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-laf_file<span class="w"> </span><span class="nv">$climfile</span><span class="w">  </span><span class="se">\</span>
+<span class="w"> </span>-laf_format<span class="w"> </span>surfex<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>--laf_converter<span class="w"> </span>sea2land<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>air_temperature_2m<span class="w"> </span>relative_humidity_2m<span class="w"> </span>surface_snow_thickness<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>-o<span class="w"> </span><span class="nv">$raw</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500">
-<h3>E2.2.1: Create a first guess for horizontal OI from grib files (2021060500)<a class="headerlink" href="#e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500">
+<h3>E2.2.1: Create a first guess for horizontal OI from grib files (2021060500)<a class="headerlink" href="#e2-2-1-create-a-first-guess-for-horizontal-oi-from-grib-files-2021060500" title="Permalink to this heading">¶</a></h3>
 <p>Climate file (PGD) is assumed to be in climate (found in sample data). Grib files also found in sample data.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
-mkdir -p sfx_home
-<span class="nb">cd</span> sfx_home
-mkdir <span class="nb">fg</span>
-<span class="nb">cd</span> <span class="nb">fg</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="nb">cd</span><span class="w"> </span>sfx_home
+mkdir<span class="w"> </span><span class="nb">fg</span>
+<span class="nb">cd</span><span class="w"> </span><span class="nb">fg</span>
 
 <span class="c1"># Create first guess netCDF file for the model equivalent variables:</span>
 <span class="c1"># Set paths to input and output files</span>
@@ -249,73 +249,73 @@ mkdir <span class="nb">fg</span>
 <span class="nv">DTG</span><span class="o">=</span><span class="m">2021060500</span>
 
 
-FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
--c nobackup/trainingData/first_guess.yml <span class="se">\</span>
--i <span class="nv">$fg_ua</span> <span class="se">\</span>
--if grib2 <span class="se">\</span>
--d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
--sd_file <span class="nv">$fg_sfx</span> <span class="se">\</span>
--sd_format grib1 <span class="se">\</span>
---sd_converter sdp <span class="se">\</span>
--altitude_file <span class="nv">$fg_ua</span> <span class="se">\</span>
--altitude_format grib2 <span class="se">\</span>
---altitude_converter phi2m <span class="se">\</span>
--laf_file <span class="nv">$climfile</span>  <span class="se">\</span>
--laf_format surfex <span class="se">\</span>
---laf_converter sea2land <span class="se">\</span>
-air_temperature_2m relative_humidity_2m surface_snow_thickness <span class="se">\</span>
--o <span class="nv">$raw</span>
+FirstGuess4gridpp<span class="w"> </span>-dtg<span class="w"> </span><span class="nv">$DTG</span><span class="w"> </span><span class="se">\</span>
+-c<span class="w"> </span>nobackup/trainingData/first_guess.yml<span class="w"> </span><span class="se">\</span>
+-i<span class="w"> </span><span class="nv">$fg_ua</span><span class="w"> </span><span class="se">\</span>
+-if<span class="w"> </span>grib2<span class="w"> </span><span class="se">\</span>
+-d<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span><span class="se">\</span>
+-sd_file<span class="w"> </span><span class="nv">$fg_sfx</span><span class="w"> </span><span class="se">\</span>
+-sd_format<span class="w"> </span>grib1<span class="w"> </span><span class="se">\</span>
+--sd_converter<span class="w"> </span>sdp<span class="w"> </span><span class="se">\</span>
+-altitude_file<span class="w"> </span><span class="nv">$fg_ua</span><span class="w"> </span><span class="se">\</span>
+-altitude_format<span class="w"> </span>grib2<span class="w"> </span><span class="se">\</span>
+--altitude_converter<span class="w"> </span>phi2m<span class="w"> </span><span class="se">\</span>
+-laf_file<span class="w"> </span><span class="nv">$climfile</span><span class="w">  </span><span class="se">\</span>
+-laf_format<span class="w"> </span>surfex<span class="w"> </span><span class="se">\</span>
+--laf_converter<span class="w"> </span>sea2land<span class="w"> </span><span class="se">\</span>
+air_temperature_2m<span class="w"> </span>relative_humidity_2m<span class="w"> </span>surface_snow_thickness<span class="w"> </span><span class="se">\</span>
+-o<span class="w"> </span><span class="nv">$raw</span>
 
 <span class="c1"># This creates the file FirstGuess4Gridpp.nc</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="e2-3-quality-control-and-horizontal-oi">
-<h3>E2.3: Quality control and horizontal OI<a class="headerlink" href="#e2-3-quality-control-and-horizontal-oi" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e2-3-quality-control-and-horizontal-oi">
+<h3>E2.3: Quality control and horizontal OI<a class="headerlink" href="#e2-3-quality-control-and-horizontal-oi" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
-mkdir -p sfx_home
-<span class="nb">cd</span> sfx_home
-mkdir -p analysis
-<span class="nb">cd</span> analysis
+mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="nb">cd</span><span class="w"> </span>sfx_home
+mkdir<span class="w"> </span>-p<span class="w"> </span>analysis
+<span class="nb">cd</span><span class="w"> </span>analysis
 
 <span class="c1"># Quality control and optimal interpolation of the observed values</span>
 <span class="c1"># Check config.json file below. It expects the file ob2022042806.json from E2.1</span>
 
-cp nobackup/trainingData/config.json .
+cp<span class="w"> </span>nobackup/trainingData/config.json<span class="w"> </span>.
 
-titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config.json -dtg <span class="m">2022042806</span> -v t2m -o qc_obs_t2m.json domain nometa redundancy plausibility fraction firstguess
+titan<span class="w"> </span>--domain<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span>-i<span class="w"> </span>config.json<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042806</span><span class="w"> </span>-v<span class="w"> </span>t2m<span class="w"> </span>-o<span class="w"> </span>qc_obs_t2m.json<span class="w"> </span>domain<span class="w"> </span>nometa<span class="w"> </span>redundancy<span class="w"> </span>plausibility<span class="w"> </span>fraction<span class="w"> </span>firstguess
 
 <span class="c1"># This creates the file qc_obs_t2m.json, repeat the process for rh2m and sd</span>
 
-gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_t2m.json -o an_t2m.nc -v air_temperature_2m -hor <span class="m">35000</span> -vert <span class="m">200</span> --elevGradient -0.0065
+gridpp<span class="w"> </span>-i<span class="w"> </span>FirstGuess4Gridpp.nc<span class="w"> </span>--obs<span class="w"> </span>qc_obs_t2m.json<span class="w"> </span>-o<span class="w"> </span>an_t2m.nc<span class="w"> </span>-v<span class="w"> </span>air_temperature_2m<span class="w"> </span>-hor<span class="w"> </span><span class="m">35000</span><span class="w"> </span>-vert<span class="w"> </span><span class="m">200</span><span class="w"> </span>--elevGradient<span class="w"> </span>-0.0065
 
 <span class="c1"># This creates the analysis file an_t2m.nc, repeat the process for rh2m and sd</span>
 <span class="c1"># rh2m</span>
-titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config.json -dtg <span class="m">2022042806</span> -v rh2m -o qc_obs_rh2m.json domain nometa redundancy plausibility fraction firstguess
-gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_rh2m.json -o an_rh2m.nc -v relative_humidity_2m -hor <span class="m">35000</span> -vert <span class="m">200</span>
+titan<span class="w"> </span>--domain<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span>-i<span class="w"> </span>config.json<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042806</span><span class="w"> </span>-v<span class="w"> </span>rh2m<span class="w"> </span>-o<span class="w"> </span>qc_obs_rh2m.json<span class="w"> </span>domain<span class="w"> </span>nometa<span class="w"> </span>redundancy<span class="w"> </span>plausibility<span class="w"> </span>fraction<span class="w"> </span>firstguess
+gridpp<span class="w"> </span>-i<span class="w"> </span>FirstGuess4Gridpp.nc<span class="w"> </span>--obs<span class="w"> </span>qc_obs_rh2m.json<span class="w"> </span>-o<span class="w"> </span>an_rh2m.nc<span class="w"> </span>-v<span class="w"> </span>relative_humidity_2m<span class="w"> </span>-hor<span class="w"> </span><span class="m">35000</span><span class="w"> </span>-vert<span class="w"> </span><span class="m">200</span>
 <span class="c1"># SD</span>
-titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config.json -dtg <span class="m">2022042806</span> -v sd -o qc_obs_sd.json domain nometa redundancy plausibility fraction firstguess
-gridpp -i FirstGuess4Gridpp.nc --obs qc_obs_sd.json -o an_sd.nc -v surface_snow_thickness -hor <span class="m">35000</span> -vert <span class="m">200</span>
+titan<span class="w"> </span>--domain<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span>-i<span class="w"> </span>config.json<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042806</span><span class="w"> </span>-v<span class="w"> </span>sd<span class="w"> </span>-o<span class="w"> </span>qc_obs_sd.json<span class="w"> </span>domain<span class="w"> </span>nometa<span class="w"> </span>redundancy<span class="w"> </span>plausibility<span class="w"> </span>fraction<span class="w"> </span>firstguess
+gridpp<span class="w"> </span>-i<span class="w"> </span>FirstGuess4Gridpp.nc<span class="w"> </span>--obs<span class="w"> </span>qc_obs_sd.json<span class="w"> </span>-o<span class="w"> </span>an_sd.nc<span class="w"> </span>-v<span class="w"> </span>surface_snow_thickness<span class="w"> </span>-hor<span class="w"> </span><span class="m">35000</span><span class="w"> </span>-vert<span class="w"> </span><span class="m">200</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="e2-4-prepare-ascii-file-for-soda">
-<h3>E2.4: Prepare ASCII file for SODA<a class="headerlink" href="#e2-4-prepare-ascii-file-for-soda" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e2-4-prepare-ascii-file-for-soda">
+<h3>E2.4: Prepare ASCII file for SODA<a class="headerlink" href="#e2-4-prepare-ascii-file-for-soda" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare OBSERVATIONS.dat file for Soda</span>
 
-oi2soda --t2m_file an_t2m.nc --rh2m_file an_rh2m.nc --sd_file an_sd.nc <span class="m">2022042806</span> -o OBSERVATIONS_220428H06.DAT
+oi2soda<span class="w"> </span>--t2m_file<span class="w"> </span>an_t2m.nc<span class="w"> </span>--rh2m_file<span class="w"> </span>an_rh2m.nc<span class="w"> </span>--sd_file<span class="w"> </span>an_sd.nc<span class="w"> </span><span class="m">2022042806</span><span class="w"> </span>-o<span class="w"> </span>OBSERVATIONS_220428H06.DAT
 </pre></div>
 </div>
-<div class="section" id="prepare-satellite-derived-soil-moisture-observations-using-pysurfex">
-<h4>Prepare satellite derived soil moisture observations using pySurfex<a class="headerlink" href="#prepare-satellite-derived-soil-moisture-observations-using-pysurfex" title="Permalink to this headline">¶</a></h4>
+<section id="prepare-satellite-derived-soil-moisture-observations-using-pysurfex">
+<h4>Prepare satellite derived soil moisture observations using pySurfex<a class="headerlink" href="#prepare-satellite-derived-soil-moisture-observations-using-pysurfex" title="Permalink to this heading">¶</a></h4>
 <p>The next exercises are similar to the previous ones but focusing on preparing remote sensing observations of surface soil moisture from Sentinel and demonstrate how you could do horizontal analysis on these,</p>
-</div>
-</div>
-<div class="section" id="e2-5-soil-moisture-first-guess">
-<h3>E2.5: Soil moisture first guess<a class="headerlink" href="#e2-5-soil-moisture-first-guess" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> hm_sfx
-mkdir sentinel_sm
-<span class="nb">cd</span> sentinel_sm
+</section>
+</section>
+<section id="e2-5-soil-moisture-first-guess">
+<h3>E2.5: Soil moisture first guess<a class="headerlink" href="#e2-5-soil-moisture-first-guess" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>hm_sfx
+mkdir<span class="w"> </span>sentinel_sm
+<span class="nb">cd</span><span class="w"> </span>sentinel_sm
 
 <span class="c1"># FirstGuess4gridpp</span>
 <span class="c1"># Define paths to input and output data</span>
@@ -325,67 +325,67 @@ mkdir sentinel_sm
 <span class="nv">fg_sfx</span><span class="o">=</span>nobackup/trainingData/grib_FG/first_guess_sfx_gridpp_grib
 <span class="nv">DTG</span><span class="o">=</span><span class="m">2021060506</span>
 
-FirstGuess4gridpp -dtg <span class="nv">$DTG</span> <span class="se">\</span>
-   -c nobackup/trainingData/first_guess.yml <span class="se">\</span>
-   -i <span class="nv">$fg_ua</span> <span class="se">\</span>
-   -if grib2 <span class="se">\</span>
-   -d <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json <span class="se">\</span>
-   -sm_file <span class="nv">$fg_sfx</span> <span class="se">\</span>
-   -sm_format grib1 <span class="se">\</span>
-   --sm_converter smp <span class="se">\</span>
-   -altitude_file <span class="nv">$fg_ua</span> <span class="se">\</span>
-   -altitude_format grib2 <span class="se">\</span>
-   --altitude_converter phi2m <span class="se">\</span>
-   -laf_file <span class="nv">$climfile</span>  <span class="se">\</span>
-   --laf_converter sea2land <span class="se">\</span>
-   -laf_format surfex <span class="se">\</span>
-   surface_soil_moisture <span class="se">\</span>
-   -o <span class="nv">$raw</span>
+FirstGuess4gridpp<span class="w"> </span>-dtg<span class="w"> </span><span class="nv">$DTG</span><span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-c<span class="w"> </span>nobackup/trainingData/first_guess.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-i<span class="w"> </span><span class="nv">$fg_ua</span><span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-if<span class="w"> </span>grib2<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-d<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-sm_file<span class="w"> </span><span class="nv">$fg_sfx</span><span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-sm_format<span class="w"> </span>grib1<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--sm_converter<span class="w"> </span>smp<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-altitude_file<span class="w"> </span><span class="nv">$fg_ua</span><span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-altitude_format<span class="w"> </span>grib2<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>--altitude_converter<span class="w"> </span>phi2m<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-laf_file<span class="w"> </span><span class="nv">$climfile</span><span class="w">  </span><span class="se">\</span>
+<span class="w">   </span>--laf_converter<span class="w"> </span>sea2land<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-laf_format<span class="w"> </span>surfex<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>surface_soil_moisture<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-o<span class="w"> </span><span class="nv">$raw</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="e2-6-create-an-observation-set">
-<h3>E2.6: Create an observation set<a class="headerlink" href="#e2-6-create-an-observation-set" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e2-6-create-an-observation-set">
+<h3>E2.6: Create an observation set<a class="headerlink" href="#e2-6-create-an-observation-set" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create json file for titan and gridpp</span>
 
-sentinel_obs --varname surface_soil_moisture -fg FirstGuess4GridppSM.nc -i /nobackup/trainingData/Sentinel_SM.nc -o sentinel_obs.json
+sentinel_obs<span class="w"> </span>--varname<span class="w"> </span>surface_soil_moisture<span class="w"> </span>-fg<span class="w"> </span>FirstGuess4GridppSM.nc<span class="w"> </span>-i<span class="w"> </span>/nobackup/trainingData/Sentinel_SM.nc<span class="w"> </span>-o<span class="w"> </span>sentinel_obs.json
 </pre></div>
 </div>
-</div>
-<div class="section" id="e2-7-quality-control">
-<h3>E2.7: Quality control<a class="headerlink" href="#e2-7-quality-control" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e2-7-quality-control">
+<h3>E2.7: Quality control<a class="headerlink" href="#e2-7-quality-control" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quality control of observations</span>
-cp nobackup/trainingData/config_sentinel.json .
+cp<span class="w"> </span>nobackup/trainingData/config_sentinel.json<span class="w"> </span>.
 
-titan --domain <span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json -i config_sentinel.json -dtg <span class="m">2021060506</span> -v surface_soil_moisture -o qc_sentinel.json domain nometa redundancy plausibility fraction firstguess
+titan<span class="w"> </span>--domain<span class="w"> </span><span class="o">[</span>path-to-pysurfex<span class="o">]</span>/examples/domains/drammen.json<span class="w"> </span>-i<span class="w"> </span>config_sentinel.json<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2021060506</span><span class="w"> </span>-v<span class="w"> </span>surface_soil_moisture<span class="w"> </span>-o<span class="w"> </span>qc_sentinel.json<span class="w"> </span>domain<span class="w"> </span>nometa<span class="w"> </span>redundancy<span class="w"> </span>plausibility<span class="w"> </span>fraction<span class="w"> </span>firstguess
 </pre></div>
 </div>
-</div>
-<div class="section" id="e2-8-horizontal-oi">
-<h3>E2.8: Horizontal OI<a class="headerlink" href="#e2-8-horizontal-oi" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e2-8-horizontal-oi">
+<h3>E2.8: Horizontal OI<a class="headerlink" href="#e2-8-horizontal-oi" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># gridPP</span>
 
-gridpp -i FirstGuess4GridppSM.nc --obs qc_sentinel.json -o an_sm.nc -v surface_soil_moisture -hor <span class="m">1000</span> -vert <span class="m">200</span> --elevGradient -0.0065
+gridpp<span class="w"> </span>-i<span class="w"> </span>FirstGuess4GridppSM.nc<span class="w"> </span>--obs<span class="w"> </span>qc_sentinel.json<span class="w"> </span>-o<span class="w"> </span>an_sm.nc<span class="w"> </span>-v<span class="w"> </span>surface_soil_moisture<span class="w"> </span>-hor<span class="w"> </span><span class="m">1000</span><span class="w"> </span>-vert<span class="w"> </span><span class="m">200</span><span class="w"> </span>--elevGradient<span class="w"> </span>-0.0065
 </pre></div>
 </div>
-</div>
-<div class="section" id="e2-9-prepare-ascii-file-for-soda">
-<h3>E2.9: Prepare ASCII file for SODA<a class="headerlink" href="#e2-9-prepare-ascii-file-for-soda" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e2-9-prepare-ascii-file-for-soda">
+<h3>E2.9: Prepare ASCII file for SODA<a class="headerlink" href="#e2-9-prepare-ascii-file-for-soda" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare OBSERVATIONS.dat file for Soda</span>
 
-oi2soda --sm_file an_sm.nc <span class="m">2021060506</span> -o OBSERVATIONS_210605H06.DAT
+oi2soda<span class="w"> </span>--sm_file<span class="w"> </span>an_sm.nc<span class="w"> </span><span class="m">2021060506</span><span class="w"> </span>-o<span class="w"> </span>OBSERVATIONS_210605H06.DAT
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="part-3-running-pysurfex-experiment">
-<h2>Part 3: Running pySurfex experiment<a class="headerlink" href="#part-3-running-pysurfex-experiment" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="part-3-running-pysurfex-experiment">
+<h2>Part 3: Running pySurfex experiment<a class="headerlink" href="#part-3-running-pysurfex-experiment" title="Permalink to this heading">¶</a></h2>
 <p>This part will give you guidance in how to install and setup pySurfex for your architecture of choice and some direct instructions are provided for those with access to the ECMWF dual-host system ecgate-cca.</p>
 <p>In addition to have pySurfex available you should also install <a class="reference external" href="https://github.com/metno/pysurfex-scheduler">https://github.com/metno/pysurfex-scheduler</a>.
 Lastly you need  <a class="reference external" href="https://github.com/metno/pysurfex-experiment">https://github.com/metno/pysurfex-experiment</a> and you probably need to define you new host before running so I would recommend to install with “pip -e .” or clone/download the repo.
 Now you have pysurfex-experiment either as clone or installed as an editable pip package.</p>
-<div class="section" id="add-your-host">
-<h3>1) Add your host<a class="headerlink" href="#add-your-host" title="Permalink to this headline">¶</a></h3>
+<section id="add-your-host">
+<h3>1) Add your host<a class="headerlink" href="#add-your-host" title="Permalink to this heading">¶</a></h3>
 <p>You are probably now doing this on a new “host”. Define a name of your host.</p>
 <ul class="simple">
 <li><p>config/system/[host].toml - Define your system based on other examples</p>
@@ -399,9 +399,9 @@ Now you have pysurfex-experiment either as clone or installed as an editable pip
 <li><p>config/server/[host].json - Define your ecflow server name (host name on your laptop?) and port and/or port_offset</p></li>
 <li><p>config/env/[host].py - This file will be added to your batch script for all batch jobs. Most likely you can keep this empty.</p></li>
 </ul>
-</div>
-<div class="section" id="get-surfex-source-code">
-<h3>2.) Get SURFEX source code<a class="headerlink" href="#get-surfex-source-code" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="get-surfex-source-code">
+<h3>2.) Get SURFEX source code<a class="headerlink" href="#get-surfex-source-code" title="Permalink to this heading">¶</a></h3>
 <p>In the examples here we will use a slightly modified version of the AROME-Arctic preop2 code which has been running SEKF now for several years. You can get this code, some auxillary code and sample data from ecmwf (or ask).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># AA preop code</span>
 /hpc/perm/ms/no/sbu/training/AA_preop2_surfex_v1.tgz
@@ -414,176 +414,176 @@ Now you have pysurfex-experiment either as clone or installed as an editable pip
 </pre></div>
 </div>
 <p>Compilation is done with the OfflineNWP option. You need a file conf/system-[SURFEX_CONFIG] and src/Rules-[SURFEX_CONFIG] in the AA preop2 surfex code.</p>
-</div>
-<div class="section" id="set-up-your-experiment-for-your-host">
-<h3>3.) Set up your experiment for your [host].<a class="headerlink" href="#set-up-your-experiment-for-your-host" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="set-up-your-experiment-for-your-host">
+<h3>3.) Set up your experiment for your [host].<a class="headerlink" href="#set-up-your-experiment-for-your-host" title="Permalink to this heading">¶</a></h3>
 <p>Adapt PATH/PYTHONPATH unless not installed in system wide locations. You should be able to import ecflow, pysurfex-scheduler and pysurfex-experiment.
 You should use the offline SURFEX source code from AA preop2. Create a name of your experiment in ~/sfx_home/[EXP-NAME] and enter this directory. Setup the experiment</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> <span class="nb">cd</span>
- mkdir -p sfx_home
- <span class="nb">cd</span> sfx_home
- mkdir EXP
- <span class="nb">cd</span> EXP
- <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup <span class="se">\</span>
--experiment <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span> <span class="se">\</span>
--surfex <span class="o">[</span>pysurfex-path<span class="o">]</span> <span class="se">\</span>
--host <span class="o">[</span>host<span class="o">]</span> <span class="se">\</span>
--offline <span class="o">[</span>path-to-AA-preop2<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="nb">cd</span>
+<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>sfx_home
+<span class="w"> </span>mkdir<span class="w"> </span>EXP
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>EXP
+<span class="w"> </span><span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup<span class="w"> </span><span class="se">\</span>
+-experiment<span class="w"> </span><span class="o">[</span>pysurfex-experiment-path<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+-surfex<span class="w"> </span><span class="o">[</span>pysurfex-path<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+-host<span class="w"> </span><span class="o">[</span>host<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+-offline<span class="w"> </span><span class="o">[</span>path-to-AA-preop2<span class="o">]</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="run-your-experiment">
-<h3>4.) Run your experiment!<a class="headerlink" href="#run-your-experiment" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="run-your-experiment">
+<h3>4.) Run your experiment!<a class="headerlink" href="#run-your-experiment" title="Permalink to this heading">¶</a></h3>
 <p>Now we should be ready to start the experiment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfexExp start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042803</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">2022042806</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="reconfigure-your-experiment">
-<h3>4.1) Reconfigure your experiment<a class="headerlink" href="#reconfigure-your-experiment" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="reconfigure-your-experiment">
+<h3>4.1) Reconfigure your experiment<a class="headerlink" href="#reconfigure-your-experiment" title="Permalink to this heading">¶</a></h3>
 <p>If you have started you experiment and you want to change the configurations without running Pysurfex start/prod. Then you can reconfigure the experiment with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/PySurfexExpConfig
 </pre></div>
 </div>
 <p>then you can run InitRun and continue the scheduler. This command updates the json setting files picked up by the ecflow tasks.</p>
-<div class="section" id="excercises">
-<h4>Excercises<a class="headerlink" href="#excercises" title="Permalink to this headline">¶</a></h4>
-</div>
-</div>
-<div class="section" id="e3-1-snow-assimilation-only-on-your-local-platform">
-<h3>E3.1: Snow assimilation only on your local platform<a class="headerlink" href="#e3-1-snow-assimilation-only-on-your-local-platform" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> <span class="nb">cd</span>
- mkdir -p sfx_home
- <span class="nb">cd</span> sfx_home
- mkdir SNOWASS
- <span class="nb">cd</span> SNOWASS
- <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup <span class="se">\</span>
--experiment <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span> <span class="se">\</span>
--surfex <span class="o">[</span>pysurfex-path<span class="o">]</span> <span class="se">\</span>
--host <span class="o">[</span>host<span class="o">]</span> <span class="se">\</span>
---config_file <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/config/configurations/isba_dif_snow_ass.toml <span class="se">\</span>
--offline <span class="o">[</span>path-to-AA-preop2<span class="o">]</span>
+<section id="excercises">
+<h4>Excercises<a class="headerlink" href="#excercises" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
+<section id="e3-1-snow-assimilation-only-on-your-local-platform">
+<h3>E3.1: Snow assimilation only on your local platform<a class="headerlink" href="#e3-1-snow-assimilation-only-on-your-local-platform" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="nb">cd</span>
+<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>sfx_home
+<span class="w"> </span>mkdir<span class="w"> </span>SNOWASS
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>SNOWASS
+<span class="w"> </span><span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup<span class="w"> </span><span class="se">\</span>
+-experiment<span class="w"> </span><span class="o">[</span>pysurfex-experiment-path<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+-surfex<span class="w"> </span><span class="o">[</span>pysurfex-path<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+-host<span class="w"> </span><span class="o">[</span>host<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+--config_file<span class="w"> </span><span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/config/configurations/isba_dif_snow_ass.toml<span class="w"> </span><span class="se">\</span>
+-offline<span class="w"> </span><span class="o">[</span>path-to-AA-preop2<span class="o">]</span>
 
- <span class="c1"># Prepare observations from the sample data in your observation directory</span>
- <span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
+<span class="w"> </span><span class="c1"># Prepare observations from the sample data in your observation directory</span>
+<span class="w"> </span><span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
 
- <span class="c1"># Start run</span>
- ./bin/PySurfexExp start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
+<span class="w"> </span><span class="c1"># Start run</span>
+<span class="w"> </span>./bin/PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042803</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">2022042806</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="e3-2-sekf-only-on-your-local-platform">
-<h3>E3.2: SEKF only on your local platform<a class="headerlink" href="#e3-2-sekf-only-on-your-local-platform" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> <span class="nb">cd</span>
- mkdir -p sfx_home
- <span class="nb">cd</span> sfx_home
- mkdir SEKF
- <span class="nb">cd</span> SEKF
- <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup <span class="se">\</span>
--experiment <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span> <span class="se">\</span>
--surfex <span class="o">[</span>pysurfex-path<span class="o">]</span> <span class="se">\</span>
--host <span class="o">[</span>host<span class="o">]</span> <span class="se">\</span>
---config_file <span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/config/configurations/sekf.toml <span class="se">\</span>
--offline <span class="o">[</span>path-to-AA-preop2<span class="o">]</span>
+</section>
+<section id="e3-2-sekf-only-on-your-local-platform">
+<h3>E3.2: SEKF only on your local platform<a class="headerlink" href="#e3-2-sekf-only-on-your-local-platform" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="nb">cd</span>
+<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>sfx_home
+<span class="w"> </span>mkdir<span class="w"> </span>SEKF
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>SEKF
+<span class="w"> </span><span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/bin/PySurfexExpSetup<span class="w"> </span><span class="se">\</span>
+-experiment<span class="w"> </span><span class="o">[</span>pysurfex-experiment-path<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+-surfex<span class="w"> </span><span class="o">[</span>pysurfex-path<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+-host<span class="w"> </span><span class="o">[</span>host<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+--config_file<span class="w"> </span><span class="o">[</span>pysurfex-experiment-path<span class="o">]</span>/config/configurations/sekf.toml<span class="w"> </span><span class="se">\</span>
+-offline<span class="w"> </span><span class="o">[</span>path-to-AA-preop2<span class="o">]</span>
 
- <span class="c1"># Prepare observations from the sample data in your observation directory</span>
- <span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
+<span class="w"> </span><span class="c1"># Prepare observations from the sample data in your observation directory</span>
+<span class="w"> </span><span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
 
- <span class="c1"># Start run</span>
- ./bin/PySurfexExp start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
+<span class="w"> </span><span class="c1"># Start run</span>
+<span class="w"> </span>./bin/PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042803</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">2022042806</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="e3-3-snow-assimilation-only-on-ecgate-cca">
-<h3>E3.3: Snow assimilation only on ecgate/cca<a class="headerlink" href="#e3-3-snow-assimilation-only-on-ecgate-cca" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e3-3-snow-assimilation-only-on-ecgate-cca">
+<h3>E3.3: Snow assimilation only on ecgate/cca<a class="headerlink" href="#e3-3-snow-assimilation-only-on-ecgate-cca" title="Permalink to this heading">¶</a></h3>
 <p>Log in to ecgate</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> module load python3/3.8.8-01
- module load ecflow/5.8.1
- <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/bin/:/hpc/perm/ms/no/sbu/training/pysurfex/bin:<span class="nv">$PATH</span>
- <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/:/hpc/perm/ms/no/sbu/training/pysurfex-scheduler:/hpc/perm/ms/no/sbu/training/pysurfex:/hpc/perm/ms/no/sbu/training/addons/3.8.8/:<span class="nv">$PYTHONPATH</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>module<span class="w"> </span>load<span class="w"> </span>python3/3.8.8-01
+<span class="w"> </span>module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
+<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/bin/:/hpc/perm/ms/no/sbu/training/pysurfex/bin:<span class="nv">$PATH</span>
+<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/:/hpc/perm/ms/no/sbu/training/pysurfex-scheduler:/hpc/perm/ms/no/sbu/training/pysurfex:/hpc/perm/ms/no/sbu/training/addons/3.8.8/:<span class="nv">$PYTHONPATH</span>
 
- <span class="nb">cd</span>
- mkdir -p sfx_home
- <span class="nb">cd</span> sfx_home
- mkdir SNOWASS
- <span class="nb">cd</span> SNOWASS
- PySurfexExpSetup -experiment /hpc/perm/ms/no/sbu/training/pysurfex-experiment <span class="se">\</span>
--host ecgb-cca <span class="se">\</span>
--surfex /hpc/perm/ms/no/sbu/training/pysurfex <span class="se">\</span>
--offline /hpc/perm/ms/no/sbu/training/AA_preop2 <span class="se">\</span>
---config_file /hpc/perm/ms/no/sbu/training/pysurfex-experiment/config/configurations/isba_dif_snow_ass.toml
+<span class="w"> </span><span class="nb">cd</span>
+<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>sfx_home
+<span class="w"> </span>mkdir<span class="w"> </span>SNOWASS
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>SNOWASS
+<span class="w"> </span>PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment<span class="w"> </span><span class="se">\</span>
+-host<span class="w"> </span>ecgb-cca<span class="w"> </span><span class="se">\</span>
+-surfex<span class="w"> </span>/hpc/perm/ms/no/sbu/training/pysurfex<span class="w"> </span><span class="se">\</span>
+-offline<span class="w"> </span>/hpc/perm/ms/no/sbu/training/AA_preop2<span class="w"> </span><span class="se">\</span>
+--config_file<span class="w"> </span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/config/configurations/isba_dif_snow_ass.toml
 
- <span class="c1"># Find your user id</span>
- id -u
- <span class="c1"># Replace ECF_PORT in Env_server with this number</span>
+<span class="w"> </span><span class="c1"># Find your user id</span>
+<span class="w"> </span>id<span class="w"> </span>-u
+<span class="w"> </span><span class="c1"># Replace ECF_PORT in Env_server with this number</span>
 
- <span class="c1"># Replace no with your coutry code in Env_system</span>
+<span class="w"> </span><span class="c1"># Replace no with your coutry code in Env_system</span>
 
- <span class="c1"># Sample data can be found on cca under /hpc/perm/ms/no/sbu/training/budapest_2022</span>
- <span class="c1"># We need to prepare a couple of shot-cuts since OpenDAP does not work on CCA and I</span>
- <span class="c1"># have not preared other input sources (like grib files)</span>
+<span class="w"> </span><span class="c1"># Sample data can be found on cca under /hpc/perm/ms/no/sbu/training/budapest_2022</span>
+<span class="w"> </span><span class="c1"># We need to prepare a couple of shot-cuts since OpenDAP does not work on CCA and I</span>
+<span class="w"> </span><span class="c1"># have not preared other input sources (like grib files)</span>
 
- <span class="c1"># Log into cca. SFX_EXP_DATA=/scratch/ms/CC/$USER/sfx_data/SNOWASS</span>
- <span class="c1"># Prepare observations from the sample data in your observation directory</span>
- <span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
+<span class="w"> </span><span class="c1"># Log into cca. SFX_EXP_DATA=/scratch/ms/CC/$USER/sfx_data/SNOWASS</span>
+<span class="w"> </span><span class="c1"># Prepare observations from the sample data in your observation directory</span>
+<span class="w"> </span><span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
 
- <span class="c1"># Prepare forcing data from sample data</span>
- <span class="c1"># [SFX_EXP_DATA]/forcing</span>
+<span class="w"> </span><span class="c1"># Prepare forcing data from sample data</span>
+<span class="w"> </span><span class="c1"># [SFX_EXP_DATA]/forcing</span>
 
- <span class="c1"># Prepare first guess from sample data. This could be taken from your own first guess. Maybe you can try it out?</span>
- <span class="c1"># archive/2022/04/28/06/raw*.nc</span>
+<span class="w"> </span><span class="c1"># Prepare first guess from sample data. This could be taken from your own first guess. Maybe you can try it out?</span>
+<span class="w"> </span><span class="c1"># archive/2022/04/28/06/raw*.nc</span>
 
- <span class="c1"># Start run</span>
- ./bin/PySurfexExp start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
+<span class="w"> </span><span class="c1"># Start run</span>
+<span class="w"> </span>./bin/PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042803</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">2022042806</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="e3-4-sekf-only-on-you-local-platform">
-<h3>E3.4: SEKF only on you local platform<a class="headerlink" href="#e3-4-sekf-only-on-you-local-platform" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="e3-4-sekf-only-on-you-local-platform">
+<h3>E3.4: SEKF only on you local platform<a class="headerlink" href="#e3-4-sekf-only-on-you-local-platform" title="Permalink to this heading">¶</a></h3>
 <p>Log in to ecgate</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> module load python3/3.8.8-01
- module load ecflow/5.8.1
- <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/bin/:/hpc/perm/ms/no/sbu/training/pysurfex/bin:<span class="nv">$PATH</span>
- <span class="nb">export</span> <span class="nv">PYTHONPATH</span><span class="o">=</span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/:/hpc/perm/ms/no/sbu/training/pysurfex-scheduler:/hpc/perm/ms/no/sbu/training/pysurfex:/hpc/perm/ms/no/sbu/training/addons/3.8.8/:<span class="nv">$PYTHONPATH</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>module<span class="w"> </span>load<span class="w"> </span>python3/3.8.8-01
+<span class="w"> </span>module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
+<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/bin/:/hpc/perm/ms/no/sbu/training/pysurfex/bin:<span class="nv">$PATH</span>
+<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/:/hpc/perm/ms/no/sbu/training/pysurfex-scheduler:/hpc/perm/ms/no/sbu/training/pysurfex:/hpc/perm/ms/no/sbu/training/addons/3.8.8/:<span class="nv">$PYTHONPATH</span>
 
- <span class="nb">cd</span>
- mkdir -p sfx_home
- <span class="nb">cd</span> sfx_home
- mkdir SEKF
- <span class="nb">cd</span> SEKF
- PySurfexExpSetup -experiment /hpc/perm/ms/no/sbu/training/pysurfex-experiment <span class="se">\</span>
--host ecgb-cca <span class="se">\</span>
--surfex /hpc/perm/ms/no/sbu/training/pysurfex <span class="se">\</span>
--offline /hpc/perm/ms/no/sbu/training/AA_preop2 <span class="se">\</span>
---config_file /hpc/perm/ms/no/sbu/training/pysurfex-experiment/config/configurations/sekf.toml
+<span class="w"> </span><span class="nb">cd</span>
+<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>sfx_home
+<span class="w"> </span>mkdir<span class="w"> </span>SEKF
+<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>SEKF
+<span class="w"> </span>PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment<span class="w"> </span><span class="se">\</span>
+-host<span class="w"> </span>ecgb-cca<span class="w"> </span><span class="se">\</span>
+-surfex<span class="w"> </span>/hpc/perm/ms/no/sbu/training/pysurfex<span class="w"> </span><span class="se">\</span>
+-offline<span class="w"> </span>/hpc/perm/ms/no/sbu/training/AA_preop2<span class="w"> </span><span class="se">\</span>
+--config_file<span class="w"> </span>/hpc/perm/ms/no/sbu/training/pysurfex-experiment/config/configurations/sekf.toml
 
- <span class="c1"># Find your user id</span>
- id -u
- <span class="c1"># Replace ECF_PORT in Env_server with this number</span>
+<span class="w"> </span><span class="c1"># Find your user id</span>
+<span class="w"> </span>id<span class="w"> </span>-u
+<span class="w"> </span><span class="c1"># Replace ECF_PORT in Env_server with this number</span>
 
- <span class="c1"># Replace no with your coutry code in Env_system</span>
+<span class="w"> </span><span class="c1"># Replace no with your coutry code in Env_system</span>
 
- <span class="c1"># Sample data can be found on cca under /hpc/perm/ms/no/sbu/training/budapest_2022</span>
- <span class="c1"># We need to prepare a couple of shot-cuts since OpenDAP does not work on CCA and I</span>
- <span class="c1"># have not preared other input sources (like grib files)</span>
+<span class="w"> </span><span class="c1"># Sample data can be found on cca under /hpc/perm/ms/no/sbu/training/budapest_2022</span>
+<span class="w"> </span><span class="c1"># We need to prepare a couple of shot-cuts since OpenDAP does not work on CCA and I</span>
+<span class="w"> </span><span class="c1"># have not preared other input sources (like grib files)</span>
 
- <span class="c1"># Log into cca. SFX_EXP_DATA=/scratch/ms/CC/$USER/sfx_data/SEKF</span>
- <span class="c1"># Prepare observations from the sample data in your observation directory</span>
- <span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
+<span class="w"> </span><span class="c1"># Log into cca. SFX_EXP_DATA=/scratch/ms/CC/$USER/sfx_data/SEKF</span>
+<span class="w"> </span><span class="c1"># Prepare observations from the sample data in your observation directory</span>
+<span class="w"> </span><span class="c1"># [SFX_EXP_DATA]/archive/observations/2022/04/28/06</span>
 
- <span class="c1"># Prepare forcing data from sample data</span>
- <span class="c1"># [SFX_EXP_DATA]/forcing</span>
+<span class="w"> </span><span class="c1"># Prepare forcing data from sample data</span>
+<span class="w"> </span><span class="c1"># [SFX_EXP_DATA]/forcing</span>
 
- <span class="c1"># Prepare first guess from sample data. This could be taken from your own first guess. Maybe you can try it out?</span>
- <span class="c1"># archive/2022/04/28/06/raw*.nc</span>
+<span class="w"> </span><span class="c1"># Prepare first guess from sample data. This could be taken from your own first guess. Maybe you can try it out?</span>
+<span class="w"> </span><span class="c1"># archive/2022/04/28/06/raw*.nc</span>
 
- <span class="c1"># Start run</span>
- ./bin/PySurfexExp start -dtg <span class="m">2022042803</span> -dtgend <span class="m">2022042806</span>
+<span class="w"> </span><span class="c1"># Start run</span>
+<span class="w"> </span>./bin/PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">2022042803</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">2022042806</span>
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -592,8 +592,9 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">ACCORD training Budapest May 9-13 2022</a><ul>
 <li><a class="reference internal" href="#part-1-run-offline-binaries-and-create-a-first-guess">Part 1: Run offline binaries and create a first guess</a><ul>
 <li><a class="reference internal" href="#e1-1-create-offline-forcing-using-the-met-nordic-analysis-from-thredds">E1.1: Create offline forcing using the MET-Nordic analysis from thredds</a></li>
@@ -637,6 +638,7 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
 </li>
 </ul>
 
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -648,12 +650,12 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -670,7 +672,7 @@ You should use the offline SURFEX source code from AA preop2. Create a name of y
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Trygve Aspelien.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>
