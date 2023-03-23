@@ -18,13 +18,14 @@ NO_DEFAULT_PROVIDED = object()
 class ExpFromConfig:
     """Experiment class."""
 
-    def __init__(self, merged_config, progress, loglevel="INFO"):
+    def __init__(self, merged_config, progress, loglevel="INFO", json_schema=None):
         """Instaniate an object of the main experiment class.
 
         Args:
             merged_config (dict): Experiment configuration
             progress (dict): Updated time information
             loglevel(str, optional): Loglevel. Default to "INFO"
+            json_schema (dict, optional): Validating schema. Defaults to None
 
         """
         logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
@@ -76,6 +77,7 @@ class Exp(ExpFromConfig):
         progress,
         stream=None,
         loglevel="INFO",
+        json_schema=None,
     ):
         """Instaniate an object of the main experiment class.
 
@@ -89,6 +91,8 @@ class Exp(ExpFromConfig):
             progress (dict): Date/time settings
             stream (str, optional): Stream identifier. Defaults to None.
             loglevel (str, optional): Loglevel. Defaults to "INFO".
+            json_schema (dict, optional): Validating schema. Defaults to None
+
         """
         logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
         logger.debug("Construct Exp")
@@ -176,10 +180,11 @@ class Exp(ExpFromConfig):
             else:
                 task.update({att: merged_config["task"][att]})
         merged_config["task"].update(task)
-        json_schema = None
         config = ParsedConfig.parse_obj(merged_config, json_schema=json_schema)
         config = config.copy(update=update)
-        ExpFromConfig.__init__(self, config.dict(), progress, loglevel=loglevel)
+        ExpFromConfig.__init__(
+            self, config.dict(), progress, loglevel=loglevel, json_schema=json_schema
+        )
 
 
 class ExpFromFiles(Exp):
@@ -192,6 +197,7 @@ class ExpFromFiles(Exp):
         config_settings=None,
         loglevel="INFO",
         progress=None,
+        json_schema=None,
     ):
         """Construct an Exp object from files.
 
@@ -201,6 +207,7 @@ class ExpFromFiles(Exp):
             config_settings(dict): Possible input config settings
             loglevel(str, optional): Loglevel. Default to "INFO"
             progress(dict, optional): Time/date information to update.
+            json_schema (dict, optional): Validating schema. Defaults to None
 
         Raises:
             FileNotFoundError: If host file(s) not found
@@ -264,6 +271,7 @@ class ExpFromFiles(Exp):
             env_submit,
             progress,
             stream=stream,
+            json_schema=json_schema,
         )
 
     @staticmethod
@@ -780,6 +788,7 @@ class ExpFromFilesDep(ExpFromFiles):
         config_settings=None,
         loglevel="INFO",
         progress=None,
+        json_schema=None,
     ):
         """Construct an Exp object from files.
 
@@ -789,6 +798,7 @@ class ExpFromFilesDep(ExpFromFiles):
             config_settings (dict): Possible input config setting to
             loglevel(str, optional): Loglevel. Default to "INFO"
             progress (dict, optional): Updated date/time. Default to None
+            json_schema (dict, optional): Validating schema. Defaults to None
 
         """
         logger = get_logger(PACKAGE_NAME, loglevel=loglevel)
@@ -800,6 +810,7 @@ class ExpFromFilesDep(ExpFromFiles):
             config_settings=config_settings,
             loglevel=loglevel,
             progress=progress,
+            json_schema=json_schema,
         )
 
 
@@ -813,6 +824,7 @@ class ExpFromFilesDepFile(ExpFromFiles):
         stream=None,
         loglevel="INFO",
         progress=None,
+        json_schema=None,
     ):
         """Construct an Exp object from files.
 
@@ -822,6 +834,7 @@ class ExpFromFilesDepFile(ExpFromFiles):
             config_settings (dict): Possible input config setting to
             loglevel(str, optional): Loglevel. Default to "INFO"
             progress (dict, optional): Updated date/time. Default to None
+            json_schema (dict, optional): Validating schema. Defaults to None
 
         Raises:
             FileNotFoundError: If file is not found
@@ -841,6 +854,7 @@ class ExpFromFilesDepFile(ExpFromFiles):
                     config_settings=config_settings,
                     loglevel=loglevel,
                     progress=progress,
+                    json_schema=json_schema,
                 )
         else:
             raise FileNotFoundError(

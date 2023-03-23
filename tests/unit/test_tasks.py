@@ -116,6 +116,7 @@ def get_config(tmp_path_factory):
         env_submit,
         progress,
         stream=stream,
+        json_schema={},
     )
 
     config_file = f"{tmp_path_factory.getbasetemp().as_posix()}/config.json"

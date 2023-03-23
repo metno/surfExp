@@ -27,9 +27,8 @@ SubmitTask = "experiment.cli:run_submit_cmd_exp"
     pyproj = "^3.3.0"
     pyyaml = "^6.0"
     tomlkit = "^0.11.6"
-   # pysurfex-scheduler = {git = "git@github.com:metno/pysurfex-scheduler.git", branch="feature/deode_similar", develop = true}
-    pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true}
     troika = {git = "https://git.ecmwf.int/scm/ecsdk/troika.git", tag="0.1.8"}
+    pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true}
 
 [tool.poetry.group.dev.dependencies]
     jupyterlab = "^3.6.1"
