@@ -53,7 +53,7 @@ jobs:
       - name: Install other pysurfex dependencies
         run: |
            apt-get update
-           apt-get install -y libeccodes-dev libproj-dev libudunits2-dev python3-sphinx
+           apt-get install -y libeccodes-dev libproj-dev libudunits2-dev
 
       #----------------------------------------------
       #  --- configure poetry & install project  ----
@@ -100,8 +100,7 @@ jobs:
       - name: Create documentation
         if: ${{ matrix.python-version == 3.8 }}
         run: |
-          cd docs
-          ./build.sh
+          poetry run sphinx-build . docs/build/
       - name: Commit documentation changes
         if: ${{ matrix.python-version == 3.8 }}
         run: |
