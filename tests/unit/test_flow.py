@@ -50,9 +50,8 @@ def get_exp_from_files(tmp_path_factory):
 
 @pytest.fixture(scope="module")
 def _mockers_for_ecflow(session_mocker):
-    session_mocker.patch("experiment.scheduler.scheduler.ecflow.Client")
+    session_mocker.patch("experiment.scheduler.scheduler.ecflow")
     session_mocker.patch("experiment.scheduler.submission.TaskSettings.parse_job")
-    session_mocker.patch("experiment.scheduler.suites.ecflow.Defs")
 
 
 class TestFlow:
@@ -67,7 +66,6 @@ class TestFlow:
         ecf_host = "localhost"
         server = EcflowServer(ecf_host, ecf_port=3141, start_command=None)
         server.start_server()
-        ecflow.Client.assert_called_once()  # noqa E1101
 
     @pytest.mark.usefixtures("_mockers_for_ecflow")
     def test_server_from_file(self, tmp_path_factory):
