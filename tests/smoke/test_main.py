@@ -90,8 +90,10 @@ def _module_mockers(session_mocker, tmp_path_factory):
         "experiment.scheduler.submission.NoSchedulerSubmission.submit",
         new=new_no_scheduler_submission_submit_method,
     )
-    session_mocker.patch("experiment.scheduler.scheduler.ecflow")
-    session_mocker.patch("experiment.scheduler.suites.ecflow")
+    session_mocker.patch("experiment.scheduler.scheduler.Client")
+    session_mocker.patch("experiment.scheduler.scheduler.State")
+    session_mocker.patch("experiment.scheduler.suites.Defs")
+    session_mocker.patch("experiment.scheduler.suites.Defstatus")
     session_mocker.patch(
         "experiment.scheduler.submission.TaskSettings.parse_job",
         new=new_submission_task_settings_parse_job,

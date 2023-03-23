@@ -3,10 +3,15 @@ import logging
 import os
 import sys
 
+"""
 try:
-    import ecflow  # noqa reportMissingImports
+    from ecflow  import Defs, Defstatus  # noqa reportMissingImports
 except ImportError:
-    ecflow = None
+    Defs = None
+    Defstatus = None
+"""
+Defs = None
+Defstatus = None
 
 
 class EcflowNode:
@@ -86,8 +91,8 @@ class EcflowNode:
 
         if def_status is not None:
             if isinstance(def_status, str):
-                self.ecf_node.add_defstatus(ecflow.Defstatus(def_status))  # noqa E1101
-            elif isinstance(def_status, ecflow.Defstatus):  # noqa E1101
+                self.ecf_node.add_defstatus(Defstatus(def_status))  # noqa E1101
+            elif isinstance(def_status, Defstatus):  # noqa E1101
                 self.ecf_node.add_defstatus(def_status)
             else:
                 raise NotImplementedError("Unknown defstatus")
@@ -171,7 +176,7 @@ class EcflowSuite(EcflowNodeContainer):
             def_status (str, optional): Default status. Defaults to False.
 
         """
-        self.defs = ecflow.Defs({})
+        self.defs = Defs({})
         EcflowNodeContainer.__init__(
             self,
             name,

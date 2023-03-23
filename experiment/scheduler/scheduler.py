@@ -11,9 +11,13 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 
 try:
-    import ecflow  # noqa reportMissingImports
+    from ecflow import Client, State  # noqa reportMissingImports
 except ModuleNotFoundError:
-    ecflow = None
+    Client = None
+    State = None
+
+Client = None
+State = None
 
 
 # Base Scheduler server class
@@ -95,13 +99,13 @@ class EcflowServer(Server):
             ModuleNotFoundError: If not ecflow is found.
 
         """
-        if ecflow is None:
+        if Client is None:
             raise ModuleNotFoundError("Ecflow was not found")
         Server.__init__(self)
         self.ecf_host = ecf_host
         self.ecf_port = ecf_port
         self.start_command = start_command
-        self.ecf_client = ecflow.Client(self.ecf_host, self.ecf_port)
+        self.ecf_client = Client(self.ecf_host, self.ecf_port)
         logging.debug("self.ecf_client %s", self.ecf_client)
         self.settings = {"ecf_host": self.ecf_host, "ecf_port": self.ecf_port}
 
@@ -137,7 +141,7 @@ class EcflowServer(Server):
         """Begin the suite.
 
         Args:
-            suite_name (str): Nam eof the suite.
+            suite_name (str): Name of the suite.
         """
         self.ecf_client.begin_suite(suite_name)
 
@@ -148,7 +152,7 @@ class EcflowServer(Server):
             task (scheduler.EcflowTask): Task to force complete.
         """
         ecf_name = task.ecf_name
-        self.ecf_client.force_state(ecf_name, ecflow.State.complete)
+        self.ecf_client.force_state(ecf_name, State.complete)
 
     def force_aborted(self, task):
         """Force the task aborted.
@@ -157,7 +161,7 @@ class EcflowServer(Server):
             task (scheduler.EcflowTask): Task to force aborted.
         """
         ecf_name = task.ecf_name
-        self.ecf_client.force_state(ecf_name, ecflow.State.aborted)
+        self.ecf_client.force_state(ecf_name, State.aborted)
 
     def replace(self, suite_name, def_file):
         """Replace the suite name from def_file.
@@ -167,7 +171,7 @@ class EcflowServer(Server):
             def_file (str): Definition file.
 
         Raises:
-            Exception: _description_
+            RuntimeError: _description_
         """
         logging.debug("%s %s", suite_name, def_file)
         try:
@@ -177,7 +181,9 @@ class EcflowServer(Server):
                 self.ecf_client.delete("/" + suite_name)
                 self.ecf_client.replace("/" + suite_name, def_file)
             except RuntimeError:
-                raise Exception("Could not replace suite " + suite_name) from RuntimeError
+                raise RuntimeError(
+                    "Could not replace suite " + suite_name
+                ) from RuntimeError
 
 
 class EcflowServerFromFile(EcflowServer):
@@ -210,13 +216,13 @@ class EcflowServerFromFile(EcflowServer):
 
         Args:
             var (str): Key in settings.
-            default (_type_, optional): _description_. Defaults to None.
+            default (any, optional): Default value. Defaults to None.
 
         Raises:
-            Exception: _description_
+            KeyError: Variable not found
 
         Returns:
-            _type_: _description_
+            any
         """
         if var in self.settings:
             return self.settings[var]
@@ -224,7 +230,7 @@ class EcflowServerFromFile(EcflowServer):
         if default is not None:
             return default
         else:
-            raise Exception("Variable " + var + " not found!")
+            raise KeyError("Variable " + var + " not found!")
 
     def save_as_file(self, fname):
         """Save the server settings to a file.

@@ -50,8 +50,10 @@ def get_exp_from_files(tmp_path_factory):
 
 @pytest.fixture(scope="module")
 def _mockers_for_ecflow(session_mocker):
-    session_mocker.patch("experiment.scheduler.scheduler.ecflow.Client")
-    session_mocker.patch("experiment.scheduler.scheduler.ecflow.Defs")
+    session_mocker.patch("experiment.scheduler.scheduler.Client")
+    session_mocker.patch("experiment.scheduler.scheduler.State")
+    session_mocker.patch("experiment.scheduler.suites.Defs")
+    session_mocker.patch("experiment.scheduler.suites.Defstatus")
     session_mocker.patch("experiment.scheduler.submission.TaskSettings.parse_job")
 
 
