@@ -139,7 +139,7 @@ Here is an example with CARRA2.
  cd ~/projects/pysurfex-experiment
 
  # Create experiment in file CARRA2_MINI_NEW.json
- poetry run PySurfexExpSetup -exp_name CARRA2_MINI -experiment $PWD -offline /perm/sbu/git/carra/CARRA2-Harmonie/util/offline/ -host ECMWF-atos --config carra2 -o CARRA2_MINI.json
+ poetry run PySurfexExpSetup -exp_name CARRA2_MINI -experiment $PWD -offline /perm/sbu/git/carra/CARRA2-Harmonie/ -host ECMWF-atos --config carra2 -o CARRA2_MINI.json
   
  # Run experiment from config file CARRA2_MINI_NEW.json
  poetry run PySurfexExp start -exp_name CARRA2_MINI -dtg "2017-09-01T03:00:00Z" -dtgend "2017-09-01T06:00:00Z" -config CARRA2_MINI.json
