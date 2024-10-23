@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>This repository is a setup to create and run offline SURFEX experiments. &#8212; Pysurfex-experiment  documentation</title>
+    <title>This repository is a setup to create and run offline SURFEX experiments. &#8212; surfExp  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -23,7 +23,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">surfExp  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">This repository is a setup to create and run offline SURFEX experiments.</a></li> 
       </ul>
     </div>  
@@ -33,20 +33,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <img alt="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" id="readme" src="https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master" />
-<p><a class="reference external" href="https://coveralls.io/github/metno/pysurfex-experiment">https://coveralls.io/github/metno/pysurfex-experiment</a></p>
+  <img alt="https://coveralls.io/repos/github/metno/surfExp/badge.svg?branch=master" id="readme" src="https://coveralls.io/repos/github/metno/surfExp/badge.svg?branch=master" />
+<p><a class="reference external" href="https://coveralls.io/github/metno/surfExp">https://coveralls.io/github/metno/surfExp</a></p>
 <section id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
 <h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this heading">¶</a></h1>
-<p>See online documentation in <a class="reference external" href="https://metno.github.io/pysurfex-experiment/">https://metno.github.io/pysurfex-experiment/</a>
-The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>)</p>
-<p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt">https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt</a></p>
-<section id="general-dependencies-from-pypi">
-<h2>General dependencies (from pypi)<a class="headerlink" href="#general-dependencies-from-pypi" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pysurfex
-</pre></div>
-</div>
-<p>pysurfex bring extra dependencies like gridpp, titanlib. If you install from pypi with pip these should be handled automatically.</p>
-</section>
+<p>See online documentation in <a class="reference external" href="https://metno.github.io/surfExp/">https://metno.github.io/surfExp/</a>
+The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and deode workflow (<a class="reference external" href="https://github.com/destination-earth-digital-twins/Deode-Workflow">https://github.com/destination-earth-digital-twins/Deode-Workflow</a> / <a class="reference external" href="https://github.com/trygveasp/Deode-Workflow">https://github.com/trygveasp/Deode-Workflow</a>)</p>
+<p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/surfExp/blob/master/requirements.txt">https://github.com/metno/surfExp/blob/master/requirements.txt</a></p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
 <p>The recommended installation method is using poetry. First install poetry. This can be done in several ways like a system package or ftom pypi. The recommended way is:</p>
@@ -54,17 +47,17 @@ The setup is dependent of pysurfex (<a class="reference external" href="https://
 </pre></div>
 </div>
 <p>When you have poetry installed make sure you have it in path. It might be installed in ~/.local/bin.
-To install the script system first clone <a class="reference external" href="https://github.com/metno/pysurfex-experiment">https://github.com/metno/pysurfex-experiment</a> and install it.
+To install the script system first clone <a class="reference external" href="https://github.com/metno/surfExp">https://github.com/metno/surfExp</a> and install it.
 To run commands interactively in the poetry environment you need to run either “poetry shell” or “poetry run [cmd]”</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
 mkdir<span class="w"> </span>-p<span class="w"> </span>projects
 <span class="nb">cd</span><span class="w"> </span>projects
 
 <span class="c1"># Clone the source code</span>
-clone<span class="w"> </span>https://github.com/metno/pysurfex-experiment
+clone<span class="w"> </span>https://github.com/metno/surfExp
 
 <span class="c1"># Install the script system</span>
-<span class="nb">cd</span><span class="w"> </span>pysurfex-experiment
+<span class="nb">cd</span><span class="w"> </span>surfExp
 poetry<span class="w"> </span>install
 
 <span class="c1"># Enter the environment</span>
@@ -74,101 +67,74 @@ poetry<span class="w"> </span>shell
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
-<p>There are two ways to set up an experiment. Either in an experiment with the config files inside the experiment,
-or as a self contained configuration file with all settings inside.</p>
-</section>
-<section id="approach-1-all-sub-config-files-in-an-experiment">
-<h2>Approach 1: All sub-config files in an experiment<a class="headerlink" href="#approach-1-all-sub-config-files-in-an-experiment" title="Permalink to this heading">¶</a></h2>
-<p>Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings.
-Adjust it to your clone, host-tag and system. First you will set up an experiment. This will merge configuration based on your settings and split them back to configuration files.
-You have the following config files in the config directories:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>config_exp.toml</p></li>
-<li><p>config_exp_surfex.toml</p></li>
-<li><p>config_exp_observations.toml</p></li>
-<li><p>config_exp_eps.toml</p></li>
-</ul>
-</div></blockquote>
-<p>In addition you will get some other config files used in the tasks. An example on how to use it inside a poetry environment (“poetry shell”)</p>
+<p>The altering of the configuration must then be done by applying a defined configuration or a configuration file with patches from original configuration. Examples are local configurations, domains etc.
+In addition you will get some other config files used in the tasks. An example on how to use it inside a poetry environment (“poetry shell”)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in a poetry environment after executing &quot;poetry shell&quot;</span>
-<span class="nb">cd</span><span class="w"> </span>~/projects/pysurfex-experiment
+<span class="nb">cd</span><span class="w"> </span>~/projects/surfExp
 poetry<span class="w"> </span>shell
 
-<span class="nb">export</span><span class="w"> </span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
-
-<span class="nb">cd</span>
-mkdir<span class="w"> </span>-p<span class="w"> </span>sfx_home
-<span class="nb">cd</span><span class="w"> </span>sfx_home
-mkdir<span class="w"> </span>-p<span class="w"> </span>my_exp
-<span class="nb">cd</span><span class="w"> </span>my_exp
-
-<span class="c1"># The -offline argument is optional if you want to run with existing binaries</span>
-PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span><span class="nv">$PYSURFEX_EXPERIMENT_PATH</span><span class="w"> </span>-host<span class="w"> </span><span class="nv">$HOST_TAG</span><span class="w"> </span>-offline<span class="w"> </span><span class="nv">$OFFLINE_SOURCE_CODE</span>
-<span class="c1"># This will create a file exp_dependencies.json</span>
-
 <span class="c1"># Alternative way of setting up a pre-defined SEKF configuration</span>
-PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span><span class="nv">$PYSURFEX_EXPERIMENT_PATH</span><span class="w"> </span>-host<span class="w"> </span><span class="nv">$HOST_TAG</span><span class="w"> </span>-offline<span class="w"> </span><span class="nv">$OFFLINE_SOURCE_CODE</span><span class="w"> </span>--config<span class="w"> </span>sekf
+surfExp<span class="w"> </span>my_config.toml<span class="w"> </span>SEKF<span class="w"> </span>surfexp/data/config<span class="w"> </span>data/config/configurations/sekf.toml
 
-<span class="c1"># To re-configure your config and (re-)create exp_configuration.json</span>
-PySurfexExpConfig
+<span class="c1"># Use AROME Arctic branch on PPI together with MET-Norway LDAS</span>
+surfExp<span class="w"> </span>my_config.toml<span class="w"> </span>LDAS<span class="w"> </span>surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span>surfexp/data/config/mods/arome_arctic_offline_ppi.toml
 
 <span class="c1"># To start you experiment</span>
-PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">202301010300</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">202301010600</span>
+deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>my_config.toml
 </pre></div>
 </div>
-<p>Alternative 2 is using the poetry run functionality:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in a poetry environment after executing &quot;poetry shell&quot;</span>
-<span class="nb">cd</span><span class="w"> </span>~/projects/pysurfex-experiment
+<p>Here is an example with CARRA2 using poetry run.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/projects/surfExp
 
-<span class="nb">export</span><span class="w"> </span><span class="nv">PYSURFEX_EXPERIMENT_PATH</span><span class="o">=</span><span class="s2">&quot;pysurfex-experiment-clone-dir&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">HOST_TAG</span><span class="o">=</span><span class="s2">&quot;my-host-tag&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">OFFLINE_SOURCE_CODE</span><span class="o">=</span><span class="s2">&quot;path-to-your-offline-source-code&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">WD</span><span class="o">=</span><span class="nv">$HOME</span>/sfx_home/my_exp
+<span class="c1"># Create experiment in file data/config/CARRA2_MINI.toml</span>
+poetry<span class="w"> </span>run<span class="w"> </span>surfExp<span class="w"> </span>CARRA2_MINI.toml<span class="w"> </span>CARRA2-MINI<span class="w"> </span>surfexp/data/config/configurations/carra2.toml
 
-<span class="c1"># The -offline argument is optional if you want to run with existing binaries</span>
-poetry<span class="w"> </span>run<span class="w"> </span>PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span><span class="nv">$PYSURFEX_EXPERIMENT_PATH</span><span class="w"> </span>-host<span class="w"> </span><span class="nv">$HOST_TAG</span><span class="w"> </span>-offline<span class="w"> </span><span class="nv">$OFFLINE_SOURCE_CODE</span><span class="w"> </span>-exp_name<span class="w"> </span>my_exp<span class="w"> </span>--wd<span class="w"> </span><span class="nv">$WD</span>
-<span class="c1"># This will create a file exp_dependencies.json</span>
-
-<span class="c1"># Alternative way of setting up a pre-defined SEKF configuration</span>
-<span class="nv">WD</span><span class="o">=</span><span class="nv">$HOME</span>/sfx_home/my_sekf_exp
-poetry<span class="w"> </span>run<span class="w"> </span>PySurfexExpSetup<span class="w"> </span>-experiment<span class="w"> </span><span class="nv">$PYSURFEX_EXPERIMENT_PATH</span><span class="w"> </span>-host<span class="w"> </span><span class="nv">$HOST_TAG</span><span class="w"> </span>-offline<span class="w"> </span><span class="nv">$OFFLINE_SOURCE_CODE</span><span class="w"> </span>--config<span class="w"> </span>sekf<span class="w"> </span>-exp_name<span class="w"> </span>my_sekf_exp<span class="w"> </span>--wd<span class="w"> </span><span class="nv">$WD</span>
-
-<span class="c1"># To re-configure your config and (re-)create exp_configuration.json</span>
-poetry<span class="w"> </span>run<span class="w"> </span>PySurfexExpConfig<span class="w"> </span>-exp_name<span class="w"> </span>my_sekf_exp<span class="w"> </span>--wd<span class="w"> </span><span class="nv">$WD</span>
-
-<span class="c1"># To start you experiment</span>
-poetry<span class="w"> </span>run<span class="w"> </span>PySurfexExp<span class="w"> </span>start<span class="w"> </span>-dtg<span class="w"> </span><span class="m">202301010300</span><span class="w"> </span>-dtgend<span class="w"> </span><span class="m">202301010600</span>
+<span class="c1"># Modify times in data/config/CARRA2_MINI.toml</span>
+<span class="c1"># Run experiment from config file data/config/CARRA2_MINI.toml</span>
+poetry<span class="w"> </span>run<span class="w"> </span>deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>data/config/CARRA2_MINI.toml
 </pre></div>
 </div>
-<p>The second approach is to create a self-contained configuration file, can be started.
-The altering of the configuration must then be done by applying a defined configuration or a configuration file with patches from original configuration.
-Here is an example with CARRA2.</p>
-<p>Following host tags are tested:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>ECMWF-atos (ATOS at ECMWF)</p></li>
-<li><p>ppi-rhel8  (RH8 PPI at met.no)</p></li>
-<li><p>nebula     (nebula.nsc.liu.se)</p></li>
-</ul>
-<p>The experiment specific file exp_dependencies.json will tell you the location of the system dependent files.
-You might want to override them with local copies if needed.</p>
-</div></blockquote>
 </section>
 <section id="extra-environment-on-ppi-rhel8-needed-to-start-experiments">
 <h2>Extra environment on PPI-RHEL8 needed to start experiments<a class="headerlink" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>use<span class="w"> </span>/modules/MET/rhel8/user-modules/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ib-dev queue is only in A: ib-dev-a-r8.q</span>
+ssh<span class="w"> </span>ppi-r8login-a1.int.met.no
+
+<span class="c1"># Get surfExp</span>
+git<span class="w"> </span>clone<span class="w"> </span>github.com:trygveasp/surfExp.git<span class="w">  </span>--branch<span class="w"> </span>feature/deode_offline_surfex<span class="w"> </span>surfExp
+
+<span class="c1"># conda setup</span>
+<span class="nb">source</span><span class="w"> </span>/modules/rhel8/user-apps/suv-modules/miniconda3/24.7.1/etc/profile.d/conda.sh
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>surfExp<span class="w"> </span><span class="nv">python</span><span class="o">==</span><span class="m">3</span>.10<span class="w"> </span>-y
+conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-n<span class="w"> </span>surfExp<span class="w"> </span>poetry<span class="w"> </span>gdal<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>surfExp
+
+<span class="c1"># Install</span>
+poetry<span class="w"> </span>install
+
+<span class="c1"># MET-Norway LDAS experiment</span>
+mkdir<span class="w"> </span>-f<span class="w"> </span>exps
+surfExp<span class="w"> </span>exps/LDAS.toml<span class="w"> </span>LDAS<span class="w"> </span><span class="nv">$PWD</span>/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/arome_arctic_offline_ppi.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_pgd.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+
+<span class="c1"># PPI ECFLOW (in A)</span>
+<span class="c1"># If your server is not running you should start it!</span>
+module<span class="w"> </span>use<span class="w"> </span>/modules/MET/rhel8/user-modules/
 module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
 <span class="nb">export</span><span class="w"> </span><span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">UDUNITS2_XML_PATH</span><span class="o">=</span>/usr/share/udunits/udunits2.xml
+
+<span class="c1"># Start suite (modify dates)</span>
+deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>exps/LDAS.toml
+
+
+<span class="c1"># MET-Norway LDAS single decade</span>
+surfExp<span class="w"> </span>exps/LDAS_decade.toml<span class="w"> </span>LDAS_decade<span class="w"> </span><span class="nv">$PWD</span>/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/arome_arctic_offline_ppi.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_pgd.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_single_decade.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/metno_ldas_single_decade.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w">  </span>--config-file<span class="w"> </span>exps/LDAS_decade.toml
 </pre></div>
 </div>
 </section>
 <section id="trainings">
 <h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this heading">¶</a></h2>
-<p><a class="reference external" href="https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/">Budapest May 2022</a> (Old version)</p>
+<p><a class="reference external" href="https://github.com/metno/surfExp/blob/master/trainings/budapest_may_2022.rst/">Budapest May 2022</a> (Old version)</p>
 </section>
 </section>
 
@@ -183,10 +149,8 @@ module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">This repository is a setup to create and run offline SURFEX experiments.</a><ul>
-<li><a class="reference internal" href="#general-dependencies-from-pypi">General dependencies (from pypi)</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
-<li><a class="reference internal" href="#approach-1-all-sub-config-files-in-an-experiment">Approach 1: All sub-config files in an experiment</a></li>
 <li><a class="reference internal" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments">Extra environment on PPI-RHEL8 needed to start experiments</a></li>
 <li><a class="reference internal" href="#trainings">Trainings</a></li>
 </ul>
@@ -221,7 +185,7 @@ module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="index.html">Pysurfex-experiment  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">surfExp  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">This repository is a setup to create and run offline SURFEX experiments.</a></li> 
       </ul>
     </div>

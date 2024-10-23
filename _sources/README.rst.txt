@@ -1,27 +1,18 @@
 .. _README:
 
-.. image:: https://coveralls.io/repos/github/metno/pysurfex-experiment/badge.svg?branch=master
+.. image:: https://coveralls.io/repos/github/metno/surfExp/badge.svg?branch=master
 
-https://coveralls.io/github/metno/pysurfex-experiment
+https://coveralls.io/github/metno/surfExp
 
 
 This repository is a setup to create and run offline SURFEX experiments.
 =========================================================================
 
-See online documentation in https://metno.github.io/pysurfex-experiment/
-The setup is dependent of pysurfex (https://metno.github.io/pysurfex)
+See online documentation in https://metno.github.io/surfExp/
+The setup is dependent of pysurfex (https://metno.github.io/pysurfex) and deode workflow (https://github.com/destination-earth-digital-twins/Deode-Workflow / https://github.com/trygveasp/Deode-Workflow)
 
-You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in https://github.com/metno/pysurfex-experiment/blob/master/requirements.txt
+You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in https://github.com/metno/surfExp/blob/master/requirements.txt
 
-
-General dependencies (from pypi)
----------------------------------
-
-.. code-block:: bash
-
- pysurfex
-
-pysurfex bring extra dependencies like gridpp, titanlib. If you install from pypi with pip these should be handled automatically.
 
 Installation
 -------------
@@ -34,7 +25,7 @@ The recommended installation method is using poetry. First install poetry. This 
 
 
 When you have poetry installed make sure you have it in path. It might be installed in ~/.local/bin.
-To install the script system first clone https://github.com/metno/pysurfex-experiment and install it.
+To install the script system first clone https://github.com/metno/surfExp and install it.
 To run commands interactively in the poetry environment you need to run either "poetry shell" or "poetry run [cmd]"
 
 
@@ -45,10 +36,10 @@ To run commands interactively in the poetry environment you need to run either "
  cd projects
 
  # Clone the source code
- clone https://github.com/metno/pysurfex-experiment
+ clone https://github.com/metno/surfExp
 
  # Install the script system
- cd pysurfex-experiment
+ cd surfExp
  poetry install
 
  # Enter the environment
@@ -58,115 +49,79 @@ To run commands interactively in the poetry environment you need to run either "
 Usage
 ---------------------------------------------
 
-There are two ways to set up an experiment. Either in an experiment with the config files inside the experiment,
-or as a self contained configuration file with all settings inside.
-
-Approach 1: All sub-config files in an experiment
-----------------------------------------------------
-
-Assume you have cloned experiment in pysurfex-experiment-clone-dir. Let us set some variables we can use in the examples in addition to some system settings.
-Adjust it to your clone, host-tag and system. First you will set up an experiment. This will merge configuration based on your settings and split them back to configuration files.
-You have the following config files in the config directories:
-
- * config_exp.toml
- * config_exp_surfex.toml
- * config_exp_observations.toml
- * config_exp_eps.toml
- 
+The altering of the configuration must then be done by applying a defined configuration or a configuration file with patches from original configuration. Examples are local configurations, domains etc.
 In addition you will get some other config files used in the tasks. An example on how to use it inside a poetry environment ("poetry shell")
 
 .. code-block:: bash
 
  # First make sure you are in a poetry environment after executing "poetry shell"
- cd ~/projects/pysurfex-experiment
+ cd ~/projects/surfExp
  poetry shell
 
- export PYSURFEX_EXPERIMENT_PATH="pysurfex-experiment-clone-dir"
- export HOST_TAG="my-host-tag"
- export OFFLINE_SOURCE_CODE="path-to-your-offline-source-code"
- 
- cd
- mkdir -p sfx_home
- cd sfx_home
- mkdir -p my_exp
- cd my_exp
- 
- # The -offline argument is optional if you want to run with existing binaries
- PySurfexExpSetup -experiment $PYSURFEX_EXPERIMENT_PATH -host $HOST_TAG -offline $OFFLINE_SOURCE_CODE
- # This will create a file exp_dependencies.json
-
  # Alternative way of setting up a pre-defined SEKF configuration
- PySurfexExpSetup -experiment $PYSURFEX_EXPERIMENT_PATH -host $HOST_TAG -offline $OFFLINE_SOURCE_CODE --config sekf
+ surfExp my_config.toml SEKF surfexp/data/config data/config/configurations/sekf.toml
  
- # To re-configure your config and (re-)create exp_configuration.json
- PySurfexExpConfig
- 
- # To start you experiment
- PySurfexExp start -dtg 202301010300 -dtgend 202301010600
+ # Use AROME Arctic branch on PPI together with MET-Norway LDAS
+ surfExp my_config.toml LDAS surfexp/data/config/configurations/metno_ldas.toml surfexp/data/config/mods/arome_arctic_offline_ppi.toml
 
-Alternative 2 is using the poetry run functionality:
+ # To start you experiment
+ deode start suite --config-file my_config.toml
+
+
+
+Here is an example with CARRA2 using poetry run.
 
 .. code-block:: bash
 
- # First make sure you are in a poetry environment after executing "poetry shell"
- cd ~/projects/pysurfex-experiment
+ cd ~/projects/surfExp
 
- export PYSURFEX_EXPERIMENT_PATH="pysurfex-experiment-clone-dir"
- export HOST_TAG="my-host-tag"
- export OFFLINE_SOURCE_CODE="path-to-your-offline-source-code"
- export WD=$HOME/sfx_home/my_exp
- 
- # The -offline argument is optional if you want to run with existing binaries
- poetry run PySurfexExpSetup -experiment $PYSURFEX_EXPERIMENT_PATH -host $HOST_TAG -offline $OFFLINE_SOURCE_CODE -exp_name my_exp --wd $WD
- # This will create a file exp_dependencies.json
- 
- # Alternative way of setting up a pre-defined SEKF configuration
- WD=$HOME/sfx_home/my_sekf_exp
- poetry run PySurfexExpSetup -experiment $PYSURFEX_EXPERIMENT_PATH -host $HOST_TAG -offline $OFFLINE_SOURCE_CODE --config sekf -exp_name my_sekf_exp --wd $WD
- 
- # To re-configure your config and (re-)create exp_configuration.json
- poetry run PySurfexExpConfig -exp_name my_sekf_exp --wd $WD
- 
- # To start you experiment
- poetry run PySurfexExp start -dtg 202301010300 -dtgend 202301010600
+ # Create experiment in file data/config/CARRA2_MINI.toml
+ poetry run surfExp CARRA2_MINI.toml CARRA2-MINI surfexp/data/config/configurations/carra2.toml
 
+ # Modify times in data/config/CARRA2_MINI.toml
+ # Run experiment from config file data/config/CARRA2_MINI.toml
+ poetry run deode start suite --config-file data/config/CARRA2_MINI.toml
 
-The second approach is to create a self-contained configuration file, can be started.
-The altering of the configuration must then be done by applying a defined configuration or a configuration file with patches from original configuration.
-Here is an example with CARRA2.
-
-.. code-block:: bash
- cd ~/projects/pysurfex-experiment
-
- # Create experiment in file CARRA2_MINI_NEW.json
- poetry run PySurfexExpSetup -exp_name CARRA2_MINI -experiment $PWD -offline /perm/sbu/git/carra/CARRA2-Harmonie/ -host ECMWF-atos --config carra2 -o CARRA2_MINI.json
-  
- # Run experiment from config file CARRA2_MINI_NEW.json
- poetry run PySurfexExp start -exp_name CARRA2_MINI -dtg "2017-09-01T03:00:00Z" -dtgend "2017-09-01T06:00:00Z" -config CARRA2_MINI.json
-
-
-
-Following host tags are tested:
-
- * ECMWF-atos (ATOS at ECMWF)
- * ppi-rhel8  (RH8 PPI at met.no)
- * nebula     (nebula.nsc.liu.se)
- 
- The experiment specific file exp_dependencies.json will tell you the location of the system dependent files.
- You might want to override them with local copies if needed.
 
 Extra environment on PPI-RHEL8 needed to start experiments
 ---------------------------------------------------------------
 
 .. code-block:: bash
 
+ # ib-dev queue is only in A: ib-dev-a-r8.q
+ ssh ppi-r8login-a1.int.met.no
+ 
+ # Get surfExp
+ git clone github.com:trygveasp/surfExp.git  --branch feature/deode_offline_surfex surfExp
+
+ # conda setup
+ source /modules/rhel8/user-apps/suv-modules/miniconda3/24.7.1/etc/profile.d/conda.sh
+ conda create -n surfExp python==3.10 -y
+ conda install -c conda-forge -n surfExp poetry gdal -y
+ conda activate surfExp
+ 
+ # Install
+ poetry install
+ 
+ # MET-Norway LDAS experiment
+ mkdir -f exps
+ surfExp exps/LDAS.toml LDAS $PWD/data/config/configurations/metno_ldas.toml $PWD/data/config/domains/MET_NORDIC_1_0.toml $PWD/data/config/mods/arome_arctic_offline_ppi.toml $PWD/data/config/mods/netcdf_input_pgd.toml $PWD/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
+
+ # PPI ECFLOW (in A)
+ # If your server is not running you should start it!
  module use /modules/MET/rhel8/user-modules/
  module load ecflow/5.8.1
  export ECF_SSL=1
- export UDUNITS2_XML_PATH=/usr/share/udunits/udunits2.xml
 
+ # Start suite (modify dates)
+ deode start suite --config-file exps/LDAS.toml
+
+
+ # MET-Norway LDAS single decade
+ surfExp exps/LDAS_decade.toml LDAS_decade $PWD/data/config/configurations/metno_ldas.toml $PWD/data/config/domains/MET_NORDIC_1_0.toml $PWD/data/config/mods/arome_arctic_offline_ppi.toml $PWD/data/config/mods/netcdf_input_pgd.toml $PWD/data/config/mods/netcdf_input_single_decade.toml $PWD/data/config/mods/metno_ldas_single_decade.toml $PWD/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
+ deode start suite  --config-file exps/LDAS_decade.toml
 
 Trainings
 -----------------------
 
-`Budapest May 2022 <https://github.com/metno/pysurfex-experiment/blob/master/trainings/budapest_may_2022.rst/>`_ (Old version)
+`Budapest May 2022 <https://github.com/metno/surfExp/blob/master/trainings/budapest_may_2022.rst/>`_ (Old version)

@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-PYSURFEX Experiment documentation
+surfExp documentation
 ===================================================================
 
 .. toctree::
@@ -13,91 +13,103 @@ PYSURFEX Experiment documentation
 .. include::  README.rst
 
 Classes
----------------------------------------------
-#.. autoclass:: experiment_tasks.AbstractTask
-#.. autoclass:: experiment_tasks.SurfexBinaryTask
-#.. autoclass:: experiment_tasks.Pgd
-#.. autoclass:: experiment_tasks.Prep
-#.. autoclass:: experiment_tasks.Forecast
-#.. autoclass:: experiment_tasks.PerturbedRun
-#.. autoclass:: experiment_tasks.Soda
-#.. autoclass:: experiment_tasks.PrepareCycle
-#.. autoclass:: experiment_tasks.QualityControl
-#.. autoclass:: experiment_tasks.OptimalInterpolation
-#.. autoclass:: experiment_tasks.Forcing
-#.. autoclass:: experiment_tasks.FirstGuess
-#.. autoclass:: experiment_tasks.CycleFirstGuess
-#.. autoclass:: experiment_tasks.Oi2soda
-#.. autoclass:: experiment_tasks.Qc2obsmon
-#.. autoclass:: experiment_tasks.FirstGuess4OI
-#.. autoclass:: experiment_tasks.MakeOfflineBinaries
-#.. autoclass:: experiment.SurfexSuite
-.. autoclass:: experiment.System
-#.. autoclass:: experiment.SystemFromFile
-.. autoclass:: experiment.Exp
-#.. autoclass:: experiment.ExpFromFiles
-#.. autoclass:: experiment.Progress
-#.. autoclass:: experiment.ProgressFromFile
-##.. autoclass:: experiment.SystemFilePathsFromSystem
-#.. autoclass:: experiment.SystemFilePathsFromSystemFile
+-------------------------------------------------------------------------------
+.. autoclass:: surfexp.tasks.tasks.PySurfexBaseTask
+.. autoclass:: surfexp.tasks.surfex_binary_task.SurfexBinaryTask
+.. autoclass:: surfexp.tasks.surfex_binary_task.OfflinePgd
+.. autoclass:: surfexp.tasks.surfex_binary_task.OfflinePrep
+.. autoclass:: surfexp.tasks.surfex_binary_task.OfflineForecast
+.. autoclass:: surfexp.tasks.surfex_binary_task.PerturbedRun
+.. autoclass:: surfexp.tasks.surfex_binary_task.Soda
+.. autoclass:: surfexp.tasks.tasks.PrepareCycle
+.. autoclass:: surfexp.tasks.tasks.QualityControl
+.. autoclass:: surfexp.tasks.tasks.OptimalInterpolation
+.. autoclass:: surfexp.tasks.forcing.Forcing
+.. autoclass:: surfexp.tasks.tasks.FirstGuess
+.. autoclass:: surfexp.tasks.tasks.CycleFirstGuess
+.. autoclass:: surfexp.tasks.tasks.Oi2soda
+.. autoclass:: surfexp.tasks.tasks.Qc2obsmon
+.. autoclass:: surfexp.tasks.tasks.FirstGuess4OI
+.. autoclass:: surfexp.tasks.compilation.MakeOfflineBinaries
+.. autoclass:: surfexp.tasks.compilation.SyncSourceCode
+.. autoclass:: surfexp.tasks.compilation.ConfigureOfflineBinaries
+.. autoclass:: surfexp.tasks.compilation.CMakeBuild
+
 
 Class methods
 ---------------------------------------------
-#.. automethod:: experiment_tasks.AbstractTask.__init__
-#.. automethod:: experiment_tasks.AbstractTask.run
-#.. automethod:: experiment_tasks.AbstractTask.execute
-#.. automethod:: experiment_tasks.AbstractTask.postfix
-#.. automethod:: experiment_tasks.SurfexBinaryTask.__init__
-##.. automethod:: experiment_tasks.SurfexBinaryTask.execute
-#.. automethod:: experiment_tasks.Pgd.__init__
-#.. automethod:: experiment_tasks.Pgd.execute
-#.. automethod:: experiment_tasks.Prep.__init__
-#.. automethod:: experiment_tasks.Prep.execute
-#.. automethod:: experiment_tasks.Forecast.__init__
-#.. automethod:: experiment_tasks.Forecast.execute
-#.. automethod:: experiment_tasks.PerturbedRun.__init__
-#.. automethod:: experiment_tasks.PerturbedRun.execute
-#.. automethod:: experiment_tasks.Soda.__init__
-#.. automethod:: experiment_tasks.Soda.execute
-#.. automethod:: experiment_tasks.Soda.postfix
-#.. automethod:: experiment_tasks.PrepareCycle.__init__
-#.. automethod:: experiment_tasks.PrepareCycle.run
-#.. automethod:: experiment_tasks.PrepareCycle.execute
-#.. automethod:: experiment_tasks.QualityControl.__init__
-#.. automethod:: experiment_tasks.QualityControl.execute
-#.. automethod:: experiment_tasks.OptimalInterpolation.__init__
-#.. automethod:: experiment_tasks.OptimalInterpolation.execute
-#.. automethod:: experiment_tasks.Forcing.__init__
-#.. automethod:: experiment_tasks.Forcing.execute
-#.. automethod:: experiment_tasks.FirstGuess.__init__
-#.. automethod:: experiment_tasks.FirstGuess.execute
-#.. automethod:: experiment_tasks.CycleFirstGuess.__init__
-#.. automethod:: experiment_tasks.CycleFirstGuess.execute
-#.. automethod:: experiment_tasks.Oi2soda.__init__
-#.. automethod:: experiment_tasks.Oi2soda.execute
-#.. automethod:: experiment_tasks.Qc2obsmon.__init__
-#.. automethod:: experiment_tasks.Qc2obsmon.execute
-#.. automethod:: experiment_tasks.FirstGuess4OI.__init__
-#.. automethod:: experiment_tasks.FirstGuess4OI.execute
-#.. automethod:: experiment_tasks.FirstGuess4OI.write_file
-#.. automethod:: experiment_tasks.MakeOfflineBinaries.__init__
-#.. automethod:: experiment_tasks.MakeOfflineBinaries.execute
-#.. automethod:: experiment.SurfexSuite.__init__
-#.. automethod:: experiment.SurfexSuite.save_as_defs
-.. automethod:: experiment.System.__init__
-#.. automethod:: experiment.System.get_var
-#.. automethod:: experiment.SystemFromFile.__init__
-.. automethod:: experiment.ExpFromFiles.__init__
-#.. automethod:: experiment.Progress.__init__
-#.. automethod:: experiment.Progress.save
-#.. automethod:: experiment.ProgressFromFile.__init__
-#.. automethod:: experiment.SystemFilePathsFromSystem.__init__
-#.. automethod:: experiment.SystemFilePathsFromSystemFile.__init__
+.. automethod:: surfexp.tasks.tasks.PySurfexBaseTask.__init__
+.. automethod:: surfexp.tasks.tasks.PySurfexBaseTask.run
+.. automethod:: surfexp.tasks.tasks.PySurfexBaseTask.execute
+.. automethod:: surfexp.tasks.surfex_binary_task.SurfexBinaryTask.__init__
+.. automethod:: surfexp.tasks.surfex_binary_task.SurfexBinaryTask.run
+.. automethod:: surfexp.tasks.surfex_binary_task.SurfexBinaryTask.execute
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflinePgd.__init__
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflinePgd.run
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflinePgd.execute
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflinePrep.__init__
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflinePrep.run
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflinePrep.execute 
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflineForecast.__init__
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflineForecast.run
+.. automethod:: surfexp.tasks.surfex_binary_task.OfflineForecast.execute
+.. automethod:: surfexp.tasks.surfex_binary_task.PerturbedRun.__init__
+.. automethod:: surfexp.tasks.surfex_binary_task.PerturbedRun.run
+.. automethod:: surfexp.tasks.surfex_binary_task.PerturbedRun.execute
+.. automethod:: surfexp.tasks.surfex_binary_task.Soda.__init__
+.. automethod:: surfexp.tasks.surfex_binary_task.Soda.run
+.. automethod:: surfexp.tasks.surfex_binary_task.Soda.execute
+.. automethod:: surfexp.tasks.tasks.PrepareCycle.__init__
+.. automethod:: surfexp.tasks.tasks.PrepareCycle.run
+.. automethod:: surfexp.tasks.tasks.PrepareCycle.execute
+.. automethod:: surfexp.tasks.tasks.QualityControl.__init__
+.. automethod:: surfexp.tasks.tasks.QualityControl.run
+.. automethod:: surfexp.tasks.tasks.QualityControl.execute
+.. automethod:: surfexp.tasks.tasks.OptimalInterpolation.__init__
+.. automethod:: surfexp.tasks.tasks.OptimalInterpolation.run
+.. automethod:: surfexp.tasks.tasks.OptimalInterpolation.execute
+.. automethod:: surfexp.tasks.forcing.Forcing.__init__
+.. automethod:: surfexp.tasks.forcing.Forcing.run
+.. automethod:: surfexp.tasks.forcing.Forcing.execute
+.. automethod:: surfexp.tasks.tasks.FirstGuess.__init__
+.. automethod:: surfexp.tasks.tasks.FirstGuess.run
+.. automethod:: surfexp.tasks.tasks.FirstGuess.execute
+.. automethod:: surfexp.tasks.tasks.CycleFirstGuess.__init__
+.. automethod:: surfexp.tasks.tasks.CycleFirstGuess.run
+.. automethod:: surfexp.tasks.tasks.CycleFirstGuess.execute
+.. automethod:: surfexp.tasks.tasks.Oi2soda.__init__
+.. automethod:: surfexp.tasks.tasks.Oi2soda.run
+.. automethod:: surfexp.tasks.tasks.Oi2soda.execute
+.. automethod:: surfexp.tasks.tasks.Qc2obsmon.__init__
+.. automethod:: surfexp.tasks.tasks.Qc2obsmon.run
+.. automethod:: surfexp.tasks.tasks.Qc2obsmon.execute
+.. automethod:: surfexp.tasks.tasks.FirstGuess4OI.__init__
+.. automethod:: surfexp.tasks.tasks.FirstGuess4OI.run
+.. automethod:: surfexp.tasks.tasks.FirstGuess4OI.execute
+.. automethod:: surfexp.tasks.compilation.MakeOfflineBinaries.__init__
+.. automethod:: surfexp.tasks.compilation.MakeOfflineBinaries.run
+.. automethod:: surfexp.tasks.compilation.MakeOfflineBinaries.execute
+.. automethod:: surfexp.tasks.compilation.SyncSourceCode.__init__
+.. automethod:: surfexp.tasks.compilation.SyncSourceCode.run
+.. automethod:: surfexp.tasks.compilation.SyncSourceCode.execute
+.. automethod:: surfexp.tasks.compilation.ConfigureOfflineBinaries.__init__
+.. automethod:: surfexp.tasks.compilation.ConfigureOfflineBinaries.run
+.. automethod:: surfexp.tasks.compilation.ConfigureOfflineBinaries.execute
+.. automethod:: surfexp.tasks.compilation.CMakeBuild.__init__
+.. automethod:: surfexp.tasks.compilation.CMakeBuild.run
+.. automethod:: surfexp.tasks.compilation.CMakeBuild.execute
+   
 
 Methods
 ---------------------------------------------
-#.. autofunction:: experiment.parse_surfex_script
-#.. autofunction:: experiment.surfex_script
+.. autofunction:: surfexp.templates.cli.execute_task
+.. autofunction:: surfexp.cli.pysfxexp
+.. autofunction:: surfexp.experiment.get_nnco
+.. autofunction:: surfexp.experiment.get_total_unique_cycle_list
+.. autofunction:: surfexp.experiment.get_cycle_list
+.. autofunction:: surfexp.experiment.get_setting
+.. autofunction:: surfexp.experiment.setting_is
+.. autofunction:: surfexp.experiment.get_fgint
 
 
 * :ref: `README`
