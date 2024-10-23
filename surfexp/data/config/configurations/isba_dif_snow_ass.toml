@@ -1,0 +1,60 @@
+[general]
+  hh_list = "06"
+  ll_list = "24"
+
+[compile]
+  build = true
+
+[FORCING]
+  INPUT_FORMAT = "netcdf"
+  PATTERN = "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc"
+
+[INITIAL_CONDITIONS.FG4OI]
+  CONVERTER = "none"
+  FILEFORMAT = "surfex"
+  INPUTFILE = "@casedir@/archive/@YYYY@/@MM@/@DD@/03/SURFOUT.@YYYY@@MM@@DD@_06h00.nc"
+
+[INITIAL_CONDITIONS.FG4OI.air_temperature_2m]
+
+[INITIAL_CONDITIONS.FG4OI.altitude]
+  CONVERTER = "none"
+  INPUTFILE = "@casedir@/climate/PGD.nc"
+
+[INITIAL_CONDITIONS.FG4OI.land_area_fraction]
+  CONVERTER = "nature_town"
+  INPUTFILE = "@casedir@/climate/PGD.nc"
+
+[INITIAL_CONDITIONS.FG4OI.relative_humidity_2m]
+
+[INITIAL_CONDITIONS.FG4OI.surface_snow_thickness]
+  CONVERTER = "sdp"
+
+[SURFEX.ASSIM.ISBA]
+  UPDATE_SNOW_CYCLES = ["06"] # Cycles to update snow depths/SWE in assimilation.
+
+[SURFEX.ASSIM.OBS]
+  COBS_M = ["T2M", "HU2M", "WG2 ", "LAI", "SWE"] # Observation types
+  NNCO = [0, 0, 0, 0, 1] # Active observation types
+  SWE = false # Assimilate SWE, if false assimilate snow depth
+
+[SURFEX.ASSIM.SCHEMES]
+  INLAND_WATER = "NONE" # Assimilation method for water tile: "INPUT"|"NONE"
+  ISBA = "NONE" # Assimilation method for ISBA soil: "NONE"|"OI"|"EKF"
+  SEA = "NONE" # Assimilation method for sea tile: "INPUT"|"NONE"
+  TEB = "NONE" # Assimilation method for TEB tile: "NONE"|"ROADT"
+
+[SURFEX.COVER]
+  SG = true # ECOCLIMAP second generation
+  YCOVER = "ecosg_final_map.dir" # Version of ECOCLIMAP for surfex (1,2,SG)
+
+[SURFEX.IO]
+  CTIMESERIES_FILETYPE = "NC" # Fileformat for timseries. Inline runs use FA
+  LSELECT = false # Only write selected diagnostics
+  XTSTEP_OUTPUT = 3600.0 # Output interval from the binary OFFLINE
+
+[SURFEX.ISBA]
+  MEB = true # Enable Multi Energy Budget (MEB) model
+  SCHEME = "DIF" # Type of ISBA scheme in SURFEX. Options: "3-L"|"2-L"|"DIF"
+  SNOW = "3-L" # Type of snow scheme in SURFEX. Options: "D95" and "3-L"
+  YCLAY = "CLAY_SOILGRID.dir" # Soil texture input data: "clay_fao.dir"|"CLAY_HWSD_MOY_V2.dir"|"clay_SOILGRID.dir"
+  YSAND = "SAND_SOILGRID.dir" # Soil texture input data: "sand_fao.dir"|"SAND_HWSD_MOY_V2.dir"|"sand_SOILGRID.dir"

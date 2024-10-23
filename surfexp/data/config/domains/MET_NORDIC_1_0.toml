@@ -1,0 +1,16 @@
+[domain]
+  gridtype = "linear"
+  ilate = 0
+  ilone = 0
+  name = "MET_NORDIC_1_0"
+  nimax = 1796
+  njmax = 2321
+  tstep = 75
+  xbeta = 0.0
+  xdx = 1000.0
+  xdy = 1000.0
+  xlat0 = 63.0
+  xlatcen = 63.5
+  xlon0 = 15.0
+  xloncen = 15.0
+

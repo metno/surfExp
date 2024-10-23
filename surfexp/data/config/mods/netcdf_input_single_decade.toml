@@ -1,0 +1,8 @@
+[pgd]
+  one_decade =  true
+  extra_namelist_blocks = [
+    "pgd_ecoclimap_sg_single_decade", "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
+    "pgd_cover_netcdf",
+    "pgd_flake_depth_netcdf", "pgd_flake_depth_status_netcdf",
+    "pgd_isba_sand_netcdf", "pgd_isba_clay_netcdf", "pgd_isba_soc_netcdf", "pgd_zs_netcdf"
+  ]

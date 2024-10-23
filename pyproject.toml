@@ -1,120 +1,226 @@
 [tool.poetry]
-name = "experiment"
-version = "0.2.0"
-description = "pysurfex-experiment"
-authors = ["Trygve Aspelien <trygveasp@met.no>"]
-readme = "README.rst"
+  authors = ["Trygve Aspelien <trygveasp@met.no>"]
+  description = "surfExp"
+  name = "surfexp"
+  readme = "README.rst"
+  version = "0.3.0"
+  include = [ {path="surfexp/data", format = ["sdist", "wheel"]} ]
 
 [tool.poetry.scripts]
-PySurfexExp = "experiment.cli:surfex_exp"
-PySurfexExpConfig = "experiment.cli:surfex_exp_config"
-PySurfexExpSetup = "experiment.setup.setup:surfex_exp_setup"
-SubmitTask = "experiment.cli:run_submit_cmd_exp"
+  execute_task = "surfexp.templates.cli:execute_task"
+  surfExp = "surfexp.cli:pysfxexp"
 
 [build-system]
-    build-backend = "poetry.core.masonry.api"
-    requires = ["poetry-core >= 1.0.0"]
+  build-backend = "poetry.core.masonry.api"
+  requires = ["poetry-core >= 1.0.0"]
 
 [tool.poetry.dependencies]
-    python = "^3.8"
-    dateutils = "^0.6.12"
-    fastjsonschema = "2.16.2"
-    f90nml = "^1.4.3"
-    humanize = "^3.14.0"
-    numexpr = "^2.8.4"
-    numpy = "^1.22.4"
-    pandas = "^1.4.0"
-    pyproj = "^3.3.0"
-    pyyaml = "^6.0"
-    tomlkit = "^0.11.6"
-    troika = {git = "https://git.ecmwf.int/scm/ecsdk/troika.git", tag="0.1.8"}
-    pysurfex = {git = "https://github.com/metno/pysurfex.git", develop=true, branch="master", extras=["points", "formats"]}
-    loguru = "^0.7.2"
-
-[tool.poetry.group.dev.dependencies]
-    jupyterlab = "^3.6.1"
-    nb-clean = "^2.4.0"
-    poetryup = "^0.12.7"
-    pre-commit = "^3.0.4"
-
-[tool.poetry.group.test.dependencies]
-    pytest = "^7.2.2"
-    pytest-cov = "^3.0.0"
-    pytest-mock = "^3.7.0"
-    pytest-profiling = "^1.7.0"
-    pytest-timeout = "^2.1.0"
-    pytest-xdist = "^3.2.0"
-    coveralls = "^3.3.1"
-    sphinx = "^6.1.3"
-    sphinx-rtd-theme = "^1.2.0"
+  #deode = {git = "git@github.com:trygveasp/Deode-workflow-copy.git", develop = true, branch = "develop_ppi"}
+  #deode = {path = "/modules/rhel8/user-apps/suv-modules/deode/trygveasp/feature/develop_ppi", develop=true}
+  pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true, branch = "master"}
+  python = ">=3.9,<3.13"
 
 [tool.poetry.group.linting.dependencies]
-    black = "^22.1.0"
-    flake8 = "^4.0.1"
-    flakeheaven = "^0.11.1"
-    isort = "^5.10.1"
-    pyment = "0.3.3"
-    pylint = "^2.12.2"
-    # flake8 plugins
-    darglint = "^1.8.1"
-    flake8-bandit = "^3.0.0"
-    flake8-bugbear = "^22.1.11"
-    flake8-builtins = "^1.5.3"
-    flake8-comprehensions = "^3.8.0"
-    flake8-docstrings = "^1.6.0"
-    flake8-eradicate = "^1.2.0"
-    flake8-logging-format = "^0.9.0"
-    flake8-mutable = "^1.2.0"
-    flake8-pytest-style = "^1.6.0"
-    mccabe = "^0.6.1"
-    pep8-naming = "^0.12.1"
+  black = {extras = ["jupyter"], version = "^23.10.0"}
+  flake8 = ">=4.0.1, <5.0.0"
+  flakeheaven = "^3.3.0"
+  isort = "^5.12.0"
+  ruff = "^0.1.0"
+  toml-formatter = {git = "https://github.com/paulovcmedeiros/toml-formatter"}
+  # flake8 plugins for stuff not yet on ruff.
+  # See <https://github.com/astral-sh/ruff/issues/458>.
+  poethepoet = {extras = ["poetry-plugin"], version = "0.24.4"}
+  pydoclint = "^0.3.8" # Replaces darglint, but is maintained & faster
 
-[tool.poetry.extras]
-docs = ["sphinx", "sphinx_rtd_theme"]
+[tool.poetry.group.test.dependencies]
+  pytest = "^7.2.2"
+  pytest-cov = "^4.1.0"
+  pytest-mock = "^3.7.0"
+  pytest-profiling = "^1.7.0"
+  pytest-timeout = "^2.1.0"
+  pytest-xdist = "^3.2.0"
+  coveralls = "^3.3.1"
+  sphinx = "^6.1.3"
+  sphinx-rtd-theme = "^1.2.0"
 
-[tool.pytest.ini_options]
-    testpaths = ["tests/unit", "tests/smoke"]
-    addopts = "-v --cov-report=term-missing --cov-report=term:skip-covered --cov-report=xml:.coverage.xml --cov=./"
-    log_cli_level = "INFO"
+  ##################
+  # Linter configs #
+  ##################
 
 [tool.black]
-    line-length = 90
-
-[tool.isort]
-    profile = "black"
-    line_length = 90
-
-[tool.pylint.MASTER]
-    # See <https://github.com/PyCQA/pylint/blob/master/pylint/extensions/docparams.py>
-    load-plugins = "pylint.extensions.docparams"
-
-[tool.pylint.BASIC]
-    # We'll use pylint separate from flakheaven. Some pylint options don't seem to be
-    # respected when using it via flakeheaven (e.g., fail-under).
-    # For a description of the config opts used here, see:
-    # <https://docs.pylint.org/en/1.6.0/options.html>
-    # <https://docs.pylint.org/en/1.6.0/features.html>
-    # <https://docs.pylint.org/en/1.6.0/faq.html>
-    # Also, run "pylint --generate-rcfile" to see all applied pylint opts.
-    fail-under = "8.0"
-    good-names = ["i", "j", "n", "x", "y", "df", "db", "dt", "g0"]
-    # Default value for the rgx below: "[a-z_][a-z0-9_]{2,30}$"
-    attr-rgx = "[a-z_][a-z0-9_]{1,30}$"
-
-[tool.pylint.messages_control]
-    # Disable C0116 (Missing function or method docstring). Leave it to flake8-docstrings
-    # Disable C0326 and C0330 to avoid clashing with black
-    # Disable C0301 (Line too long). Leave it for black to control.
-    # See <https://black.readthedocs.io/en/stable/compatible_configs.html#pylint>
-    # Disable E0402 due to false positives <https://github.com/flycheck/flycheck/issues/1758>
-    disable = "C0116, C0301, C0326, C0330, E0402"
-    # Fix "no-name-in-module" error when linting pydantic-based code.
-    # See <https://github.com/samuelcolvin/pydantic/issues/1961>
-    extension-pkg-whitelist = "pydantic"
-
-[tool.pylint.format]
-    # Set max-line-length compatible with black
-    max-line-length = "90"
+  line-length = 90
 
 [tool.flakeheaven]
-    base = ".flakeheaven.toml"
+  exclude = [".*/", "tmp/", "*/tmp/", "*.ipynb"]
+  format = "colored"
+  # Show line of source code in output, with syntax highlighting
+  show_source = true
+  style = "google"
+
+# list of plugins and rules for them
+[tool.flakeheaven.plugins]
+  # Deactivate all rules for all plugins by default
+  "*" = ["-*"]
+  # Activate only those plugins not covered by ruff
+  pydoclint = []
+
+[tool.isort]
+  line_length = 90
+  profile = "black"
+
+[tool.ruff]
+  ignore = [
+    "C901",
+    "D105",
+    "EXE001",
+    "PLE1205",
+    "PLR0912",
+    "PLR0915",
+    "PLR0913",
+    "PLR2004",
+    "RET504",
+    "RUF012",
+  ]
+  line-length = 90
+  select = [
+    "A",
+    "ARG",
+    "B",
+    "BLE",
+    "C4",
+    "C90",
+    "D",
+    "E",
+    "ERA",
+    "EXE",
+    "F",
+    "G",
+    "I",
+    "N",
+    "PD",
+    "PERF",
+    "PIE",
+    "PL",
+    "PT",
+    "Q",
+    "RET",
+    "RSE",
+    "RUF",
+    "S",
+    "SIM",
+    "SLF",
+    "T20",
+    "W",
+  ]
+
+[tool.ruff.per-file-ignores]
+  # S101: Use of `assert` detected
+  "scheduler.py" = ["T201"]
+  "tests/**/*.py" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D107",
+    "E501",
+    "S101",
+    "SLF001",
+  ]
+
+[tool.ruff.pydocstyle]
+  convention = "google"
+
+[tool.toml-formatter]
+  indentation = 2
+  section_order_overrides = [
+    "^general$",
+    "general.*",
+    "^tool.poetry$",
+    "^tool.poetry.scripts$",
+    "build-system",
+    "tool.poetry.*",
+  ]
+
+  ##################
+  # pytest configs #
+  ##################
+
+[tool.pytest.ini_options]
+  addopts = "-v --failed-first --cov-report=term-missing --cov-report=term:skip-covered --cov-report=xml:.coverage.xml --cov=./"
+  log_cli_level = "INFO"
+  testpaths = ["tests/smoke", "tests/unit"]
+
+  ####################################
+  # Leave configs for `poe` separate #
+  ####################################
+
+[tool.poe]
+  poetry_command = "devtools"
+
+[tool.poe.tasks]
+  # Doc-related stuff
+  _doc_build.shell = """
+    surfexp doc config >| docs/markdown_docs/config.md
+    sphinx-apidoc surfexp -o docs/ --force --no-toc --module-first
+    sphinx-build docs docs/_build/
+    touch docs/_build/.nojekyll
+  """
+  # Linting tasks
+  _black = "black ."
+  _isort = "isort ."
+  _ruff = "ruff check ."
+  _toml_formatter = "toml-formatter check ."
+  # Test-related tasks
+  pytest = "pytest"
+  # Tasks to be run as pre-push checks
+  pre-push-checks = ["lint", "doc clean", "doc build", "pytest"]
+
+[tool.poe.tasks._flake8]
+  cmd = "flakeheaven lint ."
+  env = {FLAKEHEAVEN_CACHE_TIMEOUT = "0"}
+
+[tool.poe.tasks.doc]
+  args = [
+    {name = "doc_action", positional = true, help = "{all,clean,build,view}", default = "all"},
+  ]
+  control = {expr = "doc_action"}
+
+[[tool.poe.tasks.doc.switch]]
+  case = "all"
+  sequence = ["doc build", "doc view"]
+
+[[tool.poe.tasks.doc.switch]]
+  case = "clean"
+  cmd = "rm -rf docs/_build/ docs/deode.rst docs/markdown_docs/config.md"
+
+[[tool.poe.tasks.doc.switch]]
+  case = "build"
+  sequence = ["doc clean", "_doc_build"]
+
+[[tool.poe.tasks.doc.switch]]
+  case = "view"
+  sequence = [
+    {shell = "[ ! -f docs/_build/index.html ] && poetry devtools doc build || exit 0"},
+    {script = "webbrowser:open('docs/_build/index.html')"},
+  ]
+
+[tool.poe.tasks.lint]
+  args = [{name = "fix", type = "boolean", default = false}]
+  control = {expr = "fix"}
+
+[[tool.poe.tasks.lint.switch]]
+  case = "True"
+  #sequence = ["_isort", "_black", "_ruff --fix", "_flake8", "_toml_formatter --fix"]
+  sequence = ["_isort", "_black", "_ruff --fix", "_toml_formatter --fix"]
+
+[[tool.poe.tasks.lint.switch]]
+  case = "False"
+  sequence = [
+    "_isort --check-only",
+    "_black --check --diff",
+    "_ruff",
+    "_toml_formatter",
+  ]

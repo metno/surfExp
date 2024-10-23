@@ -1,0 +1,62 @@
+# Start on namelist
+[initial_conditions]
+  prep_input_file = ""
+  prep_pgdfile = ""
+
+[prep]
+  extra_namelist_blocks = ["prep_from_namelist"]
+
+[initial_conditions.fg4oi]
+  fileformat = "surfex"
+  inputfile = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.nc"
+
+[initial_conditions.fg4oi.altitude]
+  converter = "none"
+  inputfile = "@casedir@/climate/PGD.nc"
+
+[initial_conditions.fg4oi.land_area_fraction]
+  converter = "nature_town"
+  inputfile = "@casedir@/climate/PGD.nc"
+
+[initial_conditions.fg4oi.surface_snow_thickness]
+  converter = "none"
+  inputfile = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+
+[SURFEX.ASSIM.ISBA]
+  UPDATE_SNOW_CYCLES = ["06"] # Cycles to update snow depths/SWE in assimilation.
+
+[SURFEX.ASSIM.ISBA.EKF]
+  CVAR_M = ["TG1", "TG2", "WG1", "WG2"] # Control variables
+  LLINCHECK = true
+  NNCV = [0, 1, 0, 1] # Active EKF control variables
+  XSIGMA_M = [2.0, 2.0, 0.1, 0.15] # Background error
+  XTPRT_M = [0.0001, 0.0001, 1e-05, 1e-05] # Perturbation magnitude
+
+[SURFEX.ASSIM.OBS]
+  COBS_M = ["T2M", "HU2M", "WG2 ", "LAI", "SWE"]
+  NNCO = [1, 1, 0, 0, 1]
+  XERROBS_M = [1.0, 0.1, 0.1, 0.1, 20.0]
+
+[SURFEX.ASSIM.SCHEMES]
+  # SEA = "INPUT" not implemented offline yet
+  INLAND_WATER = "INPUT" # Assimilation method for water tile: "INPUT"|"NONE"
+  ISBA = "EKF" # Assimilation method for ISBA soil: "NONE"|"OI"|"EKF"
+  SEA = "NONE" # Assimilation method for sea tile: "INPUT"|"NONE"
+  TEB = "ROADT" # Assimilation method for TEB tile: "NONE"|"ROADT"
+
+[SURFEX.COVER]
+  SG = true # ECOCLIMAP second generation
+  YCOVER = "ecosg_final_map" # Version of ECOCLIMAP for surfex (1,2,SG)
+
+[SURFEX.IO]
+  CTIMESERIES_FILETYPE = "NC" # Fileformat for timseries. Inline runs use FA
+  LSELECT = false # Only write selected diagnostics
+  LSPLIT_PATCH = false # Split patches into separate variables in output files
+  XTSTEP_OUTPUT = 10800.0 # Output interval from the binary OFFLINE
+
+[SURFEX.ISBA]
+  MEB = true # Enable Multi Energy Budget (MEB) model
+  SCHEME = "DIF" # Type of ISBA scheme in SURFEX. Options: "3-L"|"2-L"|"DIF"
+  SNOW = "3-L" # Type of snow scheme in SURFEX. Options: "D95" and "3-L"
+  YCLAY = "CLAY_SOILGRID" # Soil texture input data: "clay_fao.dir"|"CLAY_HWSD_MOY_V2.dir"|"clay_SOILGRID.dir"
+  YSAND = "SAND_SOILGRID" # Soil texture input data: "sand_fao.dir"|"SAND_HWSD_MOY_V2.dir"|"sand_SOILGRID.dir"

@@ -1,0 +1,10 @@
+[pgd]
+  one_decade = true
+
+[initial_conditions.fg4oi.altitude]
+  converter = "none"
+  inputfile = "@casedir@/climate/@DOMAIN@/PGD_@ONE_DECADE@.nc"
+
+[initial_conditions.fg4oi.land_area_fraction]
+  converter = "nature_town"
+  inputfile = "@casedir@/climate/@DOMAIN@/PGD_@ONE_DECADE@.nc"

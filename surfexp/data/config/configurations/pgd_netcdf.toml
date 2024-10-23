@@ -1,0 +1,7 @@
+[pgd]
+  clay_format = "netcdf"
+  sand_format = "netcdf"
+  soc_format = "netcdf"
+  zs_format = "netcdf"
+  extra_namelist_blocks = []
+

@@ -18,7 +18,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "Pysurfex-experiment"
+project = "surfExp"
 copyright = "2020, Trygve Aspelien"  # noqa A001
 author = "Trygve Aspelien"
 

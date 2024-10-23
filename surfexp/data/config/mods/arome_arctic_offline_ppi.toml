@@ -1,0 +1,5 @@
+
+[compile]
+  build = true
+  build_config = "PPI-RH8-IB.offline"
+  ial_source = "/modules/rhel8/user-apps/suv-modules/harmonie/arome_arctic_cy46_offline_opt"

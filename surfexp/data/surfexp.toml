@@ -1,0 +1,216 @@
+[general.plugin_registry.plugins]
+  surfexp = "@PLUGIN_HOME@"
+
+[general]
+  loglevel = "INFO"
+  os_macros = ["HOME"]
+  realization = -1
+  realizations = []
+  tstep = 60
+
+[general.times]
+  cycle_length = "PT3H"
+
+#
+# SURFEX experiment configuration file
+#
+
+[compile]
+  ####################################################################################################
+  # Compilation settings
+  #####################################################################################################
+  build = true # Turn on or off the compilation and binary build (true/false)
+  cmake = true # Build with CMake
+
+[pgd]
+  clay_format = "direct"
+  clay_input = "soilgrid"
+  sand_format = "direct"
+  sand_input = "soilgrid"
+  soc_format = "direct"
+  soc_input = "soilgrid"
+  zs_format = "direct"
+  zs_input = "gmted2010"
+  extra_namelist_blocks = [
+    "pgd_ecoclimap_sg_single_decade", "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
+    "pgd_cover_direct",
+    "pgd_cover_lrm_river_true",
+    "pgd_isba_sand_direct", "pgd_isba_clay_direct", "pgd_isba_soc_direct", "pgd_zs_direct"
+  ]
+  # single: decade: pgd_ecoclimap_sg_single_decade
+  # single decade dirtyp:  "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp", "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp", "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp", "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp", "pgd_ecoclimap_sg_single_decade_lai_dirtyp", "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
+  # single decade netcdf:  "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
+  # dirtyp ECO-SG: "pgd_ecoclimap_sg_albnir_soil_dirtyp", "pgd_ecoclimap_sg_albnir_veg_dirtyp", "pgd_ecoclimap_sg_albvis_soil_dirtyp", "pgd_ecoclimap_sg_albvis_veg_dirtyp", "pgd_ecoclimap_sg_tree_height_dirtyp", "pgd_ecoclimap_sg_lai_dirtyp"
+  # direct: "pgd_cover_direct", "pgd_flake_depth_direct", "pgd_flake_depth_status_direct", "pgd_isba_sand_direct", "pgd_isba_clay_direct", "pgd_isba_soc_direct", "pgd_zs_direct"
+  # netcdf ECOS SG: "pgd_ecoclimap_sg_albnir_soil_netcdf", "pgd_ecoclimap_sg_albnir_veg_netcdf", "pgd_ecoclimap_sg_albvis_soil_netcdf", "pgd_ecoclimap_sg_albvis_veg_netcdf", "pgd_ecoclimap_sg_tree_height_netcdf", "pgd_ecoclimap_sg_lai_netcdf"
+  # netcdf other: "pgd_cover_netcdf", "pgd_flake_depth_netcdf", "pgd_flake_depth_status_netcdf", "pgd_isba_sand_netcdf", "pgd_isba_clay_netcdf", "pgd_isba_soc_netcdf", "pgd_zs_netcdf"
+  # Optional flake: "pgd_flake_depth_status_netcdf" "pgd_cover_lrm_river_true"
+
+[prep]
+  extra_namelist_blocks = []
+
+[soda]
+  extra_namelist_blocks = []
+
+[offline]
+  extra_namelist_blocks = []
+
+[pysurfex]
+  config_file = ""
+  first_guess_yml_file = ""
+  forcing_variable_config_yml_file = ""
+
+[suite_control]
+  create_static_data = true
+  suite_definition = "SurfexSuiteDefinition"
+  do_prep = true
+
+[system]
+  climdir = "@casedir@/climate/@DOMAIN@/"
+  archive_dir = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/"
+  extrarch_dir = "@casedir@/archive/extract/"
+  forcing_dir = "@casedir@/forcing/@YYYY@@MM@@DD@@HH@/"
+  obs_dir = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/"
+  namelist_defs = "@PLUGIN_HOME@/data/config/nam/surfex_namelists.yml"
+  binary_input_files = "@PLUGIN_HOME@/data/config/input/binary_input_data.json"
+  bindir = "@casedir@/offline/exe"
+
+#####################################################################################################
+# Geometry
+#####################################################################################################
+
+###########################################################################################################################
+[eps]
+
+[forcing]
+  # After 2023013123
+  #pattern = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+  # Before 2023020100
+  pattern = "https://thredds.met.no/thredds/dodsC/metpparchivev3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+  # Local file system paths at MET-Norway
+  # pattern = "/lustre/storeB/project/metproduction/products/yr_short/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+  # pattern = "/lustre/storeB/immutable/archive/projects/metproduction/yr_short//@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
+  # pattern = "/lustre/storeB/project/metkl/klinogrid/archive/met_nordic_analysis/v3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+  input_format = "netcdf"
+  input_geo_file = "" # Needed for some surfex file types
+  # pattern = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
+  # input_format = "grib2"
+  analysis = true
+  co2 = "constant"
+  debug = false
+  dir_sw_converter = "analysis"
+  interpolation = "bilinear"
+  lw_converter = "analysis"
+  modify_forcing = false
+  ps_converter = "mslp2ps"
+  qa_converter = "rh2q_mslp"
+  rain_converter = "calcrain"
+  sca_sw = "constant"
+  snow_converter = "calcsnow"
+  timestep = 3600
+  uref = "screen"
+  uval = "constant"
+  wind_converter = "none"
+  winddir_converter = "none"
+  zref = "screen"
+  zsoro_converter = "none"
+  zval = "constant"
+
+[forecast]
+  #####################################################################################################
+  #  Forecast model (physics + dynamics and output)
+  #####################################################################################################
+
+  ensmsel = [] # Ensemble members to run (list with member numbers)
+  forc_zs = true
+  physics = "arome"
+
+[initial_conditions]
+  anasurf = "gridpp"
+  # "/nobackup/prod2/cooper/BD_archive/2020/09/16/00/fc20200916_00+003
+  prep_input_file = ""
+  prep_pgdfile = ""
+
+[initial_conditions.fg4oi]
+  # inputfile = "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc"
+  inputfile = "@sfx_exp_data@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  # inputfile = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
+  fileformat = "netcdf"
+  # fileformat = "grib2"
+  # fileformat = "surfex"
+  converter = "none"
+  input_geo_file = "" # Needed for some surfex file types
+
+[initial_conditions.fg4oi.air_temperature_2m]
+
+[initial_conditions.fg4oi.altitude]
+  converter = "none"
+  inputfile = "@CLIMDIR@/PGD_@ONE_DECADE@.nc"
+
+[initial_conditions.fg4oi.land_area_fraction]
+  converter = "nature_town"
+  inputfile = "@CLIMDIR@/PGD_@ONE_DECADE@.nc"
+
+[initial_conditions.fg4oi.relative_humidity_2m]
+
+[initial_conditions.fg4oi.surface_snow_thickness]
+  converter = "none"
+
+##################################################################################################################
+[observations]
+  ###################################################################################################################
+
+  #---------------------------------------------------
+  #  TITAN observation settings
+  #---------------------------------------------------
+  cryo_obs_sd = false # Use cryoclim snow pseudo-observations
+  netatmo_filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/"
+  netatmo_obs_rh2m = true # 2m relative humidity observations from Netatmo stations
+  netatmo_obs_t2m = true # 2m air temperature observations from Netatmo stations
+  synop_obs_rh2m = true # SYNOP 2m relative humidity from bufr files
+  synop_obs_sd = true # SYNOP snow depth from bufr files
+  synop_obs_t2m = true # SYNOP 2m air temperature from bufr files
+  # netatmo_filepattern = "/lustre/storeB/project/metproduction/products/netatmo/@YYYY@/@MM@/@DD@/@YYYY@@MM@@DD@T@HH@@mm@01Z.json"
+  # netatmo_filepattern = "/tmp/host1/testdata/@YYYY@@MM@@DD@T@HH@@mm@*Z_all.json"
+  cryo_fg_threshold = 0.4
+  cryo_filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/daily-avhrr-sce-nhl_ease-50_@YYYY@@MM@@DD@@HH@"
+  cryo_laf_threshold = 0.1
+  cryo_new_snow = 0.1
+  cryo_step = 2
+  cryo_var_name = "classed_value_c"
+  filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/ob@YYYY@@MM@@DD@@HH@"
+
+[Observations.oi.rh2m]
+  hlength = 30000
+  vlength = 400
+
+[observations.oi.sd]
+  hlength = 60000
+  vlength = 300
+
+[observations.oi.t2m]
+  gradient = -0.0065
+  hlength = 30000
+  vlength = 400
+
+[observations.qc]
+  # QC_TESTS = ["domain", "blacklist", "nometa", "redundancy", "plausibility", "sct"]
+  tests = ["domain", "nometa", "plausibility", "sct"]
+
+[observations.qc.sd]
+  tests = ["domain", "blacklist", "nometa", "plausibility", "firstguess"]
+
+############################################################################################################################
+
+[eps.member_settings.general]
+  hh_list = {0 = "0-21:3", 1 = "0-21:3", 2 = "0-21:3"}
+  ll_list = {0 = "3", 1 = "3", 2 = "3"}
+
+[eps.member_settings.SURFEX.ASSIM.SCHEMES]
+  ISBA = {0 = "OI", 1 = "OI", 2 = "OI"}
+
+[eps.member_settings.SURFEX.ISBA]
+  PERTSURF = {0 = "none"}
+
+[eps.member_settings.SURFEX.SEA]
+  PERTFLUX = {0 = "none"}

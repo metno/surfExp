@@ -1,0 +1,24 @@
+[pgd]
+  clay_format = "netcdf"
+  clay_input = "soilgrid"
+  sand_format = "netcdf"
+  sand_input = "soilgrid"
+  soc_format = "netcdf"
+  soc_input = "soilgrid"
+  zs_format = "netcdf"
+  zs_input = "gmted2010"
+
+  extra_namelist_blocks = [
+    "pgd_ecoclimap_sg", "pgd_ecoclimap_sg_albnir_soil_netcdf", "pgd_ecoclimap_sg_albnir_veg_netcdf", "pgd_ecoclimap_sg_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_albvis_veg_netcdf", "pgd_ecoclimap_sg_lai_netcdf", "pgd_ecoclimap_sg_tree_height_netcdf",
+    "pgd_cover_netcdf",
+    "pgd_flake_depth_netcdf", "pgd_flake_depth_status_netcdf",
+    "pgd_isba_sand_netcdf", "pgd_isba_clay_netcdf", "pgd_isba_soc_netcdf", "pgd_zs_netcdf"
+  ]
+  # single: decade: pgd_ecoclimap_sg_single_decade
+  # single decade dirtyp:  "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp", "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp", "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp", "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp", "pgd_ecoclimap_sg_single_decade_lai_dirtyp", "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
+  # single decade netcdf:  "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
+  # dirtyp ECO-SG: "pgd_ecoclimap_sg_albnir_soil_dirtyp", "pgd_ecoclimap_sg_albnir_veg_dirtyp", "pgd_ecoclimap_sg_albvis_soil_dirtyp", "pgd_ecoclimap_sg_albvis_veg_dirtyp", "pgd_ecoclimap_sg_tree_height_dirtyp", "pgd_ecoclimap_sg_lai_dirtyp"
+  # direct: "pgd_cover_direct", "pgd_flake_depth_direct", "pgd_flake_depth_status_direct", "pgd_isba_sand_direct", "pgd_isba_clay_direct", "pgd_isba_soc_direct", "pgd_zs_direct"
+  # netcdf ECOS SG: "pgd_ecoclimap_sg_albnir_soil_netcdf", "pgd_ecoclimap_sg_albnir_veg_netcdf", "pgd_ecoclimap_sg_albvis_soil_netcdf", "pgd_ecoclimap_sg_albvis_veg_netcdf", "pgd_ecoclimap_sg_tree_height_netcdf", "pgd_ecoclimap_sg_lai_netcdf"
+  # netcdf other: "pgd_cover_netcdf", "pgd_flake_depth_netcdf", "pgd_flake_depth_status_netcdf", "pgd_isba_sand_netcdf", "pgd_isba_clay_netcdf", "pgd_isba_soc_netcdf", "pgd_zs_netcdf"
+  # Optional flake: "pgd_flake_depth_status_netcdf" "pgd_cover_lrm_river_true"

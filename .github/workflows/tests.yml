@@ -21,7 +21,7 @@ jobs:
       matrix:
         os: [ "ubuntu-latest" ]
         env: [ "pytest" ]
-        python-version: [ "3.8" ]
+        python-version: [ "3.9" ]
 
     name: "${{ matrix.os }}, python=${{ matrix.python-version }}"
     runs-on: ${{ matrix.os }}
@@ -36,7 +36,7 @@ jobs:
       #           check-out repo
       #----------------------------------------------
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       #----------------------------------------------
       #           add matrix specifics
@@ -66,7 +66,7 @@ jobs:
 
       - name: Load cached venv (if cache exists)
         id: cached-poetry-dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
@@ -92,7 +92,7 @@ jobs:
       #    files: ./.coverage.xml
         
       - name: Coveralls
-        if: ${{ matrix.python-version == 3.8 }}
+        if: ${{ matrix.python-version == 3.9 }}
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
@@ -100,11 +100,11 @@ jobs:
           poetry run coveralls
 
       - name: Create documentation
-        if: ${{ matrix.python-version == 3.8 }}
+        if: ${{ matrix.python-version == 3.9 }}
         run: |
           poetry run sphinx-build . docs/build/html
       - name: Commit documentation changes
-        if: ${{ matrix.python-version == 3.8 && github.event_name != 'pull_request' }}
+        if: ${{ matrix.python-version == 3.9 && github.event_name != 'pull_request' }}
         run: |
           git clone https://github.com/metno/pysurfex-experiment.git --branch gh-pages --single-branch gh-pages
           cp -r docs/build/html/* gh-pages/
@@ -117,7 +117,7 @@ jobs:
           # the return code.
 
       - name: Push changes
-        if: ${{ matrix.python-version == 3.8 && github.event_name != 'pull_request' }}
+        if: ${{ matrix.python-version == 3.9 && github.event_name != 'pull_request' }}
         uses: ad-m/github-push-action@master
         with:
           branch: gh-pages

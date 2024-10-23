@@ -1,0 +1,28 @@
+[forcing]
+  input_format = "netcdf"
+  pattern = "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc"
+
+[SURFEX.ASSIM.ISBA]
+  UPDATE_SNOW_CYCLES = [] # Cycles to update snow depths/SWE in assimilation.
+
+[SURFEX.ASSIM.SCHEMES]
+  INLAND_WATER = "NONE" # Assimilation method for water tile: "INPUT"|"NONE"
+  ISBA = "NONE" # Assimilation method for ISBA soil: "NONE"|"OI"|"EKF"
+  SEA = "NONE" # Assimilation method for sea tile: "INPUT"|"NONE"
+  TEB = "NONE" # Assimilation method for TEB tile: "NONE"|"ROADT"
+
+[SURFEX.COVER]
+  SG = true # ECOCLIMAP second generation
+  YCOVER = "ecosg_final_map.dir" # Version of ECOCLIMAP for surfex (1,2,SG)
+
+[SURFEX.IO]
+  CTIMESERIES_FILETYPE = "NC" # Fileformat for timseries. Inline runs use FA
+  LSELECT = false # Only write selected diagnostics
+  XTSTEP_OUTPUT = 3600.0 # Output interval from the binary OFFLINE
+
+[SURFEX.ISBA]
+  MEB = true # Enable Multi Energy Budget (MEB) model
+  SCHEME = "DIF" # Type of ISBA scheme in SURFEX. Options: "3-L"|"2-L"|"DIF"
+  SNOW = "3-L" # Type of snow scheme in SURFEX. Options: "D95" and "3-L"
+  YCLAY = "CLAY_SOILGRID.dir" # Soil texture input data: "clay_fao.dir"|"CLAY_HWSD_MOY_V2.dir"|"clay_SOILGRID.dir"
+  YSAND = "SAND_SOILGRID.dir" # Soil texture input data: "sand_fao.dir"|"SAND_HWSD_MOY_V2.dir"|"sand_SOILGRID.dir"
