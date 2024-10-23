@@ -43,9 +43,10 @@ def pysfxexp(argv=None):
     ]
     argv += args
     main(argv=argv)
+    plugin_home = f"{surfexp.__path__[0]}/../"
     with open(tmp_output, mode="r", encoding="utf8") as fhandler_in:
         with open(output, mode="w", encoding="utf8") as fhandler_out:
             for line in fhandler_in.readlines():
-                line = line.replace("@PLUGIN_HOME@", os.getcwd())
+                line = line.replace("@PLUGIN_HOME@", plugin_home)
                 fhandler_out.write(line)
     os.remove(tmp_output)
