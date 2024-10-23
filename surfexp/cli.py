@@ -43,4 +43,9 @@ def pysfxexp(argv=None):
     ]
     argv += args
     main(argv=argv)
-    shutil.move(tmp_output, output)
+    with open(tmp_output, mode="r", encoding="utf8") as fhandler_in:
+        with open(output, mode="w", encoding="utf8") as fhandler_out:
+            for line in fhandler_in.readlines():
+                line = line.replace("@PLUGIN_HOME@", os.getcwd())
+                fhandler_out.write(line)
+    os.remove(tmp_output)
