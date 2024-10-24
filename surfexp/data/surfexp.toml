@@ -71,8 +71,8 @@
   extrarch_dir = "@casedir@/archive/extract/"
   forcing_dir = "@casedir@/forcing/@YYYY@@MM@@DD@@HH@/"
   obs_dir = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/"
-  namelist_defs = "@PLUGIN_HOME@/surfex/data/config/nam/surfex_namelists.yml"
-  binary_input_files = "@PLUGIN_HOME@/surfex/data/config/input/binary_input_data.json"
+  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/surfex_namelists.yml"
+  binary_input_files = "@PLUGIN_HOME@/surfexp/data/config/input/binary_input_data.json"
   bindir = "@casedir@/offline/exe"
 
 #####################################################################################################
