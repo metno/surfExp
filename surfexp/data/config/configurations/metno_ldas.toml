@@ -48,7 +48,7 @@
 
 [SURFEX.IO]
   CTIMESERIES_FILETYPE = "NC" # Fileformat for timseries. Inline runs use FA
-  LSELECT = false # Only write selected diagnostics
+  LSELECT = true # Only write selected diagnostics
   XTSTEP_OUTPUT = 3600.0 # Output interval from the binary OFFLINE
 
 [SURFEX.ISBA]

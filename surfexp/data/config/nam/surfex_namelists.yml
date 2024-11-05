@@ -1174,6 +1174,15 @@ offline_watflux: {}
 offline_selected_output:
   NAM_WRITE_DIAG_SURFN:
     CSELECT:
+    - GRID_TYPE
+    - LON0
+    - LAT0
+    - IMAX
+    - JMAX
+    - DX
+    - DY
+    - LONORI
+    - LATORI
     - FMU
     - FMV
     - T2M
