@@ -6,3 +6,6 @@
   ecf_home = "/home/ecf-prod/metprod-ecflow/prod/ppi-r8adm-A/ecf-jobout-ppi-r8admin-a1.int.met.no/"
   ecf_jobout = "/home/ecf-prod/metprod-ecflow/prod/ppi-r8adm-A/ecf-jobout-ppi-r8admin-a1.int.met.no/"
   ecf_out = "/home/ecf-prod/metprod-ecflow/prod/ppi-r8adm-A/ecf-jobout-ppi-r8admin-a1.int.met.no/"
+[platform]
+  scratch = "/lustre/storeA/project/metproduction/work/"
+  unix_group = ""
