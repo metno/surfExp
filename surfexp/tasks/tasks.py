@@ -764,7 +764,7 @@ class Qc2obsmon(PySurfexBaseTask):
         os.makedirs(outdir, exist_ok=True)
         output = outdir + "/ecma.db"
 
-        logger.debug("Write to {}", output)
+        logger.info("Write to {}", output)
         if os.path.exists(output):
             os.unlink(output)
         obs_types = self.obs_types
@@ -779,20 +779,19 @@ class Qc2obsmon(PySurfexBaseTask):
                 else:
                     raise NotImplementedError(obs_types[ivar])
 
-                if var_in != "sd":
-                    var_name = self.translation[var_in]
-                    q_c = obsdir + "/qc_" + var_name + ".json"
-                    fg_file = archive + "/raw_" + var_name + ".nc"
-                    an_file = archive + "/an_" + var_name + ".nc"
-                    write_obsmon_sqlite_file(
-                        dtg=self.dtg,
-                        output=output,
-                        qc=q_c,
-                        fg_file=fg_file,
-                        an_file=an_file,
-                        varname=var_in,
-                        file_var=var_name,
-                    )
+                var_name = self.translation[var_in]
+                q_c = obsdir + "/qc_" + var_name + ".json"
+                fg_file = archive + "/raw_" + var_name + ".nc"
+                an_file = archive + "/an_" + var_name + ".nc"
+                write_obsmon_sqlite_file(
+                    dtg=self.dtg,
+                    output=output,
+                    qc=q_c,
+                    fg_file=fg_file,
+                    an_file=an_file,
+                    varname=var_in,
+                    file_var=var_name,
+                )
 
 
 class FirstGuess4OI(PySurfexBaseTask):

@@ -721,3 +721,28 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 trigger=log_pp_trigger,
                 input_template=template,
             )
+
+            trigger = EcflowSuiteTriggers(EcflowSuiteTrigger(pp_fam))
+            cday = cycle["day"]
+            ctime = cycle["time"]
+            task_logs = config["system.wrk"]
+            args = ";".join(
+                [
+                    f"joboutdir={self.ecf_out}/{self.name}/{cday}/{ctime}",
+                    f"tarname={self.name}_{cday}{ctime}",
+                    f"task_logs={task_logs}",
+                ]
+            )
+            variables = {"ARGS": args}
+
+            EcflowSuiteTask(
+                    "CollectLogs",
+                    time_family,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    trigger=trigger,
+                    variables=variables,
+                    input_template=template,
+            )
+

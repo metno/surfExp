@@ -42,6 +42,10 @@
   SEA = "NONE" # Assimilation method for sea tile: "INPUT"|"NONE"
   TEB = "NONE" # Assimilation method for TEB tile: "NONE"|"ROADT"
 
+[SURFEX.ASSIM.OBS]
+  COBS_M = ["T2M", "HU2M", "WG2 ", "LAI", "SWE"] # Observation types
+  NNCO = [0, 0, 0, 0, 1] # Active observation types
+
 [SURFEX.COVER]
   SG = true # ECOCLIMAP second generation
   YCOVER = "ecosg_final_map.dir" # Version of ECOCLIMAP for surfex (1,2,SG)
