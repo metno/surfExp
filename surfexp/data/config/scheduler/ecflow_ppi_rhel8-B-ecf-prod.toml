@@ -1,0 +1,11 @@
+[scheduler]
+[scheduler.ecfvars]
+  ecf_host = "ppi-r8admin-b1.int.met.no"
+  ecf_files = "/home/ecf-prod/metprod-ecflow/prod/ppi-r8adm-B/ecf-jobout-ppi-r8admin-b1.int.met.no/"
+  ecf_files_remotely = "/home/ecf-prod/metprod-ecflow/prod/ppi-r8adm-B/ecf-jobout-ppi-r8admin-b1.int.met.no/"
+  ecf_home = "/home/ecf-prod/metprod-ecflow/prod/ppi-r8adm-B/ecf-jobout-ppi-r8admin-b1.int.met.no/"
+  ecf_jobout = "/home/ecf-prod/metprod-ecflow/prod/ppi-r8adm-B/ecf-jobout-ppi-r8admin-b1.int.met.no/"
+  ecf_out = "/home/ecf-prod/metprod-ecflow/prod/ppi-r8adm-B/ecf-jobout-ppi-r8admin-b1.int.met.no/"
+[platform]
+  scratch = "/lustre/storeB/project/metproduction/work/"
+  unix_group = ""
