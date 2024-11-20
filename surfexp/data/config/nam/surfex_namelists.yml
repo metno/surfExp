@@ -1173,6 +1173,8 @@ offline_watflux: {}
 
 offline_selected_output:
   NAM_WRITE_DIAG_SURFN:
+    LPROVAR_TO_DIAG: true
+    LRESETCUMUL: true
     CSELECT:
     - GRID_TYPE
     - LON0
@@ -1309,6 +1311,8 @@ offline_selected_output:
     - CD
     - CH
     - CE
+    - RUNOFFC_ISBA
+    - DRAINC_ISBA
     LSELECT: true
 
 # SODA

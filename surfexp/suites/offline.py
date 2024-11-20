@@ -736,13 +736,12 @@ class SurfexSuiteDefinition(SuiteDefinition):
             variables = {"ARGS": args}
 
             EcflowSuiteTask(
-                    "CollectLogs",
-                    time_family,
-                    config,
-                    self.task_settings,
-                    self.ecf_files,
-                    trigger=trigger,
-                    variables=variables,
-                    input_template=template,
+                "CollectLogs",
+                time_family,
+                config,
+                self.task_settings,
+                self.ecf_files,
+                trigger=trigger,
+                variables=variables,
+                input_template=template,
             )
-
