@@ -52,6 +52,7 @@ sites:
     connection: local
     pre_submit: ["create_output_dir", "remove_previous_output"]
     preprocess: ["remove_top_blank_lines"]
+    post_kill: ["abort_on_ecflow"]
     translators: ["join_output_error"]
     qsub_command: ["qsub", "-notify"]
     qdel_command: 'qdel'
