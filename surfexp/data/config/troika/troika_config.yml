@@ -50,10 +50,10 @@ sites:
   ppi-rhel8:
     type: sge
     connection: local
-    kill_sequence: [[5, 2], [10, 9]]
-    pre_submit: ["create_output_dir"]
+    pre_submit: ["create_output_dir", "remove_previous_output"]
     preprocess: ["remove_top_blank_lines"]
-    qsub_command: "qsub"
+    translators: ["join_output_error"]
+    qsub_command: ["qsub", "-notify"]
     qdel_command: 'qdel'
 
   nebula:
