@@ -9,7 +9,7 @@ import numpy as np
 import pysurfex
 import yaml
 from deode.datetime_utils import as_datetime, as_timedelta
-from deode.logs import InterceptHandler, logger, logging
+from deode.logs import InterceptHandler, logger, builtin_logging as logging
 from deode.tasks.base import Task
 from pysurfex.cache import Cache
 from pysurfex.configuration import Configuration

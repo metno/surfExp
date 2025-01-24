@@ -287,6 +287,13 @@ class SurfexSuiteDefinition(SuiteDefinition):
             cycle_input = EcflowSuiteFamily(
                 "CycleInput", time_family, self.ecf_files, trigger=triggers
             )
+            #mars = EcflowSuiteTask("PrefetchMars",cycle_input,
+            #    config,
+            #    self.task_settings,
+            #    self.ecf_files,
+            #    input_template=template,
+            #)
+            #triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars)])
 
             forcing = EcflowSuiteTask(
                 "Forcing",
@@ -295,6 +302,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 self.task_settings,
                 self.ecf_files,
                 input_template=template,
+                #trigger=triggers,
             )
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing)])
             if config["forcing.modify_forcing"]:

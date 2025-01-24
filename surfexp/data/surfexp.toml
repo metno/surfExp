@@ -4,7 +4,7 @@
 [general]
   loglevel = "INFO"
   os_macros = ["HOME"]
-  realization = -1
+  realization = ""
   realizations = []
   tstep = 60
 
