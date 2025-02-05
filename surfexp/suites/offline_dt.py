@@ -294,7 +294,7 @@ class SurfexSuiteDefinitionDT(SuiteDefinition):
             )
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars)])
 
-            user_config = Path(__file__).parent.resolve() / "../surfexp/data/config/forcing/forcing_dt_config.yml"
+            user_config = Path(__file__).parent.resolve() / "../data/config/forcing/forcing_dt_config.yml"
             forcing = EcflowSuiteTask(
                 "Forcing",
                 cycle_input,
