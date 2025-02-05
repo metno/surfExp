@@ -22,13 +22,15 @@ class Forcing(PySurfexBaseTask):
         """
         PySurfexBaseTask.__init__(self, config, "Forcing")
         try:
-            self.var_name = self.config["task.var_name"]
+            self.var_name = self.config["task.args.var_name"]
         except KeyError:
             self.var_name = None
         try:
-            user_config = self.config["task.forcing_user_config"]
+            user_config = self.config["task.args.forcing_user_config"]
         except KeyError:
             user_config = None
+        if user_config is not None:
+            logger.info("Using user config: {}", user_config)
         self.user_config = user_config
 
     def execute(self):

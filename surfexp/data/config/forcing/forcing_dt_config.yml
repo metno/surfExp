@@ -1,0 +1,158 @@
+# General grib1 settings
+grib1:
+  filepattern: not_defined
+  offset: 0
+  fcint: 86400
+  interpolator: bilinear
+
+# Orography
+ZS:
+  grib1:
+    converter:
+      none:
+        parameter: 129
+        type: 1
+        level: 0
+        tri: 0
+
+# Reference height Z
+ZREF:
+  screen:
+    constant:
+      value: 2
+
+# Reference height U
+UREF:
+  screen:
+    constant:
+      value: 10
+
+# Temperature
+TA:
+  screen:
+    grib1:
+      converter:
+        none:
+          parameter: 167
+          type: 1
+          level: 0
+          tri: 0
+
+# Specific humidity
+QA:
+  screen:
+    grib1:
+      converter:
+        td2q:
+          td:
+            parameter: 168
+            type: 1
+            level: 0
+            tri: 0
+          p:
+            parameter: 134
+            type: 1
+            level: 0
+            tri: 0
+
+# Wind speed
+WIND:
+  screen:
+    grib1:
+      converter:
+        windspeed:
+          x:
+            parameter: 165
+            type: 1
+            level: 0
+            tri: 0
+          y:
+            parameter: 166
+            type: 1
+            level: 0
+            tri: 0
+
+# Wind direction
+WIND_DIR:
+  screen:
+    grib1:
+      converter:
+        winddir:
+          x:
+            parameter: 165
+            type: 1
+            level: 0
+            tri: 0
+            rotate_to_geographic: True
+          y:
+            parameter: 166
+            type: 1
+            level: 0
+            tri: 0
+            rotate_to_geographic: True
+
+# Rainfall rate
+RAIN:
+  grib1:
+    converter:
+      totalprec:
+        totalprec:
+          parameter: 228
+          type: 1
+          level: 0
+          tri: 4
+        snow:
+          parameter: 144
+          type: 1
+          level: 0
+          tri: 4
+
+# Snow fall amount rate
+SNOW:
+  grib1:
+    converter:
+      none:
+        parameter: 144
+        type: 1
+        level: 0
+        tri: 4
+
+# Surface air pressure
+PS:
+  grib1:
+    converter:
+      none:
+        parameter: 134
+        type: 1
+        level: 0
+        tri: 0
+
+# Direct shortwave radiation
+DIR_SW:
+  grib1:
+    converter:
+      none:
+        parameter: 169
+        type: 1
+        level: 0
+        tri: 4
+
+# Direct scattered radiation
+SCA_SW:
+  constant:
+    value: 0
+
+# Long wave radiation
+LW:
+  grib1:
+    converter:
+      none:
+        parameter: 175
+        type: 1
+        level: 0
+        tri: 4
+
+# Carbon dioxide
+CO2:
+  constant:
+    value: 0.00062
