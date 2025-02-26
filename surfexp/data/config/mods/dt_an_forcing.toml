@@ -1,6 +1,63 @@
 [suite_control]
   suite_definition = "SurfexSuiteDefinitionDTAnalysedForcing"
 
+[forcing.args.an_forcing]
+  analysis = false
+  co2 = "constant"
+  debug = true
+  dir_sw_converter = "none"
+  input_format = "surfex"
+  geo_input_file = "@climdir@/domain.json"
+  interpolation = "bilinear"
+  lw_converter = "none"
+  modify_forcing = false
+  pattern = "@forcing_dir@/FORCING_DT.nc"
+  ps_converter = "none"
+  ta = "netcdf"
+  #ta_file = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_air_temperature_2m.nc""
+  ta_converter = "none"
+  qa = "netcdf"
+  qa_converter = "rh2q_z"
+  rain_converter = "none"
+  sca_sw = "constant"
+  snow_converter = "none"
+  timestep = 3600
+  uref = "screen"
+  uval = "constant"
+  wind_converter = "none"
+  winddir_converter = "none"
+  zref = "screen"
+  zsoro_converter = "none"
+  zval = "constant"
+  of = "@forcing_dir@/FORCING.nc"
+
+[initial_conditions.fg4oi]
+  converter = "none"
+  fileformat = "grib1"
+  inputfile = "@casedir@/grib/dt+@LL@.grib1"
+
+[initial_conditions.fg4oi.altitude]
+  fileformat = "surfex"
+  converter = "none"
+  inputfile = "@CLIMDIR@/PGD_@ONE_DECADE@.nc"
+
+[initial_conditions.fg4oi.land_area_fraction]
+  fileformat = "surfex"
+  converter = "nature_town"
+  inputfile = "@CLIMDIR@/PGD_@ONE_DECADE@.nc"
+
+[initial_conditions.fg4oi.relative_humidity_2m]
+  converter = "td2rh"
+
+[observations]
+filepattern = "/scratch/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_@YYYY@@MM@@DD@@HH@.DAT"
+
+[observations.qc]
+  tests = ["domain", "nometa", "plausibility"]
+
+[pysurfex]
+  first_guess_yml_file = "@PLUGIN_HOME@/surfexp/data/first_guess_dt.yml"
+
 [SURFEX.ASSIM.OBS]
   CFILE_FORMAT_OBS = "ASCII"
   COBS_M = ["T2M", "HU2M", "WG2 ", "LAI", "SWE"]

@@ -1,14 +1,14 @@
-[forcing]
+[forcing.args]
   analysis = false
   co2 = "constant"
   debug = true
   dir_sw_converter = "none"
   input_format = "grib1"
-  geo_input_file = "/scratch/sbu/deode/CY49TEST/met_nordic/drammen.json"
+  geo_input_file = "@climdir@/domain.json"
   interpolation = "bilinear"
   lw_converter = "none"
-  modify_forcing = false
-  pattern = "/scratch/sbu/deode/CY49TEST/grib/dt+@LL@.grib1"
+  modify_forcing = true
+  pattern = "@casedir@/grib/dt+@LL@.grib1"
   ps_converter = "none"
   qa_converter = "td2q"
   rain_converter = "totalprec"
@@ -18,7 +18,11 @@
   uref = "screen"
   uval = "constant"
   wind_converter = "windspeed"
-  winddir_converter = "winddir"
+  wind_dir_converter = "winddir"
+  zref = "screen"
+  zsoro_converter = "none"
+  zval = "constant"
+  of = "@forcing_dir@/FORCING_DT.nc"
 
 [general.times]
   cycle_length = "PT24H"
@@ -53,15 +57,6 @@
   do_prep = false
   do_soil = true
   suite_definition = "SurfexSuiteDefinitionDT"
-
-[initial_conditions.fg4oi]
-  converter = "none"
-  fileformat = "surfex"
-  input_geo_file = ""
-  inputfile = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
-
-[observations]
-filepattern = "/scratch/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_@YYYY@@MM@@DD@@HH@.DAT"
 
 [pgd]
   clay_format = "direct"

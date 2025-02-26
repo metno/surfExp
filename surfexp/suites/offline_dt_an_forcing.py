@@ -302,7 +302,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                 self.task_settings,
                 self.ecf_files,
                 input_template=template,
-                variables={"ARGS": f"forcing_user_config={user_config};"},
+                variables={"ARGS": f"forcing_user_config={user_config};force=true;"},
                 trigger=triggers,
             )
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing)])
@@ -379,7 +379,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                 self.task_settings,
                 self.ecf_files,
                 input_template=template,
-                variables={"ARGS": f"forcing_user_config={user_config};arf_defs=an_forcing"},
+                variables={"ARGS": f"forcing_user_config={user_config};arg_defs=an_forcing;force=true;"},
                 trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(analysis)]),
             )
 

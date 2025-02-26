@@ -54,6 +54,8 @@
 [submission.task_exceptions.Forecast]
   NPROC = 28
   NPROC_IO = 4
+  binary = "OFFLINE"
+  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
 
 [submission.task_exceptions.Forecast.BATCH]
   #  MEM = "#SBATCH --mem=200GB"
@@ -74,14 +76,14 @@
 [submission.task_exceptions.Marsprep]
   bindir = "/usr/local/bin/"
 
-[submission.task_exceptions.Marsprep.BATCH]
+[submission.task_exceptions.PrefetchMars.BATCH]
   MEM = "#SBATCH --mem=0GB"
   NODES = "#SBATCH --nodes=1"
   NTASKS = "#SBATCH --ntasks=1"
   QOS = "#SBATCH --qos=np"
   WALLTIME = "#SBATCH --time=03:00:00"
 
-[submission.task_exceptions.Marsprep.ENV]
+[submission.task_exceptions.PrefetchMars.ENV]
   MARS_READANY_BUFFER_SIZE = 17893020000
 
 [submission.task_exceptions.Forcing.BATCH]
@@ -89,6 +91,8 @@
 
 [submission.task_exceptions.Pgd]
   WRAPPER = "srun -n @NPROC@"
+  binary = "PGD"
+  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
 
 [submission.task_exceptions.OfflinePgd]
   WRAPPER = "srun -n 6"
@@ -113,6 +117,8 @@
 
 [submission.task_exceptions.Prep]
   WRAPPER = "srun -n @NPROC@"
+  binary = "PREP"
+  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
 
 [submission.task_exceptions.Prep.BATCH]
   NODES = "#SBATCH --nodes=1"
@@ -153,7 +159,7 @@
 [submission.types.parallel]
   NPROC = 32
   SCHOST = "hpc"
-  tasks = ["Forecast", "E927", "Pgd", "Prep", "C903", "OfflinePgd", "OfflinePrep"]
+  tasks = ["Forecast", "E927", "Pgd", "Prep", "C903", "OfflinePgd", "OfflinePrep", "OfflineForecast"]
   WRAPPER = "srun"
 
 [submission.types.parallel.BATCH]
@@ -193,7 +199,7 @@
   NTASKS = "#SBATCH --ntasks=1"
   QOS = "#SBATCH --qos=nf"
   WALLSIGNAL = "#SBATCH --signal=USR1@30"
-  WALLTIME = "#SBATCH --time=00:15:00"
+  WALLTIME = "#SBATCH --time=00:30:00"
 
 [submission.types.serial.ENV]
   DR_HOOK_IGNORE_SIGNALS = -1

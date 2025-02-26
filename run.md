@@ -25,6 +25,10 @@ https://hirlam.github.io/nwptools/domain.html
 time surfExp dt_offline_drammen.toml CY49DT_OFFLINE_DRAMMEN /home/sbu/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/DRAMMEN2.toml surfexp/data/config/mods/dt_an_forcing.toml
 deode start suite --config-file dt_offline_drammen.toml
 
+# EDENMARK
+time surfExp edenmark.toml EDENMARK /home/sbu/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/include/domains/EDENMARK.toml surfexp/data/config/mods/dt_an_forcing.toml surfexp/data/config/mods/prep.toml 
+
+
 # DT_2_5_2500x2500
 time surfExp dt_offline_dt_2_5_2500x2500.toml CY49DT_OFFLINE_dt_2_5_2500x2500 /home/sbu/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/dt_2_5_2500x2500.toml surfexp/data/config/mods/dt_an_forcing.toml
 deode start suite --config-file dt_offline_dt_2_5_2500x2500.toml

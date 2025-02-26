@@ -57,10 +57,13 @@ class Forcing(PySurfexBaseTask):
             kwargs.update({"user_config": user_config})
 
         domain_json = self.geo.json
+        climdir = self.platform.get_system_value("climdir")
         domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
-        with open(self.wdir + "/domain.json", mode="w", encoding="utf-8") as file_handler:
-            json.dump(domain_json, file_handler, indent=2)
-        kwargs.update({"domain": self.wdir + "/domain.json"})
+        domain_file = f"{climdir}/domain.json"
+        if not os.path.exists(domain_file):
+            with open(domain_file, mode="w", encoding="utf-8") as file_handler:
+                json.dump(domain_json, file_handler, indent=2)
+        kwargs.update({"domain": domain_file})
         try:
             global_config = self.config["pysurfex.forcing_variable_config_yml_file"]
         except KeyError:

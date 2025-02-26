@@ -1,8 +1,5 @@
 # General grib1 settings
 
-macros:
-  casedir: not_defined
-
 grib1:
   filepattern: not_defined
   offset: 0
