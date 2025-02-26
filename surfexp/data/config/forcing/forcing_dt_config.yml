@@ -1,9 +1,23 @@
 # General grib1 settings
+
+macros:
+  casedir: not_defined
+
 grib1:
   filepattern: not_defined
   offset: 0
   fcint: 86400
   interpolator: bilinear
+
+surfex:
+  filepattern: not_defined
+
+netcdf:
+  filepattern: not_defined
+  prefer_forecast: false
+  offset: 0
+  fileinc: 3600
+  fcint: 3600
 
 # Orography
 ZS:
@@ -37,6 +51,11 @@ TA:
           type: 1
           level: 0
           tri: 0
+    netcdf:
+      converter:
+        none:
+          filepattern: "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_air_temperature_2m.nc"
+          varname: "air_temperature_2m"
 
 # Specific humidity
 QA:
@@ -54,6 +73,18 @@ QA:
             type: 1
             level: 0
             tri: 0
+    netcdf:
+      converter:
+        rh2q_z:
+          rh:
+            filepattern: "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_relative_humidity_2m.nc"
+            varname: "relative_humidity_2m"
+          t:
+            filepattern: "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_air_temperature_2m.nc"
+            varname: "air_temperature_2m"
+          altitude:
+            filepattern: "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_air_temperature_2m.nc"
+            varname: "altitude"
 
 # Wind speed
 WIND:

@@ -32,6 +32,16 @@ class Forcing(PySurfexBaseTask):
         if user_config is not None:
             logger.info("Using user config: {}", user_config)
         self.user_config = user_config
+        try:
+            self.force = self.config["task.args.force"]
+            self.force = bool(self.force)
+        except KeyError:
+            self.force = False
+
+        try:
+            self.arg_defs = f"args.{self.config['task.args.arg_defs']}"
+        except KeyError:
+            self.arg_defs = "args"
 
     def execute(self):
         """Execute the forcing task.
@@ -51,7 +61,6 @@ class Forcing(PySurfexBaseTask):
         with open(self.wdir + "/domain.json", mode="w", encoding="utf-8") as file_handler:
             json.dump(domain_json, file_handler, indent=2)
         kwargs.update({"domain": self.wdir + "/domain.json"})
-        # global_config = self.platform.get_system_value("config_yml")
         try:
             global_config = self.config["pysurfex.forcing_variable_config_yml_file"]
         except KeyError:
@@ -62,6 +71,10 @@ class Forcing(PySurfexBaseTask):
             )
         with open(global_config, mode="r", encoding="utf-8") as file_handler:
             global_config = yaml.safe_load(file_handler)
+        # Add surfExp related macros
+        global_config["macros"] = {
+            "casedir": self.platform.get_system_value("casedir")
+        }
         kwargs.update({"config": global_config})
 
         kwargs.update({"dtg_start": self.dtg.strftime("%Y%m%d%H")})
@@ -80,54 +93,23 @@ class Forcing(PySurfexBaseTask):
         kwargs.update({"of": output})
         kwargs.update({"output_format": output_format})
 
-        pattern = self.config["forcing.pattern"]
-        input_format = self.config["forcing.input_format"]
-        kwargs.update({"geo_input_file": self.config["forcing.input_geo_file"]})
-        zref = self.config["forcing.zref"]
-        zval = self.config["forcing.zval"]
-        uref = self.config["forcing.uref"]
-        uval = self.config["forcing.uval"]
-        zsoro_converter = self.config["forcing.zsoro_converter"]
-        qa_converter = self.config["forcing.qa_converter"]
-        dir_sw_converter = self.config["forcing.dir_sw_converter"]
-        sca_sw = self.config["forcing.sca_sw"]
-        lw_converter = self.config["forcing.lw_converter"]
-        co2 = self.config["forcing.co2"]
-        rain_converter = self.config["forcing.rain_converter"]
-        snow_converter = self.config["forcing.snow_converter"]
-        wind_converter = self.config["forcing.wind_converter"]
-        wind_dir_converter = self.config["forcing.winddir_converter"]
-        ps_converter = self.config["forcing.ps_converter"]
-        analysis = self.config["forcing.analysis"]
-        debug = self.config["forcing.debug"]
-        timestep = self.config["forcing.timestep"]
-        interpolation = self.config["forcing.interpolation"]
+        try:
+            args = self.config[f"forcing.{self.arg_defs}"]
+        except KeyError:
+            logger.warning("No forcing arguments found for {}. Using default values.", self.arg_defs)
+            args = {}
 
-        kwargs.update({"input_format": input_format})
-        kwargs.update({"pattern": pattern})
-        kwargs.update({"zref": zref})
-        kwargs.update({"zval": zval})
-        kwargs.update({"uref": uref})
-        kwargs.update({"uval": uval})
-        kwargs.update({"zsoro_converter": zsoro_converter})
-        kwargs.update({"qa_converter": qa_converter})
-        kwargs.update({"dir_sw_converter": dir_sw_converter})
-        kwargs.update({"sca_sw": sca_sw})
-        kwargs.update({"lw_converter": lw_converter})
-        kwargs.update({"co2": co2})
-        kwargs.update({"rain_converter": rain_converter})
-        kwargs.update({"snow_converter": snow_converter})
-        kwargs.update({"wind_converter": wind_converter})
-        kwargs.update({"wind_dir_converter": wind_dir_converter})
-        kwargs.update({"ps_converter": ps_converter})
-        kwargs.update({"debug": debug})
-        kwargs.update({"timestep": timestep})
-        kwargs.update({"analysis": analysis})
-        kwargs.update({"interpolation": interpolation})
+        for key, value in args.items():
+            value = self.platform.substitute(value)
+            if key in kwargs:
+                logger.info("Override setting {} with value {}. New value: {}", key, kwargs[key], value)
+            kwargs.update({key: value})
 
-        if os.path.exists(output):
+        if os.path.exists(output) and not self.force:
             logger.info("Output already exists: {}", output)
         else:
+            if os.path.exists(output):
+                logger.info("Overwrite output: {}", output)
             options, var_objs, att_objs = set_forcing_config(**kwargs)
             run_time_loop(options, var_objs, att_objs)
 

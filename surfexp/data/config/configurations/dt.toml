@@ -4,7 +4,7 @@
   debug = true
   dir_sw_converter = "none"
   input_format = "grib1"
-  input_geo_file = "/scratch/sbu/deode/CY49TEST/met_nordic/drammen.json"
+  geo_input_file = "/scratch/sbu/deode/CY49TEST/met_nordic/drammen.json"
   interpolation = "bilinear"
   lw_converter = "none"
   modify_forcing = false
@@ -26,21 +26,24 @@
 [compile]
   build = false
 
-[submission.task_exceptions.PrefetchMars]
-  bindir = "/usr/local/bin/"
+#[submission.task_exceptions.PrefetchMars]
+#  bindir = "/usr/local/bin/"
+#
+#[submission.task_exceptions.PrefetchMars.BATCH]
+#  MEM = "#SBATCH --mem=0GB"
+#  NODES = "#SBATCH --nodes=1"
+#  NTASKS = "#SBATCH --ntasks=1"
+#  QOS = "#SBATCH --qos=np"
+#  WALLTIME = "#SBATCH --time=03:00:00"
+#
+#[submission.task_exceptions.PrefetchMars.ENV]
+#  MARS_READANY_BUFFER_SIZE = 17893020000
+#
+#[submission.types.serial]
+#    tasks = ["CreateGrib", "Gmted", "Soil", "PrefetchMars", "E923Update", "IOmerge"]
 
-[submission.task_exceptions.PrefetchMars.BATCH]
-  MEM = "#SBATCH --mem=0GB"
-  NODES = "#SBATCH --nodes=1"
-  NTASKS = "#SBATCH --ntasks=1"
-  QOS = "#SBATCH --qos=np"
-  WALLTIME = "#SBATCH --time=03:00:00"
-
-[submission.task_exceptions.PrefetchMars.ENV]
-  MARS_READANY_BUFFER_SIZE = 17893020000
-
-[submission.types.serial]
-    tasks = ["CreateGrib", "Gmted", "Soil", "PrefetchMars", "E923Update", "IOmerge"]
+[troika]
+  config_file = "@PLUGIN_HOME@/surfexp/data/config/troika/troika_config.yml"
 
 [suite_control]
   create_static_data = true
@@ -56,6 +59,9 @@
   fileformat = "surfex"
   input_geo_file = ""
   inputfile = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+
+[observations]
+filepattern = "/scratch/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_@YYYY@@MM@@DD@@HH@.DAT"
 
 [pgd]
   clay_format = "direct"

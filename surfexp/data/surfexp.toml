@@ -92,7 +92,7 @@
   # pattern = "/lustre/storeB/immutable/archive/projects/metproduction/yr_short//@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
   # pattern = "/lustre/storeB/project/metkl/klinogrid/archive/met_nordic_analysis/v3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
   input_format = "netcdf"
-  input_geo_file = "" # Needed for some surfex file types
+  geo_input_file = "" # Needed for some surfex file types
   # pattern = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
   # input_format = "grib2"
   analysis = true

@@ -142,17 +142,20 @@
             },
             "FA": {
                 "NAM_PREP_SURF_ATM#CFILE": "@PREPFILE_WITH_PATH@"
+            },
+            "NC": {
+                "NAM_PREP_SURF_ATM#CFILE": "@PREPFILE_WITH_PATH@"
             }
         },
         "NAM_PREP_SURF_ATM#CFILEPGDTYPE": {
             "NC": {
-                "NAM_PREP_SURF_ATM#CPGDFILE": "@PREP_PGDFILE_WITH_PATH@"
+                "NAM_PREP_SURF_ATM#CFILEPGD": "@PREP_PGDFILE_WITH_PATH@"
             },
             "ASCII": {
-                "NAM_PREP_SURF_ATM#CPGDFILE": "@PREP_PGDFILE_WITH_PATH@"
+                "NAM_PREP_SURF_ATM#CFILEPGD": "@PREP_PGDFILE_WITH_PATH@"
             },
             "FA": {
-                "NAM_PREP_SURF_ATM#CPGDFILE": "@PREP_PGDFILE_WITH_PATH@"
+                "NAM_PREP_SURF_ATM#CFILEPGD": "@PREP_PGDFILE_WITH_PATH@"
             }
         },
         "NAM_PGD_SCHEMES#CWATER": {

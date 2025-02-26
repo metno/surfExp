@@ -1,0 +1,10 @@
+[suite_control]
+  suite_definition = "SurfexSuiteDefinitionDTAnalysedForcing"
+
+[SURFEX.ASSIM.OBS]
+  CFILE_FORMAT_OBS = "ASCII"
+  COBS_M = ["T2M", "HU2M", "WG2 ", "LAI", "SWE"]
+  LOBSHEADER = false
+  LOBSNAT = false
+  LSWE = false
+  NNCO = [1, 1, 0, 0, 1]

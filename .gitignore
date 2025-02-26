@@ -3,6 +3,7 @@
 exps
 FORCING.nc
 .idea
+surfExp.code-workspace
 testdata
 unittest_*
 old_testdata

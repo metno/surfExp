@@ -2,6 +2,7 @@
 import os
 import datetime
 import json
+import math
 import subprocess
 from surfexp.tasks.tasks import PySurfexBaseTask
 from deode.logs import logger
@@ -42,7 +43,19 @@ class PrefetchMars(PySurfexBaseTask):
         os.makedirs(gribdir, exist_ok=True)
         date = dtg0.strftime("%Y%m%d")
         hour = dtg0.strftime("%H%M")
-        prefetch(date, hour, gribdir)
+        print(self.geo.lonrange)
+        print(self.geo.latrange)
+        lon0 = self.geo.lonrange[0]
+        print(self.geo.lonrange[1])
+        print(self.geo.latrange[0])
+        print(self.geo.latrange[1])
+        lon0 = int(self.geo.lonrange[0])
+        lon1 = int(math.ceil(self.geo.lonrange[1]))
+        lat0 = int(self.geo.latrange[0])
+        lat1 = int(math.ceil(self.geo.latrange[1]))
+        area = f"{lat1}/{lon0}/{lat0}/{lon1}"
+        print(area)
+        prefetch(date, hour, gribdir, area)
 
 
 class Request(object):
@@ -120,7 +133,7 @@ def _line(key,val,eol=','):
     return "    %s= %s%s\n" % (key.ljust(11),val,eol)
 
 
-def fetch_mars(date, hour, filedir, outfile):
+def fetch_mars(date, hour, filedir, outfile, area):
 
     request_file = "request.mars"
     with open(request_file, 'w') as f:
@@ -128,7 +141,6 @@ def fetch_mars(date, hour, filedir, outfile):
     
     leadtimes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
     grid = "0.04/0.04"
-    area = "58.0/8.0/62.0/12.0"
     req = Request(
         action="retrieve",
         dates=date,
@@ -172,11 +184,11 @@ def split_files(file_in, dest):
         subprocess.run(["grib_filter", "-o", outfile, rule_file, infile])
 
 
-def prefetch(date, hour, dest):
+def prefetch(date, hour, dest, area):
 
     tempfile = f"{date}_{hour}.grib1"
     if not os.path.exists(dest + tempfile):
-        fetch_mars(date, hour, dest, tempfile)
+        fetch_mars(date, hour, dest, tempfile, area)
     else:
         logger.warning("The file {} is already fetched, consider to clean", tempfile)
     split_files(dest + tempfile, dest)

@@ -182,16 +182,24 @@ class QualityControl(PySurfexBaseTask):
             self.var_name = self.config["task.args.var_name"]
         except KeyError:
             self.var_name = None
+        try:
+            self.offset = int(self.config["task.args.offset"])
+        except KeyError:
+            self.offset = 0
 
     def execute(self):
         """Execute."""
-        an_time = self.dtg
+        an_time = self.dtg + as_timedelta(f"{self.offset:02d}:00:00")
+        logger.info("Analysis time: {}", an_time)
 
-        obsdir = self.platform.get_system_value("obs_dir")
+        obsdir = self.config["system.obs_dir"]
+        obsdir = self.platform.substitute(obsdir, basetime=an_time)
+
         os.makedirs(obsdir, exist_ok=True)
 
-        fg_file = f"{self.platform.get_system_value('archive_dir')}/raw.nc"
-        fg_file = self.platform.substitute(fg_file, basetime=self.dtg)
+        archive = self.config["system.archive_dir"]
+        archive = self.platform.substitute(archive, basetime=an_time)
+        fg_file = f"{archive}/raw.nc"
 
         # Default
         domain_file = f"{self.wdir}/domain.json"
@@ -219,6 +227,7 @@ class QualityControl(PySurfexBaseTask):
             data_sets = {}
             if synop_obs:
                 filepattern = self.config["observations.filepattern"]
+                filepattern = self.platform.substitute(filepattern, basetime=an_time)
                 bufr_tests = default_tests
                 bufr_tests.update(
                     {"plausibility": {"do_test": True, "maxval": 340, "minval": 200}}
@@ -395,11 +404,20 @@ class OptimalInterpolation(PySurfexBaseTask):
 
         """
         PySurfexBaseTask.__init__(self, config, "OptimalInterpolation")
-        self.var_name = self.config["task.args.var_name"]
+        try:
+            self.var_name = self.config["task.args.var_name"]
+        except KeyError:
+            self.var_name = None
+        try:
+            self.offset = int(self.config["task.args.offset"])
+        except KeyError:
+            self.offset = 0
 
     def execute(self):
         """Execute."""
-        archive = self.platform.get_system_value("archive_dir")
+        an_time = self.dtg + as_timedelta(f"{self.offset:02d}:00:00")
+        archive = self.config["system.archive_dir"]
+        archive = self.platform.substitute(archive, basetime=an_time)
         if self.var_name in self.translation:
             var = self.translation[self.var_name]
         else:
@@ -457,13 +475,21 @@ class OptimalInterpolation(PySurfexBaseTask):
             input_file, var
         )
 
-        an_time = validtime
         # TODO
-        an_time = an_time.replace(tzinfo=None)
+        an_time = validtime
+        an_time = self.dtg + as_timedelta(f"{self.offset:02d}:00:00")
+        logger.info("Analysis time: {}", an_time)
         # Read OK observations
-        obs_file = f"{self.platform.get_system_value('obs_dir')}/qc_{var}.json"
+        obs_dir = self.config["system.obs_dir"]
+        obs_dir = self.platform.substitute(obs_dir, basetime=an_time)
+        obs_file = f"{obs_dir}/qc_{var}.json"
         logger.info("Obs file: {}", obs_file)
+        an_time = an_time.replace(tzinfo=None)
         observations = dataset_from_file(an_time, obs_file, qc_flag=0)
+        logger.info("Number of observations: {}", len(observations.obstimes))
+        logger.info("Longitudes: {}", observations.lons)
+        logger.info("Latitudes: {}", observations.lats)
+
         field = horizontal_oi(
             geo,
             background,
@@ -513,6 +539,7 @@ class FirstGuess(PySurfexBaseTask):
             self.var_name = self.config["task.var_name"]
         except KeyError:
             self.var_name = None
+
         # TODO
         masterodb = False
         try:
@@ -816,6 +843,15 @@ class FirstGuess4OI(PySurfexBaseTask):
             self.var_name = self.config["task.var_name"]
         except KeyError:
             self.var_name = None
+        try:
+            self.offset = int(self.config["task.args.offset"])
+            self.fg_dtg = self.dtg
+        except KeyError:
+            self.offset = 0
+
+        validtime = self.dtg + as_timedelta(f"{self.offset:02d}:00:00")
+        self.dtg = validtime
+        logger.info("validtime: {}", self.dtg)
 
     def execute(self):
         """Execute."""
@@ -823,7 +859,9 @@ class FirstGuess4OI(PySurfexBaseTask):
 
         extra = ""
         symlink_files = {}
-        archive = self.platform.get_system_value("archive_dir")
+        archive = self.config["system.archive_dir"]
+        archive = self.platform.substitute(archive, basetime=self.dtg)
+
         if self.var_name in self.translation:
             var = self.translation[self.var_name]
             variables = [var]
@@ -886,6 +924,8 @@ class FirstGuess4OI(PySurfexBaseTask):
             RuntimeError: No valid data read
 
         """
+        output_final = output
+        output = f"{output}.tmp"
         f_g = None
         for var in variables:
             lvar = var.lower()
@@ -921,13 +961,13 @@ class FirstGuess4OI(PySurfexBaseTask):
 
             try:
                 identifier = "initial_conditions.fg4oi." + lvar + "."
-                input_geo_file = self.config[identifier + "input_geo_file"]
+                geo_input_file = self.config[identifier + "geo_input_file"]
             except KeyError:
                 identifier = "initial_conditions.fg4oi."
-                input_geo_file = self.config[identifier + "input_geo_file"]
+                geo_input_file = self.config[identifier + "geo_input_file"]
 
             logger.info("inputfile={}, fileformat={}", inputfile, fileformat)
-            logger.info("converter={}, input_geo_file={}", converter, input_geo_file)
+            logger.info("converter={}, geo_input_file={}", converter, geo_input_file)
 
             try:
                 config_file = self.config["pysurfex.first_guess_yml_file"]
@@ -940,8 +980,8 @@ class FirstGuess4OI(PySurfexBaseTask):
             logger.info("config_file={}", config_file)
             defs = config[fileformat]
             geo_input = None
-            if input_geo_file != "":
-                with open(input_geo_file, mode="r", encoding="utf-8") as fh:
+            if geo_input_file != "":
+                with open(geo_input_file, mode="r", encoding="utf-8") as fh:
                     geo_dict = json.load(fh)
                 geo_input = get_geo_object(geo_dict)
             defs.update({"filepattern": inputfile, "geo_input": geo_input})
@@ -996,7 +1036,7 @@ class FirstGuess4OI(PySurfexBaseTask):
 
         if f_g is not None:
             f_g.close()
-
+        shutil.move(output, output_final)
 
 class LogProgress(PySurfexBaseTask):
     """Log progress for restart.
