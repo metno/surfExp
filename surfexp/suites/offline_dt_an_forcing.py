@@ -211,7 +211,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                         self.task_settings,
                         self.ecf_files,
                         input_template=template,
-                        variables={"ARGS": f"basetime={dec_date}"},
+                        variables={"BASETIME": f"{as_datetime(dec_date).isoformat()}"},
                         ecf_files_remotely=self.ecf_files_remotely,
                     )
             else:
@@ -222,7 +222,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                     self.task_settings,
                     self.ecf_files,
                     input_template=template,
-                    variables={"ARGS": f"basetime={basetime}"},
+                    variables={"BASETIME": f"{as_datetime(basetime).isoformat()}"},
                     trigger=pgd_trigger,
                     ecf_files_remotely=self.ecf_files_remotely,
                 )

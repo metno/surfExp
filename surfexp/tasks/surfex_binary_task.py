@@ -380,7 +380,7 @@ class OfflinePgd(SurfexBinaryTask):
         if not os.path.exists(output) or self.force:
             SurfexBinaryTask.execute_binary(self, binary=binary, output=output)
         else:
-            logger.warning("Output already exists: ", output)
+            logger.warning("Output already exists: {}", output)
 
 
 class OfflinePrep(SurfexBinaryTask):
