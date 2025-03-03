@@ -1,6 +1,6 @@
 
 
-# Todo: 
+## Todo: 
 - ~~domain specific mars request~~
 - Test big domain
 - ~QC/OI with Deode observations~
@@ -13,7 +13,7 @@
 
 - troika config from deode? (not from scratch)
 
-# Other
+## Other
  - ~fix cfunits installation for ATOS-Bologna~
 
 
@@ -23,7 +23,7 @@
 
 # Install and run
 
-# Clone and checkout
+## Clone and checkout
 
 ```
 git clone git@github.com:trygveasp/surfExp
@@ -31,7 +31,7 @@ cd surfExp
 git checkout -b deode_offline_surfex_workflow origin/deode_offline_surfex_workflow
 ```
 
-# Possible local changes (install on scratch for speed /scratch/$USER/deode_virtualenvs)
+### Possible local changes (install on scratch for speed /scratch/$USER/deode_virtualenvs)
 
 ```
 diff --git a/poetry.toml b/poetry.toml
@@ -47,27 +47,34 @@ index fe20193..8333d82 100644
 +  prefer-active-python = true
 ```
 
-# Install and activate environment (see also Deode-Workflow documentation)
+## Install and activate environment (see also Deode-Workflow documentation)
 
 ```
 poetry install
 poetry shell
 ```
 
-# Create and start experiments
+## Create and start experiments
 
-# DRAMMEN2
+### South-Norway domain
+```
 time surfExp dt_offline_drammen.toml CY49DT_OFFLINE_DRAMMEN /home/$USER/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/DRAMMEN2.toml surfexp/data/config/mods/dt_an_forcing.toml
 time deode start suite --config-file dt_offline_drammen.toml
+```
 
-# EDENMARK
+### Extendended domain over Denmark
+```
 time surfExp edenmark.toml EDENMARK /home/$USER/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/include/domains/EDENMARK.toml surfexp/data/config/mods/dt_an_forcing.toml surfexp/data/config/mods/prep.toml 
 time deode start suite --config-file edenmark.toml
+```
 
-# NC_EUROPE
+### North-central EUROPE
+```
 time surfExp nc_europe.toml NC_EUROPE /home/$USER/projects/surfExp2 surfexp/data/config/configurations/dt.toml surfexp/data/config/include/domains/NC_EUROPE.toml surfexp/data/config/mods/dt_an_forcing.toml surfexp/data/config/mods/prep.toml
 time deode start suite --config-file nc_europe.toml 
+```
 
-# DT_2_5_2500x2500
-time surfExp dt_offline_dt_2_5_2500x2500.toml CY49DT_OFFLINE_dt_2_5_2500x2500 /home/$USER/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/dt_2_5_2500x2500.toml surfexp/data/config/mods/dt_an_forcing.toml
+### DT_2_5_2500x2500
+```time surfExp dt_offline_dt_2_5_2500x2500.toml CY49DT_OFFLINE_dt_2_5_2500x2500 /home/$USER/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/dt_2_5_2500x2500.toml surfexp/data/config/mods/dt_an_forcing.toml
 time deode start suite --config-file dt_offline_dt_2_5_2500x2500.toml
+```
