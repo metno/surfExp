@@ -57,9 +57,9 @@
   binary = "OFFLINE"
   bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
 
-[submission.task_exceptions.Forecast.BATCH]
+[submission.task_exceptions.OfflineForecast.BATCH]
   #  MEM = "#SBATCH --mem=200GB"
-  NODES = "#SBATCH --nodes=2"
+  NODES = "#SBATCH --nodes=1"
   NTASKS = "#SBATCH --ntasks=32"
   WALLTIME = "#SBATCH --time=01:00:00"
 
@@ -115,6 +115,12 @@
 [submission.task_exceptions.OptimalInterpolation.MODULES]
  UDUNITS = ["load", "udunits/2.2.28"]
 
+[submission.task_exceptions.OptimalInterpolation.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+
+[submission.task_exceptions.Forcing.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+
 [submission.task_exceptions.Prep]
   WRAPPER = "srun -n @NPROC@"
   binary = "PREP"
@@ -123,7 +129,7 @@
 [submission.task_exceptions.Prep.BATCH]
   NODES = "#SBATCH --nodes=1"
   NTASKS = "#SBATCH --ntasks=1"
-  WALLTIME = "#SBATCH --time=00:10:00"
+  WALLTIME = "#SBATCH --time=00:30:00"
 
 [submission.task_exceptions.Soil.MODULES]
   GDAL = ["load", "gdal/3.6.2"]

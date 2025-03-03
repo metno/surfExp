@@ -9,13 +9,14 @@
 - update start time
 - ~use local config~
 - ~use binary from deode~
+- set ecflow limit in suite for number of tasks
 
 - troika config from deode? (not from scratch)
 
 # Other
- - fix cfunits installation for ATOS-Bologna
- - /lus/h2resw01/scratch/sbu/deode_virtualenvs/surfexp-ZxaY7Jni-py3.10/lib/python3.10/site-packages/cfunits/units.py
- - _libpath = "/usr/local/apps/udunits/2.2.28/lib/libudunits2.so"
+ - ~fix cfunits installation for ATOS-Bologna~
+ - ~/lus/h2resw01/scratch/sbu/deode_virtualenvs/surfexp-ZxaY7Jni-py3.10/lib/python3.10/site-packages/cfunits/units.py~
+ - ~_libpath = "/usr/local/apps/udunits/2.2.28/lib/libudunits2.so"~
 
 
 # Domains:
@@ -29,6 +30,10 @@ time deode start suite --config-file dt_offline_drammen.toml
 # EDENMARK
 time surfExp edenmark.toml EDENMARK /home/sbu/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/include/domains/EDENMARK.toml surfexp/data/config/mods/dt_an_forcing.toml surfexp/data/config/mods/prep.toml 
 time deode start suite --config-file edenmark.toml
+
+# NC_EUROPE
+time surfExp nc_europe.toml NC_EUROPE /home/sbu/projects/surfExp2 surfexp/data/config/configurations/dt.toml surfexp/data/config/include/domains/NC_EUROPE.toml surfexp/data/config/mods/dt_an_forcing.toml surfexp/data/config/mods/prep.toml
+time deode start suite --config-file nc_europe.toml 
 
 # DT_2_5_2500x2500
 time surfExp dt_offline_dt_2_5_2500x2500.toml CY49DT_OFFLINE_dt_2_5_2500x2500 /home/sbu/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/dt_2_5_2500x2500.toml surfexp/data/config/mods/dt_an_forcing.toml
