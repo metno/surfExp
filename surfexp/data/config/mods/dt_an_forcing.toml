@@ -14,7 +14,6 @@
   pattern = "@forcing_dir@/FORCING_DT.nc"
   ps_converter = "none"
   ta = "netcdf"
-  #ta_file = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_air_temperature_2m.nc""
   ta_converter = "none"
   qa = "netcdf"
   qa_converter = "rh2q_z"
@@ -50,7 +49,7 @@
   converter = "td2rh"
 
 [observations]
-filepattern = "/scratch/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_@YYYY@@MM@@DD@@HH@.DAT"
+filepattern = "/ec/res4/hpcperm/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_@YYYY@@MM@@DD@@HH@.DAT"
 
 [observations.qc]
   tests = ["domain", "nometa", "plausibility"]
