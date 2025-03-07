@@ -443,6 +443,9 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                 prep_complete = EcflowSuiteTrigger(prep)
                 # Might need an extra trigger for input
 
+                # For now set do_prep False after for next cycles and do cycling
+                self.do_prep = False
+
             else:
                 schemes = config["SURFEX.ASSIM.SCHEMES"].dict()
                 do_soda = False
