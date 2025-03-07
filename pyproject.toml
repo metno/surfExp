@@ -16,9 +16,8 @@
 
 [tool.poetry.dependencies]
   #deode = {git = "git@github.com:trygveasp/Deode-workflow-copy.git", develop = true, branch = "develop_ppi"}
-  deode = {path = "/home/sbu/projects/multi_path_search/", develop=true}
-  #pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true, branch = "master"}
-  pysurfex = {git = "https://github.com/trygveasp/pysurfex.git", develop = true, branch = "deode_offline_surfex_workflow"}
+  deode = {path = "/home/sbu/projects/multi_path_search/", develop=false}
+  pysurfex = {git = "https://github.com/trygveasp/pysurfex.git", develop = false, branch = "deode_offline_surfex_workflow"}
   python = ">=3.10,<3.13"
 
 [tool.poetry.group.linting.dependencies]
@@ -30,7 +29,6 @@
   toml-formatter = {git = "https://github.com/paulovcmedeiros/toml-formatter"}
   # flake8 plugins for stuff not yet on ruff.
   # See <https://github.com/astral-sh/ruff/issues/458>.
-  poethepoet = {extras = ["poetry-plugin"], version = "0.24.4"}
   pydoclint = "^0.3.8" # Replaces darglint, but is maintained & faster
 
 [tool.poetry.group.test.dependencies]

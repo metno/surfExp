@@ -294,6 +294,33 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
             )
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars)])
 
+            interpolate2grid_fam = EcflowSuiteFamily(
+                "InterpolateBoundary",
+                cycle_input,
+                self.ecf_files,
+                trigger=triggers,
+                ecf_files_remotely=self.ecf_files_remotely,
+            )
+            for bd in range(0,25):
+                bd_input = EcflowSuiteFamily(
+                    f"bd_input{bd}",
+                    interpolate2grid_fam,
+                    self.ecf_files,
+                    trigger=triggers,
+                    variables={"ARGS": f"step={bd}"},
+                    ecf_files_remotely=self.ecf_files_remotely,
+                )
+                EcflowSuiteTask(
+                    "Interpolate2grid",
+                    bd_input,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    trigger=triggers,
+                )
+            triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(interpolate2grid_fam)])
+
             user_config = Path(__file__).parent.resolve() / "../data/config/forcing/forcing_dt_config.yml"
             forcing = EcflowSuiteTask(
                 "Forcing",
@@ -320,7 +347,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
 
             if mod_forcing is not None:
                 triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing), EcflowSuiteTrigger(mod_forcing)])
-            
+
             # Analyse forcing
             an_forcing = EcflowSuiteFamily(
                 "AnalyseForcing", cycle_input, self.ecf_files, trigger=triggers
@@ -329,7 +356,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
             analysis = EcflowSuiteFamily(
                 "Analysis", an_forcing, self.ecf_files, trigger=triggers
             )
-            
+
             var_names = ["t2m", "rh2m"]
             fcint = int(as_timedelta(config["general.times.cycle_length"]).total_seconds()/3600)
             offsets = range(0, fcint + 1)
@@ -371,7 +398,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                             trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(qc)])
                         )
 
-            user_config = Path(__file__).parent.resolve() / "../data/config/forcing/forcing_dt_config.yml"
+            user_config = Path(__file__).parent.resolve() / "../data/config/forcing/forcing_dt_config_an.yml"
             forcing = EcflowSuiteTask(
                 "Forcing",
                 an_forcing,

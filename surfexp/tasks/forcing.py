@@ -6,7 +6,9 @@ import pysurfex
 import yaml
 from deode.logs import logger
 from pysurfex.forcing import modify_forcing, run_time_loop, set_forcing_config
+from pysurfex.verification import converter2ds, concat_datasets
 
+from datetime import timedelta
 from surfexp.tasks.tasks import PySurfexBaseTask
 
 
@@ -157,3 +159,117 @@ class ModifyForcing(PySurfexBaseTask):
             modify_forcing(**kwargs)
         else:
             logger.info("Output or input is missing: {}", output_file)
+
+
+class Interpolate2grid(PySurfexBaseTask):
+    """Create modify forcing task."""
+
+    def __init__(self, config):
+        """Construct modify forcing task.
+
+        Args:
+            config (ParsedObject): Parsed configuration
+
+        """
+        PySurfexBaseTask.__init__(self, config, "Interpolate2grid")
+        try:
+            step = self.config["task.args.step"]
+        except KeyError:
+            step = None
+        if step is None:
+            self.steps = range(0, 25)
+        else:
+            self.steps = [int(step)]
+
+    def execute(self):
+        vars=[
+            "surface_geopotential",
+            "air_temperature_2m",
+            "dew_point_temperature_2m",
+            "surface_air_pressure",
+            "x_wind_10m",
+            "y_wind_10m",
+            "precipitation_amount_acc",
+            "snowfall_amount_acc",
+            "integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time",
+            "integral_of_surface_downwelling_longwave_flux_in_air_wrt_time"
+        ]
+
+        domain_file = "domain.json"
+        domain_json = self.geo.json
+        domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
+        with open(domain_file, mode="w", encoding="utf-8") as file_handler:
+            json.dump(domain_json, file_handler, indent=2)
+        ncdir = f"{self.platform.get_system_value('casedir')}/grib"
+        gribdir = ncdir
+
+        mapping = {
+            "surface_geopotential": {
+                "indicatorOfParameter": 129
+            },
+            "air_temperature_2m": {
+                "indicatorOfParameter": 167
+            },
+            "dew_point_temperature_2m": {
+                "indicatorOfParameter": 168
+            },
+            "surface_air_pressure": {
+                "indicatorOfParameter": 134
+            },
+            "x_wind_10m": {
+                "indicatorOfParameter": 165
+            },
+            "y_wind_10m": {
+                "indicatorOfParameter": 166
+            },
+            "precipitation_amount_acc": {
+                "indicatorOfParameter": 228,
+                "timeRangeIndicator": 4
+            },
+            "snowfall_amount_acc": {
+                "indicatorOfParameter": 144,
+                "timeRangeIndicator": 4
+            },
+            "integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time": {
+                "indicatorOfParameter": 169,
+                "timeRangeIndicator": 4
+            },
+            "integral_of_surface_downwelling_longwave_flux_in_air_wrt_time": {
+                "indicatorOfParameter": 175,
+                "timeRangeIndicator": 4
+            }
+        }
+
+        for leadtime in self.steps:
+            validtime = self.dtg + timedelta(hours=leadtime)
+            validtime = validtime.strftime("%Y%m%d%H")
+            ofiles = []
+            for var in vars:
+                try:
+                    timeRangeIndicator = mapping[var]["timeRangeIndicator"]
+                except KeyError:
+                    timeRangeIndicator = 0
+                indicatorOfParameter = mapping[var]["indicatorOfParameter"]
+                output = f"{ncdir}/{var}+{leadtime:02d}.nc"
+                input_file = f"{gribdir}/dt+{leadtime:02d}.grib1"
+                ofiles.append(output)
+                argv = [
+                    "-g", domain_file,
+                    "-o", output,
+                    "converter",
+                    "-i", input_file,
+                    "-it", "grib1",
+                    "--indicatorOfParameter", f"{indicatorOfParameter}",
+                    "--levelType", "1",
+                    "--level", "0",
+                    "--timeRangeIndicator", f"{timeRangeIndicator}",
+                    "-v", var,
+                    "-t", validtime
+                ]
+                converter2ds(argv=argv)
+
+            argv = [
+                "-o", f"{ncdir}/dt+{leadtime:02d}.nc",
+            ]
+            argv = argv + ofiles
+            concat_datasets(argv=argv)

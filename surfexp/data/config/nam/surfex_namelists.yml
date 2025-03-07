@@ -53,6 +53,7 @@ pgd_meb:
     LMEB_PATCH:
     - false
     - true
+    - true
   NAM_SGH_ISBAn:
     CHORT: DEF
     CRAIN: SGH

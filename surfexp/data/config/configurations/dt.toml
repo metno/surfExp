@@ -1,14 +1,13 @@
 [forcing.args]
   analysis = false
   co2 = "constant"
-  debug = true
   dir_sw_converter = "none"
-  input_format = "grib1"
   geo_input_file = "@climdir@/domain.json"
+  input_format = "netcdf"
   interpolation = "bilinear"
   lw_converter = "none"
   modify_forcing = true
-  pattern = "@casedir@/grib/dt+@LL@.grib1"
+  of = "@forcing_dir@/FORCING_DT.nc"
   ps_converter = "none"
   qa_converter = "td2q"
   rain_converter = "totalprec"
@@ -20,31 +19,15 @@
   wind_converter = "windspeed"
   wind_dir_converter = "winddir"
   zref = "screen"
-  zsoro_converter = "none"
+  zsoro_converter = "phi2m"
   zval = "constant"
-  of = "@forcing_dir@/FORCING_DT.nc"
+  diskless_write = true
 
 [general.times]
   cycle_length = "PT24H"
 
 [compile]
   build = false
-
-#[submission.task_exceptions.PrefetchMars]
-#  bindir = "/usr/local/bin/"
-#
-#[submission.task_exceptions.PrefetchMars.BATCH]
-#  MEM = "#SBATCH --mem=0GB"
-#  NODES = "#SBATCH --nodes=1"
-#  NTASKS = "#SBATCH --ntasks=1"
-#  QOS = "#SBATCH --qos=np"
-#  WALLTIME = "#SBATCH --time=03:00:00"
-#
-#[submission.task_exceptions.PrefetchMars.ENV]
-#  MARS_READANY_BUFFER_SIZE = 17893020000
-#
-#[submission.types.serial]
-#    tasks = ["CreateGrib", "Gmted", "Soil", "PrefetchMars", "E923Update", "IOmerge"]
 
 [troika]
   config_file = "@PLUGIN_HOME@/surfexp/data/config/troika/troika_config.yml"
@@ -113,7 +96,7 @@
 [SURFEX.ISBA]
   CANOPY = false
   MEB = true
-  NPATCH = 2
+  NPATCH = 3
   SCHEME = "DIF"
   SNOW = "3-L"
   YCLAY = "CLAY_SOILGRID.dir"

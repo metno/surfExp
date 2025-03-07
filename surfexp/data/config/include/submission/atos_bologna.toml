@@ -88,6 +88,7 @@
 
 [submission.task_exceptions.Forcing.BATCH]
   WALLTIME = "#SBATCH --time=01:00:00"
+  MEM = "#SBATCH --mem=200GB"
 
 [submission.task_exceptions.Pgd]
   WRAPPER = "srun -n @NPROC@"
@@ -126,10 +127,10 @@
   binary = "PREP"
   bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
 
-[submission.task_exceptions.Prep.BATCH]
+[submission.task_exceptions.OfflinePrep.BATCH]
   NODES = "#SBATCH --nodes=1"
-  NTASKS = "#SBATCH --ntasks=1"
-  WALLTIME = "#SBATCH --time=00:30:00"
+  NTASKS = "#SBATCH --ntasks=32"
+  WALLTIME = "#SBATCH --time=01:30:00"
 
 [submission.task_exceptions.Soil.MODULES]
   GDAL = ["load", "gdal/3.6.2"]
@@ -165,7 +166,7 @@
 [submission.types.parallel]
   NPROC = 32
   SCHOST = "hpc"
-  tasks = ["Forecast", "E927", "Pgd", "Prep", "C903", "OfflinePgd", "OfflinePrep", "OfflineForecast"]
+  tasks = ["Forecast", "E927", "Pgd", "Prep", "C903", "OfflinePgd", "OfflinePrep", "OfflineForecast", "Forcing"]
   WRAPPER = "srun"
 
 [submission.types.parallel.BATCH]

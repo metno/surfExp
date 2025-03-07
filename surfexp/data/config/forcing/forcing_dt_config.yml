@@ -10,14 +10,22 @@ surfex:
   filepattern: not_defined
 
 netcdf:
-  filepattern: not_defined
-  prefer_forecast: false
+  filepattern: "@casedir@/grib/dt+@LL@.nc"
+  prefer_forecast: true
   offset: 0
   fileinc: 3600
-  fcint: 3600
+  fcint: 86400
+
 
 # Orography
 ZS:
+  netcdf:
+    converter:
+      none:
+        name: altitude
+      phi2m:
+        phi:
+          name: surface_geopotential
   grib1:
     converter:
       none:
@@ -41,6 +49,10 @@ UREF:
 # Temperature
 TA:
   screen:
+    netcdf:
+      converter:
+        none:
+          name: air_temperature_2m
     grib1:
       converter:
         none:
@@ -48,15 +60,55 @@ TA:
           type: 1
           level: 0
           tri: 0
-    netcdf:
-      converter:
-        none:
-          filepattern: "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_air_temperature_2m.nc"
-          varname: "air_temperature_2m"
 
 # Specific humidity
 QA:
   screen:
+    netcdf:
+      converter:
+        none:
+          name: specific_humidity_2m
+      converter:
+        td2q:
+          td:
+            name: "dew_point_temperature_2m"
+          p:
+            name: "surface_air_pressure"
+        rh2q_z:
+          rh:
+            name: "relative_humidity_2m"
+          t:
+            name: "air_temperature_2m"
+          altitude:
+            name: "altitude"
+        rh2q:
+          rh:
+            name: relative_humidity_2m
+            level: 2
+            units: "%"
+          t:
+            name: air_temperature_2m
+            level: 2
+            units: "K"
+          p:
+            name: surface_air_pressure
+            units: "Pa"
+        rh2q_mslp:
+          rh:
+            name: relative_humidity_2m
+            level: 2
+            units: "%"
+          t:
+            name: air_temperature_2m
+            level: 2
+            units: "K"
+          altitude:
+            name: altitude
+            units: "m"
+          mslp:
+            name: air_pressure_at_sea_level
+            units: "Pa"
+
     grib1:
       converter:
         td2q:
@@ -70,22 +122,19 @@ QA:
             type: 1
             level: 0
             tri: 0
-    netcdf:
-      converter:
-        rh2q_z:
-          rh:
-            filepattern: "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_relative_humidity_2m.nc"
-            varname: "relative_humidity_2m"
-          t:
-            filepattern: "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_air_temperature_2m.nc"
-            varname: "air_temperature_2m"
-          altitude:
-            filepattern: "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/an_air_temperature_2m.nc"
-            varname: "altitude"
 
 # Wind speed
 WIND:
   screen:
+    netcdf:
+      converter:
+        none:
+          name: wind_speed_10m
+        windspeed:
+          x:
+            name: x_wind_10m
+          y:
+            name: y_wind_10m
     grib1:
       converter:
         windspeed:
@@ -103,6 +152,17 @@ WIND:
 # Wind direction
 WIND_DIR:
   screen:
+    netcdf:
+      converter:
+        none:
+          name: wind_direction_10m
+        winddir:
+          x:
+            name: x_wind_10m
+            rotate_to_geographic: True
+          y:
+            name: y_wind_10m
+            rotate_to_geographic: True
     grib1:
       converter:
         winddir:
@@ -121,6 +181,28 @@ WIND_DIR:
 
 # Rainfall rate
 RAIN:
+  netcdf:
+    converter:
+      none:
+        name: rainfall_amount
+        accumulated: False
+        instant: 3600.
+      totalprec:
+        totalprec:
+          name: precipitation_amount_acc
+          accumulated: True
+          instant: 3600.
+        snow:
+          name: snowfall_amount_acc
+          accumulated: True
+          instant: 3600.
+      calcrain:
+        totalprec:
+          name: precipitation_amount
+          accumulated: false
+          instant: 3600.
+        t:
+          name: air_temperature_2m
   grib1:
     converter:
       totalprec:
@@ -137,6 +219,29 @@ RAIN:
 
 # Snow fall amount rate
 SNOW:
+  netcdf:
+    converter:
+      none:
+        name: snowfall_amount_acc
+        accumulated: True
+        instant: 3600.
+      calcsnow:
+        totalprec:
+          name: precipitation_amount
+          accumulated: false
+          instant: 3600.
+        rh:
+          name: relative_humidity_2m
+          level: 2
+          units: "%"
+        t:
+          name: air_temperature_2m
+          level: 2
+          units: "celsius"
+        p:
+          name: surface_air_pressure
+          units: "Pa"
+
   grib1:
     converter:
       none:
@@ -147,6 +252,22 @@ SNOW:
 
 # Surface air pressure
 PS:
+  netcdf:
+    converter:
+      none:
+        name: surface_air_pressure
+      mslp2ps:
+        t:
+          name: air_temperature_2m
+          level: 2
+          units: "K"
+        altitude:
+          name: altitude
+          units: "m"
+        mslp:
+          name: air_pressure_at_sea_level
+          units: "Pa"
+
   grib1:
     converter:
       none:
@@ -157,6 +278,16 @@ PS:
 
 # Direct shortwave radiation
 DIR_SW:
+  netcdf:
+    converter:
+      none:
+        name: integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time
+        accumulated: True
+        instant: 3600.
+      analysis:
+        name: integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time
+        accumulated: False
+        instant: 3600.
   grib1:
     converter:
       none:
@@ -172,6 +303,16 @@ SCA_SW:
 
 # Long wave radiation
 LW:
+  netcdf:
+    converter:
+      none:
+        name: integral_of_surface_downwelling_longwave_flux_in_air_wrt_time
+        accumulated: True
+        instant: 3600.
+      analysis:
+        name: integral_of_surface_downwelling_longwave_flux_in_air_wrt_time
+        accumulated: False
+        instant: 3600.
   grib1:
     converter:
       none:
