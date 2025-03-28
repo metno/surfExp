@@ -15,7 +15,7 @@
   requires = ["poetry-core >= 1.0.0"]
 
 [tool.poetry.dependencies]
-  deode = {git = "git@github.com:uandrae/Deode-Prototype.git" develop=false, branch="feature/multi_path_search"}
+  deode = {git = "git@github.com:uandrae/Deode-Prototype.git", develop=false, branch="feature/multi_path_search"}
   pysurfex = {git = "https://github.com/trygveasp/pysurfex.git", develop = false, branch = "deode_offline_surfex_workflow"}
   grib2sqlite = {git = "git@github.com:destination-earth-digital-twins/grib2sqlite", develop=false}
   python = ">=3.10,<3.13"
