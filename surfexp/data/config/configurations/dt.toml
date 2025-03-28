@@ -59,6 +59,10 @@
     "pgd_isba_soc_direct",
     "pgd_zs_direct",
   ]
+
+[SURFEX.TILES]
+  INLAND_WATER = "WATFLX"
+
 [SURFEX.ASSIM.ISBA]
   UPDATE_SNOW_CYCLES = ["06"]
 
@@ -77,10 +81,6 @@
 [SURFEX.COVER]
   SG = true
   YCOVER = "ecosg_final_map.dir"
-
-[SURFEX.FLAKE]
-  LCLIM = true
-  LDB_VERSION = "3.0"
 
 [SURFEX.INLAND_WATER]
 
@@ -101,3 +101,8 @@
   SNOW = "3-L"
   YCLAY = "CLAY_SOILGRID.dir"
   YSAND = "SAND_SOILGRID.dir"
+
+[SURFEX.TREEDRAG]
+  FAKETREES = [false, true, true, true, true, true, true]
+  XSCALE_H_TREE_ECOSG = 1.0
+

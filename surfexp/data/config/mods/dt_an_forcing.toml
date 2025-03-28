@@ -54,6 +54,9 @@ filepattern = "/hpcperm/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_
 [observations.qc]
   tests = ["domain", "nometa", "plausibility"]
 
+[extractsqlite]
+  station_list = "@PLUGIN_HOME@/surfexp/data/config/stationlist/stationlist.json"
+
 [pysurfex]
   first_guess_yml_file = "@PLUGIN_HOME@/surfexp/data/first_guess_dt.yml"
 

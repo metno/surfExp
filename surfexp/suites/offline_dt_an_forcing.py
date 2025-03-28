@@ -804,6 +804,26 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                 "PostProcessing", time_family, self.ecf_files, trigger=triggers
             )
 
+            verification_fam = EcflowSuiteFamily("Verification", pp_fam, self.ecf_files)
+            vars = ["T2M"]
+            for var_name in vars:
+                if var_name == "T2M":
+                    harp_param = "T2m"
+                    harp_param_unit = "K"
+                else:
+                    raise RuntimeError("Variable not defined")
+                args = f"var_name={var_name};harp_param={harp_param};harp_param_unit={harp_param_unit}"
+                variables = {"ARGS": args}
+                harp_fam = EcflowSuiteFamily(var_name, verification_fam, self.ecf_files, variables=variables)
+                EcflowSuiteTask(
+                    "HarpSQLite",
+                    harp_fam,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                )
+
             log_pp_trigger = None
             if analysis is not None:
                 qc2obsmon = EcflowSuiteTask(

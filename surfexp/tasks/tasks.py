@@ -28,6 +28,7 @@ from pysurfex.pseudoobs import CryoclimObservationSet
 from pysurfex.read import ConvertedInput, Converter
 from pysurfex.run import BatchJob
 from pysurfex.titan import TitanDataSet, dataset_from_file, define_quality_control
+from pysurfex.verification import converter2harp_cli
 
 from surfexp.experiment import get_nnco
 
@@ -67,6 +68,9 @@ class PySurfexBaseTask(Task):
 
         self.geo = ConfProj(conf_proj)
         self.dtg = as_datetime(self.config["general.times.basetime"])
+        casedir = self.config["system.casedir"]
+        self.casedir = self.platform.substitute(casedir, basetime=self.dtg)
+        self.archive = self.platform.get_system_value("archive")
         self.fcint = as_timedelta("PT6H")
 
         self.translation = {
@@ -1133,3 +1137,79 @@ class FetchMarsObs(PySurfexBaseTask):
             batch.run(cmd)
         except RuntimeError as exc:
             raise RuntimeError from exc
+
+
+class HarpSQLite(PySurfexBaseTask):
+    """Fetch observations from Mars.
+
+    Args:
+    -----------------------------------
+        Task (_type_): _description_
+
+    """
+
+    def __init__(self, config):
+        """Construct the FetchMarsObs task.
+
+        Args:
+        ---------------------------------------------------
+            config (ParsedObject): Parsed configuration
+
+        """
+        PySurfexBaseTask.__init__(self, config, "HarpSQLite")
+
+        try:
+            self.var_name = self.config["task.args.var_name"]
+        except KeyError:
+            raise RuntimeError from KeyError
+        try:
+            self.harp_param = self.config["task.args.harp_param"]
+        except KeyError:
+            raise RuntimeError from KeyError
+        try:
+            self.harp_param_unit = self.config["task.args.harp_param_unit"]
+        except KeyError:
+            raise RuntimeError from KeyError
+
+        self.model = self.platform.substitute(self.config["extractsqlite.sqlite_model_name"])
+        self.basetime = self.dtg
+        self.stationlist_file = self.platform.substitute(
+            self.config["extractsqlite.station_list"]
+        )
+        self.sqlite_path = self.platform.substitute(
+            self.config["extractsqlite.sqlite_path"]
+        )
+        self.sqlite_template = self.platform.substitute(
+            self.config["extractsqlite.sqlite_template"]
+        )
+        self.validtime = self.dtg + as_timedelta("P24H")
+        archive = self.config["system.archive_dir"]
+        archive = self.platform.substitute(archive, basetime=self.basetime)
+        input_pattern = f"{archive}/SURFOUT.@YYYY@@MM@@DD@_@HH@h00.nc"
+        self.input = self.substitute(input_pattern, basetime=self.validtime)
+
+    def execute(self):
+        """Execute."""
+
+        dt_string = self.validtime.strftime("%Y%m%d%H")
+        basetime = self.basetime.strftime("%Y%m%d%H")
+        argv = [
+            "-g",
+            self.stationlist_file,
+            "-b",
+            basetime,
+            "--harp-param",
+            self.harp_param,
+            "--harp-param-unit",
+            self.harp_param_unit,
+            "--model-name",
+            self.model,
+            "-o", f"{self.sqlite_path}/{self.sqlite_template}",
+            "converter",
+            "-i", self.input,
+            "-it", "surfex",
+            "-v", self.var_name,
+            "-t", dt_string
+        ]
+        logger.info("Args: {}", " ".join(argv))
+        converter2harp_cli(argv=argv)

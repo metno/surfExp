@@ -61,7 +61,7 @@
   #  MEM = "#SBATCH --mem=200GB"
   NODES = "#SBATCH --nodes=1"
   NTASKS = "#SBATCH --ntasks=32"
-  WALLTIME = "#SBATCH --time=01:00:00"
+  WALLTIME = "#SBATCH --time=02:00:00"
 
 [submission.task_exceptions.Forecast.ENV]
   RTTOV_COEFDIR = "/hpcperm/snh02/DEODE/satellite/rtcoef_rttov12/harm_coef/"
