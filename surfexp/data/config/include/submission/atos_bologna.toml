@@ -122,6 +122,9 @@
 [submission.task_exceptions.Forcing.ENV]
   LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
 
+[submission.task_exceptions.Qc2obsmon.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+
 [submission.task_exceptions.Prep]
   WRAPPER = "srun -n @NPROC@"
   binary = "PREP"

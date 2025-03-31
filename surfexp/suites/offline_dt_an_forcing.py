@@ -805,8 +805,8 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
             )
 
             verification_fam = EcflowSuiteFamily("Verification", pp_fam, self.ecf_files)
-            vars = ["T2M"]
-            for var_name in vars:
+            ver_vars = ["T2M"]
+            for var_name in ver_vars:
                 if var_name == "T2M":
                     harp_param = "T2m"
                     harp_param_unit = "K"
@@ -824,6 +824,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                     input_template=template,
                 )
 
+
             log_pp_trigger = None
             if analysis is not None:
                 qc2obsmon = EcflowSuiteTask(
@@ -836,6 +837,27 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                 )
                 trigger = EcflowSuiteTrigger(qc2obsmon)
                 log_pp_trigger = EcflowSuiteTriggers(trigger)
+
+            qc2obsmon_fam = EcflowSuiteFamily(
+                "qc2obsmon", pp_fam, self.ecf_files, trigger=triggers,
+            )
+
+            fcint = int(as_timedelta(config["general.times.cycle_length"]).total_seconds()/3600)
+            offsets = range(0, fcint + 1)
+            for offset in offsets:
+                offset_fam = EcflowSuiteFamily(
+                    f"offset{offset}", qc2obsmon_fam, self.ecf_files, trigger=triggers,
+                    variables={"ARGS": f"offset={offset};"},
+                )
+                EcflowSuiteTask(
+                    "Qc2obsmon",
+                    offset_fam,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(fg_offset)])
+                )
 
             EcflowSuiteTask(
                 "LogProgressPP",
