@@ -181,7 +181,7 @@ def split_files(file_in, dest):
     for ltime in leadtimes:
         infile = f"{dest}/dt_split+{ltime}.grib1"
         outfile = f"{dest}/dt+{ltime:02d}.grib1"
-        if os.path(infile):
+        if os.path.exists(infile):
             subprocess.run(["grib_filter", "-o", outfile, rule_file, infile])
         else:
             raise FileNotFoundError(f"Infile {infile} is missing")
