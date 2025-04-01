@@ -10,6 +10,8 @@ from deode.suites.base import (
     EcflowSuiteTriggers,
     SuiteDefinition,
 )
+# TODO should be moved to deode.suites or a module
+from ecflow import Limit
 
 from surfexp.experiment import get_nnco, get_total_unique_cycle_list, setting_is
 
@@ -56,7 +58,13 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
         starttime = as_datetime(config["general.times.start"])
         endtime = as_datetime(config["general.times.end"])
         cycle_length = as_timedelta(config["general.times.cycle_length"])
+        max_tasks = config.get('general.max_tasks')
+        if max_tasks is None:
+            max_tasks = 20
         logger.debug("DTGSTART: {} DTGBEG: {} DTGEND: {}", basetime, starttime, endtime)
+
+        limit = Limit("max_tasks", max_tasks)
+        self.suite.ecf_node.add_limit(limit)
 
         l_basetime = basetime
         logger.debug("Building list of DTGs")
