@@ -181,7 +181,10 @@ def split_files(file_in, dest):
     for ltime in leadtimes:
         infile = f"{dest}/dt_split+{ltime}.grib1"
         outfile = f"{dest}/dt+{ltime:02d}.grib1"
-        subprocess.run(["grib_filter", "-o", outfile, rule_file, infile])
+        if os.path(infile):
+            subprocess.run(["grib_filter", "-o", outfile, rule_file, infile])
+        else:
+            raise FileNotFoundError(f"Infile {infile} is missing")
 
 
 def prefetch(date, hour, dest, area):
