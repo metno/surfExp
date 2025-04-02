@@ -785,13 +785,19 @@ class Qc2obsmon(PySurfexBaseTask):
             self.var_name = self.config["task.args.var_name"]
         except KeyError:
             self.var_name = None
+        try:
+            self.offset = int(self.config["task.args.offset"])
+        except KeyError:
+            self.offset = 0
 
     def execute(self):
         """Execute."""
+        an_time = self.dtg + as_timedelta(f"{self.offset:02d}:00:00")
+        logger.info("Analysis time: {}", an_time)
         archive = self.platform.get_system_value("archive_dir")
         extrarch = self.platform.get_system_value("extrarch_dir")
         obsdir = self.platform.get_system_value("obs_dir")
-        outdir = extrarch + "/ecma_sfc/" + self.dtg.strftime("%Y%m%d%H") + "/"
+        outdir = extrarch + "/ecma_sfc/" + an_time.strftime("%Y%m%d%H") + "/"
         os.makedirs(outdir, exist_ok=True)
         output = outdir + "/ecma.db"
 
