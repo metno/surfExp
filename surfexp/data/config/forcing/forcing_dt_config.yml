@@ -10,7 +10,7 @@ surfex:
   filepattern: not_defined
 
 netcdf:
-  filepattern: "@casedir@/grib/dt+@LL@.nc"
+  filepattern: "@casedir@/grib/dt_@YYYY@@MM@@DD@@HH@+@LL@.nc"
   prefer_forecast: true
   offset: 0
   fileinc: 3600

@@ -55,7 +55,7 @@ class PrefetchMars(PySurfexBaseTask):
         lat1 = int(math.ceil(self.geo.latrange[1]))
         area = f"{lat1}/{lon0}/{lat0}/{lon1}"
         print(area)
-        prefetch(date, hour, gribdir, area)
+        prefetch(date, hour, gribdir, area, dtg)
 
 
 class Request(object):
@@ -164,11 +164,11 @@ def fetch_mars(date, hour, filedir, outfile, area):
     result = subprocess.run(["mv",] + [outfile] + [filedir])
 
 
-def split_files(file_in, dest):
+def split_files(file_in, dest, basetime):
     rule_file = "dt_filter1.rule"
     with open(rule_file, mode="w", encoding="utf8") as fhandler:
         fhandler.write("set timeRangeIndicator = 0;\n")
-        fhandler.write(f'write "{dest}/dt_split+[step].grib1";\n')
+        fhandler.write(f'write "{dest}/dt_split_{basetime.strftime("%Y%m%d%H")}+[step].grib1";\n')
     subprocess.run(["grib_filter", rule_file, file_in])
     rule_file = "dt_filter2.rule"
     with open(rule_file, mode="w", encoding="utf8") as fhandler:
@@ -179,19 +179,19 @@ def split_files(file_in, dest):
         fhandler.write('write;\n')
     leadtimes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
     for ltime in leadtimes:
-        infile = f"{dest}/dt_split+{ltime}.grib1"
-        outfile = f"{dest}/dt+{ltime:02d}.grib1"
+        infile = f"{dest}/dt_split_{basetime.strftime('%Y%m%d%H')}+{ltime}.grib1"
+        outfile = f"{dest}/dt_{basetime.strftime('%Y%m%d%H')}+{ltime:02d}.grib1"
         if os.path.exists(infile):
             subprocess.run(["grib_filter", "-o", outfile, rule_file, infile])
         else:
             raise FileNotFoundError(f"Infile {infile} is missing")
 
 
-def prefetch(date, hour, dest, area):
+def prefetch(date, hour, dest, area, basetime):
 
     tempfile = f"{date}_{hour}.grib1"
     if not os.path.exists(dest + tempfile):
         fetch_mars(date, hour, dest, tempfile, area)
     else:
         logger.warning("The file {} is already fetched, consider to clean", tempfile)
-    split_files(dest + tempfile, dest)
+    split_files(dest + tempfile, dest, basetime)

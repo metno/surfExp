@@ -250,8 +250,8 @@ class Interpolate2grid(PySurfexBaseTask):
                 except KeyError:
                     timeRangeIndicator = 0
                 indicatorOfParameter = mapping[var]["indicatorOfParameter"]
-                output = f"{ncdir}/{var}+{leadtime:02d}.nc"
-                input_file = f"{gribdir}/dt+{leadtime:02d}.grib1"
+                output = f"{ncdir}/{var}_{self.dtg.strftime('%Y%m%d%H')}+{leadtime:02d}.nc"
+                input_file = f"{gribdir}/dt_{self.dtg.strftime('%Y%m%d%H')}+{leadtime:02d}.grib1"
                 ofiles.append(output)
                 argv = [
                     "-g", domain_file,
@@ -269,7 +269,7 @@ class Interpolate2grid(PySurfexBaseTask):
                 converter2ds(argv=argv)
 
             argv = [
-                "-o", f"{ncdir}/dt+{leadtime:02d}.nc",
+                "-o", f"{ncdir}/dt_{self.dtg.strftime('%Y%m%d%H')}+{leadtime:02d}.nc",
             ]
             argv = argv + ofiles
             concat_datasets(argv=argv)

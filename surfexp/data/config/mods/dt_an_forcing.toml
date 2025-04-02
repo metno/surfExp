@@ -33,7 +33,7 @@
 [initial_conditions.fg4oi]
   converter = "none"
   fileformat = "grib1"
-  inputfile = "@casedir@/grib/dt+@LL@.grib1"
+  inputfile = "@casedir@/grib/dt_@YYYY@@MM@@DD@@HH@+@LL@.grib1"
 
 [initial_conditions.fg4oi.altitude]
   fileformat = "surfex"
