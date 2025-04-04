@@ -240,7 +240,11 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
         days = []
         cycle_input_nodes = {}
         prediction_nodes = {}
-        for cycle in cycles.values():
+        if config["suite_control.create_time_dependent_suite"]:
+            cycles_values = cycles.values()
+        else:
+            cycles_values = []
+        for cycle in cycles_values:
             cycle_day = cycle["day"]
             basetime = as_datetime(cycle["basetime"])
             c_index = basetime.strftime("%Y%m%d%H%M")
@@ -289,7 +293,9 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
             )
             prepare_cycle_complete = EcflowSuiteTrigger(prepare_cycle)
 
-            triggers.add_triggers([prepare_cycle_complete])
+            #triggers.add_triggers([prepare_cycle_complete])
+            triggers = EcflowSuiteTriggers([comp_complete, static_complete, time_trigger, prepare_cycle_complete])
+
 
             cycle_input = EcflowSuiteFamily(
                 "CycleInput", time_family, self.ecf_files, trigger=triggers
