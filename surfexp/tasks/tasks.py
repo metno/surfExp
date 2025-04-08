@@ -1146,7 +1146,7 @@ class FetchMarsObs(PySurfexBaseTask):
 
 
 class HarpSQLite(PySurfexBaseTask):
-    """Fetch observations from Mars.
+    """Extract observations to SQLite for HARP.
 
     Args:
     -----------------------------------
@@ -1155,7 +1155,7 @@ class HarpSQLite(PySurfexBaseTask):
     """
 
     def __init__(self, config):
-        """Construct the FetchMarsObs task.
+        """Construct the HarpSQLite task.
 
         Args:
         ---------------------------------------------------
@@ -1219,3 +1219,28 @@ class HarpSQLite(PySurfexBaseTask):
         ]
         logger.info("Args: {}", " ".join(argv))
         converter2harp_cli(argv=argv)
+
+
+class StartOfflineSfx(PySurfexBaseTask):
+    """Start offline surfex suite from control suite.
+
+    Args:
+    -----------------------------------
+        Task (_type_): _description_
+
+    """
+
+    def __init__(self, config):
+        PySurfexBaseTask.__init__(self, config, "StartOfflineSfx")
+        try:
+            self.run_cmd = self.config["task.args.run_cmd"]
+        except KeyError:
+            raise RuntimeError from KeyError
+
+    def execute(self):
+        """Execute."""
+        logger.info("Running command: {}", self.run_cmd)
+        try:
+            BatchJob(os.environ).run(self.run_cmd)
+        except Exception as exc:
+            raise RuntimeError("Command failed") from exc
