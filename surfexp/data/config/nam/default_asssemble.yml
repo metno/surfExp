@@ -5,8 +5,8 @@ pgd:
   - sice
   - treedrag
   - pgd
-  - eco_sg
-  - pgd_kdtree
+  - ecoclimap_sg
+  #- pgd_kdtree
   - pgd_cover
   - pgd_arrange_cover
   - pgd_cover_direct
@@ -14,12 +14,19 @@ pgd:
   - pgd_cv_sg
   - pgd_rsmin_sg
   - pgd_ecoclimap_sg
+  - pgd_ecoclimap_sg_single_decade
+  - pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp
+  - pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp
+  - pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp
+  - pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp
+  - pgd_ecoclimap_sg_single_decade_lai_dirtyp
+  - pgd_ecoclimap_sg_single_decade_tree_height_dirtyp
   - pgd_zs
   - pgd_zs_direct
   - pgd_sea
-  - pgd_flake
-  - pgd_flake_depth_direct
-  - pgd_flake_depth_status_direct
+  #- pgd_flake
+  #- pgd_flake_depth_direct
+  #- pgd_flake_depth_status_direct
   - pgd_isba
   - pgd_isba_sand_direct
   - meb
@@ -30,7 +37,7 @@ prep:
   - constants
   - treedrag
   - prep
-  - eco_sg
+  - ecoclimap_sg
   - prep_from_namelist
   - prep_seaflux
   - prep_sice
@@ -43,7 +50,7 @@ offline:
   - io
   - constants
   - treedrag
-  - eco_sg
+  - ecoclimap_sg
   - offline
   - offline_sso
   - offline_sso_none
@@ -58,7 +65,7 @@ offline:
 soda:
   - io
   - treedrag
-  - eco_sg
+  - ecoclimap_sg
   - soda
   - soda_sice
   #- soda_snow_an

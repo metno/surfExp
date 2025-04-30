@@ -108,8 +108,8 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
 
     def __init__(self, program, config):
         # SURFEX: Namelists and input data
-        nam_defs = "/home/trygveasp/projects/surfExp/surfexp/data/config/nam/surfex_namelists.yml"
-        assemble = "/home/trygveasp/projects/surfExp/surfexp/data/config/nam/default_asssemble.yml"
+        nam_defs = "/home/sbu/projects/surfExp/surfexp/data/config/nam/surfex_namelists.yml"
+        assemble = "/home/sbu/projects/surfExp/surfexp/data/config/nam/default_asssemble.yml"
         nlgen_surfex = NamelistGeneratorAssembleFromFiles(program, nam_defs, assemble)
         settings = nlgen_surfex.get_namelist()
         SettingsFromNamelist.__init__(self, program, settings, assemble=None)

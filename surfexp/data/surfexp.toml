@@ -76,7 +76,6 @@
 #####################################################################################################
 
 ###########################################################################################################################
-[eps]
 
 [forcing]
   # After 2023013123
@@ -200,15 +199,26 @@
 
 ############################################################################################################################
 
+[eps.general]
+  control_member = 0
+  members = "0:0"
+  run_continously = false
+
+[eps.member_settings.boundaries.ifs]
+  selection = {"1:3" = "IFSENS"}
+
 [eps.member_settings.general]
-  hh_list = {0 = "0-21:3", 1 = "0-21:3", 2 = "0-21:3"}
-  ll_list = {0 = "3", 1 = "3", 2 = "3"}
+  realization = "-1"
 
-[eps.member_settings.SURFEX.ASSIM.SCHEMES]
-  ISBA = {0 = "OI", 1 = "OI", 2 = "OI"}
-
-[eps.member_settings.SURFEX.ISBA]
-  PERTSURF = {0 = "none"}
-
-[eps.member_settings.SURFEX.SEA]
-  PERTFLUX = {0 = "none"}
+#[eps.member_settings.general]
+#  hh_list = {0 = "0-21:3", 1 = "0-21:3", 2 = "0-21:3"}
+#  ll_list = {0 = "3", 1 = "3", 2 = "3"}
+#
+#[eps.member_settings.SURFEX.ASSIM.SCHEMES]
+#  ISBA = {0 = "OI", 1 = "OI", 2 = "OI"}
+#
+#[eps.member_settings.SURFEX.ISBA]
+#  PERTSURF = {0 = "none"}
+#
+#[eps.member_settings.SURFEX.SEA]
+#  PERTFLUX = {0 = "none"}

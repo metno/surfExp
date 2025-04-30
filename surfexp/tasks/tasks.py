@@ -72,9 +72,9 @@ class PySurfexBaseTask(Task):
         deodemakedirs(self.climdir)
         domain_json = self.geo.json
         domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
-        domain_file = f"{self.climdir}/domain.json"
-        if not os.path.exists(domain_file):
-            with open(domain_file, mode="w", encoding="utf-8") as file_handler:
+        self.domain_file = f"{self.climdir}/domain.json"
+        if not os.path.exists(self.domain_file):
+            with open(self.domain_file, mode="w", encoding="utf-8") as file_handler:
                 json.dump(domain_json, file_handler, indent=2)
         self.dtg = as_datetime(self.config["general.times.basetime"])
         self.basetime = as_datetime(self.config["general.times.basetime"])
@@ -91,7 +91,7 @@ class PySurfexBaseTask(Task):
         # Namelist settings
         self.soda_settings = SettingsFromNamelistAndConfig("soda", config)
         self.suffix = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE").lower()
-        self.obs_types = self.soda_settings.get_setting("NAM_ASSIM#COBS_M")
+        self.obs_types = self.soda_settings.get_setting("NAM_OBS#COBS_M")
         self.nnco = self.soda_settings.get_nnco(self.config, basetime=self.dtg)
         logger.debug("NNCO: {}", self.nnco)
 
@@ -151,19 +151,29 @@ class PySurfexBaseTask(Task):
             binary = self.config[f"submission.task_exceptions.{self.name}.binary"]
 
         try:
+            bindir = self.config[f"submission.bindir"]
+        except KeyError:
+            bindir = None
+        try:
             bindir = self.config[f"submission.task_exceptions.{self.name}.bindir"]
         except KeyError:
-            bindir = self.platform.get_system_value("bindir")
+            pass
+        
+        # surfExp binary directory
+        bindir_system = self.platform.get_system_value("bindir")
+
+        
+        bin_paths = [f"{bindir_system}/{binary}-offline", f"{bindir_system}/{binary}"]
+        for bin_path in bin_paths:
+            if os.path.exists(bin_path):
+                return bin_path
 
         bin_path = f"{bindir}/{binary}"
-        if os.path.exists(f"{bin_path}-offline"):
-            bin_path = f"{bin_path}-offline"
-
         try:
-            os.path.exists(bin_path)
+            if os.path.exists(bin_path):
+                return bin_path
         except FileNotFoundError:
-            raise RuntimeError from FileNotFoundError
-        return bin_path
+            raise RuntimeError() from FileNotFoundError
 
 
 class PrepareCycle(PySurfexBaseTask):
