@@ -2,13 +2,12 @@
 import json
 import os
 
-import pysurfex
 import yaml
+from datetime import timedelta
 from deode.logs import logger
 from pysurfex.forcing import modify_forcing, run_time_loop, set_forcing_config
 from pysurfex.verification import converter2ds, concat_datasets
 
-from datetime import timedelta
 from surfexp.tasks.tasks import PySurfexBaseTask
 
 
@@ -70,12 +69,15 @@ class Forcing(PySurfexBaseTask):
             global_config = self.config["pysurfex.forcing_variable_config_yml_file"]
         except KeyError:
             global_config = None
-        if global_config is None or global_config == "":
-            global_config = (
-                f"{os.path.dirname(pysurfex.__path__[0])}/pysurfex/cfg/config.yml"
-            )
-        with open(global_config, mode="r", encoding="utf-8") as file_handler:
-            global_config = yaml.safe_load(file_handler)
+        
+        #TODO Global config should be handled in pysurfex
+
+        #if global_config is None or global_config == "":
+        #    global_config = (
+        #        f"{os.path.dirname(pysurfex.__path__[0])}/pysurfex/cfg/config.yml"
+        #    )
+        #with open(global_config, mode="r", encoding="utf-8") as file_handler:
+        #    global_config = yaml.safe_load(file_handler)
         # Add surfExp related macros
         global_config["macros"] = {
             "casedir": self.platform.get_system_value("casedir")

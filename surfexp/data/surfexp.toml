@@ -20,7 +20,6 @@
   # Compilation settings
   #####################################################################################################
   build = true # Turn on or off the compilation and binary build (true/false)
-  cmake = true # Build with CMake
 
 [pgd]
   clay_format = "direct"
@@ -31,12 +30,13 @@
   soc_input = "soilgrid"
   zs_format = "direct"
   zs_input = "gmted2010"
-  extra_namelist_blocks = [
-    "pgd_ecoclimap_sg_single_decade", "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
-    "pgd_cover_direct",
-    "pgd_cover_lrm_river_true",
-    "pgd_isba_sand_direct", "pgd_isba_clay_direct", "pgd_isba_soc_direct", "pgd_zs_direct"
-  ]
+  
+  #extra_namelist_blocks = [
+  #  "pgd_ecoclimap_sg_single_decade", "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
+  #  "pgd_cover_direct",
+  #  "pgd_cover_lrm_river_true",
+  #  "pgd_isba_sand_direct", "pgd_isba_clay_direct", "pgd_isba_soc_direct", "pgd_zs_direct"
+  #]
   # single: decade: pgd_ecoclimap_sg_single_decade
   # single decade dirtyp:  "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp", "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp", "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp", "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp", "pgd_ecoclimap_sg_single_decade_lai_dirtyp", "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
   # single decade netcdf:  "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
@@ -47,16 +47,12 @@
   # Optional flake: "pgd_flake_depth_status_netcdf" "pgd_cover_lrm_river_true"
 
 [prep]
-  extra_namelist_blocks = []
 
 [soda]
-  extra_namelist_blocks = []
 
 [offline]
-  extra_namelist_blocks = []
 
 [pysurfex]
-  config_file = ""
   first_guess_yml_file = ""
   forcing_variable_config_yml_file = ""
 
@@ -196,7 +192,7 @@
   vlength = 400
 
 [observations.qc]
-  # QC_TESTS = ["domain", "blacklist", "nometa", "redundancy", "plausibility", "sct"]
+  # tests = ["domain", "blacklist", "nometa", "redundancy", "plausibility", "sct"]
   tests = ["domain", "nometa", "plausibility", "sct"]
 
 [observations.qc.sd]

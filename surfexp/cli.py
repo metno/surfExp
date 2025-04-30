@@ -4,7 +4,6 @@ import os
 import sys
 
 import deode
-import pysurfex
 from deode.__main__ import main
 from deode.logs import logger
 
@@ -28,7 +27,6 @@ def pysfxexp(argv=None):
     args = args.args
 
     deode_path = deode.__path__[0]
-    pysurfex_path = pysurfex.__path__[0]
     surfexp_path = surfexp.__path__[0]
     tmp_output = f"{output}.tmp.{os.getpid()}.toml"
     argv = [
@@ -41,7 +39,6 @@ def pysfxexp(argv=None):
         f"{surfexp_path}/data/config/",
         "--output",
         tmp_output,
-        f"{pysurfex_path}/cfg/config_exp_surfex.toml",
         f"{surfexp_path}/data/surfexp.toml",
     ]
     argv += args

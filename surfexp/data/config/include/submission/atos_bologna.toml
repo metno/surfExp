@@ -28,6 +28,9 @@
 [submission.task_exceptions.ArchiveStatic.BATCH]
   WALLTIME = "#SBATCH --time=03:00:00"
 
+[submission.task_exceptions.QualityControl.MODULES]
+  PRGENV = ["load", "prgenv/gnu"]
+
 [submission.task_exceptions.C903]
   NPROC = 36
 

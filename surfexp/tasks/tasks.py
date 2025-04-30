@@ -6,13 +6,13 @@ import os
 import shutil
 
 import numpy as np
-import pysurfex
 import yaml
+from deode.config_parser import ConfigPaths
 from deode.datetime_utils import as_datetime, as_timedelta
 from deode.logs import InterceptHandler, logger, builtin_logging as logging
+from deode.os_utils import deodemakedirs
 from deode.tasks.base import Task
 from pysurfex.cache import Cache
-from pysurfex.configuration import Configuration
 from pysurfex.file import SurfFileTypeExtension
 from pysurfex.geo import ConfProj, get_geo_object
 from pysurfex.input_methods import get_datasources
@@ -25,12 +25,13 @@ from pysurfex.netcdf import (
 )
 from pysurfex.obsmon import write_obsmon_sqlite_file
 from pysurfex.pseudoobs import CryoclimObservationSet
+from pysurfex.platform_deps import SystemFilePaths
 from pysurfex.read import ConvertedInput, Converter
 from pysurfex.run import BatchJob
 from pysurfex.titan import TitanDataSet, dataset_from_file, define_quality_control
 from pysurfex.verification import converter2harp_cli
 
-from surfexp.experiment import get_nnco
+from surfexp.experiment import SettingsFromNamelistAndConfig
 
 
 class PySurfexBaseTask(Task):
@@ -67,35 +68,59 @@ class PySurfexBaseTask(Task):
         }
 
         self.geo = ConfProj(conf_proj)
+        self.climdir = self.platform.get_system_value("climdir")
+        deodemakedirs(self.climdir)
+        domain_json = self.geo.json
+        domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
+        domain_file = f"{self.climdir}/domain.json"
+        if not os.path.exists(domain_file):
+            with open(domain_file, mode="w", encoding="utf-8") as file_handler:
+                json.dump(domain_json, file_handler, indent=2)
         self.dtg = as_datetime(self.config["general.times.basetime"])
+        self.basetime = as_datetime(self.config["general.times.basetime"])
         casedir = self.config["system.casedir"]
         self.casedir = self.platform.substitute(casedir, basetime=self.dtg)
         self.archive = self.platform.get_system_value("archive")
-        self.fcint = as_timedelta("PT6H")
 
         self.translation = {
             "t2m": "air_temperature_2m",
             "rh2m": "relative_humidity_2m",
             "sd": "surface_snow_thickness",
         }
-        self.obs_types = self.config["SURFEX.ASSIM.OBS.COBS_M"]
-        self.nnco = get_nnco(self.config, basetime=self.dtg)
+
+        # Namelist settings
+        self.soda_settings = SettingsFromNamelistAndConfig("soda", config)
+        self.suffix = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE").lower()
+        self.obs_types = self.soda_settings.get_setting("NAM_ASSIM#COBS_M")
+        self.nnco = self.soda_settings.get_nnco(self.config, basetime=self.dtg)
+        logger.debug("NNCO: {}", self.nnco)
 
         self.fgint = as_timedelta(self.config["general.times.cycle_length"])
         self.fcint = as_timedelta(self.config["general.times.cycle_length"])
-        self.fg_dtg = self.dtg - self.fgint
-        self.next_dtg = self.dtg + self.fcint
+        self.fg_dtg = self.basetime - self.fgint
+        self.next_dtg = self.basetime + self.fcint
         self.next_dtgpp = self.next_dtg
 
         self.fg_guess_sfx = self.wrk + "/first_guess_sfx"
         self.fc_start_sfx = self.wrk + "/fc_start_sfx"
 
-        cfg = self.config["SURFEX"].dict()
-        sfx_config = {"SURFEX": cfg}
-        self.sfx_config = Configuration(sfx_config)
-        update = {"SURFEX": {"ASSIM": {"OBS": {"NNCO": self.nnco}}}}
-        self.config = self.config.copy(update=update)
-        logger.debug("NNCO: {}", self.nnco)
+        # Binary input data
+        self.input_definition = ConfigPaths.path_from_subpath(
+            self.platform.get_system_value("sfx_input_definition")
+        )
+        # Create PySurfex system paths
+        system_paths = self.config["system"].dict()
+        platform_paths = self.config["platform"].dict()
+        exp_file_paths = {}
+        for key, val in system_paths.items():
+            lkey = self.platform.substitute(key)
+            lval = self.platform.substitute(val)
+            exp_file_paths.update({lkey: lval})
+        for key, val in platform_paths.items():
+            lkey = self.platform.substitute(key)
+            lval = self.platform.substitute(val)
+            exp_file_paths.update({lkey: lval})
+        self.exp_file_paths = SystemFilePaths(exp_file_paths)
 
     def substitute(self, pattern, basetime=None, validtime=None):
         fpattern = self.platform.substitute(
@@ -130,7 +155,15 @@ class PySurfexBaseTask(Task):
         except KeyError:
             bindir = self.platform.get_system_value("bindir")
 
-        return f"{bindir}/{binary}"
+        bin_path = f"{bindir}/{binary}"
+        if os.path.exists(f"{bin_path}-offline"):
+            bin_path = f"{bin_path}-offline"
+
+        try:
+            os.path.exists(bin_path)
+        except FileNotFoundError:
+            raise RuntimeError from FileNotFoundError
+        return bin_path
 
 
 class PrepareCycle(PySurfexBaseTask):
@@ -544,13 +577,11 @@ class FirstGuess(PySurfexBaseTask):
         except KeyError:
             self.var_name = None
 
+        lfagmap = self.soda_settings.get_setting("NAM_IO_OFFLINE#LFAGMAP", default=False)
         # TODO
         masterodb = False
-        try:
-            lfagmap = self.sfx_config.get_setting("SURFEX#IO#LFAGMAP")
-        except AttributeError:
-            lfagmap = False
-        self.csurf_filetype = self.sfx_config.get_setting("SURFEX#IO#CSURF_FILETYPE")
+
+        self.csurf_filetype = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE")
         self.suffix = SurfFileTypeExtension(
             self.csurf_filetype, lfagmap=lfagmap, masterodb=masterodb
         ).suffix
@@ -560,7 +591,8 @@ class FirstGuess(PySurfexBaseTask):
 
     def execute(self):
         """Execute."""
-        firstguess = self.sfx_config.get_setting("SURFEX#IO#CSURFFILE") + self.suffix
+        csurffile =  self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
+        firstguess = f"{csurffile}{self.suffix}"
         logger.debug("DTG: {} BASEDTG: {}", self.dtg, self.fg_dtg)
         fg_dir = self.config["system.archive_dir"]
         fg_dir = self.platform.substitute(
@@ -670,7 +702,8 @@ class CycleFirstGuess(FirstGuess):
 
     def execute(self):
         """Execute."""
-        firstguess = self.sfx_config.get_setting("SURFEX#IO#CSURFFILE") + self.suffix
+        csurffile =  self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
+        firstguess = f"{csurffile}{self.suffix}"
         fg_dir = self.config["system.archive_dir"]
         fg_dir = self.platform.substitute(
             fg_dir, basetime=self.fg_dtg, validtime=self.dtg
@@ -982,9 +1015,9 @@ class FirstGuess4OI(PySurfexBaseTask):
             try:
                 config_file = self.config["pysurfex.first_guess_yml_file"]
             except KeyError:
-                config_file = None
-            if config_file is None or config_file == "":
-                config_file = f"{os.path.dirname(pysurfex.__path__[0])}/pysurfex/cfg/first_guess.yml"
+                raise RuntimeError from KeyError
+            #if config_file is None or config_file == "":
+            #    config_file = f"{os.path.dirname(pysurfex.__path__[0])}/pysurfex/cfg/first_guess.yml"
             with open(config_file, mode="r", encoding="utf-8") as file_handler:
                 config = yaml.safe_load(file_handler)
             logger.info("config_file={}", config_file)

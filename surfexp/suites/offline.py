@@ -10,8 +10,10 @@ from deode.suites.base import (
     EcflowSuiteTriggers,
     SuiteDefinition,
 )
+# TODO should be moved to deode.suites or a module
+from ecflow import Limit
 
-from surfexp.experiment import get_nnco, get_total_unique_cycle_list, setting_is
+from surfexp.experiment import get_total_unique_cycle_list, SettingsFromNamelistAndConfig
 
 
 class SurfexSuiteDefinition(SuiteDefinition):
@@ -37,7 +39,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
         """
         SuiteDefinition.__init__(self, config, dry_run=dry_run)
 
-        realization = None
         template = Path(__file__).parent.resolve() / "../templates/ecflow/default.py"
         template = template.as_posix()
 
@@ -56,7 +57,13 @@ class SurfexSuiteDefinition(SuiteDefinition):
         starttime = as_datetime(config["general.times.start"])
         endtime = as_datetime(config["general.times.end"])
         cycle_length = as_timedelta(config["general.times.cycle_length"])
+        max_tasks = config.get('general.max_tasks')
+        if max_tasks is None:
+            max_tasks = 20
         logger.debug("DTGSTART: {} DTGBEG: {} DTGEND: {}", basetime, starttime, endtime)
+
+        limit = Limit("max_tasks", max_tasks)
+        self.suite.ecf_node.add_limit(limit)
 
         l_basetime = basetime
         logger.debug("Building list of DTGs")
@@ -114,46 +121,15 @@ class SurfexSuiteDefinition(SuiteDefinition):
         comp_complete = None
         if config["compile.build"]:
             comp = EcflowSuiteFamily("Compilation", self.suite, self.ecf_files)
-            if config["compile.cmake"]:
-                EcflowSuiteTask(
-                    "CMakeBuild",
-                    comp,
-                    config,
-                    self.task_settings,
-                    self.ecf_files,
-                    input_template=template,
-                )
-                comp_complete = EcflowSuiteTrigger(comp, mode="complete")
-            else:
-                sync = EcflowSuiteTask(
-                    "SyncSourceCode",
-                    comp,
-                    config,
-                    self.task_settings,
-                    self.ecf_files,
-                    input_template=template,
-                )
-                sync_complete = EcflowSuiteTrigger(sync, mode="complete")
-                configure = EcflowSuiteTask(
-                    "ConfigureOfflineBinaries",
-                    comp,
-                    config,
-                    self.task_settings,
-                    self.ecf_files,
-                    input_template=template,
-                    trigger=EcflowSuiteTriggers([sync_complete]),
-                )
-                configure_complete = EcflowSuiteTrigger(configure, mode="complete")
-                EcflowSuiteTask(
-                    "MakeOfflineBinaries",
-                    comp,
-                    config,
-                    self.task_settings,
-                    self.ecf_files,
-                    input_template=template,
-                    trigger=EcflowSuiteTriggers([configure_complete]),
-                )
-                comp_complete = EcflowSuiteTrigger(comp, mode="complete")
+            EcflowSuiteTask(
+                "CMakeBuild",
+                comp,
+                config,
+                self.task_settings,
+                self.ecf_files,
+                input_template=template,
+            )
+            comp_complete = EcflowSuiteTrigger(comp, mode="complete")
 
         static_complete = None
         triggers = EcflowSuiteTriggers([comp_complete])
@@ -212,7 +188,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                         self.task_settings,
                         self.ecf_files,
                         input_template=template,
-                        variables={"ARGS": f"basetime={dec_date}"},
+                        variables={"BASETIME": f"{as_datetime(dec_date).isoformat()}"},
                         ecf_files_remotely=self.ecf_files_remotely,
                     )
             else:
@@ -223,7 +199,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     self.task_settings,
                     self.ecf_files,
                     input_template=template,
-                    variables={"ARGS": f"basetime={basetime}"},
+                    variables={"BASETIME": f"{as_datetime(basetime).isoformat()}"},
                     trigger=pgd_trigger,
                     ecf_files_remotely=self.ecf_files_remotely,
                 )
@@ -349,15 +325,26 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 prep_complete = EcflowSuiteTrigger(prep)
                 # Might need an extra trigger for input
 
+                # For now set do_prep False after for next cycles and do cycling
+                self.do_prep = False
+
             else:
-                schemes = config["SURFEX.ASSIM.SCHEMES"].dict()
+                settings = SettingsFromNamelistAndConfig("soda", config)
+
+                schemes = {}
+                schemes.update({"CASSIM_ISBA": settings.get_setting("NAM_ASSIM#CASSIM_ISBA")})
+                schemes.update({"CASSIM_SEA": settings.get_setting("NAM_ASSIM#CASSIM_SEA")})
+                schemes.update({"CASSIM_TEB": settings.get_setting("NAM_ASSIM#CASSIM_TEB")})
+                schemes.update({"CASSIM_WATER": settings.get_setting("NAM_ASSIM#CASSIM_WATER")})
+
+                print(schemes)
                 do_soda = False
                 for scheme in schemes:
                     if schemes[scheme].upper() != "NONE":
                         do_soda = True
 
-                obs_types = config["SURFEX.ASSIM.OBS.COBS_M"]
-                nnco = get_nnco(config, basetime=as_datetime(cycle["basetime"]))
+                obs_types = settings.get_setting("NAM_OBS#COBS_M")
+                nnco = settings.get_nnco(config, basetime=as_datetime(cycle["basetime"]))
                 for ivar, val in enumerate(nnco):
                     if val == 1 and obs_types[ivar] == "SWE":
                         do_soda = True
@@ -387,25 +374,15 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     perturbations = None
                     logger.debug(
                         "Perturbations: {}",
-                        setting_is(
-                            config,
-                            "SURFEX.ASSIM.SCHEMES.ISBA",
-                            "EKF",
-                            realization=realization,
-                        ),
+                            schemes["CASSIM_ISBA"] == "EKF"
                     )
-                    if setting_is(
-                        config,
-                        "SURFEX.ASSIM.SCHEMES.ISBA",
-                        "EKF",
-                        realization=realization,
-                    ):
+                    if schemes["CASSIM_ISBA"] == "EKF":
                         perturbations = EcflowSuiteFamily(
                             "Perturbations", initialization, self.ecf_files
                         )
-                        nncv = config["SURFEX.ASSIM.ISBA.EKF.NNCV"]
-                        names = config["SURFEX.ASSIM.ISBA.EKF.CVAR_M"]
-                        llincheck = config["SURFEX.ASSIM.ISBA.EKF.LLINCHECK"]
+                        nncv = settings.get_setting("NAM_VAR#NNCV")
+                        names = settings.get_setting("NAM_VAR#CVAR_M")
+                        llincheck = settings.get_setting("NAM_ASSIM#LLINCHECK")
                         triggers = None
 
                         name = "REF"
@@ -485,7 +462,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
                     prepare_oi_soil_input = None
                     prepare_oi_climate = None
-                    if setting_is(config, "SURFEX.ASSIM.SCHEMES.ISBA", "OI"):
+                    if schemes["CASSIM_ISBA"] == "OI":
                         prepare_oi_soil_input = EcflowSuiteTask(
                             "PrepareOiSoilInput",
                             initialization,
@@ -504,11 +481,8 @@ class SurfexSuiteDefinition(SuiteDefinition):
                         )
 
                     prepare_sst = None
-                    if setting_is(
-                        config, "SURFEX.ASSIM.SCHEMES.SEA", "INPUT"
-                    ) and setting_is(
-                        config, "SURFEX.ASSIM.SEA.CFILE_FORMAT_SST", "ASCII"
-                    ):
+                    if schemes["CASSIM_ISBA"] == "INPUT" and \
+                        settings.setting_is("NAM_ASSIM#CFILE_FORMAT_SST", "ASCII"):
                         prepare_sst = EcflowSuiteTask(
                             "PrepareSST",
                             initialization,
@@ -519,8 +493,8 @@ class SurfexSuiteDefinition(SuiteDefinition):
                         )
 
                     an_variables = {"t2m": False, "rh2m": False, "sd": False}
-                    obs_types = config["SURFEX.ASSIM.OBS.COBS_M"]
-                    nnco = get_nnco(config, basetime=as_datetime(cycle["basetime"]))
+                    obs_types = settings.get_setting("NAM_OBS#COBS_M")
+                    nnco = settings.get_nnco(config, basetime=as_datetime(cycle["basetime"]))
                     need_obs = False
                     for t_ind, val in enumerate(obs_types):
                         if nnco[t_ind] == 1:
@@ -631,12 +605,9 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
                     prepare_lsm = None
                     need_lsm = False
-                    if setting_is(config, "SURFEX.ASSIM.SCHEMES.ISBA", "OI"):
+                    if schemes["CASSIM_ISBA"] == "OI":
                         need_lsm = True
-                    if (
-                        setting_is(config, "SURFEX.ASSIM.SCHEMES.INLAND_WATER", "WATFLX")
-                        and config["SURFEX.ASSIM.INLAND_WATER.LEXTRAP_WATER"]
-                    ):
+                    if settings.setting_is("NAM_ASSIM#LEXTRAP_WATER", True):
                         need_lsm = True
                     if need_lsm:
                         triggers = EcflowSuiteTriggers(fg4oi_complete)
@@ -707,6 +678,27 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 "PostProcessing", time_family, self.ecf_files, trigger=triggers
             )
 
+            verification_fam = EcflowSuiteFamily("Verification", pp_fam, self.ecf_files)
+            ver_vars = ["T2M"]
+            for var_name in ver_vars:
+                if var_name == "T2M":
+                    harp_param = "T2m"
+                    harp_param_unit = "K"
+                else:
+                    raise RuntimeError("Variable not defined")
+                args = f"var_name={var_name};harp_param={harp_param};harp_param_unit={harp_param_unit}"
+                variables = {"ARGS": args}
+                harp_fam = EcflowSuiteFamily(var_name, verification_fam, self.ecf_files, variables=variables)
+                EcflowSuiteTask(
+                    "HarpSQLite",
+                    harp_fam,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                )
+
+
             log_pp_trigger = None
             if analysis is not None:
                 qc2obsmon = EcflowSuiteTask(
@@ -719,6 +711,27 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 )
                 trigger = EcflowSuiteTrigger(qc2obsmon)
                 log_pp_trigger = EcflowSuiteTriggers(trigger)
+
+            qc2obsmon_fam = EcflowSuiteFamily(
+                "qc2obsmon", pp_fam, self.ecf_files, trigger=triggers,
+            )
+
+            fcint = int(as_timedelta(config["general.times.cycle_length"]).total_seconds()/3600)
+            offsets = range(0, fcint + 1)
+            for offset in offsets:
+                offset_fam = EcflowSuiteFamily(
+                    f"offset{offset}", qc2obsmon_fam, self.ecf_files, trigger=triggers,
+                    variables={"ARGS": f"offset={offset};"},
+                )
+                EcflowSuiteTask(
+                    "Qc2obsmon",
+                    offset_fam,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(fg_offset)])
+                )
 
             EcflowSuiteTask(
                 "LogProgressPP",

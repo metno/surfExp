@@ -13,7 +13,7 @@ from deode.suites.base import (
 # TODO should be moved to deode.suites or a module
 from ecflow import Limit
 
-from surfexp.experiment import get_nnco, get_total_unique_cycle_list, setting_is
+from surfexp.experiment import get_total_unique_cycle_list, SettingsFromNamelistAndConfig
 
 
 class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
@@ -39,7 +39,6 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
         """
         SuiteDefinition.__init__(self, config, dry_run=dry_run)
 
-        realization = None
         template = Path(__file__).parent.resolve() / "../templates/ecflow/default.py"
         template = template.as_posix()
 
@@ -212,6 +211,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                         self.ecf_files,
                         ecf_files_remotely=self.ecf_files_remotely,
                     )
+
                     EcflowSuiteTask(
                         "OfflinePgd",
                         decade_pgd_family,
@@ -461,14 +461,22 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                 self.do_prep = False
 
             else:
-                schemes = config["SURFEX.ASSIM.SCHEMES"].dict()
+                settings = SettingsFromNamelistAndConfig("soda", config)
+
+                schemes = {}
+                schemes.update({"CASSIM_ISBA": settings.get_setting("NAM_ASSIM#CASSIM_ISBA")})
+                schemes.update({"CASSIM_SEA": settings.get_setting("NAM_ASSIM#CASSIM_SEA")})
+                schemes.update({"CASSIM_TEB": settings.get_setting("NAM_ASSIM#CASSIM_TEB")})
+                schemes.update({"CASSIM_WATER": settings.get_setting("NAM_ASSIM#CASSIM_WATER")})
+
+                print(schemes)
                 do_soda = False
                 for scheme in schemes:
                     if schemes[scheme].upper() != "NONE":
                         do_soda = True
 
-                obs_types = config["SURFEX.ASSIM.OBS.COBS_M"]
-                nnco = get_nnco(config, basetime=as_datetime(cycle["basetime"]))
+                obs_types = settings.get_setting("NAM_OBS#COBS_M")
+                nnco = settings.get_nnco(config, basetime=as_datetime(cycle["basetime"]))
                 for ivar, val in enumerate(nnco):
                     if val == 1 and obs_types[ivar] == "SWE":
                         do_soda = True
@@ -498,25 +506,15 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                     perturbations = None
                     logger.debug(
                         "Perturbations: {}",
-                        setting_is(
-                            config,
-                            "SURFEX.ASSIM.SCHEMES.ISBA",
-                            "EKF",
-                            realization=realization,
-                        ),
+                            schemes["CASSIM_ISBA"] == "EKF"
                     )
-                    if setting_is(
-                        config,
-                        "SURFEX.ASSIM.SCHEMES.ISBA",
-                        "EKF",
-                        realization=realization,
-                    ):
+                    if schemes["CASSIM_ISBA"] == "EKF":
                         perturbations = EcflowSuiteFamily(
                             "Perturbations", initialization, self.ecf_files
                         )
-                        nncv = config["SURFEX.ASSIM.ISBA.EKF.NNCV"]
-                        names = config["SURFEX.ASSIM.ISBA.EKF.CVAR_M"]
-                        llincheck = config["SURFEX.ASSIM.ISBA.EKF.LLINCHECK"]
+                        nncv = settings.get_setting("NAM_VAR#NNCV")
+                        names = settings.get_setting("NAM_VAR#CVAR_M")
+                        llincheck = settings.get_setting("NAM_ASSIM#LLINCHECK")
                         triggers = None
 
                         name = "REF"
@@ -596,7 +594,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
 
                     prepare_oi_soil_input = None
                     prepare_oi_climate = None
-                    if setting_is(config, "SURFEX.ASSIM.SCHEMES.ISBA", "OI"):
+                    if schemes["CASSIM_ISBA"] == "OI":
                         prepare_oi_soil_input = EcflowSuiteTask(
                             "PrepareOiSoilInput",
                             initialization,
@@ -615,11 +613,8 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                         )
 
                     prepare_sst = None
-                    if setting_is(
-                        config, "SURFEX.ASSIM.SCHEMES.SEA", "INPUT"
-                    ) and setting_is(
-                        config, "SURFEX.ASSIM.SEA.CFILE_FORMAT_SST", "ASCII"
-                    ):
+                    if schemes["CASSIM_ISBA"] == "INPUT" and \
+                        settings.setting_is("NAM_ASSIM#CFILE_FORMAT_SST", "ASCII"):
                         prepare_sst = EcflowSuiteTask(
                             "PrepareSST",
                             initialization,
@@ -630,8 +625,8 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                         )
 
                     an_variables = {"t2m": False, "rh2m": False, "sd": False}
-                    obs_types = config["SURFEX.ASSIM.OBS.COBS_M"]
-                    nnco = get_nnco(config, basetime=as_datetime(cycle["basetime"]))
+                    obs_types = settings.get_setting("NAM_OBS#COBS_M")
+                    nnco = settings.get_nnco(config, basetime=as_datetime(cycle["basetime"]))
                     need_obs = False
                     for t_ind, val in enumerate(obs_types):
                         if nnco[t_ind] == 1:
@@ -742,12 +737,9 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
 
                     prepare_lsm = None
                     need_lsm = False
-                    if setting_is(config, "SURFEX.ASSIM.SCHEMES.ISBA", "OI"):
+                    if schemes["CASSIM_ISBA"] == "OI":
                         need_lsm = True
-                    if (
-                        setting_is(config, "SURFEX.ASSIM.SCHEMES.INLAND_WATER", "WATFLX")
-                        and config["SURFEX.ASSIM.INLAND_WATER.LEXTRAP_WATER"]
-                    ):
+                    if settings.setting_is("NAM_ASSIM#LEXTRAP_WATER", True):
                         need_lsm = True
                     if need_lsm:
                         triggers = EcflowSuiteTriggers(fg4oi_complete)

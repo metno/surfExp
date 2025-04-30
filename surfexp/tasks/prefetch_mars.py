@@ -4,8 +4,10 @@ import datetime
 import json
 import math
 import subprocess
-from surfexp.tasks.tasks import PySurfexBaseTask
+
 from deode.logs import logger
+
+from surfexp.tasks.tasks import PySurfexBaseTask
 
 
 class PrefetchMars(PySurfexBaseTask):

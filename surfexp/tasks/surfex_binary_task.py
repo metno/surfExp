@@ -1,409 +1,99 @@
 """Tasks running surfex binaries."""
 import json
 import os
+import f90nml
 
-import yaml
-from deode.datetime_utils import as_datetime, get_decade
-from deode.logs import logger
-from pysurfex.binary_input import InputDataFromNamelist, JsonOutputData
-from pysurfex.configuration import Configuration
-from pysurfex.file import PGDFile, PREPFile, SURFFile, SurfFileTypeExtension
-from pysurfex.namelist import NamelistGenerator
-from pysurfex.platform_deps import SystemFilePaths
-from pysurfex.run import BatchJob, PerturbedOffline, SURFEXBinary
+from pysurfex.cli import run_surfex_binary
 
-from surfexp.experiment import setting_is
+from deode.datetime_utils import as_datetime, as_timedelta, cycle_offset, get_decade
+from deode.namelist import NamelistGenerator
+from deode.os_utils import deodemakedirs
+from deode.tasks.marsprep import Marsprep
+
 from surfexp.tasks.tasks import PySurfexBaseTask
 
 
-class SurfexBinaryTask(PySurfexBaseTask):
-    """Main surfex binary task executing all tasks.
-
-    Args:
-    ------------------------------------------------------
-        Task (object): Inheritance of base task class
-
-    """
-
-    def __init__(self, config, name=None, mode=None):
-        """Construct a surfex binary task.
-
-        Args:
-        ------------------------------------------------
-            config (ParsedConfig): Parsed config
-            name (str): Task name
-            mode (str): mode
-
-        """
-        if name is None:
-            name = self.__class__.__name__
-        PySurfexBaseTask.__init__(self, config, name)
-
-        self.mode = mode
-        self.need_pgd = True
-        self.need_prep = True
-        self.pgd = False
-        self.do_prep = False
-        self.perturbed = False
-        self.soda = False
-        self.namelist = None
-        # SURFEX config added to general config
-        cfg = self.config["SURFEX"].dict()
-        sfx_config = {"SURFEX": cfg}
-        self.sfx_config = Configuration(sfx_config)
-
-        # TODO get all needed paths
-        system_paths = self.config["system"].dict()
-        platform_paths = self.config["platform"].dict()
-        exp_file_paths = {}
-        for key, val in system_paths.items():
-            lkey = self.platform.substitute(key)
-            lval = self.platform.substitute(val)
-            exp_file_paths.update({lkey: lval})
-        for key, val in platform_paths.items():
-            lkey = self.platform.substitute(key)
-            lval = self.platform.substitute(val)
-            exp_file_paths.update({lkey: lval})
-        obs_dir = self.platform.get_system_value("obs_dir")
-        # To sub EEE/RRR
-        obs_dir = self.platform.substitute(obs_dir)
-
-        logger.debug("exp_file_paths: {}", exp_file_paths)
-        self.exp_file_paths = SystemFilePaths(exp_file_paths)
-
-        kwargs = self.config["task.args"].dict()
-        logger.debug("kwargs: {}", kwargs)
-        print_namelist = kwargs.get("print_namelist")
-        if print_namelist is None:
-            print_namelist = True
-
-        self.print_namelist = print_namelist
-        check_existence = kwargs.get("check_existence")
-        if check_existence is None:
-            check_existence = True
-        self.check_existence = check_existence
-        logger.debug("check_existence {}", check_existence)
-
-        force = kwargs.get("force")
-        if force is None:
-            force = False
-        self.force = force
-
-        pert = kwargs.get("pert")
-        if pert is not None:
-            pert = int(pert)
-        self.pert = pert
-        logger.debug("Pert {}", self.pert)
-        negpert = False
-        pert_sign = kwargs.get("pert_sign")
-        if pert_sign is not None and pert_sign == "neg":
-            negpert = True
-        self.negpert = negpert
-        self.ivar = kwargs.get("ivar")
-
-        xyz = "-offline"
-        libdir = self.platform.get_system_value("casedir")
-        xyz_file = libdir + "/xyz"
-        if os.path.exists(xyz_file):
-            with open(xyz_file, mode="r", encoding="utf-8") as zyz_fh:
-                xyz = zyz_fh.read().rstrip()
-        else:
-            logger.info("{} not found. Assume XYZ={}", xyz_file, xyz)
-        self.xyz = xyz
-
-        masterodb = False
-        try:
-            lfagmap = self.sfx_config.get_setting("SURFEX#IO#LFAGMAP")
-        except AttributeError:
-            lfagmap = False
-        self.csurf_filetype = self.sfx_config.get_setting("SURFEX#IO#CSURF_FILETYPE")
-        self.suffix = SurfFileTypeExtension(
-            self.csurf_filetype, lfagmap=lfagmap, masterodb=masterodb
-        ).suffix
-        self.fc_start_sfx = self.wrk + "/fc_start_sfx"
-        self.namelist_defs = self.platform.get_system_value("namelist_defs")
-        self.binary_input_files = self.platform.get_system_value("binary_input_files")
-        self.archive = self.platform.get_system_value("archive_dir")
-
-    def execute(self):
-        """Execute task."""
-        logger.debug("Using empty class execute")
-
-    def execute_binary(
-        self,
-        binary,
-        output,
-        pgd_file_path=None,
-        prep_file_path=None,
-        archive_data=None,
-        prep_file=None,
-        prep_pgdfile=None,
-    ):
-        """Execute the surfex binary.
-
-        Args:
-        ----------------------------------------------------------------------------------------
-            binary (str): Full path to binary
-            output (str): Full path to output file
-            pgd_file_path (str, optional): _description_. Defaults to None.
-            prep_file_path (str, optional): _description_. Defaults to None.
-            archive_data (surfex.OutputDataFromSurfexBinaries, optional):
-                A mapping of produced files and where to archive them. Defaults to None.
-            prep_file (_type_, optional): _description_. Defaults to None.
-            prep_pgdfile (_type_, optional): _description_. Defaults to None.
-
-        """
-        rte = os.environ
-
-        if self.mode == "pgd":
-            self.pgd = True
-            self.need_pgd = False
-            self.need_prep = False
-        elif self.mode == "prep":
-            self.do_prep = True
-            self.need_prep = False
-        elif self.mode == "offline":
-            pass
-        elif self.mode == "soda":
-            self.soda = True
-        elif self.mode == "perturbed":
-            self.perturbed = True
-
-        self.sfx_config.update_setting("SURFEX#PREP#FILE", prep_file)
-        self.sfx_config.update_setting("SURFEX#PREP#FILEPGD", prep_pgdfile)
-        if self.dtg is not None:
-            self.sfx_config.update_setting("SURFEX#SODA#HH", f"{self.dtg.hour:02d}")
-            self.sfx_config.update_setting("SURFEX#PREP#NDAY", self.dtg.day)
-            self.sfx_config.update_setting("SURFEX#PREP#NMONTH", self.dtg.month)
-            self.sfx_config.update_setting("SURFEX#PREP#NYEAR", self.dtg.year)
-            xtime = (
-                self.dtg - self.dtg.replace(hour=0, second=0, microsecond=0)
-            ).total_seconds()
-            self.sfx_config.update_setting("SURFEX#PREP#XTIME", xtime)
-        if self.perturbed:
-            nvar = 0
-            for __, val in enumerate(
-                self.sfx_config.get_setting("SURFEX#ASSIM#ISBA#EKF#NNCV")
-            ):
-                if val == 1:
-                    nvar += 1
-            self.sfx_config.update_setting("SURFEX#SODA#NVAR", nvar)
-
-        # TODO file handling should be in pysurfex
-        with open(self.namelist_defs, mode="r", encoding="utf-8") as fhandler:
-            definitions = yaml.safe_load(fhandler)
-        namelist = NamelistGenerator(self.mode, self.sfx_config, definitions)
-        assemble = namelist.namelist_blocks()
-        consistency = True
-
-        # add extra namelist blocks
-        if self.mode == "pgd":
-            extra = self.config["pgd.extra_namelist_blocks"]
-            assemble += extra
-        elif self.mode == "prep":
-            extra = self.config["prep.extra_namelist_blocks"]
-            assemble += extra
-        elif self.mode == "soda":
-            extra = self.config["soda.extra_namelist_blocks"]
-            assemble += extra
-        elif self.mode in ["offline", "perturbed"]:
-            extra = self.config["offline.extra_namelist_blocks"]
-            assemble += extra
-
-        namelist = NamelistGenerator(
-            self.mode,
-            self.sfx_config,
-            definitions,
-            assemble=assemble,
-            consistency=consistency,
-        )
-
-        settings = namelist.get_namelist()
-
-        if self.mode == "pgd":
-            settings = self.geo.update_namelist(settings)
-
-        with open(self.binary_input_files, mode="r", encoding="utf-8") as fhandler:
-            input_data = json.load(fhandler)
-
-        if self.mode == "pgd" and self.config["pgd.one_decade"]:
-
-            def replace(data, match, repl):
-                if isinstance(data, dict):
-                    for k, v in data.items():
-                        if isinstance(data[k], str):
-                            data[k] = data[k].replace(match, repl)
-                        replace(v, match, repl)
-                return data
-
-            input_data = replace(
-                input_data, "@DECADE@", get_decade(as_datetime(self.dtg))
-            )
-
-        input_data = InputDataFromNamelist(
-            settings,
-            input_data,
-            self.mode,
-            self.exp_file_paths,
-            basetime=self.dtg,
-            validtime=self.dtg,
-        )
-
-        batch = BatchJob(rte, wrapper=self.wrapper)
-
-        # Create input
-        filetype = settings["nam_io_offline"]["csurf_filetype"]
-        pgdfile = settings["nam_io_offline"]["cpgdfile"]
-        prepfile = settings["nam_io_offline"]["cprepfile"]
-        surffile = settings["nam_io_offline"]["csurffile"]
-        lfagmap = False
-        if "lfagmap" in settings["nam_io_offline"]:
-            lfagmap = settings["nam_io_offline"]["lfagmap"]
-
-        logger.info("pgd_file_path={}", pgd_file_path)
-        logger.info("prep_file_path={}", prep_file_path)
-        if self.need_pgd:
-            pgdfile = PGDFile(
-                filetype, pgdfile, input_file=pgd_file_path, lfagmap=lfagmap
-            )
-
-        if self.need_prep:
-            prepfile = PREPFile(
-                filetype, prepfile, input_file=prep_file_path, lfagmap=lfagmap
-            )
-
-        if self.need_prep and self.need_pgd:
-            surffile = SURFFile(filetype, surffile, archive_file=output, lfagmap=lfagmap)
-        else:
-            surffile = None
-
-        if self.perturbed:
-            if self.pert > 0:
-                PerturbedOffline(
-                    binary,
-                    batch,
-                    prepfile,
-                    self.ivar,
-                    settings,
-                    input_data,
-                    negpert=self.negpert,
-                    pgdfile=pgdfile,
-                    surfout=surffile,
-                    archive_data=archive_data,
-                    print_namelist=self.print_namelist,
-                )
-            else:
-                SURFEXBinary(
-                    binary,
-                    batch,
-                    prepfile,
-                    settings,
-                    input_data,
-                    pgdfile=pgdfile,
-                    surfout=surffile,
-                    archive_data=archive_data,
-                    print_namelist=self.print_namelist,
-                )
-        elif self.pgd:
-            pgdfile = PGDFile(
-                filetype,
-                pgdfile,
-                input_file=pgd_file_path,
-                archive_file=output,
-                lfagmap=lfagmap,
-            )
-            SURFEXBinary(
-                binary,
-                batch,
-                pgdfile,
-                settings,
-                input_data,
-                archive_data=archive_data,
-                print_namelist=self.print_namelist,
-            )
-        elif self.do_prep:
-            prepfile = PREPFile(filetype, prepfile, archive_file=output, lfagmap=lfagmap)
-            SURFEXBinary(
-                binary,
-                batch,
-                prepfile,
-                settings,
-                input_data,
-                pgdfile=pgdfile,
-                archive_data=archive_data,
-                print_namelist=self.print_namelist,
-            )
-        else:
-            SURFEXBinary(
-                binary,
-                batch,
-                prepfile,
-                settings,
-                input_data,
-                pgdfile=pgdfile,
-                surfout=surffile,
-                archive_data=archive_data,
-                print_namelist=self.print_namelist,
-            )
-
-
-class OfflinePgd(SurfexBinaryTask):
-    """Running PGD task.
-
-    Args:
-    ------------------------------------------------------------------------
-        SurfexBinaryTask(Task): Inheritance of surfex binary task class
-
-    """
+class OfflinePgd(PySurfexBaseTask):
+    """Task."""
 
     def __init__(self, config):
-        """Construct a Pgd task object.
+        """Construct object.
 
         Args:
-        -----------------------------------------------------
-            config (ParsedObject): Parsed configuration
+            config (deode.ParsedConfig): Configuration
 
         """
-        SurfexBinaryTask.__init__(self, config, "Pgd", "pgd")
+        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        self.nlgen = NamelistGenerator(self.config, "surfex")
+        self.one_decade = self.config["pgd.one_decade"]
+        self.task_basetime = config["task.args.basetime"]
+        self.pgd_prel = self.platform.substitute(
+            self.config["file_templates.pgd_prel.archive"], basetime=self.basetime
+        )
+        self.mode = "pgd"
+        # TODO get from args
+        self.force = True
 
     def execute(self):
         """Execute."""
-        decade = ""
-        if self.config["pgd.one_decade"]:
-            decade = f"_{get_decade(as_datetime(self.dtg))}"
-        pgdfile = (
-            f"{self.sfx_config.get_setting('SURFEX#IO#CPGDFILE')}{decade}{self.suffix}"
-        )
-        output = f"{self.platform.get_system_value('climdir')}/{pgdfile}"
-        binary = self.get_binary("PGD" + self.xyz)
+        output = f"{self.climdir}/{self.pgd_prel}"
+        binary = self.get_binary("PGD")
 
-        if not os.path.exists(output) or self.force:
-            SurfexBinaryTask.execute_binary(self, binary=binary, output=output)
-        else:
-            logger.warning("Output already exists: {}", output)
+        # Create namelist the deode way
+        nml_file = "OPTIONS_input.nam"
+        self.nlgen.load(self.mode)
+        settings = self.nlgen.assemble_namelist(self.mode)
+        self.nlgen.write_namelist(settings, nml_file)
+
+        # PGD arguments
+        kwargs = {
+            "system_file_paths": self.exp_file_paths,
+            "basetime": self.task_basetime,
+            "force": self.force,
+            "namelist_path": nml_file,
+            "input_binary_data": self.input_definition,
+            "tolerate_missing": False,
+            "binary": binary,
+            "output": output,
+        }
+
+        # Run PGD
+        run_surfex_binary(self.mode, **kwargs)
+        self.archive_logs(["OPTIONS.nam", "LISTING_PGD.txt"], target=self.climdir)
 
 
-class OfflinePrep(SurfexBinaryTask):
-    """Running PREP task.
-
-    Args:
-    --------------------------------------------------------------------------
-        SurfexBinaryTask(Task): Inheritance of surfex binary task class
-
-    """
+class OfflinePrep(PySurfexBaseTask):
+    """Prep."""
 
     def __init__(self, config):
-        """Construct Prep task.
+        """Construct object.
 
         Args:
-        --------------------------------------------------------
-            config (ParsedObject): Parsed configuration
+            config (deode.ParsedConfig): Configuration
 
         """
-        SurfexBinaryTask.__init__(self, config, "Prep", "prep")
+        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        self.nlgen = NamelistGenerator(self.config, "surfex")
+        self.mode = "prep"
+        # TODO get from args
+        self.force = True
 
     def execute(self):
         """Execute."""
+        cnmexp = self.config["general.cnmexp"]
+        output = f"{self.archive}/ICMSH{cnmexp}INIT.sfx"
+
+        binary = self.get_binary("PREP")
+        deodemakedirs(self.archive)
+
+        bd_has_surfex = self.config["boundaries.bd_has_surfex"]
+
+        # Create namelist the deode way
+        self.nlgen.load(self.mode)
+        settings = self.nlgen.assemble_namelist(self.mode)
+        nml_file = "OPTIONS_input.nam"
+        self.nlgen.write_namelist(settings, nml_file)
+
         decade = ""
         if self.config["pgd.one_decade"]:
             decade = f"_{get_decade(as_datetime(self.dtg))}"
@@ -430,30 +120,32 @@ class OfflinePrep(SurfexBinaryTask):
             prep_pgdfile = None
         if prep_pgdfile == "":
             prep_pgdfile = None
-        prepfile = self.sfx_config.get_setting("SURFEX#IO#CPREPFILE") + self.suffix
+        cprepfile = self.soda_settings.get_setting("NAM_IO_OFFLINE#CPREPFILE")
+        cprepfile = f"{cprepfile}{self.suffix}"
+
         archive = self.platform.get_system_value("archive_dir")
-        output = f"{self.platform.substitute(archive, basetime=self.dtg)}/{prepfile}"
-        binary = self.get_binary("PREP" + self.xyz)
+        output = f"{self.platform.substitute(archive, basetime=self.dtg)}/{cprepfile}"
 
-        if not os.path.exists(output) or self.force:
-            SurfexBinaryTask.execute_binary(
-                self,
-                binary,
-                output,
-                pgd_file_path=pgd_file_path,
-                prep_file=prep_file,
-                prep_pgdfile=prep_pgdfile,
-            )
-        else:
-            logger.info("Output already exists: {}", output)
+        # PREP arguments output
+        kwargs = {
+            "system_file_paths": self.exp_file_paths,
+            "pgd": pgd_file_path,
+            "prep_file": prep_input_file,
+            "prep_pgdfile": pgd_host_source,
+            "basetime": self.basetime,
+            "force": self.force,
+            "namelist_path": nml_file,
+            "input_binary_data": self.input_definition,
+            "tolerate_missing": False,
+            "output": output,
+            "binary": binary
+        }
 
-        # PREP should prepare for forecast
-        if os.path.exists(self.fc_start_sfx):
-            os.unlink(self.fc_start_sfx)
-        os.symlink(output, self.fc_start_sfx)
+        # Run PREP
+        run_surfex_binary(self.mode, **kwargs)
+        self.archive_logs(["OPTIONS.nam", "LISTING_PREP0.txt"])
 
-
-class OfflineForecast(SurfexBinaryTask):
+class OfflineForecast(PySurfexBaseTask):
     """Running Forecast task.
 
     Args:
@@ -470,32 +162,53 @@ class OfflineForecast(SurfexBinaryTask):
             config (ParsedObject): Parsed configuration
 
         """
-        SurfexBinaryTask.__init__(self, config, "Forecast", "offline")
+        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        self.mode = "offline"
 
     def execute(self):
         """Execute."""
-        decade = ""
-        if self.config["pgd.one_decade"]:
-            decade = f"_{get_decade(as_datetime(self.dtg))}"
-        pgdfile = (
-            f"{self.sfx_config.get_setting('SURFEX#IO#CPGDFILE')}{decade}{self.suffix}"
-        )
-        pgd_file_path = f"{self.platform.get_system_value('climdir')}/{pgdfile}"
+
+        # Create namelist the deode way
+        self.nlgen.load(self.mode)
+        settings = self.nlgen.assemble_namelist(self.mode)
+        nml_file = "OPTIONS_input.nam"
+        self.nlgen.write_namelist(settings, nml_file)
+
+        parser = f90nml.Parser()
+        nml = parser.read(nml_file)
+        pgd_file_path = f"{self.climdir}/{self.pgd_prel}"
+
+        try:
+            csurf_filetype = nml["nam_io_offline"]["csurf_filetype"]
+        except KeyError:
+            csurf_filetype = "NC"
+        suffix = csurf_filetype.lower()
+        try:
+            ctimeseries_filetype = nml["nam_io_offline"]["ctimeseries_filetype"]
+        except KeyError:
+            ctimeseries_filetype = None
+        try:
+            csurffile = nml["nam_io_offline"]["csurffile"]
+        except KeyError:
+            csurffile = None
+
+        #decade = ""
+        #if self.config["pgd.one_decade"]:
+        #    decade = f"_{get_decade(as_datetime(self.dtg))}"
+#
+#
+        #pgdfile = (
+        #    f"{self.sfx_config.get_setting('SURFEX#IO#CPGDFILE')}{decade}{self.suffix}"
+        #)
+        #pgd_file_path = f"{self.platform.get_system_value('climdir')}/{pgdfile}"
         archive = f"{self.platform.get_system_value('archive_dir')}"
         binary = self.get_binary("OFFLINE" + self.xyz)
 
-        output = (
-            archive
-            + "/"
-            + self.sfx_config.get_setting("SURFEX#IO#CSURFFILE")
-            + self.suffix
-        )
-
+        output = f"{archive}/{csurffile}{suffix}"
         archive_data = None
-        if self.sfx_config.get_setting("SURFEX#IO#CTIMESERIES_FILETYPE") == "NC":
-            last_ll = self.dtg + self.fcint
+        if ctimeseries_filetype == "NC":
+            last_ll = self.basetime + self.fcint
 
-            logger.debug("LAST_LL: {}", last_ll)
             fname = (
                 "SURFOUT."
                 + last_ll.strftime("%Y%m%d")
@@ -505,29 +218,34 @@ class OfflineForecast(SurfexBinaryTask):
                 + last_ll.strftime("%M")
                 + ".nc"
             )
-            logger.debug("Filename: {}", fname)
-            archive_data = JsonOutputData({fname: archive + "/" + fname})
-            logger.debug("archive_data={}", archive_data)
+            archive_data = "archive_data.json"
+            json.dump({fname: archive + "/" + fname}, open(archive_data, mode="w", encoding="utf8"))
 
         # Forcing dir
         forcing_dir = self.platform.get_system_value("forcing_dir")
         forcing_dir = self.platform.substitute(forcing_dir, basetime=self.dtg)
-        self.exp_file_paths.add_system_file_path("forcing_dir", forcing_dir)
 
-        if not os.path.exists(output) or self.force:
-            SurfexBinaryTask.execute_binary(
-                self,
-                binary,
-                output,
-                pgd_file_path=pgd_file_path,
-                prep_file_path=self.fc_start_sfx,
-                archive_data=archive_data,
-            )
-        else:
-            logger.info("Output already exists: {}", output)
+        # Offline arguments output
+        kwargs = {
+            "system_file_paths": self.exp_file_paths,
+            "pgd": pgd_file_path,
+            "prep": self.fc_start_sfx,
+            "basetime": self.basetime,
+            "force": self.force,
+            "namelist_path": nml_file,
+            "input_binary_data": self.input_definition,
+            "tolerate_missing": False,
+            "forcing_dir": forcing_dir,
+            "archive": archive_data,
+            "output": output,
+            "binary": binary
+        }
+
+        # Run Offline
+        run_surfex_binary(self.mode, **kwargs)
 
 
-class PerturbedRun(SurfexBinaryTask):
+class PerturbedRun(PySurfexBaseTask):
     """Running a perturbed forecast task.
 
     Args:
@@ -544,10 +262,21 @@ class PerturbedRun(SurfexBinaryTask):
             config (ParsedObject): Parsed configuration
 
         """
-        SurfexBinaryTask.__init__(self, config, "PerturbedRun", "perturbed")
+        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        self.mode = "perturbed"
 
     def execute(self):
         """Execute."""
+
+        # Create namelist the deode way
+        self.nlgen.load(self.mode)
+        settings = self.nlgen.assemble_namelist("offline")
+        nml_file = "OPTIONS_input.nam"
+        self.nlgen.write_namelist(settings, nml_file)
+
+        parser = f90nml.Parser()
+        nml = parser.read(nml_file)
+
         decade = ""
         if self.config["pgd.one_decade"]:
             decade = f"_{get_decade(as_datetime(self.dtg))}"
@@ -577,19 +306,41 @@ class PerturbedRun(SurfexBinaryTask):
         forcing_dir = self.platform.substitute(forcing_dir, basetime=self.fg_dtg)
         self.exp_file_paths.add_system_file_path("forcing_dir", forcing_dir)
 
-        if not os.path.exists(output) or self.force:
-            SurfexBinaryTask.execute_binary(
-                self,
-                binary,
-                output,
-                pgd_file_path=pgd_file_path,
-                prep_file_path=prep_file_path,
-            )
-        else:
-            logger.info("Output already exists: {}", output)
+        #if not os.path.exists(output) or self.force:
+        #    SurfexBinaryTask.execute_binary(
+        #        self,
+        #        binary,
+        #        output,
+        #        pgd_file_path=pgd_file_path,
+        #        prep_file_path=prep_file_path,
+        #    )
+        #else:
+        #    logger.info("Output already exists: {}", output)
 
+        # Forcing dir
+        forcing_dir = self.platform.get_system_value("forcing_dir")
+        forcing_dir = self.platform.substitute(forcing_dir, basetime=self.dtg)
 
-class Soda(SurfexBinaryTask):
+        # Offline arguments output
+        kwargs = {
+            "system_file_paths": self.exp_file_paths,
+            "pgd": pgd_file_path,
+            "prep": self.fc_start_sfx,
+            "basetime": self.basetime,
+            "force": self.force,
+            "namelist_path": nml_file,
+            "input_binary_data": self.input_definition,
+            "tolerate_missing": False,
+            "forcing_dir": forcing_dir,
+            "archive": None,
+            "output": output,
+            "binary": binary
+        }
+
+        # Run Offline
+        run_surfex_binary(self.mode, **kwargs)
+
+class Soda(PySurfexBaseTask):
     """Running SODA (Surfex Offline Data Assimilation) task.
 
     Args:
@@ -606,16 +357,49 @@ class Soda(SurfexBinaryTask):
             config (ParsedObject): Parsed configuration
 
         """
-        SurfexBinaryTask.__init__(self, config, "Soda", "soda")
+        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        self.mode = "soda"
 
     def execute(self):
         """Execute."""
+
+
+        # Create namelist the deode way
+        self.nlgen.load(self.mode)
+        settings = self.nlgen.assemble_namelist(self.mode)
+        nml_file = "OPTIONS_input.nam"
+        self.nlgen.write_namelist(settings, nml_file)
+
+        parser = f90nml.Parser()
+        nml = parser.read(nml_file)
+        pgd_file_path = f"{self.climdir}/{self.pgd_prel}"
+
+        try:
+            csurf_filetype = nml["nam_io_offline"]["csurf_filetype"]
+        except KeyError:
+            csurf_filetype = "NC"
+        suffix = csurf_filetype.lower()
+        try:
+            ctimeseries_filetype = nml["nam_io_offline"]["ctimeseries_filetype"]
+        except KeyError:
+            ctimeseries_filetype = None
+        try:
+            csurffile = nml["nam_io_offline"]["csurffile"]
+        except KeyError:
+            csurffile = None
+
+        try:
+            cassim_isba = nml["nam_assim"]["cassim_isba"]
+        except KeyError:
+            cassim_isba = None
+
+
         binary = self.get_binary("SODA" + self.xyz)
         decade = ""
         if self.config["pgd.one_decade"]:
             decade = f"_{get_decade(as_datetime(self.dtg))}"
         pgdfile = (
-            f"{self.sfx_config.get_setting('SURFEX#IO#CPGDFILE')}{decade}{self.suffix}"
+            f"{self.sfx_config.get_setting('SURFEX#IO#CPGDFILE')}{decade}{suffix}"
         )
         pgd_file_path = self.platform.get_system_value("climdir")
         pgd_file_path = f"{self.platform.substitute(pgd_file_path)}/{pgdfile}"
@@ -623,24 +407,43 @@ class Soda(SurfexBinaryTask):
         archive = self.platform.get_system_value("archive_dir")
         prep_file_path = self.fg_guess_sfx
         output = archive + "/ANALYSIS" + self.suffix
-        if setting_is(self.config, "SURFEX#ASSIM#SCHEMES#ISBA", "EKF"):
+        if cassim_isba == "EKF":
             # TODO If pertubed runs moved to pp it should be a diffenent dtg
             archive_dir = self.config["system.archive_dir"]
-            pert_run_dir = self.platform.substitute(archive_dir, basetime=self.dtg)
+            pert_run_dir = self.platform.substitute(archive_dir, basetime=self.basetime)
             self.exp_file_paths.add_system_file_path("perturbed_run_dir", pert_run_dir)
             first_guess_dir = self.platform.substitute(archive_dir, basetime=self.fg_dtg)
             self.exp_file_paths.add_system_file_path("first_guess_dir", first_guess_dir)
 
-        if not os.path.exists(output) or self.force:
-            SurfexBinaryTask.execute_binary(
-                self,
-                binary,
-                output,
-                pgd_file_path=pgd_file_path,
-                prep_file_path=prep_file_path,
-            )
-        else:
-            logger.info("Output already exists: {}", output)
+        #if not os.path.exists(output) or self.force:
+        #    SurfexBinaryTask.execute_binary(
+        #        self,
+        #        binary,
+        #        output,
+        #        pgd_file_path=pgd_file_path,
+        #        prep_file_path=prep_file_path,
+        #    )
+        #else:
+        #    logger.info("Output already exists: {}", output)
+
+        archive_data = None
+        # Offline arguments output
+        kwargs = {
+            "system_file_paths": self.exp_file_paths,
+            "pgd": pgd_file_path,
+            "prep": prep_file_path,
+            "basetime": self.basetime,
+            "force": self.force,
+            "namelist_path": nml_file,
+            "input_binary_data": self.input_definition,
+            "tolerate_missing": False,
+            "archive": archive_data,
+            "output": output,
+            "binary": binary
+        }
+
+        # Run Offline
+        run_surfex_binary(self.mode, **kwargs)
 
         # SODA should prepare for forecast
         if os.path.exists(self.fc_start_sfx):

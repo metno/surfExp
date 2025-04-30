@@ -1,57 +1,128 @@
 """Experiment tools."""
-import os
-import shutil
 
-import pysurfex
+from pysurfex.namelist import NamelistGenerator, NamelistGeneratorAssemble, NamelistGeneratorAssembleFromFiles
 from deode.datetime_utils import as_datetime, as_timedelta
-from deode.experiment import ExpFromFiles
-from deode.host_actions import DeodeHost
+from deode.namelist import NamelistGenerator as DeodeNamelistGenerator
 from deode.logs import logger
 
 
-def get_nnco(config, basetime=None, realization=None):
-    """Get the active observations.
+class SettingsFromNamelist():
 
-    Args:
-        config (.config_parser.ParsedConfig): Parsed config file contents.
-        basetime (as_datetime, optional): Basetime. Defaults to None.
-        realization (int, optional): Realization number
+    def __init__(self, program, nml, assemble=None):
 
-    Returns:
-        list: List with either 0 or 1
+        self.program = program
+        if assemble is not None:
+            nam_gen = NamelistGeneratorAssemble(self.program, nml, assemble)
+        else:
+            nam_gen = NamelistGenerator(self.program, nml)
+        self.nam_gen = nam_gen
+        self.nml = nam_gen.get_namelist()
 
-    """
-    # Some relevant assimilation settings
-    obs_types = get_setting(config, "SURFEX.ASSIM.OBS.COBS_M", realization=realization)
-    nnco_r = get_setting(config, "SURFEX.ASSIM.OBS.NNCO", realization=realization)
-    snow_ass = get_setting(
-        config, "SURFEX.ASSIM.ISBA.UPDATE_SNOW_CYCLES", realization=realization
-    )
-    snow_ass_done = False
+    def get_setting(self, setting, sep="#", default=None):
+        """Get setting.
 
-    if basetime is None:
-        basetime = as_datetime(config["general.times.basetime"])
-    if len(snow_ass) > 0 and basetime is not None:
-        hhh = int(basetime.strftime("%H"))
-        for s_n in snow_ass:
-            if hhh == int(s_n):
-                snow_ass_done = True
-    nnco = []
-    for ivar, __ in enumerate(obs_types):
-        ival = 0
-        if nnco_r[ivar] == 1:
-            ival = 1
-            if obs_types[ivar] == "SWE" and not snow_ass_done:
-                logger.info(
-                    "Disabling snow assimilation since cycle is not in {}",
-                    snow_ass,
-                )
-                ival = 0
-        logger.debug("ivar={} ival={}", ivar, ival)
-        nnco.append(ival)
+        Args:
+            setting (str): Setting
+            sep (str, optional): _description_. Defaults to "#".
 
-    logger.debug("NNCO: {}", nnco)
-    return nnco
+        Returns:
+            any: Found setting
+
+        """
+        indices = setting.split(sep)
+        try:
+            return self.nml[indices[0]][indices[1]]
+        except KeyError:
+            if default is not None:
+                logger.warning("Namelist setting {} not found. Using default value: {}", setting, default)
+                return default
+            else:
+                raise RuntimeError from KeyError
+
+    def setting_is(self, setting, value, sep="#"):
+        """Check if setting is value.
+
+        Args:
+            config (.config_parser.ParsedConfig): Parsed config file contents.
+            setting (str): Setting
+            value (any): Value
+            realization (int, optional): Realization number
+
+        Returns:
+            bool: True if found, False if not found.
+
+        """
+        if self.get_setting(setting, sep=sep) == value:
+            return True
+        return False
+
+
+    def get_nnco(self, config, basetime=None):
+        """Get the active observations.
+
+        Args:
+            config (.config_parser.ParsedConfig): Parsed config file contents.
+            basetime (as_datetime, optional): Basetime. Defaults to None.
+
+        Returns:
+            list: List with either 0 or 1
+
+        """
+        if self.program != "soda":
+            raise RuntimeError
+
+        # Some relevant assimilation settings
+        obs_types = self.get_setting("NAM_OBS#COBS_M")
+        nnco_r = self.get_setting("NAM_OBS#NNCO")
+
+        snow_ass = config["assim.update_snow_cycles"]
+        snow_ass_done = False
+
+        if basetime is None:
+            basetime = as_datetime(config["general.times.basetime"])
+        if len(snow_ass) > 0 and basetime is not None:
+            hhh = int(basetime.strftime("%H"))
+            for s_n in snow_ass:
+                if hhh == int(s_n):
+                    snow_ass_done = True
+        nnco = []
+        for ivar, __ in enumerate(obs_types):
+            ival = 0
+            if nnco_r[ivar] == 1:
+                ival = 1
+                if obs_types[ivar] == "SWE" and not snow_ass_done:
+                    logger.info(
+                        "Disabling snow assimilation since cycle is not in {}",
+                        snow_ass,
+                    )
+                    ival = 0
+            logger.debug("ivar={} ival={}", ivar, ival)
+            nnco.append(ival)
+
+        logger.debug("NNCO: {}", nnco)
+        return nnco
+
+
+
+class SettingsFromNamelistAndConfig(SettingsFromNamelist):
+
+    def __init__(self, program, config):
+        # SURFEX: Namelists and input data
+        nam_defs = "/home/trygveasp/projects/surfExp/surfexp/data/config/nam/surfex_namelists.yml"
+        assemble = "/home/trygveasp/projects/surfExp/surfexp/data/config/nam/default_asssemble.yml"
+        nlgen_surfex = NamelistGeneratorAssembleFromFiles(program, nam_defs, assemble)
+        settings = nlgen_surfex.get_namelist()
+        SettingsFromNamelist.__init__(self, program, settings, assemble=None)
+
+
+class SettingsFromNamelistAndConfigDeode(SettingsFromNamelist):
+
+    def __init__(self, program, config):
+        # SURFEX: Namelists and input data
+        nlgen_surfex = DeodeNamelistGenerator(config, "surfex")
+        nlgen_surfex.load(program)
+        settings = nlgen_surfex.assemble_namelist(program)
+        SettingsFromNamelist.__init__(self, program, settings, assemble=None)
 
 
 def get_total_unique_cycle_list(config):
@@ -83,20 +154,17 @@ def get_total_unique_cycle_list(config):
     return cycle_list
 
 
-def get_cycle_list(config, realization=None):
+def get_cycle_list(config):
     """Get cycle list as time deltas from midnight.
 
     Args:
         config (.config_parser.ParsedConfig): Parsed config file contents.
-        realization (int, optional): Realization number
 
     Returns:
         list: Cycle list
 
     """
-    cycle_length = as_timedelta(
-        get_setting(config, "general.times.cycle_length", realization=realization)
-    )
+    cycle_length = get_fgint(config)
     cycle_list = []
     day = as_timedelta("PT24H")
 
@@ -107,53 +175,14 @@ def get_cycle_list(config, realization=None):
     return cycle_list
 
 
-def get_setting(config, setting, sep="#", realization=None):
-    """Get setting.
-
-    Args:
-        config (.config_parser.ParsedConfig): Parsed config file contents.
-        setting (str): Setting
-        sep (str, optional): _description_. Defaults to "#".
-        realization (int, optional): Realization number
-
-    Returns:
-        any: Found setting
-
-    """
-    items = setting.replace(sep, ".")
-    logger.info("Could check realization {}", realization)
-    return config[items]
-
-
-def setting_is(config, setting, value, realization=None):
-    """Check if setting is value.
-
-    Args:
-        config (.config_parser.ParsedConfig): Parsed config file contents.
-        setting (str): Setting
-        value (any): Value
-        realization (int, optional): Realization number
-
-    Returns:
-        bool: True if found, False if not found.
-
-    """
-    if get_setting(config, setting, realization=realization) == value:
-        return True
-    return False
-
-
-def get_fgint(config, realization=None):
+def get_fgint(config):
     """Get the fgint.
 
     Args:
         config (.config_parser.ParsedConfig): Parsed config file contents.
-        realization (int, optional): Realization number
 
     Returns:
         as_timedelta: fgint
 
     """
-    return as_timedelta(
-        get_setting(config, "general.times.cycle_length", realization=realization)
-    )
+    return as_timedelta(config["general.times.cycle_length"])
