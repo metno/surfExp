@@ -30,7 +30,7 @@
   soc_input = "soilgrid"
   zs_format = "direct"
   zs_input = "gmted2010"
-  
+
   #extra_namelist_blocks = [
   #  "pgd_ecoclimap_sg_single_decade", "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
   #  "pgd_cover_direct",
@@ -68,9 +68,13 @@
   forcing_dir = "@casedir@/forcing/@YYYY@@MM@@DD@@HH@/"
   obs_dir = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/"
   namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/surfex_namelists.yml"
+  assemble_file = "@PLUGIN_HOME@/surfexp/data/config/nam/default_assemble.yml"
   binary_input_files = "@PLUGIN_HOME@/surfexp/data/config/input/binary_input_data.json"
+  sfx_input_definition = "@PLUGIN_HOME@/surfexp/data/config/input/binary_input_data.json"
   bindir = "@casedir@/offline/exe"
 
+[assim]
+  update_snow_cycles = []
 #####################################################################################################
 # Geometry
 #####################################################################################################

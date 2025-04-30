@@ -72,8 +72,8 @@ class SettingsFromNamelist():
             raise RuntimeError
 
         # Some relevant assimilation settings
-        obs_types = self.get_setting("NAM_OBS#COBS_M")
-        nnco_r = self.get_setting("NAM_OBS#NNCO")
+        obs_types = self.get_setting("NAM_OBS#COBS_M", default=[])
+        nnco_r = self.get_setting("NAM_OBS#NNCO", default=[])
 
         snow_ass = config["assim.update_snow_cycles"]
         snow_ass_done = False
@@ -108,9 +108,10 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
 
     def __init__(self, program, config):
         # SURFEX: Namelists and input data
-        nam_defs = "/home/sbu/projects/surfExp/surfexp/data/config/nam/surfex_namelists.yml"
-        assemble = "/home/sbu/projects/surfExp/surfexp/data/config/nam/default_asssemble.yml"
-        nlgen_surfex = NamelistGeneratorAssembleFromFiles(program, nam_defs, assemble)
+        namelist_defs = config["system.namelist_defs"]
+        assemble_file = config["system.assemble_file"]
+
+        nlgen_surfex = NamelistGeneratorAssembleFromFiles(program, namelist_defs, assemble_file)
         settings = nlgen_surfex.get_namelist()
         SettingsFromNamelist.__init__(self, program, settings, assemble=None)
 

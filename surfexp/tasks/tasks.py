@@ -7,7 +7,6 @@ import shutil
 
 import numpy as np
 import yaml
-from deode.config_parser import ConfigPaths
 from deode.datetime_utils import as_datetime, as_timedelta
 from deode.logs import InterceptHandler, logger, builtin_logging as logging
 from deode.os_utils import deodemakedirs
@@ -90,8 +89,8 @@ class PySurfexBaseTask(Task):
 
         # Namelist settings
         self.soda_settings = SettingsFromNamelistAndConfig("soda", config)
-        self.suffix = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE").lower()
-        self.obs_types = self.soda_settings.get_setting("NAM_OBS#COBS_M")
+        self.suffix = f'.{self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE").lower()}'
+        self.obs_types = self.soda_settings.get_setting("NAM_OBS#COBS_M", default=[])
         self.nnco = self.soda_settings.get_nnco(self.config, basetime=self.dtg)
         logger.debug("NNCO: {}", self.nnco)
 
@@ -105,9 +104,7 @@ class PySurfexBaseTask(Task):
         self.fc_start_sfx = self.wrk + "/fc_start_sfx"
 
         # Binary input data
-        self.input_definition = ConfigPaths.path_from_subpath(
-            self.platform.get_system_value("sfx_input_definition")
-        )
+        self.input_definition = self.platform.get_system_value("sfx_input_definition")
         # Create PySurfex system paths
         system_paths = self.config["system"].dict()
         platform_paths = self.config["platform"].dict()
@@ -158,11 +155,11 @@ class PySurfexBaseTask(Task):
             bindir = self.config[f"submission.task_exceptions.{self.name}.bindir"]
         except KeyError:
             pass
-        
+
         # surfExp binary directory
         bindir_system = self.platform.get_system_value("bindir")
 
-        
+
         bin_paths = [f"{bindir_system}/{binary}-offline", f"{bindir_system}/{binary}"]
         for bin_path in bin_paths:
             if os.path.exists(bin_path):

@@ -14,7 +14,32 @@ from surfexp.tasks.tasks import PySurfexBaseTask
 from surfexp.experiment import SettingsFromNamelistAndConfig
 
 
-class OfflinePgd(PySurfexBaseTask):
+class SurfexBinaryTask(PySurfexBaseTask):
+    """Task."""
+
+    def __init__(self, config, name):
+        """Construct object.
+
+        Args:
+            config (deode.ParsedConfig): Configuration
+
+        """
+        PySurfexBaseTask.__init__(self, config, name)
+        self.one_decade = self.config["pgd.one_decade"]
+
+    def get_pgdfile(self, basetime):
+        if self.one_decade:
+            decade = f"_{get_decade(as_datetime(basetime))}"
+        else:
+            decade = ""
+        pgdfile = f"{self.climdir}/PGD{decade}{self.suffix}"
+        return pgdfile
+
+    def execute(self):
+        raise NotImplementedError
+
+
+class OfflinePgd(SurfexBinaryTask):
     """Task."""
 
     def __init__(self, config):
@@ -24,21 +49,17 @@ class OfflinePgd(PySurfexBaseTask):
             config (deode.ParsedConfig): Configuration
 
         """
-        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        SurfexBinaryTask.__init__(self, config, __class__.__name__)
         self.nlgen = NamelistGenerator(self.config, "surfex")
         self.one_decade = self.config["pgd.one_decade"]
         self.task_basetime = config["task.args.basetime"]
-        self.pgd_prel = self.platform.substitute(
-            self.config["file_templates.pgd_prel.archive"], basetime=self.basetime
-        )
+
         self.mode = "pgd"
         # TODO get from args
         self.force = True
 
     def execute(self):
         """Execute."""
-        output = f"{self.climdir}/{self.pgd_prel}"
-        binary = self.get_binary("PGD")
 
         # Create namelist the deode way
         nml_file = "OPTIONS_input.nam"
@@ -46,13 +67,16 @@ class OfflinePgd(PySurfexBaseTask):
         #settings = self.nlgen.assemble_namelist(self.mode)
         #self.nlgen.write_namelist(settings, nml_file)
         settings = SettingsFromNamelistAndConfig(self.mode, self.config)
-        settings.nam_gen.write(nml_file) 
+        settings.nam_gen.write(nml_file)
+
+        # TODO use task_basetime
+        output = f"{self.get_pgdfile(self.basetime)}"
+        binary = self.get_binary("PGD")
 
         exp_file_paths_file = "exp_file_paths.json"
         #TODO save this file in pysurfex
         json.dump(self.exp_file_paths.system_file_paths, open(exp_file_paths_file, mode="w", encoding="utf8"))
-         
-        # submission": {"task": {"wrapper": kwargs.get("WRAPPER")}}
+
         try:
             wrapper = self.config["submission.task.wrapper"]
         except KeyError:
@@ -81,7 +105,7 @@ class OfflinePgd(PySurfexBaseTask):
         self.archive_logs(["OPTIONS.nam", "LISTING_PGD.txt"], target=self.climdir)
 
 
-class OfflinePrep(PySurfexBaseTask):
+class OfflinePrep(SurfexBinaryTask):
     """Prep."""
 
     def __init__(self, config):
@@ -91,7 +115,7 @@ class OfflinePrep(PySurfexBaseTask):
             config (deode.ParsedConfig): Configuration
 
         """
-        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        SurfexBinaryTask.__init__(self, config, __class__.__name__)
         self.nlgen = NamelistGenerator(self.config, "surfex")
         self.mode = "prep"
         # TODO get from args
@@ -105,32 +129,25 @@ class OfflinePrep(PySurfexBaseTask):
         binary = self.get_binary("PREP")
         deodemakedirs(self.archive)
 
-        bd_has_surfex = self.config["boundaries.bd_has_surfex"]
+        exp_file_paths_file = "exp_file_paths.json"
+        #TODO save this file in pysurfex
+        json.dump(self.exp_file_paths.system_file_paths, open(exp_file_paths_file, mode="w", encoding="utf8"))
+
 
         # Create namelist the deode way
-        self.nlgen.load(self.mode)
-        settings = self.nlgen.assemble_namelist(self.mode)
+        #self.nlgen.load(self.mode)
+        #settings = self.nlgen.assemble_namelist(self.mode)
         nml_file = "OPTIONS_input.nam"
-        self.nlgen.write_namelist(settings, nml_file)
+        #self.nlgen.write_namelist(settings, nml_file)
+        settings = SettingsFromNamelistAndConfig(self.mode, self.config)
+        settings.nam_gen.write(nml_file)
 
         exp_file_paths_file = "exp_file_paths.json"
         #TODO save this file in pysurfex
         json.dump(self.exp_file_paths.system_file_paths, open(exp_file_paths_file, mode="w", encoding="utf8"))
 
-        try:
-            cpgdfile = nml["nam_io_offline"]["cpgdfile"]
-        except KeyError:
-            raise RuntimeError from KeyError
+        pgd_file_path = f"{self.get_pgdfile(self.basetime)}"
 
-        decade = ""
-        if self.config["pgd.one_decade"]:
-            decade = f"_{get_decade(as_datetime(self.dtg))}"
-        pgdfile = (
-            f"{cpgdfile}{decade}{self.suffix}"
-        )
-        print(f"{self.platform.get_system_value('climdir')}")
-        print(f"{pgdfile}")
-        pgd_file_path = f"{self.platform.get_system_value('climdir')}/{pgdfile}"
         try:
             prep_file = self.config["initial_conditions.prep_input_file"]
         except AttributeError:
@@ -155,11 +172,15 @@ class OfflinePrep(PySurfexBaseTask):
         output = f"{self.platform.substitute(archive, basetime=self.dtg)}/{cprepfile}"
 
         # PREP arguments output
+        try:
+            wrapper = self.config["submission.task.wrapper"]
+        except KeyError:
+            wrapper = ""
         kwargs = {
-            "system_file_paths": exp_file_paths,
+            "system_file_paths": exp_file_paths_file,
             "pgd": pgd_file_path,
-            "prep_file": prep_input_file,
-            "prep_pgdfile": pgd_host_source,
+            "prep_file": prep_file,
+            "prep_pgdfile": prep_pgdfile,
             "basetime": self.basetime,
             "force": self.force,
             "namelist_path": nml_file,
@@ -168,7 +189,7 @@ class OfflinePrep(PySurfexBaseTask):
             "output": output,
             "binary": binary,
             "rte": None,
-            "wrapper": "",
+            "wrapper": wrapper,
             "output": output,
             "masterodb": False,
             "archive": None,
@@ -179,7 +200,7 @@ class OfflinePrep(PySurfexBaseTask):
         run_surfex_binary(self.mode, **kwargs)
         self.archive_logs(["OPTIONS.nam", "LISTING_PREP0.txt"])
 
-class OfflineForecast(PySurfexBaseTask):
+class OfflineForecast(SurfexBinaryTask):
     """Running Forecast task.
 
     Args:
@@ -196,7 +217,7 @@ class OfflineForecast(PySurfexBaseTask):
             config (ParsedObject): Parsed configuration
 
         """
-        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        SurfexBinaryTask.__init__(self, config, __class__.__name__)
         self.mode = "offline"
         # TODO get from args
         self.force = True
@@ -206,49 +227,30 @@ class OfflineForecast(PySurfexBaseTask):
         """Execute."""
 
         # Create namelist the deode way
-        self.nlgen.load(self.mode)
-        settings = self.nlgen.assemble_namelist(self.mode)
+        #self.nlgen.load(self.mode)
+        #settings = self.nlgen.assemble_namelist(self.mode)
         nml_file = "OPTIONS_input.nam"
-        self.nlgen.write_namelist(settings, nml_file)
-      
+        #self.nlgen.write_namelist(settings, nml_file)
+        settings = SettingsFromNamelistAndConfig(self.mode, self.config)
+        settings.nam_gen.write(nml_file)
 
-        pgd_file_path = f"{self.climdir}/{self.pgd_prel}"
+        pgd_file_path = f"{self.climdir}/PGD_@DECADE@.nc"
 
         exp_file_paths_file = "exp_file_paths.json"
         #TODO save this file in pysurfex
         json.dump(self.exp_file_paths.system_file_paths, open(exp_file_paths_file, mode="w", encoding="utf8"))
 
-        try:
-            csurf_filetype = nml["nam_io_offline"]["csurf_filetype"]
-        except KeyError:
-            csurf_filetype = "NC"
-        suffix = csurf_filetype.lower()
-        try:
-            ctimeseries_filetype = nml["nam_io_offline"]["ctimeseries_filetype"]
-        except KeyError:
-            ctimeseries_filetype = None
-        try:
-            csurffile = nml["nam_io_offline"]["csurffile"]
-        except KeyError:
-            csurffile = None
 
-        decade = ""
-        if self.config["pgd.one_decade"]:
-            decade = f"_{get_decade(as_datetime(self.dtg))}"
+        cpgdfile = settings.get_setting("NAM_IO_OFFLINE#CPGDFILE")
+        csurffile = settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
+        ctimeseries_filetype = settings.get_setting("NAM_IO_OFFLINE#CTIMESERIES_FILETYPE")
 
-        try:
-            cpgdfile = nml["nam_io_offline"]["cpgdfile"]
-        except KeyError:
-            raise RuntimeError from KeyError
-
-        pgdfile = (
-            f"{cpgdfile}{decade}{self.suffix}"
-        )
-        pgd_file_path = f"{self.platform.get_system_value('climdir')}/{pgdfile}"
+        pgd_file_path = f"{self.get_pgdfile(self.basetime)}"
         archive = f"{self.platform.get_system_value('archive_dir')}"
-        binary = self.get_binary("OFFLINE" + self.xyz)
 
-        output = f"{archive}/{csurffile}{suffix}"
+        binary = self.get_binary("OFFLINE")
+
+        output = f"{archive}/{csurffile}{self.suffix}"
         archive_data = None
         if ctimeseries_filetype == "NC":
             last_ll = self.basetime + self.fcint
@@ -270,8 +272,12 @@ class OfflineForecast(PySurfexBaseTask):
         forcing_dir = self.platform.substitute(forcing_dir, basetime=self.dtg)
 
         # Offline arguments output
+        try:
+            wrapper = self.config["submission.task.wrapper"]
+        except KeyError:
+            wrapper = ""
         kwargs = {
-            "system_file_paths": exp_file_paths,
+            "system_file_paths": exp_file_paths_file,
             "pgd": pgd_file_path,
             "prep": self.fc_start_sfx,
             "basetime": self.basetime,
@@ -280,8 +286,12 @@ class OfflineForecast(PySurfexBaseTask):
             "input_binary_data": self.input_definition,
             "tolerate_missing": False,
             "forcing_dir": forcing_dir,
+            "rte": None,
             "archive": archive_data,
+            "print_namelist": True,
+            "masterodb": False,
             "output": output,
+            "wrapper": wrapper,
             "binary": binary
         }
 
@@ -289,7 +299,7 @@ class OfflineForecast(PySurfexBaseTask):
         run_surfex_binary(self.mode, **kwargs)
 
 
-class PerturbedRun(PySurfexBaseTask):
+class PerturbedRun(SurfexBinaryTask):
     """Running a perturbed forecast task.
 
     Args:
@@ -306,7 +316,7 @@ class PerturbedRun(PySurfexBaseTask):
             config (ParsedObject): Parsed configuration
 
         """
-        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        SurfexBinaryTask.__init__(self, config, __class__.__name__)
         self.mode = "perturbed"
         try:
             self.pert = self.config["task.args.pert"]
@@ -333,7 +343,7 @@ class PerturbedRun(PySurfexBaseTask):
         #self.nlgen.write_namelist(settings, nml_file)
         settings = SettingsFromNamelistAndConfig("offline", self.config)
         settings.nam_gen.write(nml_file)
-        
+
         exp_file_paths_file = "exp_file_paths.json"
         #TODO save this file in pysurfex
         json.dump(self.exp_file_paths.system_file_paths, open(exp_file_paths_file, mode="w", encoding="utf8"))
@@ -342,14 +352,7 @@ class PerturbedRun(PySurfexBaseTask):
         cprepfile = settings.get_setting("NAM_IO_OFFLINE#CPREPFILE")
         csurffile = settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
 
-        decade = ""
-        if self.config["pgd.one_decade"]:
-            decade = f"_{get_decade(as_datetime(self.dtg))}"
-        pgdfile = (
-            f"{cpgdfile}{decade}{self.suffix}"
-        )
-        
-        pgd_file_path = f"{self.platform.get_system_value('climdir')}/{pgdfile}"
+        pgd_file_path = f"{self.get_pgdfile(self.basetime)}"
         binary = self.get_binary("OFFLINE")
 
         # PREP file is previous analysis unless first assimilation cycle
@@ -402,7 +405,8 @@ class PerturbedRun(PySurfexBaseTask):
         # Run Offline
         run_surfex_binary(self.mode, **kwargs)
 
-class Soda(PySurfexBaseTask):
+
+class Soda(SurfexBinaryTask):
     """Running SODA (Surfex Offline Data Assimilation) task.
 
     Args:
@@ -419,7 +423,7 @@ class Soda(PySurfexBaseTask):
             config (ParsedObject): Parsed configuration
 
         """
-        PySurfexBaseTask.__init__(self, config, __class__.__name__)
+        SurfexBinaryTask.__init__(self, config, __class__.__name__)
         self.mode = "soda"
         # TODO get from args
         self.force = True
@@ -429,47 +433,24 @@ class Soda(PySurfexBaseTask):
 
 
         # Create namelist the deode way
-        self.nlgen.load(self.mode)
-        settings = self.nlgen.assemble_namelist(self.mode)
+        #self.nlgen.load(self.mode)
+        #settings = self.nlgen.assemble_namelist(self.mode)
         nml_file = "OPTIONS_input.nam"
-        self.nlgen.write_namelist(settings, nml_file)
+        #self.nlgen.write_namelist(settings, nml_file)
+        settings = SettingsFromNamelistAndConfig(self.mode, self.config)
+        settings.nam_gen.write(nml_file)
 
-        parser = f90nml.Parser()
-        nml = parser.read(nml_file)
         pgd_file_path = f"{self.climdir}/{self.suffix}"
 
-        try:
-            csurf_filetype = nml["nam_io_offline"]["csurf_filetype"]
-        except KeyError:
-            csurf_filetype = "NC"
-        suffix = csurf_filetype.lower()
-        try:
-            ctimeseries_filetype = nml["nam_io_offline"]["ctimeseries_filetype"]
-        except KeyError:
-            ctimeseries_filetype = None
-        try:
-            csurffile = nml["nam_io_offline"]["csurffile"]
-        except KeyError:
-            csurffile = None
-        try:
-            cpgdfile = nml["nam_io_offline"]["cpgdfile"]
-        except KeyError:
-            cpgdfile = None
-        try:
-            cassim_isba = nml["nam_assim"]["cassim_isba"]
-        except KeyError:
-            cassim_isba = None
+        #csurf_filetype = settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE", default="NC")
+        cpgdfile = settings.get_setting("NAM_IO_OFFLINE#CPGDFILE")
+        #cprepfile = settings.get_setting("NAM_IO_OFFLINE#CPREPFILE")
+        #csurffile = settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
+        cassim_isba = settings.get_setting("NAM_ASSIM#CASSIM_ISBA")
 
 
-        binary = self.get_binary("SODA" + self.xyz)
-        decade = ""
-        if self.config["pgd.one_decade"]:
-            decade = f"_{get_decade(as_datetime(self.dtg))}"
-        pgdfile = (
-            f"{cpgdfile}{decade}{suffix}"
-        )
-        pgd_file_path = self.platform.get_system_value("climdir")
-        pgd_file_path = f"{self.platform.substitute(pgd_file_path)}/{pgdfile}"
+        binary = self.get_binary("SODA" + self)
+        pgd_file_path = f"{self.get_pgdfile(self.basetime)}"
 
         archive = self.platform.get_system_value("archive_dir")
         prep_file_path = self.fg_guess_sfx
@@ -482,19 +463,12 @@ class Soda(PySurfexBaseTask):
             first_guess_dir = self.platform.substitute(archive_dir, basetime=self.fg_dtg)
             self.exp_file_paths.add_system_file_path("first_guess_dir", first_guess_dir)
 
-        #if not os.path.exists(output) or self.force:
-        #    SurfexBinaryTask.execute_binary(
-        #        self,
-        #        binary,
-        #        output,
-        #        pgd_file_path=pgd_file_path,
-        #        prep_file_path=prep_file_path,
-        #    )
-        #else:
-        #    logger.info("Output already exists: {}", output)
-
         archive_data = None
         # Offline arguments output
+        try:
+            wrapper = self.config["submission.task.wrapper"]
+        except KeyError:
+            wrapper = ""
         kwargs = {
             "system_file_paths": self.exp_file_paths,
             "pgd": pgd_file_path,
@@ -506,10 +480,11 @@ class Soda(PySurfexBaseTask):
             "tolerate_missing": False,
             "archive": archive_data,
             "output": output,
+            "wrapper": wrapper,
             "binary": binary
         }
 
-        # Run Offline
+        # Run Soda
         run_surfex_binary(self.mode, **kwargs)
 
         # SODA should prepare for forecast

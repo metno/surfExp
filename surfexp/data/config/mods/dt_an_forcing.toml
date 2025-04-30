@@ -60,10 +60,5 @@ filepattern = "/hpcperm/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_
 [pysurfex]
   first_guess_yml_file = "@PLUGIN_HOME@/surfexp/data/first_guess_dt.yml"
 
-[SURFEX.ASSIM.OBS]
-  CFILE_FORMAT_OBS = "ASCII"
-  COBS_M = ["T2M", "HU2M", "WG2 ", "LAI", "SWE"]
-  LOBSHEADER = false
-  LOBSNAT = false
-  LSWE = false
-  NNCO = [1, 1, 0, 0, 1]
+[system]
+  assemble_file = "@PLUGIN_HOME@/surfexp/data/config/nam/dt_an_assemble.yml"
