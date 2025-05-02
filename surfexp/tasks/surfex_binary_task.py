@@ -133,7 +133,6 @@ class OfflinePrep(SurfexBinaryTask):
         #TODO save this file in pysurfex
         json.dump(self.exp_file_paths.system_file_paths, open(exp_file_paths_file, mode="w", encoding="utf8"))
 
-
         # Create namelist the deode way
         #self.nlgen.load(self.mode)
         #settings = self.nlgen.assemble_namelist(self.mode)
@@ -199,6 +198,10 @@ class OfflinePrep(SurfexBinaryTask):
         # Run PREP
         run_surfex_binary(self.mode, **kwargs)
         self.archive_logs(["OPTIONS.nam", "LISTING_PREP0.txt"])
+
+        if os.path.exists(self.fc_start_sfx):
+            os.unlink(self.fc_start_sfx)
+        os.symlink(output, self.fc_start_sfx)
 
 class OfflineForecast(SurfexBinaryTask):
     """Running Forecast task.

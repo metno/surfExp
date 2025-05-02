@@ -845,6 +845,8 @@ class Qc2obsmon(PySurfexBaseTask):
         if os.path.exists(output):
             os.unlink(output)
         obs_types = self.obs_types
+
+        variables = []
         for ivar, val in enumerate(self.nnco):
             if val == 1 and len(obs_types) > ivar:
                 if obs_types[ivar] == "T2M" or obs_types[ivar] == "T2M_P":
@@ -855,20 +857,29 @@ class Qc2obsmon(PySurfexBaseTask):
                     var_in = "sd"
                 else:
                     raise NotImplementedError(obs_types[ivar])
+                variables.append(var_in)
+        try:
+            an_forc_vars = self.config["an_forcing"]["variables"]
+        except KeyError:
+            an_forc_vars = []
+        for var in an_forc_vars:
+            if var not in variables:
+                variables.append(var)
 
-                var_name = self.translation[var_in]
-                q_c = obsdir + "/qc_" + var_name + ".json"
-                fg_file = archive + "/raw_" + var_name + ".nc"
-                an_file = archive + "/an_" + var_name + ".nc"
-                write_obsmon_sqlite_file(
-                    dtg=self.dtg,
-                    output=output,
-                    qc=q_c,
-                    fg_file=fg_file,
-                    an_file=an_file,
-                    varname=var_in,
-                    file_var=var_name,
-                )
+        for var_in in variables:
+            var_name = self.translation[var_in]
+            q_c = obsdir + "/qc_" + var_name + ".json"
+            fg_file = archive + "/raw_" + var_name + ".nc"
+            an_file = archive + "/an_" + var_name + ".nc"
+            write_obsmon_sqlite_file(
+                dtg=self.dtg,
+                output=output,
+                qc=q_c,
+                fg_file=fg_file,
+                an_file=an_file,
+                varname=var_in,
+                file_var=var_name,
+            )
 
 
 class FirstGuess4OI(PySurfexBaseTask):
@@ -930,6 +941,14 @@ class FirstGuess4OI(PySurfexBaseTask):
                         var_in.append("sd")
                     else:
                         raise NotImplementedError(obs_types[ivar])
+            try:
+                an_forc_vars = self.config["an_forcing"]["variables"]
+            except KeyError:
+                an_forc_vars = []
+
+            for var in an_forc_vars:
+                if var not in var_in:
+                    var_in.append(var)
 
             variables = []
             try:
@@ -1240,7 +1259,7 @@ class HarpSQLite(PySurfexBaseTask):
         dt_string = self.validtime.strftime("%Y%m%d%H")
         basetime = self.basetime.strftime("%Y%m%d%H")
         argv = [
-            "-g",
+            "--station-list",
             self.stationlist_file,
             "-b",
             basetime,

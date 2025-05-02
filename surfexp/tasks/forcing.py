@@ -55,6 +55,10 @@ class Forcing(PySurfexBaseTask):
         if self.user_config is not None:
             with open(self.user_config, mode="r", encoding="utf-8") as fh:
                 user_config = yaml.safe_load(fh)
+            user_config.update({"macros": {
+                "casedir": self.platform.get_system_value("casedir")
+            }})
+
             kwargs.update({"user_config": user_config})
 
         domain_json = self.geo.json
@@ -65,11 +69,8 @@ class Forcing(PySurfexBaseTask):
             with open(domain_file, mode="w", encoding="utf-8") as file_handler:
                 json.dump(domain_json, file_handler, indent=2)
         kwargs.update({"domain": domain_file})
-        try:
-            global_config = self.config["pysurfex.forcing_variable_config_yml_file"]
-        except KeyError:
-            global_config = None
-        
+
+        global_config = None
         #TODO Global config should be handled in pysurfex
 
         #if global_config is None or global_config == "":
@@ -79,9 +80,9 @@ class Forcing(PySurfexBaseTask):
         #with open(global_config, mode="r", encoding="utf-8") as file_handler:
         #    global_config = yaml.safe_load(file_handler)
         # Add surfExp related macros
-        global_config["macros"] = {
-            "casedir": self.platform.get_system_value("casedir")
-        }
+        #global_config.update({"macros": {
+        #    "casedir": self.platform.get_system_value("casedir")
+        #}})
         kwargs.update({"config": global_config})
 
         kwargs.update({"dtg_start": self.dtg.strftime("%Y%m%d%H")})

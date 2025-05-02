@@ -6,6 +6,10 @@ pgd:
   - treedrag
   - pgd
   - ecoclimap_sg
+  - pgd_isba
+  - pgd_seaflx
+  - pgd_teb
+  - pgd_watflx
   #- pgd_kdtree
   - pgd_cover
   - pgd_arrange_cover
@@ -39,8 +43,12 @@ prep:
   - prep
   - ecoclimap_sg
   - prep_from_namelist
+  #- prep_from_file
+  #- prep_from_file_nc
+  #- prep_from_file_with_pgd
+  #- prep_from_file_with_pgd_nc
   - prep_seaflux
-  - prep_sice
+  #- prep_sice
   #- prep_flake
   - prep_isba
   - prep_isba_snow
@@ -55,7 +63,7 @@ offline:
   - offline_sso
   - offline_sso_none
   - offline_seaice
-  - offline_sice
+  #- offline_sice
   - offline_flake
   - offline_isba
   - offline_pert_isba_settings

@@ -363,24 +363,25 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                 triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing), EcflowSuiteTrigger(mod_forcing)])
 
             # Analyse forcing
-            an_forcing = EcflowSuiteFamily(
-                "AnalyseForcing", cycle_input, self.ecf_files, trigger=triggers
-            )
-
-            analysis = EcflowSuiteFamily(
-                "Analysis", an_forcing, self.ecf_files, trigger=triggers
-            )
-
-            var_names = ["t2m", "rh2m"]
-            fcint = int(as_timedelta(config["general.times.cycle_length"]).total_seconds()/3600)
-            offsets = range(0, fcint + 1)
-            for offset in offsets:
-                offset_fam = EcflowSuiteFamily(
-                    f"offset{offset}", analysis, self.ecf_files, trigger=triggers,
-                    variables={"ARGS": f"offset={offset};"},
+            if config["an_forcing.enabled"]:
+                an_forcing = EcflowSuiteFamily(
+                    "AnalyseForcing", cycle_input, self.ecf_files, trigger=triggers
                 )
-                fg_offset = EcflowSuiteTask(
-                        "FirstGuess4OI",
+
+                analysis = EcflowSuiteFamily(
+                    "Analysis", an_forcing, self.ecf_files, trigger=triggers
+                )
+
+                var_names = config["an_forcing.variables"]
+                fcint = int(as_timedelta(config["general.times.cycle_length"]).total_seconds()/3600)
+                offsets = range(0, fcint + 1)
+                for offset in offsets:
+                    offset_fam = EcflowSuiteFamily(
+                        f"offset{offset}", analysis, self.ecf_files, trigger=triggers,
+                        variables={"ARGS": f"offset={offset};"},
+                    )
+                    fg_offset = EcflowSuiteTask(
+                       "FirstGuess4OI",
                         offset_fam,
                         config,
                         self.task_settings,
@@ -388,12 +389,12 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                         input_template=template,
                     )
 
-                for var_name in var_names:
-                    var_fam = EcflowSuiteFamily(
-                        var_name, offset_fam, self.ecf_files,
-                        variables={"ARGS": f"var_name={var_name};offset={offset};"},
-                    )
-                    qc = EcflowSuiteTask(
+                    for var_name in var_names:
+                        var_fam = EcflowSuiteFamily(
+                            var_name, offset_fam, self.ecf_files,
+                            variables={"ARGS": f"var_name={var_name};offset={offset};"},
+                        )
+                        qc = EcflowSuiteTask(
                             "QualityControl",
                             var_fam,
                             config,
@@ -402,7 +403,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                             input_template=template,
                             trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(fg_offset)])
                         )
-                    EcflowSuiteTask(
+                        EcflowSuiteTask(
                             "OptimalInterpolation",
                             var_fam,
                             config,
@@ -412,17 +413,17 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                             trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(qc)])
                         )
 
-            user_config = Path(__file__).parent.resolve() / "../data/config/forcing/forcing_dt_config_an.yml"
-            forcing = EcflowSuiteTask(
-                "Forcing",
-                an_forcing,
-                config,
-                self.task_settings,
-                self.ecf_files,
-                input_template=template,
-                variables={"ARGS": f"forcing_user_config={user_config};arg_defs=an_forcing;force=true;"},
-                trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(analysis)]),
-            )
+                user_config = Path(__file__).parent.resolve() / "../data/config/forcing/forcing_dt_config_an.yml"
+                forcing = EcflowSuiteTask(
+                    "Forcing",
+                    an_forcing,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    variables={"ARGS": f"forcing_user_config={user_config};arg_defs=an_forcing;force=true;"},
+                    trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(analysis)]),
+                )
 
             logger.info(
                 "c_index={} prediction_trigger_times[c_index]={}",
@@ -475,7 +476,7 @@ class SurfexSuiteDefinitionDTAnalysedForcing(SuiteDefinition):
                     if schemes[scheme].upper() != "NONE":
                         do_soda = True
 
-                obs_types = settings.get_setting("NAM_OBS#COBS_M")
+                obs_types = settings.get_setting("NAM_OBS#COBS_M", default=[])
                 nnco = settings.get_nnco(config, basetime=as_datetime(cycle["basetime"]))
                 for ivar, val in enumerate(nnco):
                     if val == 1 and obs_types[ivar] == "SWE":

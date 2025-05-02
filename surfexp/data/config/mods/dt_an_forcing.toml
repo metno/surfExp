@@ -30,6 +30,9 @@
   zval = "constant"
   diskless_write = true
 
+[an_forcing]
+  variables = ["t2m", "rh2m"]
+
 [initial_conditions.fg4oi]
   converter = "none"
   fileformat = "grib1"

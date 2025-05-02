@@ -51,8 +51,8 @@ io:
     LRESTART_2M: true
     LSET_FORC_ZS: true
     NHALO: 0
-    XTSTEP_OUTPUT: 600.0
-    XTSTEP_SURF: 21600.0
+    XTSTEP_OUTPUT: 86400.0
+    XTSTEP_SURF: 600.0
   NAM_WRITE_SURF_ATM:
     LSPLIT_PATCH: true
 
@@ -79,13 +79,27 @@ pgd_meb:
     XUNIF_RUNOFFB: 0.2
 
 pgd:
-  NAM_FRAC:
-    LECOSG: true
   NAM_PGD_SCHEMES:
-    CNATURE: ISBA
-    CSEA: SEAFLX
-    CTOWN: TEB
+    CNATURE: NONE
+    CSEA: NONE
+    CTOWN: NONE
+    CWATER: NONE
+
+pgd_watflx:
+  NAM_PGD_SCHEMES:
+    CWATER: WATFLX
+
+pgd_flake:
+  NAM_PGD_SCHEMES:
     CWATER: FLAKE
+
+pgd_teb:
+  NAM_PGD_SCHEMES:
+    CTOWN: TEB
+
+pgd_seaflx:
+  NAM_PGD_SCHEMES:
+    CSEA: SEAFLX
 
 pgd_arrange_cover:
   NAM_PGD_ARRANGE_COVER:
@@ -857,6 +871,8 @@ pgd_flake_depth_status_netcdf:
 pgd_inland_water: {}
 
 pgd_isba:
+  NAM_PGD_SCHEMES:
+    CNATURE: ISBA
   NAM_ISBA:
     CISBA: DIF
     LMEB: true
@@ -1027,19 +1043,16 @@ prep_from_namelist:
     XSIC_UNIF: 2
   NAM_PREP_WATFLUX:
     XTS_WATER_UNIF: 280
-  NAM_PREP_FLAKE:
-    XTS_UNIF: 280
-  NAM_PREP_SEAICE_SICE:
-    XICE_TUNIF:  270
-    LINIT_FROM_SST: true
-    NUM_LAYERS: 4
-    XICE_THICKNESS: 0.5
 
 prep_flake:
   NAM_PGD_SCHEMES:
     CWATER: FLAKE
   NAM_PREP_FLAKE:
     LCLIM_LAKE: true
+
+prep_flake_from_namelist:
+  NAM_PREP_FLAKE:
+    XTS_UNIF: 280
 
 prep_isba:
   NAM_ISBA:
@@ -1073,16 +1086,24 @@ prep_isba_snow_crocus: {}
 
 prep_seaflux:
   NAM_PREP_SEAFLUX:
-    CSEAICE_SCHEME: SICE
     LSEA_SBL: false
 
 prep_sice:
+  NAM_PREP_SEAFLUX:
+    CSEAICE_SCHEME: SICE
   NAM_SEAICE_SICE:
     LICE_HAS_SNOW: false
     LICE_MASS_BALANCE: true
   NAM_PREP_SEAICE_SICE:
     NUM_LAYERS: 4
     XICE_THICKNESS: 0.75
+
+prep_sice_from_namelist:
+  NAM_PREP_SEAICE_SICE:
+    XICE_TUNIF:  270
+    LINIT_FROM_SST: true
+    NUM_LAYERS: 4
+    XICE_THICKNESS: 0.5
 
 # OFFLINE
 offline:
