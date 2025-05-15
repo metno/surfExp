@@ -9,13 +9,16 @@ This repository is a setup to create and run offline SURFEX experiments.
 =========================================================================
 
 See online documentation in https://metno.github.io/surfExp/
-The setup is dependent of pysurfex (https://metno.github.io/pysurfex) and deode workflow (https://github.com/destination-earth-digital-twins/Deode-Workflow / https://github.com/trygveasp/Deode-Workflow)
 
-You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in https://github.com/metno/surfExp/blob/master/requirements.txt
+The setup is dependent of pysurfex (https://metno.github.io/pysurfex) and deode workflow (https://github.com/destination-earth-digital-twins/Deode-Workflow).
+
 
 
 Installation
 -------------
+
+An environment manager like miniconda or micromamba is recommended to ensure consistency between the packages.
+
 
 The recommended installation method is using poetry. First install poetry. This can be done in several ways like a system package or ftom pypi. The recommended way is:
 
@@ -121,7 +124,4 @@ Extra environment on PPI-RHEL8 needed to start experiments
  surfExp exps/LDAS_decade.toml LDAS_decade $PWD/data/config/configurations/metno_ldas.toml $PWD/data/config/domains/MET_NORDIC_1_0.toml $PWD/data/config/mods/arome_arctic_offline_ppi.toml $PWD/data/config/mods/netcdf_input_pgd.toml $PWD/data/config/mods/netcdf_input_single_decade.toml $PWD/data/config/mods/metno_ldas_single_decade.toml $PWD/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
  deode start suite  --config-file exps/LDAS_decade.toml
 
-Trainings
------------------------
 
-`Budapest May 2022 <https://github.com/metno/surfExp/blob/master/trainings/budapest_may_2022.rst/>`_ (Old version)

@@ -21,29 +21,23 @@ def pysfxexp(argv=None):
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-o",
-        "--output",
-        dest="output",
-        help="Output configuration file",
-        required=True
-        )
+        "-o", "--output", dest="output", help="Output configuration file", required=True
+    )
     parser.add_argument(
         "--case-name",
         dest="case_name",
         help="Name of case/suite you want to run",
-        required=True
+        required=True,
     )
     parser.add_argument(
         "--plugin-home",
         dest="plugin_home",
         help="Path to plugin home directory where surfexp is located",
-        required=True
+        required=True,
     )
     parser.add_argument(
-        "args",
-        help="Optional extra input configuration files",
-        nargs="*"
-        )
+        "args", help="Optional extra input configuration files", nargs="*"
+    )
     args = parser.parse_args(argv)
 
     output = args.output

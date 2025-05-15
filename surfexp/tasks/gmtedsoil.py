@@ -593,7 +593,7 @@ class Soil(Task):
                 bits=8,
                 write_fact=False,
             )
-        if self.config["pgd.sand_format"]  == "direct":
+        if self.config["pgd.sand_format"] == "direct":
             self.write_soil_header_file(
                 climdir + "/SAND_SOILGRID.hdr",
                 "Sand",

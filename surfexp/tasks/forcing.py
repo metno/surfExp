@@ -1,15 +1,13 @@
 """Forcing task."""
 import json
 import os
-
 from datetime import timedelta
 
 from deode.datetime_utils import as_timedelta
 from deode.logs import logger
 from deode.os_utils import deodemakedirs
-
 from pysurfex.cli import create_forcing, modify_forcing
-from pysurfex.verification import converter2ds, concat_datasets
+from pysurfex.verification import concat_datasets, converter2ds
 
 from surfexp.tasks.tasks import PySurfexBaseTask
 
@@ -26,7 +24,7 @@ class Forcing(PySurfexBaseTask):
         """
         PySurfexBaseTask.__init__(self, config, "Forcing")
         try:
-            mode = self.config['task.args.mode']
+            mode = self.config["task.args.mode"]
         except KeyError:
             mode = "default"
         logger.info("Forcing mode is: {}", mode)
@@ -48,7 +46,6 @@ class Forcing(PySurfexBaseTask):
             mode = "forecast"
         self.mode = mode
 
-
     def execute(self):
         """Execute the forcing task.
 
@@ -65,7 +62,9 @@ class Forcing(PySurfexBaseTask):
         forcing_dir = self.platform.substitute(forcing_dir, basetime=self.basetime)
         deodemakedirs(forcing_dir)
 
-        cforcing_filetype = self.soda_settings.get_setting("NAM_IO_OFFLINE#CFORCING_FILETYPE")
+        cforcing_filetype = self.soda_settings.get_setting(
+            "NAM_IO_OFFLINE#CFORCING_FILETYPE"
+        )
         output_format = cforcing_filetype.lower()
         if output_format == "netcdf":
             output = f"{forcing_dir}/FORCING.nc"
@@ -106,7 +105,7 @@ class ModifyForcing(PySurfexBaseTask):
         """
         PySurfexBaseTask.__init__(self, config, "ModifyForcing")
         try:
-            self.mode = self.config['task.args.mode']
+            self.mode = self.config["task.args.mode"]
         except KeyError:
             raise RuntimeError from KeyError
 
@@ -128,10 +127,13 @@ class ModifyForcing(PySurfexBaseTask):
         time_step = -1
 
         argv = [
-            "--input-file", input_file,
-            "--output-file", output_file,
-            "--time-step", time_step,
-            self.variables
+            "--input-file",
+            input_file,
+            "--output-file",
+            output_file,
+            "--time-step",
+            time_step,
+            self.variables,
         ]
         if os.path.exists(output_file) and os.path.exists(input_file):
             modify_forcing(argv=argv)
@@ -153,10 +155,10 @@ class Interpolate2grid(PySurfexBaseTask):
         try:
             self.steps = [int(self.config["task.args.step"])]
         except KeyError:
-            fc_length = int(int(self.fcint.total_seconds())/3600)
+            fc_length = int(int(self.fcint.total_seconds()) / 3600)
             self.steps = range(0, fc_length)
         try:
-            self.mode = self.config['task.args.mode']
+            self.mode = self.config["task.args.mode"]
         except KeyError:
             self.mode = "default"
         if self.mode == "an_forcing":
@@ -174,7 +176,7 @@ class Interpolate2grid(PySurfexBaseTask):
             "precipitation_amount_acc",
             "snowfall_amount_acc",
             "integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time",
-            "integral_of_surface_downwelling_longwave_flux_in_air_wrt_time"
+            "integral_of_surface_downwelling_longwave_flux_in_air_wrt_time",
         ]
 
         domain_file = "domain.json"
@@ -186,40 +188,25 @@ class Interpolate2grid(PySurfexBaseTask):
         gribdir = ncdir
 
         mapping = {
-            "surface_geopotential": {
-                "indicatorOfParameter": 129
-            },
-            "air_temperature_2m": {
-                "indicatorOfParameter": 167
-            },
-            "dew_point_temperature_2m": {
-                "indicatorOfParameter": 168
-            },
-            "surface_air_pressure": {
-                "indicatorOfParameter": 134
-            },
-            "x_wind_10m": {
-                "indicatorOfParameter": 165
-            },
-            "y_wind_10m": {
-                "indicatorOfParameter": 166
-            },
+            "surface_geopotential": {"indicatorOfParameter": 129},
+            "air_temperature_2m": {"indicatorOfParameter": 167},
+            "dew_point_temperature_2m": {"indicatorOfParameter": 168},
+            "surface_air_pressure": {"indicatorOfParameter": 134},
+            "x_wind_10m": {"indicatorOfParameter": 165},
+            "y_wind_10m": {"indicatorOfParameter": 166},
             "precipitation_amount_acc": {
                 "indicatorOfParameter": 228,
-                "timeRangeIndicator": 4
+                "timeRangeIndicator": 4,
             },
-            "snowfall_amount_acc": {
-                "indicatorOfParameter": 144,
-                "timeRangeIndicator": 4
-            },
+            "snowfall_amount_acc": {"indicatorOfParameter": 144, "timeRangeIndicator": 4},
             "integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time": {
                 "indicatorOfParameter": 169,
-                "timeRangeIndicator": 4
+                "timeRangeIndicator": 4,
             },
             "integral_of_surface_downwelling_longwave_flux_in_air_wrt_time": {
                 "indicatorOfParameter": 175,
-                "timeRangeIndicator": 4
-            }
+                "timeRangeIndicator": 4,
+            },
         }
 
         for leadtime in self.steps:
@@ -236,23 +223,35 @@ class Interpolate2grid(PySurfexBaseTask):
                 input_file = f"{gribdir}/{self.mode}/{self.mars_config}_{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.grib1"
                 ofiles.append(output)
                 argv = [
-                    "-g", domain_file,
-                    "--output", output,
-                    "--inputfile", input_file,
-                    "--inputtype", "grib1",
-                    "--indicatorOfParameter", f"{indicatorOfParameter}",
-                    "--levelType", "1",
-                    "--level", "0",
-                    "--timeRangeIndicator", f"{timeRangeIndicator}",
-                    "--out-variable", var,
-                    "--basetime", self.basetime.strftime("%Y%m%d%H"),
-                    "--validtime", validtime
+                    "-g",
+                    domain_file,
+                    "--output",
+                    output,
+                    "--inputfile",
+                    input_file,
+                    "--inputtype",
+                    "grib1",
+                    "--indicatorOfParameter",
+                    f"{indicatorOfParameter}",
+                    "--levelType",
+                    "1",
+                    "--level",
+                    "0",
+                    "--timeRangeIndicator",
+                    f"{timeRangeIndicator}",
+                    "--out-variable",
+                    var,
+                    "--basetime",
+                    self.basetime.strftime("%Y%m%d%H"),
+                    "--validtime",
+                    validtime,
                 ]
                 print("converter2ds ".join(argv))
                 converter2ds(argv=argv)
 
             argv = [
-                "-o", f"{ncdir}/{self.mode}/{self.mars_config}_{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.nc",
+                "-o",
+                f"{ncdir}/{self.mode}/{self.mars_config}_{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.nc",
             ]
             argv = argv + ofiles
             concat_datasets(argv=argv)

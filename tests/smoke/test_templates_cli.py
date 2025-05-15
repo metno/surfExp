@@ -1,4 +1,5 @@
 import json
+
 import pytest
 
 from surfexp.templates.cli import execute_task
@@ -29,17 +30,16 @@ def fixture_template_args_ecflow(tmp_directory, default_config_file):
         "ARGS": "arg1=val1;",
         "WRAPPER": "time",
         "CONFIG": default_config_file,
-        "DEODE_HOME": "DEODE_HOME"
+        "DEODE_HOME": "DEODE_HOME",
     }
     with open(fname, mode="w", encoding="utf8") as fhandler:
         json.dump(data, fhandler)
     return fname
 
+
 @pytest.mark.usefixtures("templates_mocker")
 def test_execute_task_ecflow(template_args_ecflow):
-    argv = [
-        template_args_ecflow
-    ]
+    argv = [template_args_ecflow]
     execute_task(argv=argv)
 
 
@@ -55,15 +55,14 @@ def fixture_template_args_stand_alone(tmp_directory, default_config_file):
         "WRAPPER": "time",
         "STAND_ALONE_TASK_CONFIG": default_config_file,
         "STAND_ALONE_DEODE_HOME": "DEODE_HOME",
-        "STAND_ALONE_TASK_NAME": "task_name"
+        "STAND_ALONE_TASK_NAME": "task_name",
     }
     with open(fname, mode="w", encoding="utf8") as fhandler:
         json.dump(data, fhandler)
     return fname
 
+
 @pytest.mark.usefixtures("templates_mocker")
 def test_execute_task_stand_alone(template_args_stand_alone):
-    argv = [
-        template_args_stand_alone
-    ]
+    argv = [template_args_stand_alone]
     execute_task(argv=argv)

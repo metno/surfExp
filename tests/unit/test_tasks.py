@@ -1,15 +1,16 @@
-import os
 import contextlib
-from pathlib import Path
-import pytest
-import types
+import os
 import sys
+import types
+from pathlib import Path
 
+import pytest
 from deode.os_utils import deodemakedirs
 from deode.tasks.base import Task
-from deode.tasks.discover_task import get_task, discover
+from deode.tasks.discover_task import discover, get_task
 
 from surfexp import PACKAGE_DIRECTORY
+
 
 def available_tasks():
     """Create a list of available tasks.
@@ -54,15 +55,11 @@ def working_directory(path):
     finally:
         os.chdir(prev_cwd)
 
-def create_binaries(casedir, task_name, task_config):
 
+def create_binaries(casedir, task_name, task_config):
     bindir = f"{casedir}/bin"
     os.makedirs(bindir, exist_ok=True)
-    update = {
-        "system": {
-            "bindir": bindir
-        }
-    }
+    update = {"system": {"bindir": bindir}}
     need_pgd = False
     need_prep = False
     task_config = task_config.copy(update)
@@ -72,13 +69,7 @@ def create_binaries(casedir, task_name, task_config):
         if task_name == "perturbedrun":
             forcing_dir = f"{casedir}/forcing/2025020821/"
             diag_output = "SURFOUT.20250209_00h00.nc"
-            args = {
-                "task": {
-                    "args": {
-                        "pert": "1"
-                    }
-                }
-            }
+            args = {"task": {"args": {"pert": "1"}}}
             task_config = task_config.copy(args)
             archive = f"{casedir}/archive/2025/02/08/21/"
             deodemakedirs(archive)
@@ -98,20 +89,13 @@ def create_binaries(casedir, task_name, task_config):
         deodemakedirs(forcing_dir)
         os.system(f"touch {forcing_dir}/FORCING.nc")
     elif task_name.lower() == "offlinepgd":
-
         binary = f"{bindir}/PGD"
         with open(binary, mode="w", encoding="utf8") as fhandler:
             fhandler.write("#!/bin/bash\n")
             fhandler.write("touch PGD.nc\n")
             fhandler.write("touch LISTING_PGD.txt\n")
         os.chmod(binary, 0o0755)
-        args = {
-            "task": {
-                "args": {
-                    "basetime": "2025-02-09T00:00:00Z"
-                }
-            }
-        }
+        args = {"task": {"args": {"basetime": "2025-02-09T00:00:00Z"}}}
         task_config = task_config.copy(args)
     elif task_name.lower() == "offlineprep":
         need_pgd = True
@@ -120,11 +104,7 @@ def create_binaries(casedir, task_name, task_config):
             fhandler.write("#!/bin/bash\n")
             fhandler.write("touch PREP.nc\n")
         os.chmod(binary, 0o0755)
-        update = {
-            "prep": {
-                "tolerate_missing": True
-            }
-        }
+        update = {"prep": {"tolerate_missing": True}}
         task_config = task_config.copy(update)
     elif task_name.lower() == "soda":
         need_pgd = True
@@ -160,7 +140,10 @@ def create_binaries(casedir, task_name, task_config):
         os.system(f"touch {casedir}/20250209_0000/fc_start_sfx")
     return task_config
 
-@pytest.fixture(name="task_name_and_configs", params=classes_to_be_tested(), scope="function")
+
+@pytest.fixture(
+    name="task_name_and_configs", params=classes_to_be_tested(), scope="function"
+)
 def fixture_task_name_and_configs(request, default_config, tmp_directory):
     """Return a ParsedConfig with a task-specific section according to `params`."""
     task_name = request.param
@@ -168,45 +151,32 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
 
     casedir = f"{tmp_directory}/deode/{task_name}"
     update = {
-        "general": {
-            "case": task_name
-        },
+        "general": {"case": task_name},
         "platform": {
             "scratch": tmp_directory,
-        }
+        },
     }
     task_config = task_config.copy(update)
 
-
-    if task_name.lower() in ["offlinepgd", "offlineprep", "offlineforecast", "perturbedrun", "soda"]:
+    if task_name.lower() in [
+        "offlinepgd",
+        "offlineprep",
+        "offlineforecast",
+        "perturbedrun",
+        "soda",
+    ]:
         task_config = create_binaries(casedir, task_name, task_config)
         if task_name.lower() in ["offlineforecast"]:
-            update = {
-                "task": {
-                    "args": {
-                        "mode": "forecast"
-                    }
-                }
-            }
+            update = {"task": {"args": {"mode": "forecast"}}}
             task_config = task_config.copy(update)
-    elif task_name.lower() == "qualitycontrol" or task_name.lower() == "optimalinterpolation":
-        update = {
-            "task": {
-                "args": {
-                    "var_name": "t2m",
-                    "offset": "2"
-                }
-            }
-        }
+    elif (
+        task_name.lower() == "qualitycontrol"
+        or task_name.lower() == "optimalinterpolation"
+    ):
+        update = {"task": {"args": {"var_name": "t2m", "offset": "2"}}}
         task_config = task_config.copy(update)
     elif task_name.lower() == "startofflinesfx":
-        update = {
-            "task": {
-                "args": {
-                    "run_cmd": "echo 'Hello world!'"
-                }
-            }
-        }
+        update = {"task": {"args": {"run_cmd": "echo 'Hello world!'"}}}
         task_config = task_config.copy(update)
     elif task_name.lower() == "harpsqlite":
         update = {
@@ -215,20 +185,13 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
                     "mode": "cycle",
                     "var_name": "T2M",
                     "basetime": "2025-02-09T00:00:00Z",
-                    "validtime": "2025-02-09T00:00:00Z"
+                    "validtime": "2025-02-09T00:00:00Z",
                 }
             }
         }
         task_config = task_config.copy(update)
     elif task_name.lower() == "modifyforcing":
-        update = {
-            "task": {
-                "args": {
-                    "var_name": "SWdir",
-                    "mode": "default"
-                }
-            }
-        }
+        update = {"task": {"args": {"var_name": "SWdir", "mode": "default"}}}
         task_config = task_config.copy(update)
     elif task_name.lower() == "cmakebuild":
         builddir = f"{casedir}/offline/build/bin/"
@@ -239,11 +202,7 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
     elif task_name.lower() == "soil":
         soilgrid_data_path = f"{casedir}/SOILGRID"
         deodemakedirs(soilgrid_data_path)
-        update = {
-            "platform": {
-                "soilgrid_data_path": soilgrid_data_path
-            }
-        }
+        update = {"platform": {"soilgrid_data_path": soilgrid_data_path}}
         task_config = task_config.copy(update)
         os.system(f"touch {soilgrid_data_path}/CLYPPT.tif")
         os.system(f"touch {soilgrid_data_path}/SNDPPT.tif")
@@ -252,11 +211,7 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
     elif task_name.lower() == "gmted":
         gmted2010_data_path = f"{casedir}/GMTED"
         deodemakedirs(gmted2010_data_path)
-        update = {
-            "platform": {
-                "gmted2010_data_path": gmted2010_data_path
-            }
-        }
+        update = {"platform": {"gmted2010_data_path": gmted2010_data_path}}
         task_config = task_config.copy(update)
         os.system(f"touch {gmted2010_data_path}/50N000E_20101117_gmted_mea075.tif")
     elif task_name.lower() == "fetchmars":
@@ -268,38 +223,19 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
         archive = f"{casedir}/archive/2025/02/09/00/"
         deodemakedirs(archive)
         os.system(f"touch {archive}/raw.nc")
-        update = {
-            "task": {
-                "args": {
-                    "mode": "analysis"
-                }
-            }
-        }
+        update = {"task": {"args": {"mode": "analysis"}}}
         task_config = task_config.copy(update)
     elif task_name.lower() == "qc2obsmon":
-        update = {
-            "task": {
-                "args": {
-                    "mode": "an_forcing"
-                }
-            }
-        }
+        update = {"task": {"args": {"mode": "an_forcing"}}}
         task_config = task_config.copy(update)
     elif task_name.lower() == "harpsqlite2":
-        update = {
-            "task": {
-                "args": {
-                    "basetime": "2025-02-09T00:00:00Z"
-                }
-            }
-        }
+        update = {"task": {"args": {"basetime": "2025-02-09T00:00:00Z"}}}
         task_config = task_config.copy(update)
     return task_name, task_config
 
 
 @pytest.fixture(scope="function")
 def _mockers_for_task_run_tests(session_mocker):
-
     session_mocker.patch("surfexp.tasks.compilation.BatchJob")
     session_mocker.patch("surfexp.tasks.tasks.converter2harp_cli")
     session_mocker.patch("surfexp.tasks.tasks.BatchJob")
@@ -319,6 +255,7 @@ def _mockers_for_task_run_tests(session_mocker):
     session_mocker.patch("surfexp.tasks.forcing.create_forcing")
     session_mocker.patch("surfexp.tasks.tasks.cryoclim_pseudoobs")
     session_mocker.patch("surfexp.tasks.gmtedsoil.gdal")
+
 
 class TestTasks:
     """Test all tasks."""

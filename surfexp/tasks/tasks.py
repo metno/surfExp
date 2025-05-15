@@ -5,16 +5,25 @@ import json
 import os
 import shutil
 
-
 from deode.datetime_utils import as_datetime, as_timedelta, get_decade
-from deode.logs import InterceptHandler, logger, builtin_logging as logging
+from deode.logs import InterceptHandler
+from deode.logs import builtin_logging as logging
+from deode.logs import logger
 from deode.os_utils import deodemakedirs
 from deode.tasks.base import Task
+from pysurfex.cli import (
+    cli_oi2soda,
+    cryoclim_pseudoobs,
+    first_guess_for_oi,
+    gridpp,
+    qc2obsmon,
+    titan,
+)
 from pysurfex.geo import ConfProj
-from pysurfex.cli import gridpp, titan, cryoclim_pseudoobs, qc2obsmon, first_guess_for_oi, cli_oi2soda
 from pysurfex.platform_deps import SystemFilePaths
 from pysurfex.run import BatchJob
 from pysurfex.verification import converter2harp_cli
+
 from surfexp.experiment import SettingsFromNamelistAndConfig
 
 
@@ -60,7 +69,7 @@ class PySurfexBaseTask(Task):
         if not os.path.exists(self.domain_file):
             with open(self.domain_file, mode="w", encoding="utf-8") as file_handler:
                 json.dump(domain_json, file_handler, indent=2)
-        #self.dtg = as_datetime(self.config["general.times.basetime"])
+        # self.dtg = as_datetime(self.config["general.times.basetime"])
         self.basetime = as_datetime(self.config["general.times.basetime"])
         casedir = self.config["system.casedir"]
         self.casedir = self.platform.substitute(casedir, basetime=self.basetime)
@@ -75,7 +84,9 @@ class PySurfexBaseTask(Task):
 
         # Namelist settings
         self.soda_settings = SettingsFromNamelistAndConfig("soda", config)
-        self.suffix = f'.{self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE").lower()}'
+        self.suffix = (
+            f'.{self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE").lower()}'
+        )
         self.obs_types = self.soda_settings.get_setting("NAM_OBS#COBS_M", default=[])
         self.nnco = self.soda_settings.get_nnco(self.config, basetime=self.basetime)
         logger.debug("NNCO: {}", self.nnco)
@@ -107,7 +118,6 @@ class PySurfexBaseTask(Task):
         self.exp_file_paths.save_as(exp_file_paths_file)
         return exp_file_paths_file
 
-
     def substitute(self, pattern, basetime=None, micro="@"):
         logger.debug("pattern in {}", pattern)
         fpattern = pattern
@@ -125,8 +135,12 @@ class PySurfexBaseTask(Task):
                 else:
                     decade_val = ""
                 logger.debug("decade key={} val={}", decade_key, decade_val)
-                fpattern = fpattern.replace(f"{micro}{decade_key.upper()}{micro}", decade_val)
-                fpattern = fpattern.replace(f"{micro}{decade_key.lower()}{micro}", decade_val)
+                fpattern = fpattern.replace(
+                    f"{micro}{decade_key.upper()}{micro}", decade_val
+                )
+                fpattern = fpattern.replace(
+                    f"{micro}{decade_key.lower()}{micro}", decade_val
+                )
         logger.debug("pattern out {}", fpattern)
         return fpattern
 
@@ -157,7 +171,6 @@ class PySurfexBaseTask(Task):
         # surfExp binary directory
         bindir_system = self.platform.get_system_value("bindir")
 
-
         bin_paths = [f"{bindir_system}/{binary}-offline", f"{bindir_system}/{binary}"]
         for bin_path in bin_paths:
             if os.path.exists(bin_path):
@@ -171,8 +184,7 @@ class PySurfexBaseTask(Task):
             raise RuntimeError() from FileNotFoundError
 
     def get_first_guess(self, basetime):
-
-        csurffile =  self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
+        csurffile = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
         firstguess = f"{csurffile}{self.suffix}"
 
         fcint = as_timedelta(self.config["general.times.cycle_length"])
@@ -184,13 +196,11 @@ class PySurfexBaseTask(Task):
         )
         fg_file = f"{fg_dir}/{firstguess}"
 
-
         logger.info("Use first guess: {}", fg_file)
         return fg_file
 
     def get_forecast_start_file(self, basetime, mode):
-
-        csurffile =  self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
+        csurffile = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
         archive = self.config["system.archive_dir"]
         archive = self.platform.substitute(archive, basetime=basetime)
         csurffile = f"{archive}/{csurffile}{self.suffix}"
@@ -200,8 +210,12 @@ class PySurfexBaseTask(Task):
         logger.info("basetime={}", basetime)
         logger.info("starttime={}", as_datetime(self.config["general.times.start"]))
         logger.info("archive={}", archive)
-        if self.config["suite_control.do_prep"] and basetime == as_datetime(self.config["general.times.start"]):
-            cprepfile = self.soda_settings.get_setting("NAM_IO_OFFLINE#CPREPFILE", default="PREP")
+        if self.config["suite_control.do_prep"] and basetime == as_datetime(
+            self.config["general.times.start"]
+        ):
+            cprepfile = self.soda_settings.get_setting(
+                "NAM_IO_OFFLINE#CPREPFILE", default="PREP"
+            )
             prep_file = f"{archive}/{cprepfile}{self.suffix}"
             if os.path.exists(prep_file):
                 logger.info("Found PREP file {}", prep_file)
@@ -311,7 +325,9 @@ class QualityControl(PySurfexBaseTask):
             data_sets = {}
             if synop_obs:
                 filepattern = self.config["observations.filepattern"]
-                filepattern = self.platform.substitute(filepattern, basetime=self.validtime)
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 bufr_tests = default_tests
                 bufr_tests.update(
                     {"plausibility": {"do_test": True, "maxval": 340, "minval": 200}}
@@ -337,7 +353,9 @@ class QualityControl(PySurfexBaseTask):
                     }
                 )
                 filepattern = self.config["observations.netatmo_filepattern"]
-                filepattern = self.platform.substitute(filepattern, basetime=self.validtime)
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 data_sets.update(
                     {
                         "netatmo": {
@@ -357,7 +375,9 @@ class QualityControl(PySurfexBaseTask):
             data_sets = {}
             if synop_obs:
                 filepattern = self.config["observations.filepattern"]
-                filepattern = self.platform.substitute(filepattern, basetime=self.validtime)
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 bufr_tests = default_tests
                 bufr_tests.update(
                     {"plausibility": {"do_test": True, "maxval": 100, "minval": 0}}
@@ -383,7 +403,9 @@ class QualityControl(PySurfexBaseTask):
                     }
                 )
                 filepattern = self.config["observations.netatmo_filepattern"]
-                filepattern = self.platform.substitute(filepattern, basetime=self.validtime)
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 data_sets.update(
                     {
                         "netatmo": {
@@ -404,7 +426,9 @@ class QualityControl(PySurfexBaseTask):
             data_sets = {}
             if synop_obs:
                 filepattern = self.config["observations.filepattern"]
-                filepattern = self.platform.substitute(filepattern, basetime=self.validtime)
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 bufr_tests = default_tests
                 bufr_tests.update(
                     {
@@ -480,12 +504,18 @@ class QualityControl(PySurfexBaseTask):
             json.dump({self.var_name: settings}, fh, indent=2)
 
         argv = [
-            "-i", settings_file,
-            "-v", self.var_name,
-            "-o", output,
-            "--indent", str(indent),
-            "--validtime", self.basetime.strftime("%Y%m%d%H"),
-            "--domain", self.domain_file
+            "-i",
+            settings_file,
+            "-v",
+            self.var_name,
+            "-o",
+            output,
+            "--indent",
+            str(indent),
+            "--validtime",
+            self.basetime.strftime("%Y%m%d%H"),
+            "--domain",
+            self.domain_file,
         ]
         if blacklist_file is not None:
             argv += ["--blacklist", blacklist_file]
@@ -493,6 +523,7 @@ class QualityControl(PySurfexBaseTask):
         tests = list(tests)
         argv += tests
         titan(argv)
+
 
 class OptimalInterpolation(PySurfexBaseTask):
     """Creates a horizontal OI analysis of selected variables.
@@ -585,16 +616,26 @@ class OptimalInterpolation(PySurfexBaseTask):
         obs_file = f"{obs_dir}/qc_{var}.json"
 
         argv = [
-            "-i", input_file,
-            "-obs", obs_file,
-            "-o", output_file,
-            "-v", var,
-            "-hor", str(hlength),
-            "-vert", str(vlength),
-            "--wlength", str(wlength),
-            "--maxLocations", str(max_locations),
-            "--elevGradient", str(elev_gradient),
-            "--epsilon", str(epsilon)
+            "-i",
+            input_file,
+            "-obs",
+            obs_file,
+            "-o",
+            output_file,
+            "-v",
+            var,
+            "-hor",
+            str(hlength),
+            "-vert",
+            str(vlength),
+            "--wlength",
+            str(wlength),
+            "--maxLocations",
+            str(max_locations),
+            "--elevGradient",
+            str(elev_gradient),
+            "--epsilon",
+            str(epsilon),
         ]
         if maxvalue is not None:
             argv += ["--maxvalue", maxvalue]
@@ -640,7 +681,7 @@ class CryoClim2json(PySurfexBaseTask):
         fg_input_file = archive + "/raw_" + var + ".nc"
 
         obs_file = self.config["observations.cryo_filepattern"]
-        #obs_file = [self.platform.substitute(obs_file)]
+        # obs_file = [self.platform.substitute(obs_file)]
         try:
             laf_threshold = self.config["observations.cryo_laf_threshold"]
         except AttributeError:
@@ -664,11 +705,15 @@ class CryoClim2json(PySurfexBaseTask):
 
         output = f"{self.platform.get_system_value('obs_dir')}/cryo.json"
         argv = [
-            "--infiles", obs_file,
-            "--laf_treshold", str(laf_threshold),
-            "-step", str(step),
-            "-o", output
-            ]
+            "--infiles",
+            obs_file,
+            "--laf_treshold",
+            str(laf_threshold),
+            "-step",
+            str(step),
+            "-o",
+            output,
+        ]
         if cryo_varname is not None:
             argv += ["-iv", cryo_varname]
 
@@ -677,11 +722,23 @@ class CryoClim2json(PySurfexBaseTask):
 
         # Slope
         argv += [
-            "slope", "--inputfile", cryo_slope_file, "-v", "SFX.SSO_SLOPE", "-it", "surfex"
+            "slope",
+            "--inputfile",
+            cryo_slope_file,
+            "-v",
+            "SFX.SSO_SLOPE",
+            "-it",
+            "surfex",
         ]
         # Permanent snow
         argv += [
-            "perm_snow", "--inputfile", cryo_perm_snow_file, "-v", "SFX.COVER006", "-it", "surfex"
+            "perm_snow",
+            "--inputfile",
+            cryo_perm_snow_file,
+            "-v",
+            "SFX.COVER006",
+            "-it",
+            "surfex",
         ]
         cryoclim_pseudoobs(argv)
 
@@ -752,8 +809,10 @@ class Oi2soda(PySurfexBaseTask):
                         "var": lvar_name,
                     }
                     argv += [
-                        "--t2m_file", archive + "/an_" + lvar_name + ".nc",
-                        "--t2m_var", lvar_name
+                        "--t2m_file",
+                        archive + "/an_" + lvar_name + ".nc",
+                        "--t2m_var",
+                        lvar_name,
                     ]
 
                 elif var == "rh2m":
@@ -762,8 +821,10 @@ class Oi2soda(PySurfexBaseTask):
                         "var": lvar_name,
                     }
                     argv += [
-                        "--rh2m_file", archive + "/an_" + lvar_name + ".nc",
-                        "--rh2m_var", lvar_name
+                        "--rh2m_file",
+                        archive + "/an_" + lvar_name + ".nc",
+                        "--rh2m_var",
+                        lvar_name,
                     ]
                 elif var == "sd":
                     s_d = {
@@ -771,8 +832,10 @@ class Oi2soda(PySurfexBaseTask):
                         "var": lvar_name,
                     }
                     argv += [
-                        "--sd_file", archive + "/an_" + lvar_name + ".nc",
-                        "--sd_var", lvar_name
+                        "--sd_file",
+                        archive + "/an_" + lvar_name + ".nc",
+                        "--sd_var",
+                        lvar_name,
                     ]
         logger.info("t2m  {} ", t2m)
         logger.info("rh2m {}", rh2m)
@@ -829,7 +892,7 @@ class Qc2obsmon(PySurfexBaseTask):
 
         variables = []
         if self.mode == "an_forcing":
-        # Add variables if used in analysed forcing
+            # Add variables if used in analysed forcing
             try:
                 an_forcing = self.config["an_forcing"]["enabled"]
             except KeyError:
@@ -862,11 +925,16 @@ class Qc2obsmon(PySurfexBaseTask):
             fg_file = archive + "/raw_" + var_name + ".nc"
             an_file = archive + "/an_" + var_name + ".nc"
             argv = [
-                "--operator", "bilinear",
-                "--file_var", var_name,
-                "--an_file", an_file,
-                "--fg_file", fg_file,
-                "-o", output
+                "--operator",
+                "bilinear",
+                "--file_var",
+                var_name,
+                "--an_file",
+                an_file,
+                "--fg_file",
+                fg_file,
+                "-o",
+                output,
             ]
             argv += [self.basetime.strftime("%Y%m%d%H"), var_name, q_c]
             qc2obsmon(argv)
@@ -902,7 +970,7 @@ class FirstGuess4OI(PySurfexBaseTask):
             self.mode = self.config["task.args.mode"]
         except KeyError:
             raise RuntimeError from KeyError
-        
+
         self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
         logger.info("validtime: {}", self.validtime)
 
@@ -960,17 +1028,18 @@ class FirstGuess4OI(PySurfexBaseTask):
 
         output = archive + "/raw" + extra + ".nc"
 
-        argv = [
-            "--fg-variables"
-        ]
+        argv = ["--fg-variables"]
         for var in raw_vars:
             print(var)
             argv.append(var)
         argv += [
-            "--validtime", self.validtime.strftime("%Y%m%d%H"),
-            "--domain", self.domain_file,
-            "-o", output,
-            "--debug"
+            "--validtime",
+            self.validtime.strftime("%Y%m%d%H"),
+            "--domain",
+            self.domain_file,
+            "-o",
+            output,
+            "--debug",
         ]
 
         for __, var in enumerate(raw_vars):
@@ -1005,9 +1074,7 @@ class FirstGuess4OI(PySurfexBaseTask):
             identifier = f"initial_conditions.fg4oi.{self.mode}.inputfile"
             inputfile = self.config[identifier]
         logger.info("inputfile0={} basetime={}", inputfile, self.basetime)
-        inputfile = self.substitute(
-            inputfile, basetime=self.basetime
-        )
+        inputfile = self.substitute(inputfile, basetime=self.basetime)
         logger.info("inputfile1={}", inputfile)
 
         try:
@@ -1135,15 +1202,21 @@ class HarpSQLite(PySurfexBaseTask):
         except KeyError:
             raise RuntimeError("Mode is needed") from KeyError
         try:
-            self.harp_param = self.config[f"verification.{mode}.{self.var_name}.harp_param"]
+            self.harp_param = self.config[
+                f"verification.{mode}.{self.var_name}.harp_param"
+            ]
         except KeyError:
             raise RuntimeError("harp param is needed") from KeyError
         try:
-            self.harp_param_unit = self.config[f"verification.{mode}.{self.var_name}.harp_param_unit"]
+            self.harp_param_unit = self.config[
+                f"verification.{mode}.{self.var_name}.harp_param_unit"
+            ]
         except KeyError:
             raise RuntimeError("harp_param_unit is needed") from KeyError
 
-        self.model = self.platform.substitute(self.config["extractsqlite.sqlite_model_name"])
+        self.model = self.platform.substitute(
+            self.config["extractsqlite.sqlite_model_name"]
+        )
         self.stationlist_file = self.platform.substitute(
             self.config["extractsqlite.station_list"]
         )
@@ -1155,15 +1228,17 @@ class HarpSQLite(PySurfexBaseTask):
         )
 
         archive = self.config["system.archive_dir"]
-        archive = self.platform.substitute(archive, basetime=self.basetime, validtime=self.validtime)
+        archive = self.platform.substitute(
+            archive, basetime=self.basetime, validtime=self.validtime
+        )
         if mode == "forecast":
             archive = f"{archive}/forecast/"
         input_pattern = f"{archive}/SURFOUT.@YYYY_LL@@MM_LL@@DD_LL@_@HH_LL@h00.nc"
         logger.info("validtime={}", self.validtime)
         logger.info("archive={}", archive)
-        self.input = self.substitute(input_pattern)#, basetime=self.basetime)
+        self.input = self.substitute(input_pattern)  # , basetime=self.basetime)
         logger.info("input={}", self.input)
-        #self.input = "/lustre/storeB/users/trygveasp//deode/CY49DT_OFFLINE_DRAMMEN/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY_LL@@MM_LL@@DD_LL@_@HH_LL@h00.nc"
+        # self.input = "/lustre/storeB/users/trygveasp//deode/CY49DT_OFFLINE_DRAMMEN/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY_LL@@MM_LL@@DD_LL@_@HH_LL@h00.nc"
 
     def execute(self):
         """Execute."""
@@ -1182,13 +1257,19 @@ class HarpSQLite(PySurfexBaseTask):
             self.harp_param_unit,
             "--model-name",
             self.model,
-            "-o", f"{self.sqlite_path}/{self.sqlite_template}",
+            "-o",
+            f"{self.sqlite_path}/{self.sqlite_template}",
             "converter",
-            "-i", self.input,
-            "-it", "surfex",
-            "-v", self.var_name,
-            "-t", dt_string,
-            "-b", basetime
+            "-i",
+            self.input,
+            "-it",
+            "surfex",
+            "-v",
+            self.var_name,
+            "-t",
+            dt_string,
+            "-b",
+            basetime,
         ]
         logger.info("Args: {}", " ".join(argv))
         converter2harp_cli(argv=argv)

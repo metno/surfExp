@@ -1,16 +1,13 @@
 """Experiment tools."""
 import yaml
-
-from pysurfex.namelist import NamelistGenerator, NamelistGeneratorAssemble
 from deode.datetime_utils import as_datetime, as_timedelta
-from deode.namelist import NamelistGenerator as DeodeNamelistGenerator
 from deode.logs import logger
+from deode.namelist import NamelistGenerator as DeodeNamelistGenerator
+from pysurfex.namelist import NamelistGenerator, NamelistGeneratorAssemble
 
 
-class SettingsFromNamelist():
-
+class SettingsFromNamelist:
     def __init__(self, program, nml, assemble=None):
-
         self.program = program
         if assemble is not None:
             nam_gen = NamelistGeneratorAssemble(self.program, nml, assemble)
@@ -35,7 +32,11 @@ class SettingsFromNamelist():
             return self.nml[indices[0]][indices[1]]
         except KeyError:
             if default is not None:
-                logger.warning("Namelist setting {} not found. Using default value: {}", setting, default)
+                logger.warning(
+                    "Namelist setting {} not found. Using default value: {}",
+                    setting,
+                    default,
+                )
                 return default
             else:
                 raise RuntimeError from KeyError
@@ -56,7 +57,6 @@ class SettingsFromNamelist():
         if self.get_setting(setting, sep=sep) == value:
             return True
         return False
-
 
     def get_nnco(self, config, basetime=None):
         """Get the active observations.
@@ -103,10 +103,9 @@ class SettingsFromNamelist():
         logger.debug("NNCO: {}", nnco)
         return nnco
 
+
 class SettingsFromNamelistAndConfig(SettingsFromNamelist):
-
     def __init__(self, program, config):
-
         try:
             deode = config[f"{program}.deode"]
         except KeyError:
@@ -141,7 +140,6 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
 
 
 class SettingsFromNamelistAndConfigDeode(SettingsFromNamelist):
-
     def __init__(self, program, config):
         # SURFEX: Namelists and input data
         nlgen_surfex = DeodeNamelistGenerator(config, "surfex")
@@ -166,7 +164,12 @@ def check_consistency(config):
                     if key in all_settings[bkey]:
                         val2 = all_settings[bkey][key]
                         if val2 != val and key not in exceptions:
-                            logger.error("Inconsistent setting key={}, val1={} val2={}", key, val, val2)
+                            logger.error(
+                                "Inconsistent setting key={}, val1={} val2={}",
+                                key,
+                                val,
+                                val2,
+                            )
                             problems = True
                     else:
                         all_settings[bkey].update({key: val})
@@ -175,6 +178,7 @@ def check_consistency(config):
                     all_settings.update({bkey: {key: val}})
     if problems:
         raise RuntimeError
+
 
 def get_total_unique_cycle_list(config):
     """Get a list of unique start times for the forecasts.

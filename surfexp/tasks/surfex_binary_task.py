@@ -1,15 +1,14 @@
 """Tasks running surfex binaries."""
 import json
 
-from pysurfex.cli import pgd, prep, soda, perturbed_offline, offline
-
-from deode.datetime_utils import as_datetime, get_decade, as_timedelta
+from deode.datetime_utils import as_datetime, as_timedelta, get_decade
+from deode.logs import logger
 from deode.namelist import NamelistGenerator
 from deode.os_utils import deodemakedirs
-from deode.logs import logger
+from pysurfex.cli import offline, perturbed_offline, pgd, prep, soda
 
-from surfexp.tasks.tasks import PySurfexBaseTask
 from surfexp.experiment import SettingsFromNamelistAndConfig, check_consistency
+from surfexp.tasks.tasks import PySurfexBaseTask
 
 
 class SurfexBinaryTask(PySurfexBaseTask):
@@ -87,14 +86,22 @@ class OfflinePgd(SurfexBinaryTask):
             wrapper = ""
         # PGD arguments
         argv = [
-            "--domain", self.domain_file,
-            "--system-file-paths", self.get_exp_file_paths_file(),
-            "--basetime", self.basetime.strftime("%Y%m%d%H"),
-            "--namelist-path", nml_file,
-            "--input-binary-data", self.input_definition,
-            "--binary", binary,
-            "--wrapper", wrapper,
-            "--output", output
+            "--domain",
+            self.domain_file,
+            "--system-file-paths",
+            self.get_exp_file_paths_file(),
+            "--basetime",
+            self.basetime.strftime("%Y%m%d%H"),
+            "--namelist-path",
+            nml_file,
+            "--input-binary-data",
+            self.input_definition,
+            "--binary",
+            binary,
+            "--wrapper",
+            wrapper,
+            "--output",
+            output,
         ]
         if self.one_decade:
             argv += ["--one-decade"]
@@ -172,18 +179,28 @@ class OfflinePrep(SurfexBinaryTask):
         cprepfile = f"{cprepfile}{self.suffix}"
 
         archive = self.platform.get_system_value("archive_dir")
-        output = f"{self.platform.substitute(archive, basetime=self.basetime)}/{cprepfile}"
+        output = (
+            f"{self.platform.substitute(archive, basetime=self.basetime)}/{cprepfile}"
+        )
 
         # PREP arguments output
         argv = [
-            "--system-file-paths", self.get_exp_file_paths_file(),
-            "--pgd", pgd_file_path,
-            "--basetime", self.basetime.strftime("%Y%m%d%H"),
-            "--namelist-path", nml_file,
-            "--input-binary-data", self.input_definition,
-            "--output", output,
-            "--binary", binary,
-            "--wrapper", self.wrapper
+            "--system-file-paths",
+            self.get_exp_file_paths_file(),
+            "--pgd",
+            pgd_file_path,
+            "--basetime",
+            self.basetime.strftime("%Y%m%d%H"),
+            "--namelist-path",
+            nml_file,
+            "--input-binary-data",
+            self.input_definition,
+            "--output",
+            output,
+            "--binary",
+            binary,
+            "--wrapper",
+            self.wrapper,
         ]
 
         if prep_file is not None:
@@ -203,8 +220,9 @@ class OfflinePrep(SurfexBinaryTask):
 
         # Run PREP
         prep(argv=argv)
-        #run_surfex_binary(self.mode, **kwargs)
+        # run_surfex_binary(self.mode, **kwargs)
         self.archive_logs(["OPTIONS.nam", "LISTING_PREP0.txt"])
+
 
 class OfflineForecast(SurfexBinaryTask):
     """Running Forecast task.
@@ -282,7 +300,7 @@ class OfflineForecast(SurfexBinaryTask):
             forecast_range = as_timedelta(self.config["general.times.forecast_range"])
         xtstep_output = settings.nml["nam_io_offline"]["xtstep_output"]
         if "output-frequency" in self.args:
-            xtstep_output  = int(self.args["output-frequency"])
+            xtstep_output = int(self.args["output-frequency"])
         dt = as_timedelta(f"PT{int(xtstep_output)}S")
 
         if archive_data is None:
@@ -313,16 +331,26 @@ class OfflineForecast(SurfexBinaryTask):
 
         # Offline arguments output
         argv = [
-            "--system-file-paths", self.get_exp_file_paths_file(),
-            "--pgd", pgd_file_path,
-            "--prep", self.get_forecast_start_file(self.basetime, self.mode),
-            "--basetime", self.basetime.strftime("%Y%m%d%H"),
-            "--namelist-path", nml_file,
-            "--input-binary-data", self.input_definition,
-            "--forcing-dir", forcing_dir,
-            "--output", output,
-            "--wrapper", self.wrapper,
-            "--binary", binary
+            "--system-file-paths",
+            self.get_exp_file_paths_file(),
+            "--pgd",
+            pgd_file_path,
+            "--prep",
+            self.get_forecast_start_file(self.basetime, self.mode),
+            "--basetime",
+            self.basetime.strftime("%Y%m%d%H"),
+            "--namelist-path",
+            nml_file,
+            "--input-binary-data",
+            self.input_definition,
+            "--forcing-dir",
+            forcing_dir,
+            "--output",
+            output,
+            "--wrapper",
+            self.wrapper,
+            "--binary",
+            binary,
         ]
         if archive_data is not None:
             argv += ["--archive", archive_data]
@@ -405,18 +433,28 @@ class PerturbedRun(SurfexBinaryTask):
 
         # Offline arguments output
         argv = [
-            "--system-file-paths", self.get_exp_file_paths_file(),
-            "--pgd", pgd_file_path,
-            "--prep", prepfile,
-            "--basetime", self.basetime.strftime("%Y%m%d%H"),
-            "--namelist-path", nml_file,
-            "--input-binary-data", self.input_definition,
-            "--forcing-dir", forcing_dir,
-            "--binary", binary,
-            "--pert", self.pert,
-            "--wrapper", self.wrapper,
-            "--output", output,
-
+            "--system-file-paths",
+            self.get_exp_file_paths_file(),
+            "--pgd",
+            pgd_file_path,
+            "--prep",
+            prepfile,
+            "--basetime",
+            self.basetime.strftime("%Y%m%d%H"),
+            "--namelist-path",
+            nml_file,
+            "--input-binary-data",
+            self.input_definition,
+            "--forcing-dir",
+            forcing_dir,
+            "--binary",
+            binary,
+            "--pert",
+            self.pert,
+            "--wrapper",
+            self.wrapper,
+            "--output",
+            output,
         ]
         if self.negpert:
             argv += ["--negpert"]
@@ -484,20 +522,31 @@ class Soda(SurfexBinaryTask):
             archive_dir = self.config["system.archive_dir"]
             pert_run_dir = self.platform.substitute(archive_dir, basetime=self.basetime)
             self.exp_file_paths.add_system_file_path("perturbed_run_dir", pert_run_dir)
-            first_guess_dir = self.platform.substitute(archive_dir, basetime=self.fg_basetime)
+            first_guess_dir = self.platform.substitute(
+                archive_dir, basetime=self.fg_basetime
+            )
             self.exp_file_paths.add_system_file_path("first_guess_dir", first_guess_dir)
 
         # Soda arguments output
         argv = [
-            "--system-file-paths", self.get_exp_file_paths_file(),
-            "--pgd", pgd_file_path,
-            "--prep", prep_file_path,
-            "--basetime", self.basetime.strftime("%Y%m%d%H"),
-            "--namelist-path", nml_file,
-            "--input-binary-data", self.input_definition,
-            "--output", output,
-            "--wrapper", self.wrapper,
-            "--binary", binary
+            "--system-file-paths",
+            self.get_exp_file_paths_file(),
+            "--pgd",
+            pgd_file_path,
+            "--prep",
+            prep_file_path,
+            "--basetime",
+            self.basetime.strftime("%Y%m%d%H"),
+            "--namelist-path",
+            nml_file,
+            "--input-binary-data",
+            self.input_definition,
+            "--output",
+            output,
+            "--wrapper",
+            self.wrapper,
+            "--binary",
+            binary,
         ]
         for key, val in self.args.items():
             if f"--{key}" not in argv:

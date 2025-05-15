@@ -1,11 +1,12 @@
 """Fetch MARS task."""
+import math
 import os
 import shutil
-import math
 
 from deode.datetime_utils import as_timedelta
 from deode.logs import logger
 from pysurfex.run import BatchJob
+
 from surfexp.tasks.tasks import PySurfexBaseTask
 
 
@@ -21,7 +22,7 @@ class FetchMars(PySurfexBaseTask):
         """
         PySurfexBaseTask.__init__(self, config, name="FetchMars")
         try:
-            mode = self.config['task.args.mode']
+            mode = self.config["task.args.mode"]
         except KeyError:
             mode = "default"
 
@@ -58,13 +59,15 @@ class FetchMars(PySurfexBaseTask):
         if not os.path.exists(self.grib_file_with_path):
             self.fetch_mars()
         else:
-            logger.warning("The file {} is already fetched, consider to clean", self.grib_file_with_path)
+            logger.warning(
+                "The file {} is already fetched, consider to clean",
+                self.grib_file_with_path,
+            )
         self.split_files()
 
     def fetch_mars(self):
-
         request_file = "request.mars"
-        with open(request_file, mode='w', encoding="utf8") as fhandler:
+        with open(request_file, mode="w", encoding="utf8") as fhandler:
             fhandler.write("")
 
         try:
@@ -88,9 +91,9 @@ class FetchMars(PySurfexBaseTask):
             stream="oper",
             target=self.gribfile,
             grid=grid,
-            area=self.area
+            area=self.area,
         )
-        with open(request_file, mode='a', encoding="utf8") as rf:
+        with open(request_file, mode="a", encoding="utf8") as rf:
             req.write_request(rf)
 
         rte = os.environ.copy()
@@ -102,17 +105,23 @@ class FetchMars(PySurfexBaseTask):
         rule_file = f"{self.mars_config}_filter1.rule"
         with open(rule_file, mode="w", encoding="utf8") as fhandler:
             fhandler.write("set timeRangeIndicator = 0;\n")
-            fhandler.write(f'write "{self.gribdir}/{self.mars_config}_split_{self.basetime.strftime("%Y%m%d%H")}+[step].grib1";\n')
+            fhandler.write(
+                f'write "{self.gribdir}/{self.mars_config}_split_{self.basetime.strftime("%Y%m%d%H")}+[step].grib1";\n'
+            )
         logger.info("grib_filter {} {}", rule_file, self.grib_file_with_path)
         rte = os.environ.copy()
         BatchJob(rte).run(f"grib_filter {rule_file} {self.grib_file_with_path}")
         rule_file = f"{self.mars_config}_filter2.rule"
         with open(rule_file, mode="w", encoding="utf8") as fhandler:
-            fhandler.write('print "found indicatorOfParameter=[indicatorOfParameter] timeRangeIndicator=[timeRangeIndicator] date=[date] step=[step]";\n')
-            fhandler.write('if (indicatorOfParameter == 228 || indicatorOfParameter == 144 || indicatorOfParameter == 169 || indicatorOfParameter == 175) {\n')
-            fhandler.write('  set timeRangeIndicator = 4;\n')
-            fhandler.write('}\n')
-            fhandler.write('write;\n')
+            fhandler.write(
+                'print "found indicatorOfParameter=[indicatorOfParameter] timeRangeIndicator=[timeRangeIndicator] date=[date] step=[step]";\n'
+            )
+            fhandler.write(
+                "if (indicatorOfParameter == 228 || indicatorOfParameter == 144 || indicatorOfParameter == 169 || indicatorOfParameter == 175) {\n"
+            )
+            fhandler.write("  set timeRangeIndicator = 4;\n")
+            fhandler.write("}\n")
+            fhandler.write("write;\n")
         for ltime in self.leadtimes:
             infile = f"{self.gribdir}/{self.mars_config}_split_{self.basetime.strftime('%Y%m%d%H')}+{ltime}.grib1"
             outfile = f"{self.gribdir}/{self.mars_config}_{self.basetime.strftime('%Y%m%d%H')}+{ltime:02d}.grib1"
@@ -123,26 +132,27 @@ class FetchMars(PySurfexBaseTask):
 
 
 class Request(object):
-
-    def __init__(self,
-                 action=None,
-                 source=None,
-                 dates=None,
-                 hours=None,
-                 origin=None,
-                 typ=None,
-                 step=None,
-                 levelist=None,
-                 param=None,
-                 levtype=None,
-                 database=None,
-                 expver="prod",
-                 clas="RR",
-                 stream="oper",
-                 target=None,
-                 grid=None,
-                 area=None):
-        """ Construct a request for mars"""
+    def __init__(
+        self,
+        action=None,
+        source=None,
+        dates=None,
+        hours=None,
+        origin=None,
+        typ=None,
+        step=None,
+        levelist=None,
+        param=None,
+        levtype=None,
+        database=None,
+        expver="prod",
+        clas="RR",
+        stream="oper",
+        target=None,
+        grid=None,
+        area=None,
+    ):
+        """Construct a request for mars"""
         self.action = action
         self.target = target
         self.source = source
@@ -160,37 +170,46 @@ class Request(object):
         self.stream = stream
         self.grid = grid
         self.area = area
-        self.expect = len(self.step)*len(self.param)*len(self.levelist)*len(self.dates)*len(self.hours)
+        self.expect = (
+            len(self.step)
+            * len(self.param)
+            * len(self.levelist)
+            * len(self.dates)
+            * len(self.hours)
+        )
 
     def write_request(self, f):
-        separator = '/'
+        separator = "/"
         if self.action == "archive":
             if self.database:
-                f.write('%s,source=%s,database=%s,\n' % (self.action,self.source,self.database))
+                f.write(
+                    "%s,source=%s,database=%s,\n"
+                    % (self.action, self.source, self.database)
+                )
             else:
-                f.write('%s,source=%s,\n' % (self.action,self.source))
+                f.write("%s,source=%s,\n" % (self.action, self.source))
         elif self.action == "retrieve":
             f.write(f"{self.action},\n")
-        f.write(_line('TARGET',self.target))
-        f.write(_line('DATE', separator.join(str(x) for x in self.dates)))
-        f.write(_line('TIME', separator.join(str(x) for x in self.hours)))
+        f.write(_line("TARGET", self.target))
+        f.write(_line("DATE", separator.join(str(x) for x in self.dates)))
+        f.write(_line("TIME", separator.join(str(x) for x in self.hours)))
         if self.origin is not None:
-            f.write(_line('ORIGIN',self.origin.upper()))
-        f.write(_line('STEP',separator.join(str(x) for x in self.step)))
+            f.write(_line("ORIGIN", self.origin.upper()))
+        f.write(_line("STEP", separator.join(str(x) for x in self.step)))
         if self.levtype.lower() != "sfc".lower():
-            f.write(_line('LEVELIST',separator.join(str(x) for x in self.levelist)))
-        f.write(_line('PARAM',separator.join(str(x) for x in self.param)))
-        f.write(_line('EXPVER',self.expver.lower()))
-        f.write(_line('CLASS ',self.marsClass.upper()))
-        f.write(_line('LEVTYPE',self.levtype.upper()))
-        f.write(_line('TYPE',self.type.upper()))
-        f.write(_line('STREAM',self.stream.upper()))
+            f.write(_line("LEVELIST", separator.join(str(x) for x in self.levelist)))
+        f.write(_line("PARAM", separator.join(str(x) for x in self.param)))
+        f.write(_line("EXPVER", self.expver.lower()))
+        f.write(_line("CLASS ", self.marsClass.upper()))
+        f.write(_line("LEVTYPE", self.levtype.upper()))
+        f.write(_line("TYPE", self.type.upper()))
+        f.write(_line("STREAM", self.stream.upper()))
         if self.grid is not None:
-            f.write(_line('GRID',self.grid))
+            f.write(_line("GRID", self.grid))
         if self.area is not None:
-            f.write(_line('AREA',self.area))
-        f.write(_line('EXPECT',"ANY", eol=""))
+            f.write(_line("AREA", self.area))
+        f.write(_line("EXPECT", "ANY", eol=""))
 
 
-def _line(key,val,eol=','):
-    return "    %s= %s%s\n" % (key.ljust(11),val,eol)
+def _line(key, val, eol=","):
+    return "    %s= %s%s\n" % (key.ljust(11), val, eol)

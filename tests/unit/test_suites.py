@@ -1,7 +1,7 @@
 import pytest
-
-from deode.config_parser import ParsedConfig, ConfigParserDefaults
+from deode.config_parser import ConfigParserDefaults, ParsedConfig
 from deode.derived_variables import set_times
+
 from surfexp import PACKAGE_DIRECTORY
 from surfexp.cli import pysfxexp
 from surfexp.suites.offline import SurfexSuiteDefinition
@@ -20,17 +20,22 @@ def fixture_sekf_config(tmp_directory):
         fhandler.write(f'scratch = "{tmp_directory}"\n')
         fhandler.write('unix_group = "suv"\n')
 
-    argv = ["-o", output_file,
-            "--case-name", "deode_case_name",
-            "--plugin-home", f"{PACKAGE_DIRECTORY}/..",
-            f"{tmp_directory}/mods_sekf.toml",
-            f"{PACKAGE_DIRECTORY}/data/config/domains/DRAMMEN.toml",
-            f"{PACKAGE_DIRECTORY}/data/config/configurations/sekf.toml"
+    argv = [
+        "-o",
+        output_file,
+        "--case-name",
+        "deode_case_name",
+        "--plugin-home",
+        f"{PACKAGE_DIRECTORY}/..",
+        f"{tmp_directory}/mods_sekf.toml",
+        f"{PACKAGE_DIRECTORY}/data/config/domains/DRAMMEN.toml",
+        f"{PACKAGE_DIRECTORY}/data/config/configurations/sekf.toml",
     ]
     pysfxexp(argv=argv)
 
     config = ParsedConfig.from_file(
-            output_file, json_schema=ConfigParserDefaults.MAIN_CONFIG_JSON_SCHEMA)
+        output_file, json_schema=ConfigParserDefaults.MAIN_CONFIG_JSON_SCHEMA
+    )
     config = config.copy(update=set_times(config))
     config = config.copy({"suite_control": {"do_prep": False}})
     return config
@@ -38,16 +43,14 @@ def fixture_sekf_config(tmp_directory):
 
 @pytest.mark.usefixtures("mock_submission", "project_directory")
 def test_offline_deode_suite(deode_config):
-
     SurfexSuiteDefinition(deode_config)
+
 
 @pytest.mark.usefixtures("mock_submission", "project_directory")
 def test_offline_suite(default_config):
-
     SurfexSuiteDefinition(default_config)
 
 
 @pytest.mark.usefixtures("mock_submission", "project_directory")
 def test_offline_sekf_suite(sekf_config):
-
     SurfexSuiteDefinition(sekf_config)
