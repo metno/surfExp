@@ -2,62 +2,154 @@
 
 [general.times]
   cycle_length = "PT1H"
+  forecast_range = "PT0H"
 
 [compile]
-  build = false
+  build = true
+  build_config = "PPI-RH8-IB.offline"
   ial_source = "/home/trygveasp/projects/CARRA2-offline/"
 
-[forcing]
-  pattern = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
-  input_format = "netcdf"
+[system]
+  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/cy46_carra2/surfex_namelists.yml"
 
-[initial_conditions.fg4oi]
+# Snow analysis
+[assim]
+  update_snow_cycles = ["06"]
+
+# First guess for anlysis
+[initial_conditions.fg4oi.analysis]
+[initial_conditions.fg4oi.analysis.t2m]
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
   converter = "none"
-  fileformat = "surfex"
-  inputfile = "@casedir@/archive/@YYYY_FG@/@MM_FG@/@DD_FG@/@HH_FG@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  basetime = "@FG_BASETIME@"
+  outfile-var = "air_temperature_2m"
+  fcint = "10800"
+  file-inc = "3600"
+
+[initial_conditions.fg4oi.analysis.rh2m]
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  converter = "none"
+  basetime = "@FG_BASETIME@"
+  outfile-var = "relative_humidity_2m"
+  fcint = "10800"
+  file-inc = "3600"
+
+[initial_conditions.fg4oi.analysis.sd]
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  converter = "none"
+  basetime = "@FG_BASETIME@"
+  outfile-var = "surface_snow_thickness"
+  fcint = "10800"
+  file-inc = "3600"
 
 [initial_conditions.fg4oi.altitude]
+  inputfile = "@climdir@/PGD_@DECADE@.nc"
+  inputtype = "surfex"
   converter = "none"
-  inputfile = "@casedir@/climate/PGD.nc"
+  variable = "ZS"
+  basetime = "@BASETIME@"
+  outfile-var = "altitude"
 
-[initial_conditions.fg4oi.land_area_fraction]
+[initial_conditions.fg4oi.laf]
   converter = "nature_town"
-  inputfile = "@casedir@/climate/PGD.nc"
+  converter-variables = ["nature", "town"]
+  nature-inputfile = "@climdir@/PGD_@DECADE@.nc"
+  nature-inputtype = "surfex"
+  nature-variable = "FRAC_NATURE"
+  nature-basetime = "@BASETIME@"
+  town-inputfile = "@climdir@/PGD_@DECADE@.nc"
+  town-inputtype = "surfex"
+  town-variable = "FRAC_NATURE"
+  town-basetime = "@BASETIME@"
+  outfile-var = "land_area_fraction"
 
+# Observations
 [observations]
   filepattern = "/lustre/storeA/project/metproduction/products/obs_dec/bufr/syno/syno_@YYYY@@MM@@DD@@HH@.bufr"
 
 [pgd]
-  one_decade = false
+  one_decade = true
+  blocks = [
+    "io", "constants", "treedrag", "pgd", "ecoclimap_sg",
+    "pgd_isba", "pgd_seaflx", "pgd_teb",
+    "pgd_watflx", "pgd_cover", "pgd_arrange_cover", "pgd_cover_direct",
+    "pgd_cover_lrm_river_true",
+    "pgd_cv_sg", "pgd_rsmin_sg",
+    "pgd_ecoclimap_sg",
+    "pgd_ecoclimap_sg_single_decade",
+    "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_lai_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
+    "pgd_zs", "pgd_zs_direct",
+    "pgd_sea",
+    "pgd_isba",
+    "pgd_isba_sand_direct", "pgd_isba_clay_direct",
+    "meb",
+    "pgd_meb"
+  ]
 
 [prep]
-  extra_namelist_blocks = ["prep_from_namelist"]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "prep",
+    "ecoclimap_sg",
+    "prep_from_namelist",
+    "prep_seaflux",
+    "prep_isba",
+    "prep_isba_snow",
+    "meb"
+  ]
 
-[SURFEX.ASSIM.ISBA]
-  UPDATE_SNOW_CYCLES = ["06"] # Cycles to update snow depths/SWE in assimilation.
+[offline]
+  deode = false
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "ecoclimap_sg",
+    "offline",
+    "offline_sso",
+    "offline_sso_none",
+    "offline_seaice",
+    "offline_isba",
+    "offline_teb",
+    "offline_selected_output"
+  ]
 
-[SURFEX.ASSIM.SCHEMES]
-  INLAND_WATER = "NONE" # Assimilation method for water tile: "INPUT"|"NONE"
-  ISBA = "NONE" # Assimilation method for ISBA soil: "NONE"|"OI"|"EKF"
-  SEA = "NONE" # Assimilation method for sea tile: "INPUT"|"NONE"
-  TEB = "NONE" # Assimilation method for TEB tile: "NONE"|"ROADT"
+[soda]
+  blocks = ["io", "treedrag", "ecoclimap_sg", "soda"]
 
-[SURFEX.ASSIM.OBS]
-  COBS_M = ["T2M", "HU2M", "WG2 ", "LAI", "SWE"] # Observation types
-  NNCO = [0, 0, 0, 0, 1] # Active observation types
-
-[SURFEX.COVER]
-  SG = true # ECOCLIMAP second generation
-  YCOVER = "ecosg_final_map.dir" # Version of ECOCLIMAP for surfex (1,2,SG)
-
-[SURFEX.IO]
-  CTIMESERIES_FILETYPE = "NC" # Fileformat for timseries. Inline runs use FA
-  LSELECT = true # Only write selected diagnostics
-  XTSTEP_OUTPUT = 3600.0 # Output interval from the binary OFFLINE
-
-[SURFEX.ISBA]
-  MEB = true # Enable Multi Energy Budget (MEB) model
-  SCHEME = "DIF" # Type of ISBA scheme in SURFEX. Options: "3-L"|"2-L"|"DIF"
-  SNOW = "3-L" # Type of snow scheme in SURFEX. Options: "D95" and "3-L"
-  YCLAY = "CLAY_SOILGRID.dir" # Soil texture input data: "clay_fao.dir"|"CLAY_HWSD_MOY_V2.dir"|"clay_SOILGRID.dir"
-  YSAND = "SAND_SOILGRID.dir" # Soil texture input data: "sand_fao.dir"|"SAND_HWSD_MOY_V2.dir"|"sand_SOILGRID.dir"
+# Normal forcing as this is already analysed
+[forcing.args.default]
+  domain = "@climdir@/domain.json"
+  pattern = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
+  output-filename = "@forcing_dir@/default/FORCING.nc"
+  output-format = "netcdf"
+  analysis = true
+  co2 = "constant"
+  debug = false
+  dir-sw-converter = "analysis"
+  interpolation = "bilinear"
+  lw-converter = "analysis"
+  ps-converter = "mslp2ps"
+  qa-converter = "rh2q_mslp"
+  rain-converter = "calcrain"
+  sca-sw = "constant"
+  snow-converter = "calcsnow"
+  timestep = "3600"
+  uref = "screen"
+  uval = "constant"
+  wind-converter = "none"
+  wind-dir-converter = "none"
+  zref = "screen"
+  zsoro-converter = "none"
+  zval = "constant"
+  diskless-write = true

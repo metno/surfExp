@@ -123,7 +123,6 @@ filepattern = "/hpcperm/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_
   "offline_sso_none",
   "offline_seaice",
   "offline_isba",
-  "offline_pert_isba_settings",
   "offline_teb",
   "offline_selected_output"
   ]

@@ -33,23 +33,6 @@
   soc_input = "soilgrid"
   zs_format = "direct"
   zs_input = "gmted2010"
-  #blocks = [
-  #  "pgd_ecoclimap_sg_single_decade"
-  #]
-  #extra_namelist_blocks = [
-  #  "pgd_ecoclimap_sg_single_decade", "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
-  #  "pgd_cover_direct",
-  #  "pgd_cover_lrm_river_true",
-  #  "pgd_isba_sand_direct", "pgd_isba_clay_direct", "pgd_isba_soc_direct", "pgd_zs_direct"
-  #]
-  # single: decade: pgd_ecoclimap_sg_single_decade
-  # single decade dirtyp:  "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp", "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp", "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp", "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp", "pgd_ecoclimap_sg_single_decade_lai_dirtyp", "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
-  # single decade netcdf:  "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
-  # dirtyp ECO-SG: "pgd_ecoclimap_sg_albnir_soil_dirtyp", "pgd_ecoclimap_sg_albnir_veg_dirtyp", "pgd_ecoclimap_sg_albvis_soil_dirtyp", "pgd_ecoclimap_sg_albvis_veg_dirtyp", "pgd_ecoclimap_sg_tree_height_dirtyp", "pgd_ecoclimap_sg_lai_dirtyp"
-  # direct: "pgd_cover_direct", "pgd_flake_depth_direct", "pgd_flake_depth_status_direct", "pgd_isba_sand_direct", "pgd_isba_clay_direct", "pgd_isba_soc_direct", "pgd_zs_direct"
-  # netcdf ECOS SG: "pgd_ecoclimap_sg_albnir_soil_netcdf", "pgd_ecoclimap_sg_albnir_veg_netcdf", "pgd_ecoclimap_sg_albvis_soil_netcdf", "pgd_ecoclimap_sg_albvis_veg_netcdf", "pgd_ecoclimap_sg_tree_height_netcdf", "pgd_ecoclimap_sg_lai_netcdf"
-  # netcdf other: "pgd_cover_netcdf", "pgd_flake_depth_netcdf", "pgd_flake_depth_status_netcdf", "pgd_isba_sand_netcdf", "pgd_isba_clay_netcdf", "pgd_isba_soc_netcdf", "pgd_zs_netcdf"
-  # Optional flake: "pgd_flake_depth_status_netcdf" "pgd_cover_lrm_river_true"
 
 [prep]
   deode = false
@@ -59,6 +42,9 @@
   deode = false
   tolerate_missing = false
 
+[troika]
+  config_file = "@PLUGIN_HOME@/surfexp/data/config/troika/troika_config.yml"
+
 [offline]
   deode = false
   tolerate_missing = false
@@ -66,6 +52,7 @@
 [suite_control]
   create_static_data = true
   suite_definition = "SurfexSuiteDefinition"
+  do_pgd = true
   do_prep = true
   do_marsprep = false
   interpolate2grid = false
@@ -129,8 +116,6 @@
   # pattern = "/lustre/storeB/immutable/archive/projects/metproduction/yr_short//@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
   # pattern = "/lustre/storeB/project/metkl/klinogrid/archive/met_nordic_analysis/v3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
   input_format = "netcdf"
-  # pattern = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
-  # input_format = "grib2"
   geo_input_file = "@climdir@/domain.json"
   analysis = true
   co2 = "constant"
@@ -156,8 +141,6 @@
 
 [an_forcing]
   enabled = false
-  first_cycle = true
-  forecast_mode = true
   variables = ["t2m", "rh2m"]
 
 [mars]
@@ -192,31 +175,53 @@
   prep_pgdfile = ""
 
 [initial_conditions.fg4oi.analysis]
-  # inputfile = "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc"
-  inputfile = "@sfx_exp_data@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
-  # inputfile = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
-  fileformat = "netcdf"
-  # fileformat = "grib2"
-  # fileformat = "surfex"
+[initial_conditions.fg4oi.analysis.t2m]
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
   converter = "none"
-  geo_input_file = "" # Needed for some surfex file types
+  basetime = "@FG_BASETIME@"
+  outfile-var = "air_temperature_2m"
+  fcint = "10800"
+  file-inc = "3600"
 
-[initial_conditions.fg4oi.analysis.air_temperature_2m]
+[initial_conditions.fg4oi.analysis.rh2m]
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
   converter = "none"
+  basetime = "@FG_BASETIME@"
+  outfile-var = "relative_humidity_2m"
+  fcint = "10800"
+  file-inc = "3600"
+
+[initial_conditions.fg4oi.analysis.sd]
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  converter = "none"
+  basetime = "@FG_BASETIME@"
+  outfile-var = "surface_snow_thickness"
+  fcint = "10800"
+  file-inc = "3600"
 
 [initial_conditions.fg4oi.analysis.altitude]
+  inputfile = "@climdir@/PGD_@DECADE@.nc"
+  inputtype = "surfex"
   converter = "none"
-  inputfile = "@CLIMDIR@/PGD@DECADE@.nc"
+  variable = "ZS"
+  basetime = "@BASETIME@"
+  outfile-var = "altitude"
 
-[initial_conditions.fg4oi.analysis.land_area_fraction]
+[initial_conditions.fg4oi.analysis.laf]
   converter = "nature_town"
-  inputfile = "@CLIMDIR@/PGD@DECADE@.nc"
-
-[initial_conditions.fg4oi.analysis.relative_humidity_2m]
-  converter = "none"
-
-[initial_conditions.fg4oi.analysis.surface_snow_thickness]
-  converter = "none"
+  converter-variables = ["nature", "town"]
+  nature-inputfile = "@climdir@/PGD_@DECADE@.nc"
+  nature-inputtype = "surfex"
+  nature-variable = "FRAC_NATURE"
+  nature-basetime = "@BASETIME@"
+  town-inputfile = "@climdir@/PGD_@DECADE@.nc"
+  town-inputtype = "surfex"
+  town-variable = "FRAC_NATURE"
+  town-basetime = "@BASETIME@"
+  outfile-var = "land_area_fraction"
 
 ##################################################################################################################
 [observations]
@@ -276,16 +281,3 @@
 
 [eps.member_settings.general]
   realization = "-1"
-
-#[eps.member_settings.general]
-#  hh_list = {0 = "0-21:3", 1 = "0-21:3", 2 = "0-21:3"}
-#  ll_list = {0 = "3", 1 = "3", 2 = "3"}
-#
-#[eps.member_settings.SURFEX.ASSIM.SCHEMES]
-#  ISBA = {0 = "OI", 1 = "OI", 2 = "OI"}
-#
-#[eps.member_settings.SURFEX.ISBA]
-#  PERTSURF = {0 = "none"}
-#
-#[eps.member_settings.SURFEX.SEA]
-#  PERTFLUX = {0 = "none"}

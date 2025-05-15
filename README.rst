@@ -108,7 +108,7 @@ Extra environment on PPI-RHEL8 needed to start experiments
  
  # MET-Norway LDAS experiment
  mkdir -f exps
- surfExp exps/LDAS.toml LDAS $PWD/data/config/configurations/metno_ldas.toml $PWD/data/config/domains/MET_NORDIC_1_0.toml $PWD/data/config/mods/arome_arctic_offline_ppi.toml $PWD/data/config/mods/netcdf_input_pgd.toml $PWD/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
+ surfExp -o exps/LDAS.toml --case-name LDAS --plugin-home $PWD surfexp/data/config/configurations/metno_ldas.toml $PWD/data/config/domains/MET_NORDIC_1_0.toml $PWD/data/config/mods/arome_arctic_offline_ppi.toml $PWD/data/config/mods/netcdf_input_pgd.toml $PWD/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
 
  # PPI ECFLOW (in A)
  # If your server is not running you should start it!
@@ -121,7 +121,7 @@ Extra environment on PPI-RHEL8 needed to start experiments
 
 
  # MET-Norway LDAS single decade
- surfExp exps/LDAS_decade.toml LDAS_decade $PWD/data/config/configurations/metno_ldas.toml $PWD/data/config/domains/MET_NORDIC_1_0.toml $PWD/data/config/mods/arome_arctic_offline_ppi.toml $PWD/data/config/mods/netcdf_input_pgd.toml $PWD/data/config/mods/netcdf_input_single_decade.toml $PWD/data/config/mods/metno_ldas_single_decade.toml $PWD/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
+ surfExp -o exps/LDAS_decade.toml --case-name LDAS_decade --plugin-home $PWD surfexp/data/config/configurations/metno_ldas.toml $PWD/data/config/domains/MET_NORDIC_1_0.toml $PWD/data/config/mods/arome_arctic_offline_ppi.toml $PWD/data/config/mods/netcdf_input_pgd.toml $PWD/data/config/mods/netcdf_input_single_decade.toml $PWD/data/config/mods/metno_ldas_single_decade.toml $PWD/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
  deode start suite  --config-file exps/LDAS_decade.toml
 
 

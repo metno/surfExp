@@ -58,7 +58,7 @@ poetry shell
 
 ### South-Norway domain
 ```
-time surfExp dt_offline_drammen.toml CY49DT_OFFLINE_DRAMMEN /home/$USER/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/DRAMMEN2.toml surfexp/data/config/mods/dt_an_forcing.toml
+time surfExp -o dt_offline_drammen.toml --case-name CY49DT_OFFLINE_DRAMMEN --plugin-home /home/$USER/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/DRAMMEN2.toml surfexp/data/config/mods/dt_an_forcing.toml
 time deode start suite --config-file dt_offline_drammen.toml
 ```
 
