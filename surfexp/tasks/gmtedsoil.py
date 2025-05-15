@@ -442,7 +442,6 @@ class Soil(Task):
         logger.debug("Running soil task")
 
         soilgrid_path = self.fmanager.platform.get_platform_value("SOILGRID_DATA_PATH")
-
         soilgrid_tifs = Search.find_files(soilgrid_path, postfix=".tif", fullpath=True)
 
         if len(soilgrid_tifs) == 0:
@@ -579,7 +578,7 @@ class Soil(Task):
             else:
                 logger.warning("Unknown soilgrid tif file: {}", subarea_file)
 
-        if fmt == "direct":
+        if self.config["pgd.clay_format"] == "direct":
             # Compose headers in surfex/pgd format
             self.write_soil_header_file(
                 climdir + "/CLAY_SOILGRID.hdr",
@@ -594,6 +593,7 @@ class Soil(Task):
                 bits=8,
                 write_fact=False,
             )
+        if self.config["pgd.sand_format"]  == "direct":
             self.write_soil_header_file(
                 climdir + "/SAND_SOILGRID.hdr",
                 "Sand",
@@ -607,6 +607,7 @@ class Soil(Task):
                 bits=8,
                 write_fact=False,
             )
+        if self.config["pgd.soc_format"] == "direct":
             self.write_soil_header_file(
                 climdir + "/soc_top.hdr",
                 "soc_top",

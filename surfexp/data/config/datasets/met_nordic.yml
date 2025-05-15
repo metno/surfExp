@@ -1,67 +1,67 @@
-# General grib1 settings
-
-grib1:
-  filepattern: not_defined
-  offset: 0
-  fcint: 86400
-  fileinc: 3600
-  prefer_forecast: true
-  interpolator: bilinear
-
-surfex:
-  filepattern: not_defined
-
+# General netcdf settings
 netcdf:
-  filepattern: "@casedir@/grib/dt_@YYYY@@MM@@DD@@HH@+@LL@.nc"
-  prefer_forecast: true
+  #filepattern: https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc
+  filepattern: https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
+  interpolator: bilinear
   offset: 0
-  fileinc: 3600
-  fcint: 86400
-
+  fcint: 3600
+  file_inc: 3600
+  prefer_forecast: false
 
 # Orography
-ZS:
+ZS: &ZS
   netcdf:
     converter:
       none:
         name: altitude
-      phi2m:
-        phi:
-          name: surface_geopotential
-  grib1:
-    converter:
-      none:
-        parameter: 129
-        type: 1
-        level: 0
-        tri: 0
 
 # Reference height Z
 ZREF:
   screen:
     constant:
       value: 2
+    surfex:
+      converter:
+        none:
+          varname: ZREF
+  ml:
+    netcdf:
+      converter:
+        none:
+          name: air_temperature_ml
+    constant:
+      value: 12.5
 
 # Reference height U
 UREF:
   screen:
     constant:
       value: 10
+    surfex:
+      converter:
+        none:
+          varname: UREF
+  ml:
+    netcdf:
+      converter:
+        none:
+          name: air_temperature_ml
+    constant:
+      value: 12.5
 
 # Temperature
-TA:
+TA: &TA
   screen:
     netcdf:
       converter:
         none:
           name: air_temperature_2m
-    grib1:
+  ml:
+    netcdf:
       converter:
         none:
-          parameter: 167
-          type: 1
-          level: 0
-          tri: 0
+          name: air_temperature_ml
+          level: 0.99851962924
 
 # Specific humidity
 QA:
@@ -70,19 +70,6 @@ QA:
       converter:
         none:
           name: specific_humidity_2m
-      converter:
-        td2q:
-          td:
-            name: "dew_point_temperature_2m"
-          p:
-            name: "surface_air_pressure"
-        rh2q_z:
-          rh:
-            name: "relative_humidity_2m"
-          t:
-            name: "air_temperature_2m"
-          altitude:
-            name: "altitude"
         rh2q:
           rh:
             name: relative_humidity_2m
@@ -110,20 +97,36 @@ QA:
           mslp:
             name: air_pressure_at_sea_level
             units: "Pa"
-
-    grib1:
+        rh2q_z:
+          rh:
+            name: relative_humidity_2m
+            level: 2
+            units: "%"
+          t:
+            name: air_temperature_2m
+            level: 2
+            units: "K"
+          altitude:
+            name: altitude
+            units: "m"
+  ml:
+    netcdf:
       converter:
-        td2q:
-          td:
-            parameter: 168
-            type: 1
-            level: 0
-            tri: 0
+        none:
+          name: specific_humidity_ml
+          level: 0.99851962924
+        rh2q:
+          rh:
+            name: relative_humidity_ml
+            level: 0.99851962924
+            units: "%"
+          t:
+            name: air_temperature_ml
+            level: 0.99851962924
+            units: "K"
           p:
-            parameter: 134
-            type: 1
-            level: 0
-            tri: 0
+            name: surface_air_pressure
+            units: "Pa"
 
 # Wind speed
 WIND:
@@ -137,19 +140,19 @@ WIND:
             name: x_wind_10m
           y:
             name: y_wind_10m
-    grib1:
+  ml:
+    netcdf:
       converter:
+        none:
+          name: wind_speed_ml
+          level: 0.99851962924
         windspeed:
           x:
-            parameter: 165
-            type: 1
-            level: 0
-            tri: 0
+            name: x_wind_ml
+            level: 0.99851962924
           y:
-            parameter: 166
-            type: 1
-            level: 0
-            tri: 0
+            name: y_wind_ml
+            level: 0.99851962924
 
 # Wind direction
 WIND_DIR:
@@ -165,20 +168,20 @@ WIND_DIR:
           y:
             name: y_wind_10m
             rotate_to_geographic: True
-    grib1:
+  ml:
+    netcdf:
       converter:
+        none:
+          name: wind_direction_ml
+          level: 0.99851962924
         winddir:
           x:
-            parameter: 165
-            type: 1
-            level: 0
-            tri: 0
+            name: x_wind_ml
+            level: 0.99851962924
             rotate_to_geographic: True
           y:
-            parameter: 166
-            type: 1
-            level: 0
-            tri: 0
+            name: y_wind_ml
+            level: 0.99851962924
             rotate_to_geographic: True
 
 # Rainfall rate
@@ -205,19 +208,6 @@ RAIN:
           instant: 3600.
         t:
           name: air_temperature_2m
-  grib1:
-    converter:
-      totalprec:
-        totalprec:
-          parameter: 228
-          type: 1
-          level: 0
-          tri: 4
-        snow:
-          parameter: 144
-          type: 1
-          level: 0
-          tri: 4
 
 # Snow fall amount rate
 SNOW:
@@ -244,14 +234,6 @@ SNOW:
           name: surface_air_pressure
           units: "Pa"
 
-  grib1:
-    converter:
-      none:
-        parameter: 144
-        type: 1
-        level: 0
-        tri: 4
-
 # Surface air pressure
 PS:
   netcdf:
@@ -270,14 +252,6 @@ PS:
           name: air_pressure_at_sea_level
           units: "Pa"
 
-  grib1:
-    converter:
-      none:
-        parameter: 134
-        type: 1
-        level: 0
-        tri: 0
-
 # Direct shortwave radiation
 DIR_SW:
   netcdf:
@@ -290,16 +264,13 @@ DIR_SW:
         name: integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time
         accumulated: False
         instant: 3600.
-  grib1:
-    converter:
-      none:
-        parameter: 169
-        type: 1
-        level: 0
-        tri: 4
 
 # Direct scattered radiation
 SCA_SW:
+  netcdf:
+    converter:
+      none:
+        name: scattered_short_wave_radiation
   constant:
     value: 0
 
@@ -315,15 +286,33 @@ LW:
         name: integral_of_surface_downwelling_longwave_flux_in_air_wrt_time
         accumulated: False
         instant: 3600.
-  grib1:
-    converter:
-      none:
-        parameter: 175
-        type: 1
-        level: 0
-        tri: 4
 
 # Carbon dioxide
 CO2:
+  netcdf:
+    converter:
+      none:
+        name: carbon_dioxide
   constant:
     value: 0.00062
+
+# First guess variables
+air_temperature_2m:
+  netcdf:
+    converter:
+      none:
+        name: air_temperature_2m
+
+relative_humidity_2m:
+  netcdf:
+    converter:
+      none:
+        name: relative_humidity_2m
+
+altitude: *ZS
+
+surface_snow_thickness:
+  netcdf:
+    converter:
+      none:
+        name: surface_snow_thickness

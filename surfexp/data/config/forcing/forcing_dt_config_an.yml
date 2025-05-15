@@ -1,16 +1,17 @@
 # General grib1 settings
-
 grib1:
-  filepattern: not_defined
   offset: 0
   fcint: 86400
   interpolator: bilinear
 
 surfex:
-  filepattern: not_defined
+  pattern: not_defined
+  prefer_forecast: true
+  offset: 0
+  fileinc: 86400
+  fcint: 86400
 
 netcdf:
-  filepattern: not_defined
   prefer_forecast: false
   offset: 0
   fileinc: 3600

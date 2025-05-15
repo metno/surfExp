@@ -11,14 +11,39 @@ import surfexp
 
 
 def pysfxexp(argv=None):
+    """Set up surfExp configuration.
+
+    Args:
+        argv (list, optional): Command arguments. Defaults to None.
+    """
     if argv is None:
         argv = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("output")
-    parser.add_argument("case_name")
-    parser.add_argument("plugin_home")
-    parser.add_argument("args", nargs="*")
+    parser.add_argument(
+        "-o",
+        "--output",
+        dest="output",
+        help="Output configuration file",
+        required=True
+        )
+    parser.add_argument(
+        "--case-name",
+        dest="case_name",
+        help="Name of case/suite you want to run",
+        required=True
+    )
+    parser.add_argument(
+        "--plugin-home",
+        dest="plugin_home",
+        help="Path to plugin home directory where surfexp is located",
+        required=True
+    )
+    parser.add_argument(
+        "args",
+        help="Optional extra input configuration files",
+        nargs="*"
+        )
     args = parser.parse_args(argv)
 
     output = args.output

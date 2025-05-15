@@ -1,180 +1,3 @@
-[general]
-  ######################################################################################################
-  # General (not grouped settings)
-  ######################################################################################################
-
-  hh_list = "00-21:3" # Which cycles to run, replaces FCINT
-  ll_list = "48,3,3,3,3,3,3,3" # Forecast lengths for the cycles [h], replaces LL, LLMAIN
-
-[SURFEX]
-
-###################
-# SURFEX SETTINGS #
-###################
-
-[SURFEX.COVER]
-  ALBNIR_SOIL = 'AL_BH_NI_@MM@@CDD@_c.dir' # SG soil NIR albedo
-  ALBNIR_VEG = 'AL_BH_NI_@MM@@CDD@_c.dir' # SG vegetation NIR albedo
-  ALBVIS_SOIL = 'AL_BH_VI_@MM@@CDD@_c.dir' # SG soil visible albedo
-  ALBVIS_VEG = 'AL_BH_VI_@MM@@CDD@_c.dir' # SG vgetation visible albedo
-  H_TREE = "new_ht_c.dir" # SG tree height
-  LAI = 'LAI_@MM@@CDD@_c.dir' # SG Leaf area index
-  SG = true # ECOCLIMAP second generation
-  YCOVER = "ecosg_final_map.dir" # Version of ECOCLIMAP for surfex (1,2,SG)
-
-#####################################
-# IO and non-tile specific settings #
-#####################################
-# SURFEX IO
-[SURFEX.IO]
-  CFORCING_FILETYPE = "NETCDF" # Offline surfex forcing format (NETCDF/ASCII)
-  CSURF_FILETYPE = "NC" # IO settings NC/FA/ASCII. Inline runs use FA
-  CTIMESERIES_FILETYPE = "NETCDF" # Fileformat for timseries. Inline runs use FA
-  LSELECT = true # Only write selected diagnostics
-  LSPLIT_PATCH = true # Split patches into separate variables in output files
-  XTSTEP = 600 # Surfex time step (Only used in the binary OFFLINE)
-  XTSTEP_OUTPUT = 21600.0 # Output interval from the binary OFFLINE
-
-[SURFEX.PARAMETERS]
-  XRIMAX = 0.2 # Maximum allowed Richardson number in the surface layer
-
-[SURFEX.TILES]
-  INLAND_WATER = "FLAKE" # Treatment of lakes in surfex (WATFLX|FLAKE)
-  NATURE = "ISBA" # Nature scheme: "ISBA"|"NONE"
-  SEA = "SEAFLX" # Sea scheme
-  TOWN = "TEB" # Town scheme: "TEB"|"NONE"
-
-[SURFEX.ZS]
-  YZS = "gmted2010.dir" # Database with orography: "gmted2010"|"gtopo30"
-
-#########################################
-########## Tile specific settings #######
-#########################################
-
-#######
-# SEA #
-#######
-[SURFEX.SEA]
-  ICE = "NONE" # Treatment of sea ice in surfex (NONE|SICE)
-  LVOLATILE_SIC = false #
-  PERTFLUX = false # Perturb sea fluxes
-
-################
-# INLAND WATER #
-################
-
-# General FLAKE
-[SURFEX.FLAKE]
-  LCLIM = true # Use FLAKE climatology
-  LDB_VERSION = "3.0"
-
-# General inland water
-[SURFEX.INLAND_WATER]
-
-##########
-# NATURE #
-##########
-
-# ISBA settings
-[SURFEX.ISBA]
-  CANOPY = false # Activates surface boundary multi layer scheme over land in SURFEX
-  MEB = true # Enable Multi Energy Budget (MEB) model
-  NPATCH = 2 # Number of patches over land in SURFEX (see also LISBA_CANOPY)
-  SCHEME = "DIF" # Type of ISBA scheme in SURFEX. Options: "3-L"|"2-L"|"DIF"
-  # (must be false for NPATCH>1)
-  SNOW = "3-L" # Type of snow scheme in SURFEX. Options: "D95" and "3-L"
-  YSOC_SUB = "soc_sub.dir" # Soil organic carbon data. Options: "soc_sub.dir"
-  YSOC_TOP = "soc_top.dir" # Soil organic carbon data. Options: "soc_top.dir"
-
-  YCLAY = "CLAY_SOILGRID.dir" # Soil texture input data: "clay_fao.dir"|"CLAY_HWSD_MOY_V2.dir"|"clay_SOILGRID.dir"
-  YSAND = "SAND_SOILGRID.dir" # Soil texture input data: "sand_fao.dir"|"SAND_HWSD_MOY_V2.dir"|"sand_SOILGRID.dir"
-  # suffix json assumes namelist values provided as a json file
-  PERTSURF = false # Perturb surface parameters
-  XCGMAX = 2e-05 # Maximum value for soil heat capacity; default=2.0E-5
-
-# Sub-grid-scale orography settings
-[SURFEX.SSO]
-  SCHEME = "NONE" # SSO scheme used in SURFEX "NONE"|"'Z01D'"|"'BE04'"|"'OROT'"
-
-########
-# TOWN #
-########
-# Settings for town tile.
-[SURFEX.TOWN]
-  LTOWN_TO_ROCK = false # Switch to set town as rock. Only used if surfex tile scheme for town is "NONE".
-
-# Tree height treatment
-[SURFEX.TREEDRAG]
-  TREEDATA_FILE = "" # Name of tree height data file (with *.llv suffix)
-  XALLEN_TERM = 2.5 # crops: zallen=exp((LAI-XALLEN_TERM)/1.3); default=3.5
-  XGRASS_H_DNM = 3.0 # grass: z0=0.13*LAI/XGRASS_H_DNM; default=6.0
-  XSCALE_H_TREE = 1.0 # Scale the tree height with this factor
-
-                                    # If true will override other TOWN scheme settings and set CTOWN == "NONE"
-
-# TEB specific settings
-[SURFEX.TEB]
-
-#########################
-# Assimilation settings #
-#########################
-
-[SURFEX.ASSIM]
-  CFILE_FORMAT_LSM = "ASCII" # File format for land sea mask when using SODA: "ASCII"|"FA"
-
-[SURFEX.ASSIM.INLAND_WATER]
-  LEXTRAP_WATER = false # Extrapolate LST to points having LSM < 0.5 or to points masked by LWATERTG2
-  LWATERTG2 = false # Use TG2 as LST in points having both land and water defined. Should use LEXTRAP_WATER=true
-
-[SURFEX.ASSIM.ISBA]
-  UPDATE_SNOW_CYCLES = ["06"] # Cycles to update snow depths/SWE in assimilation.
-  # Empty list or not valid values means no update
-  LSWEPSINI = false
-  LSWEPSMIN = false
-  XSWEPSINI = 1000.0
-  XSWEPSMIN = 500.0
-
-# EKF settings
-[SURFEX.ASSIM.ISBA.EKF]
-  CVAR_M = ["TG1", "TG2", "WG1", "WG2"] # Control variables
-  EVOLVE_B = false # Evolve B matrix each cycle
-  LLINCHECK = false
-  NNCV = [0, 1, 0, 1] # Active EKF control variables. 1=WG2 2=WG1 3=TG2 4=TG1
-  XPRT_M = [0.0001, 0.0001, 1e-05, 1e-05] # Perturbation magnitude
-  XSCALE_Q = 0.125 # Scaling of obs error
-  XSIGMA_M = [2.0, 2.0, 0.1, 0.15] # Background error
-
-# OI settings
-[SURFEX.ASSIM.ISBA.OI]
-  CFILE_FORMAT_CLIM = "ASCII" # File format for file containing climatological fields
-  CFILE_FORMAT_FG = "ASCII" # File format of upper air first guess
-  COEFFS = "POLYNOMES_ISBA" # Specify use of OI coefficients file (POLYNOMES_ISBA|POLYNOMES_ISBA_MF6)
-  # POLYNOMES_ISBA_MF6 means 6 times smaller coefficients for WG2 increments
-  XSIGH2MO = 0.1 # SIGMA O for RH2M in oi_cacsts
-  XSIGT2MO = 1.0 # SIGMA O for T2M in oi_cacsts
-
-[SURFEX.ASSIM.OBS]
-  CFILE_FORMAT_OBS = "ASCII" # File format for observations when using SODA: "ASCII"|"FA"
-  COBS_M = ["T2M_P", "HU2M_P", "WG2 ", "LAI", "SWE"] # Observation types
-  LOBSHEADER = false # ASCII observation file has header
-  LOBSNAT = false # Observation ASCII file only contains nature points
-  NNCO = [1, 1, 0, 0, 1] # Active observation types
-  # (Element 1=T2m, element 2=RH2m and element 3=Soil moisture, element 5=SWE)
-  LSWE = false # Assimilate SWE, if false assimilate snow depth
-  XERROBS_M = [1.0, 0.1, 0.1, 0.1, 20.0] # Observation error (used in EKF)
-
-[SURFEX.ASSIM.SCHEMES]
-  INLAND_WATER = "INPUT" # Assimilation method for water tile: "INPUT"|"NONE"
-  ISBA = "EKF" # Assimilation method for ISBA soil: "NONE"|"OI"|"EKF"
-  SEA = "NONE" # Assimilation method for sea tile: "INPUT"|"NONE"
-  TEB = "NONE" # Assimilation method for TEB tile: "NONE"|"ROADT"
-
-[SURFEX.ASSIM.SEA]
-  CFILE_FORMAT_SST = "ASCII" # File format for SST input when using SODA and SEA == "INPUT": "ASCII"|"FA"
-  LECSST = true # SST from ECMWF
-  LEXTRAP_SEA = false # Extrapolate sea variables to points having LSM < 0.5
-  LREAD_SST_FROM_FILE = true # When SEA == INPUT read SST from external file
-
 # SURFEX offline experiment configuration file
 #
 
@@ -211,9 +34,6 @@
 
   forc_zs = true
 
-[prep]
-  extra_namelist_blocks = ["prep_from_namelist"]
-
 [initial_conditions.fg4oi]
   converter = "none"
   fileformat = "netcdf"
@@ -231,3 +51,65 @@
 
 [observations]
   netatmo_filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/@YYYY@@MM@@DD@T@HH@@mm@*Z*.json"
+
+
+[pgd]
+  deode = false
+  blocks = [
+  "io", "constants", "treedrag", "treedrag_no_vector", "pgd", "ecoclimap_sg", "pgd_isba", "pgd_seaflx", "pgd_teb",
+  "pgd_watflx", "pgd_cover", "pgd_arrange_cover", "pgd_cover_direct", "pgd_cover_lrm_river_true",
+  "pgd_cv_sg", "pgd_rsmin_sg",
+  "pgd_ecoclimap_sg",
+  "pgd_ecoclimap_sg_single_decade",
+  "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_lai_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
+  "pgd_zs", "pgd_zs_direct",
+  "pgd_sea",
+  "pgd_isba",
+  "pgd_isba_sand_direct", "pgd_isba_clay_direct",
+  "meb",
+  "pgd_meb"
+  ]
+
+[prep]
+  deode = false
+  blocks = [
+  "io",
+  "constants",
+  "treedrag",
+  "treedrag_no_vector",
+  "prep",
+  "ecoclimap_sg",
+  "prep_from_namelist",
+  "prep_seaflux",
+  "prep_isba",
+  "prep_isba_snow",
+  "meb"
+  ]
+
+[offline]
+  deode = false
+  blocks = [
+  "io",
+  "constants",
+  "treedrag",
+  "treedrag_no_vector",
+  "treedrag_scale_trees",
+  "ecoclimap_sg",
+  "offline",
+  "offline_sso",
+  "offline_sso_none",
+  "offline_seaice",
+  "offline_flake",
+  "offline_isba",
+  "offline_pert_isba_settings",
+  "offline_teb",
+  "offline_selected_output"
+  ]
+
+[soda]
+  blocks = ["io", "treedrag", "treedrag_no_vector", "ecoclimap_sg", "soda", "soda_obs", "soda_isba_ekf"]

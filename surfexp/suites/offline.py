@@ -64,6 +64,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
         limit = Limit("max_tasks", max_tasks)
         self.suite.ecf_node.add_limit(limit)
+        self.suite.ecf_node.add_inlimit("max_tasks")
 
         l_basetime = basetime
         logger.debug("Building list of DTGs")
@@ -188,7 +189,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                         self.task_settings,
                         self.ecf_files,
                         input_template=template,
-                        variables={"BASETIME": f"{as_datetime(dec_date).isoformat()}"},
+                        variables={"ARGS": f"basetime={dec_date.isoformat()}"},
                         ecf_files_remotely=self.ecf_files_remotely,
                     )
             else:
@@ -199,7 +200,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     self.task_settings,
                     self.ecf_files,
                     input_template=template,
-                    variables={"BASETIME": f"{as_datetime(basetime).isoformat()}"},
+                    variables={"ARGS": f"basetime={dec_date.isoformat()}"},
                     trigger=pgd_trigger,
                     ecf_files_remotely=self.ecf_files_remotely,
                 )
@@ -209,7 +210,11 @@ class SurfexSuiteDefinition(SuiteDefinition):
         days = []
         cycle_input_nodes = {}
         prediction_nodes = {}
-        for cycle in cycles.values():
+        if config["suite_control.create_time_dependent_suite"]:
+            cycles_values = cycles.values()
+        else:
+            cycles_values = []
+        for cycle in cycles_values:
             cycle_day = cycle["day"]
             basetime = as_datetime(cycle["basetime"])
             c_index = basetime.strftime("%Y%m%d%H%M")
@@ -218,6 +223,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 "VALIDTIME": cycle["validtime"],
             }
 
+            day_family = None
             if cycle_day not in days:
                 day_family = EcflowSuiteFamily(
                     cycle["day"],
@@ -258,19 +264,86 @@ class SurfexSuiteDefinition(SuiteDefinition):
             )
             prepare_cycle_complete = EcflowSuiteTrigger(prepare_cycle)
 
-            triggers.add_triggers([prepare_cycle_complete])
+            triggers = EcflowSuiteTriggers([comp_complete, static_complete, time_trigger, prepare_cycle_complete])
 
             cycle_input = EcflowSuiteFamily(
                 "CycleInput", time_family, self.ecf_files, trigger=triggers
             )
-            #mars = EcflowSuiteTask("PrefetchMars",cycle_input,
-            #    config,
-            #    self.task_settings,
-            #    self.ecf_files,
-            #    input_template=template,
-            #)
-            #triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars)])
 
+            # Analyse forcing
+            do_an_forcing = config["an_forcing.enabled"]
+            forecast_range = self.config["general.times.forecast_range"]
+            do_forecast = False
+            if as_timedelta(forecast_range).total_seconds() > 0.0:
+                do_forecast = True
+
+            if do_an_forcing:
+                modes = ["an_forcing"]
+                if do_forecast:
+                    modes += ["default"]
+            else:
+                modes = ["default"]
+
+            if config["suite_control.do_marsprep"]:
+                mars_fam = EcflowSuiteFamily(
+                    "mars", cycle_input, self.ecf_files
+                )
+                for mode in modes:
+                    mode_mars = EcflowSuiteFamily(
+                        f"{mode}", mars_fam, self.ecf_files
+                    )
+                    args = f"mode={mode};"
+                    mars = EcflowSuiteTask("FetchMars",mode_mars,
+                        config,
+                        self.task_settings,
+                        self.ecf_files,
+                        input_template=template,
+                        variables={"ARGS": args}
+                    )
+                    triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars)])
+
+            interpolate_bd = None
+            if config["suite_control.interpolate2grid"]:
+                interpolate_bd = EcflowSuiteFamily(
+                    "interpolate_bd", cycle_input, self.ecf_files
+                )
+                for mode in modes:
+                    mode_bd = EcflowSuiteFamily(
+                        f"{mode}", interpolate_bd, self.ecf_files
+                    )
+                    args = f"mode={mode};"
+                    interpolate2grid_fam = EcflowSuiteFamily(
+                        "InterpolateBoundary",
+                        mode_bd,
+                        self.ecf_files,
+                        trigger=triggers,
+                        ecf_files_remotely=self.ecf_files_remotely,
+                        variables={"ARGS": args}
+                    )
+                    fcint = as_timedelta(self.config["general.times.cycle_length"])
+                    steps = int(int(fcint.total_seconds())/3600)
+                    for bd in range(0,steps + 1):
+                        bd_input = EcflowSuiteFamily(
+                            f"bd_input{bd}",
+                            interpolate2grid_fam,
+                            self.ecf_files,
+                            trigger=triggers,
+                            variables={"ARGS": f"step={bd};mode={mode};"},
+                            ecf_files_remotely=self.ecf_files_remotely,
+                        )
+                        EcflowSuiteTask(
+                            "Interpolate2grid",
+                            bd_input,
+                            config,
+                            self.task_settings,
+                            self.ecf_files,
+                            input_template=template,
+                            trigger=triggers,
+                        )
+                    triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(interpolate2grid_fam)])
+
+            forcing_trigger = triggers
+            args = "mode=default;"
             forcing = EcflowSuiteTask(
                 "Forcing",
                 cycle_input,
@@ -278,18 +351,124 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 self.task_settings,
                 self.ecf_files,
                 input_template=template,
-                #trigger=triggers,
+                variables={"ARGS": args},
+                trigger=forcing_trigger,
             )
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing)])
+            mod_forcing = None
             if config["forcing.modify_forcing"]:
-                EcflowSuiteTask(
+                mod_forcing = EcflowSuiteTask(
                     "ModifyForcing",
                     cycle_input,
                     config,
                     self.task_settings,
                     self.ecf_files,
                     input_template=template,
+                    variables={"ARGS": args},
                     trigger=triggers,
+                )
+
+            if mod_forcing is not None:
+                triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing), EcflowSuiteTrigger(mod_forcing)])
+
+            # Create forcing for forecast
+            if do_forecast:
+                forecast_forcing = EcflowSuiteFamily(
+                    "ForecastForcing", cycle_input, self.ecf_files, trigger=triggers
+                )
+
+                args = "mode=forecast;"
+                forcing = EcflowSuiteTask(
+                    "Forcing",
+                    forecast_forcing,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    variables={"ARGS": args},
+                    trigger=forcing_trigger,
+                )
+                triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing)])
+
+            if do_an_forcing and not self.do_prep:
+                an_forcing = EcflowSuiteFamily(
+                    "AnalyseForcing", cycle_input, self.ecf_files, trigger=triggers
+                )
+
+                analysis = EcflowSuiteFamily(
+                    "Analysis", an_forcing, self.ecf_files, trigger=triggers
+                )
+
+                var_names = config["an_forcing.variables"]
+                fcint = int(as_timedelta(config["general.times.cycle_length"]).total_seconds()/3600)
+                offsets = range(0, fcint + 1)
+                for offset in offsets:
+                    fg_trigger = triggers
+                    offset_args = f"offset={offset};"
+                    offset_fam = EcflowSuiteFamily(
+                        f"offset{offset}", analysis, self.ecf_files, trigger=fg_trigger,
+                        variables={"ARGS": offset_args},
+                    )
+                    fg_offset = EcflowSuiteTask(
+                       "FirstGuess4OI",
+                        offset_fam,
+                        config,
+                        self.task_settings,
+                        self.ecf_files,
+                        input_template=template,
+                        variables={"ARGS": f"mode=an_forcing;{offset_args}"}
+                    )
+
+                    for var_name in var_names:
+                        var_fam = EcflowSuiteFamily(
+                            var_name, offset_fam, self.ecf_files,
+                            variables={"ARGS": f"var_name={var_name};{offset_args}"},
+                        )
+                        qc = EcflowSuiteTask(
+                            "QualityControl",
+                            var_fam,
+                            config,
+                            self.task_settings,
+                            self.ecf_files,
+                            input_template=template,
+                            trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(fg_offset)])
+                        )
+                        EcflowSuiteTask(
+                            "OptimalInterpolation",
+                            var_fam,
+                            config,
+                            self.task_settings,
+                            self.ecf_files,
+                            input_template=template,
+                            trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(qc)])
+                        )
+
+                args = "mode=an_forcing;"
+                forcing = EcflowSuiteTask(
+                    "Forcing",
+                    an_forcing,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    variables={"ARGS": args},
+                    trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(analysis)]),
+                )
+
+                reforecast_trigger = EcflowSuiteTriggers([EcflowSuiteTrigger(an_forcing)])
+                rerun_fam = EcflowSuiteFamily(
+                    "ReForecast", cycle_input, self.ecf_files, trigger=reforecast_trigger
+                )
+                args = "mode=reforecast;"
+                EcflowSuiteTask(
+                    "OfflineForecast",
+                    rerun_fam,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    variables={"ARGS": args},
+                    trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(analysis)]),
                 )
 
             logger.info(
@@ -303,14 +482,44 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 and prediction_trigger_times[c_index] in prediction_nodes
             ):
                 prediction_trigger = prediction_nodes[prediction_trigger_times[c_index]]
+            cycle_input_complete = EcflowSuiteTrigger(cycle_input)
             triggers = EcflowSuiteTriggers(
-                [static_complete, prepare_cycle_complete, prediction_trigger]
+                [static_complete, prepare_cycle_complete, cycle_input_complete, prediction_trigger]
             )
 
-            # Initialization
-            initialization = EcflowSuiteFamily(
-                "Initialization", time_family, self.ecf_files, trigger=triggers
-            )
+            analysis = None
+            do_soda = False
+            do_initialization = False
+            if self.do_prep:
+                do_initialization = True
+            else:
+                settings = SettingsFromNamelistAndConfig("soda", config)
+
+                schemes = {}
+                schemes.update({"CASSIM_ISBA": settings.get_setting("NAM_ASSIM#CASSIM_ISBA")})
+                schemes.update({"CASSIM_SEA": settings.get_setting("NAM_ASSIM#CASSIM_SEA")})
+                schemes.update({"CASSIM_TEB": settings.get_setting("NAM_ASSIM#CASSIM_TEB")})
+                schemes.update({"CASSIM_WATER": settings.get_setting("NAM_ASSIM#CASSIM_WATER")})
+
+                do_soda = False
+                for scheme in schemes.values():
+                    if scheme.upper() != "NONE":
+                        do_soda = True
+
+                obs_types = settings.get_setting("NAM_OBS#COBS_M", default=[])
+                nnco = settings.get_nnco(config, basetime=as_datetime(cycle["basetime"]))
+                for ivar, val in enumerate(nnco):
+                    if val == 1 and obs_types[ivar] == "SWE":
+                        do_soda = True
+                if do_soda:
+                    do_initialization = True
+
+            initialization = None
+            if do_initialization:
+                # Initialization
+                initialization = EcflowSuiteFamily(
+                    "Initialization", time_family, self.ecf_files, trigger=triggers
+                )
 
             analysis = None
             if self.do_prep:
@@ -329,47 +538,9 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 self.do_prep = False
 
             else:
-                settings = SettingsFromNamelistAndConfig("soda", config)
-
-                schemes = {}
-                schemes.update({"CASSIM_ISBA": settings.get_setting("NAM_ASSIM#CASSIM_ISBA")})
-                schemes.update({"CASSIM_SEA": settings.get_setting("NAM_ASSIM#CASSIM_SEA")})
-                schemes.update({"CASSIM_TEB": settings.get_setting("NAM_ASSIM#CASSIM_TEB")})
-                schemes.update({"CASSIM_WATER": settings.get_setting("NAM_ASSIM#CASSIM_WATER")})
-
-                print(schemes)
-                do_soda = False
-                for scheme in schemes:
-                    if schemes[scheme].upper() != "NONE":
-                        do_soda = True
-
-                obs_types = settings.get_setting("NAM_OBS#COBS_M")
-                nnco = settings.get_nnco(config, basetime=as_datetime(cycle["basetime"]))
-                for ivar, val in enumerate(nnco):
-                    if val == 1 and obs_types[ivar] == "SWE":
-                        do_soda = True
 
                 triggers = EcflowSuiteTriggers(prep_complete)
-                if not do_soda:
-                    EcflowSuiteTask(
-                        "CycleFirstGuess",
-                        initialization,
-                        config,
-                        self.task_settings,
-                        self.ecf_files,
-                        trigger=triggers,
-                        input_template=template,
-                    )
-                else:
-                    fg_task = EcflowSuiteTask(
-                        "FirstGuess",
-                        initialization,
-                        config,
-                        self.task_settings,
-                        self.ecf_files,
-                        trigger=triggers,
-                        input_template=template,
-                    )
+                if do_soda:
 
                     perturbations = None
                     logger.debug(
@@ -518,6 +689,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                         self.task_settings,
                         self.ecf_files,
                         input_template=template,
+                        variables={"ARGS": "mode=analysis;"}
                     )
                     fg4oi_complete = EcflowSuiteTrigger(fg4oi)
 
@@ -621,7 +793,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                             input_template=template,
                         )
 
-                    triggers = [EcflowSuiteTrigger(fg_task), oi2soda_complete]
+                    triggers = [oi2soda_complete]
                     if perturbations is not None:
                         triggers.append(EcflowSuiteTrigger(perturbations))
                     if prepare_oi_soil_input is not None:
@@ -646,102 +818,175 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
             self.do_prep = False
             triggers = EcflowSuiteTriggers(
-                [EcflowSuiteTrigger(cycle_input), EcflowSuiteTrigger(initialization)]
+                [EcflowSuiteTrigger(cycle_input)]
             )
-            prediction = EcflowSuiteFamily(
-                "Prediction", time_family, self.ecf_files, trigger=triggers
-            )
-            prediction_nodes.update({c_index: EcflowSuiteTrigger(prediction)})
+            if initialization is not None:
+                triggers.add_triggers(EcflowSuiteTrigger(initialization))
+            do_prediction = True
+            if not do_forecast:
+                if basetime != endtime:
+                    do_prediction = False
+                if do_an_forcing:
+                    do_prediction = False
 
-            forecast = EcflowSuiteTask(
-                "OfflineForecast",
-                prediction,
-                config,
-                self.task_settings,
-                self.ecf_files,
-                input_template=template,
-            )
-            triggers = EcflowSuiteTriggers(EcflowSuiteTrigger(forecast))
-            EcflowSuiteTask(
-                "LogProgress",
-                prediction,
-                config,
-                self.task_settings,
-                self.ecf_files,
-                trigger=triggers,
-                input_template=template,
-            )
+            prediction = None
+            if do_prediction:
+                prediction = EcflowSuiteFamily(
+                    "Prediction", time_family, self.ecf_files, trigger=triggers
+                )
+                prediction_nodes.update({c_index: EcflowSuiteTrigger(prediction)})
 
-            triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(prediction)])
+            if basetime != endtime and not do_an_forcing:
+                cycle_forecast = EcflowSuiteFamily(
+                    "Cycle", prediction, self.ecf_files, trigger=triggers
+                )
+                EcflowSuiteTask(
+                    "OfflineForecast",
+                    cycle_forecast,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    variables={"ARGS": "mode=cycle;"}
+                )
+            if do_forecast:
+                prediction = EcflowSuiteFamily(
+                    "LongForecast", prediction, self.ecf_files, trigger=triggers
+                )
+                long_forecast = EcflowSuiteTask(
+                    "OfflineForecast",
+                    prediction,
+                    config,
+                    self.task_settings,
+                    self.ecf_files,
+                    input_template=template,
+                    variables={"ARGS": "mode=forecast;"}
+                )
+                triggers = EcflowSuiteTriggers(EcflowSuiteTrigger(long_forecast))
+            
+            if prediction is None:
+                if initialization is None:
+                    triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(cycle_input)])
+                else:
+                    triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(initialization)])
+            else:
+                triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(prediction)])
 
             pp_fam = EcflowSuiteFamily(
                 "PostProcessing", time_family, self.ecf_files, trigger=triggers
             )
 
-            verification_fam = EcflowSuiteFamily("Verification", pp_fam, self.ecf_files)
-            ver_vars = ["T2M"]
-            for var_name in ver_vars:
-                if var_name == "T2M":
-                    harp_param = "T2m"
-                    harp_param_unit = "K"
-                else:
-                    raise RuntimeError("Variable not defined")
-                args = f"var_name={var_name};harp_param={harp_param};harp_param_unit={harp_param_unit}"
-                variables = {"ARGS": args}
-                harp_fam = EcflowSuiteFamily(var_name, verification_fam, self.ecf_files, variables=variables)
+            verification_fam = None
+            do_verification = False
+            if config["suite_control.do_verification"]:
+                if do_forecast:
+                    do_verification = True
+            offline_settings = SettingsFromNamelistAndConfig("offline", config)
+            if do_verification:
+                do_verification = False
+                for mode in ["cycle", "forecast"]:
+                    try:
+                        ver_vars = config[f"verification.{mode}.variables"]
+                        if len(ver_vars) > 0:
+                            do_verification = True
+                    except KeyError:
+                        pass
+
+            if do_verification:
+                verification_fam = EcflowSuiteFamily("Verification", pp_fam, self.ecf_files)
+                for mode in ["cycle", "forecast"]:
+                    try:
+                        ver_vars = config[f"verification.{mode}.variables"]
+                    except KeyError:
+                        ver_vars = []
+
+                    if len(ver_vars) > 0:
+
+                        if mode == "cycle":
+                            forecast_range = as_timedelta(config["general.times.cycle_length"])
+                        elif mode == "forecast":
+                            forecast_range = as_timedelta(config["general.times.forecast_range"])
+                        extra = ""
+                        if mode == "forecast":
+                            extra = ".forecast"
+                        try:
+                            output_frequency = self.config[f"offline{extra}.args.output-frequency"]
+                        except KeyError:
+                            try:
+                                output_frequency = offline_settings.nml["nam_io_offline"]["xtstep_output"]
+                            except KeyError:
+                                output_frequency = None
+
+                        #logger.info("offline_settings={}", offline_settings.nml)
+                        logger.info("mode={} output_frequency={}", mode, output_frequency)
+                        if output_frequency is not None:
+                            verification_mode_fam = EcflowSuiteFamily(mode, verification_fam, self.ecf_files)
+                            vbasetime = basetime
+                            if mode == "cycle" and self.config["an_forcing.enabled"]:
+                                vbasetime = basetime - forecast_range
+                            iso_basetime = vbasetime.isoformat()
+                            dt = as_timedelta(f"PT{int(output_frequency)}S")
+                            validtime = vbasetime + dt
+                            block = 0
+                            while validtime <= vbasetime + forecast_range:
+                                iso_validtime = validtime.isoformat()
+                                block += 1
+                                verification_mode_lt_fam = EcflowSuiteFamily(f"output{block}", verification_mode_fam, self.ecf_files)
+                                for var_name in ver_vars:
+                                    args = f"mode={mode};var_name={var_name};basetime={iso_basetime};validtime={iso_validtime};"
+                                    variables = {"ARGS": args}
+                                    harp_fam = EcflowSuiteFamily(var_name, verification_mode_lt_fam, self.ecf_files, variables=variables)
+                                    EcflowSuiteTask(
+                                        "HarpSQLite",
+                                        harp_fam,
+                                        config,
+                                        self.task_settings,
+                                        self.ecf_files,
+                                        input_template=template,
+                                    )
+                                validtime = validtime + dt
+
+            qc2obsmon_fam = None
+            if do_an_forcing or analysis:
+                qc2obsmon_fam = EcflowSuiteFamily(
+                    "QC2Obsmon", pp_fam, self.ecf_files, trigger=triggers
+                )
+            if do_an_forcing:
+                fcint = int(as_timedelta(config["general.times.cycle_length"]).total_seconds()/3600)
+                offsets = range(0, fcint + 1)
+
+                if len(offsets) > 0:
+                    qc2obsmon_an_forcing = EcflowSuiteFamily(
+                    "an_forcing", qc2obsmon_fam, self.ecf_files, trigger=triggers
+                    )
+                    if do_an_forcing:
+                        for offset in offsets:
+                            offset_fam = EcflowSuiteFamily(
+                                f"offset{offset}", qc2obsmon_an_forcing, self.ecf_files, trigger=triggers,
+                                variables={"ARGS": f"offset={offset};mode=an_forcing;"},
+                            )
+                            EcflowSuiteTask(
+                                "Qc2obsmon",
+                                offset_fam,
+                                config,
+                                self.task_settings,
+                                self.ecf_files,
+                                input_template=template
+                        )
+            if analysis:
+
+                qc2obsmon_analysis_fam = EcflowSuiteFamily(
+                    "analysis", qc2obsmon_fam, self.ecf_files, trigger=triggers,
+                    variables={"ARGS": "mode=default;"}
+                )
                 EcflowSuiteTask(
-                    "HarpSQLite",
-                    harp_fam,
-                    config,
-                    self.task_settings,
-                    self.ecf_files,
-                    input_template=template,
-                )
-
-
-            log_pp_trigger = None
-            if analysis is not None:
-                qc2obsmon = EcflowSuiteTask(
                     "Qc2obsmon",
-                    pp_fam,
+                    qc2obsmon_analysis_fam,
                     config,
                     self.task_settings,
                     self.ecf_files,
-                    input_template=template,
+                    input_template=template
                 )
-                trigger = EcflowSuiteTrigger(qc2obsmon)
-                log_pp_trigger = EcflowSuiteTriggers(trigger)
-
-            qc2obsmon_fam = EcflowSuiteFamily(
-                "qc2obsmon", pp_fam, self.ecf_files, trigger=triggers,
-            )
-
-            fcint = int(as_timedelta(config["general.times.cycle_length"]).total_seconds()/3600)
-            offsets = range(0, fcint + 1)
-            for offset in offsets:
-                offset_fam = EcflowSuiteFamily(
-                    f"offset{offset}", qc2obsmon_fam, self.ecf_files, trigger=triggers,
-                    variables={"ARGS": f"offset={offset};"},
-                )
-                EcflowSuiteTask(
-                    "Qc2obsmon",
-                    offset_fam,
-                    config,
-                    self.task_settings,
-                    self.ecf_files,
-                    input_template=template,
-                    trigger=EcflowSuiteTriggers([EcflowSuiteTrigger(fg_offset)])
-                )
-
-            EcflowSuiteTask(
-                "LogProgressPP",
-                pp_fam,
-                config,
-                self.task_settings,
-                self.ecf_files,
-                trigger=log_pp_trigger,
-                input_template=template,
-            )
 
             trigger = EcflowSuiteTriggers(EcflowSuiteTrigger(pp_fam))
             cday = cycle["day"]

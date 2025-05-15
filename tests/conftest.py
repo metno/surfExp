@@ -6,7 +6,14 @@ import pytest
 from deode.config_parser import ParsedConfig, ConfigParserDefaults
 from deode.derived_variables import set_times
 
+from surfexp import PACKAGE_DIRECTORY
 from surfexp.cli import pysfxexp
+
+
+@pytest.fixture(scope="module")
+def project_directory():
+    os.chdir(f"{PACKAGE_DIRECTORY}/..")
+
 
 def new_main(argv=None):
     print(argv)
@@ -44,21 +51,62 @@ def fixture_mock_deode(session_mocker, tmp_directory):
     session_mocker.patch("surfexp.cli.main", new=new_main)
 '''
 
-@pytest.fixture(name="mock_submission", scope="module")
-def fixture_mock_submission(session_mocker, tmp_directory):
-    session_mocker.patch("deode.submission.TaskSettings")
+#@pytest.fixture(name="mock_submission", scope="module")
+#def fixture_mock_submission(session_mocker, tmp_directory):
+#    session_mocker.patch("deode.submission.TaskSettings")
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def deode_config(tmp_directory):
-    output_file = f"{tmp_directory}/config.toml"
+    output_file = f"{tmp_directory}/config_deode.toml"
     with open(f"{tmp_directory}/mods.toml", mode="w") as fhandler:
         fhandler.write("[platform]\n")
         fhandler.write(f'scratch = "{tmp_directory}"\n')
+        fhandler.write('unix_group = "suv"\n')
 
-    argv = [output_file, "case_name", f"{os.getcwd()}/", f"{tmp_directory}/mods.toml", f"{os.getcwd()}/surfexp/data/config/domains/DRAMMEN.toml", f"{os.getcwd()}/surfexp/data/config/mods/dt_an_forcing.toml"]
+    argv = ["-o", output_file,
+            "--case-name", "deode_case_name",
+            "--plugin-home", f"{PACKAGE_DIRECTORY}/..",
+            f"{tmp_directory}/mods.toml",
+            f"{PACKAGE_DIRECTORY}/data/config/domains/DRAMMEN.toml",
+            f"{PACKAGE_DIRECTORY}/data/config/configurations/dt.toml",
+            f"{PACKAGE_DIRECTORY}/data/config/mods/dt_an_forcing.toml"
+    ]
     pysfxexp(argv=argv)
 
     config = ParsedConfig.from_file(
             output_file, json_schema=ConfigParserDefaults.MAIN_CONFIG_JSON_SCHEMA)
     config = config.copy(update=set_times(config))
     return config
+
+
+@pytest.fixture(scope="module")
+def default_config(default_config_file):
+
+    config = ParsedConfig.from_file(
+            default_config_file, json_schema=ConfigParserDefaults.MAIN_CONFIG_JSON_SCHEMA)
+    config = config.copy(update=set_times(config))
+    return config
+
+
+
+@pytest.fixture(scope="module")
+def default_config_file(tmp_directory):
+
+    output_file_static = "/home/trygveasp/projects/surfExp/config.toml"
+    if True:
+        output_file = f"{tmp_directory}/config_default.toml"
+        with open(f"{tmp_directory}/mods.toml", mode="w", encoding="utf8") as fhandler:
+            fhandler.write("[platform]\n")
+            fhandler.write(f'scratch = "{tmp_directory}"\n')
+            fhandler.write('unix_group = "suv"\n')
+        argv = ["-o", output_file,
+                "--case-name", "default_case_name",
+                "--plugin-home", f"{PACKAGE_DIRECTORY}/..",
+                f"{tmp_directory}/mods.toml",
+                f"{PACKAGE_DIRECTORY}/data/config/domains/DRAMMEN.toml",
+        ]
+        pysfxexp(argv=argv)
+        os.system(f"cp {output_file} {output_file_static}")
+
+    output_file = output_file_static
+    return output_file

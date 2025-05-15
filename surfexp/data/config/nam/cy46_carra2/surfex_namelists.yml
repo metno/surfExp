@@ -103,9 +103,6 @@ pgd_watflx:
 pgd_flake:
   NAM_PGD_SCHEMES:
     CWATER: FLAKE
-  NAM_DATA_FLAKE:
-    YWATER_DEPTH: GlobalLakeDepth
-    YWATER_DEPTH_STATUS: GlobalLakeStatus
 
 pgd_teb:
   NAM_PGD_SCHEMES:
@@ -859,6 +856,12 @@ pgd_ecoclimap_sg_lai_netcdf:
     - - NETCDF
     - - NETCDF
     - - NETCDF
+
+pgd_flake:
+  NAM_DATA_FLAKE:
+    YWATER_DEPTH: GlobalLakeDepth
+    YWATER_DEPTHFILETYPE: DIRECT
+    YWATER_DEPTH_STATUS: GlobalLakeStatus
 
 pgd_flake_depth_direct:
   NAM_DATA_FLAKE:

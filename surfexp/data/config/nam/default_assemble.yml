@@ -24,9 +24,9 @@ pgd:
   - pgd_zs
   - pgd_zs_direct
   - pgd_sea
-  #- pgd_flake
-  #- pgd_flake_depth_direct
-  #- pgd_flake_depth_status_direct
+  - pgd_flake
+  - pgd_flake_depth_direct
+  - pgd_flake_depth_status_direct
   - pgd_isba
   - pgd_isba_sand_direct
   - meb
@@ -68,6 +68,6 @@ soda:
   - ecoclimap_sg
   - soda
   - soda_sice
-  #- soda_snow_an
+  - soda_snow_an
   - soda_isba_ekf
   - soda_obs

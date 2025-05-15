@@ -2,10 +2,13 @@
 import json
 import os
 
-import yaml
 from datetime import timedelta
+
+from deode.datetime_utils import as_timedelta
 from deode.logs import logger
-from pysurfex.forcing import modify_forcing, run_time_loop, set_forcing_config
+from deode.os_utils import deodemakedirs
+
+from pysurfex.cli import create_forcing, modify_forcing
 from pysurfex.verification import converter2ds, concat_datasets
 
 from surfexp.tasks.tasks import PySurfexBaseTask
@@ -23,26 +26,28 @@ class Forcing(PySurfexBaseTask):
         """
         PySurfexBaseTask.__init__(self, config, "Forcing")
         try:
-            self.var_name = self.config["task.args.var_name"]
+            mode = self.config['task.args.mode']
         except KeyError:
-            self.var_name = None
+            mode = "default"
+        logger.info("Forcing mode is: {}", mode)
+        lmode = mode
+        if lmode == "forecast":
+            lmode = "default"
         try:
-            user_config = self.config["task.args.forcing_user_config"]
+            self.args = self.config[f"forcing.args.{lmode}"].dict()
         except KeyError:
-            user_config = None
-        if user_config is not None:
-            logger.info("Using user config: {}", user_config)
-        self.user_config = user_config
-        try:
-            self.force = self.config["task.args.force"]
-            self.force = bool(self.force)
-        except KeyError:
-            self.force = False
+            raise RuntimeError from KeyError
+        if mode == "an_forcing":
+            self.basetime = self.basetime - self.fcint
+        if mode == "default" and self.config["an_forcing.enabled"]:
+            self.basetime = self.basetime - self.fcint
+        if mode == "default" or mode == "an_forcing":
+            self.duration = self.fcint
+        else:
+            self.duration = as_timedelta(self.config["general.times.forecast_range"])
+            mode = "forecast"
+        self.mode = mode
 
-        try:
-            self.arg_defs = f"args.{self.config['task.args.arg_defs']}"
-        except KeyError:
-            self.arg_defs = "args"
 
     def execute(self):
         """Execute the forcing task.
@@ -51,75 +56,42 @@ class Forcing(PySurfexBaseTask):
             NotImplementedError: _description_
 
         """
-        kwargs = {}
-        if self.user_config is not None:
-            with open(self.user_config, mode="r", encoding="utf-8") as fh:
-                user_config = yaml.safe_load(fh)
-            user_config.update({"macros": {
-                "casedir": self.platform.get_system_value("casedir")
-            }})
+        dtg_start = self.basetime.strftime("%Y%m%d%H")
+        dtg_stop = (self.basetime + self.duration).strftime("%Y%m%d%H")
 
-            kwargs.update({"user_config": user_config})
+        logger.info("start={} stop={}", dtg_start, dtg_stop)
+        forcing_dir = self.config["system.forcing_dir"]
+        forcing_dir = f"{forcing_dir}/{self.mode}"
+        forcing_dir = self.platform.substitute(forcing_dir, basetime=self.basetime)
+        deodemakedirs(forcing_dir)
 
-        domain_json = self.geo.json
-        climdir = self.platform.get_system_value("climdir")
-        domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
-        domain_file = f"{climdir}/domain.json"
-        if not os.path.exists(domain_file):
-            with open(domain_file, mode="w", encoding="utf-8") as file_handler:
-                json.dump(domain_json, file_handler, indent=2)
-        kwargs.update({"domain": domain_file})
-
-        global_config = None
-        #TODO Global config should be handled in pysurfex
-
-        #if global_config is None or global_config == "":
-        #    global_config = (
-        #        f"{os.path.dirname(pysurfex.__path__[0])}/pysurfex/cfg/config.yml"
-        #    )
-        #with open(global_config, mode="r", encoding="utf-8") as file_handler:
-        #    global_config = yaml.safe_load(file_handler)
-        # Add surfExp related macros
-        #global_config.update({"macros": {
-        #    "casedir": self.platform.get_system_value("casedir")
-        #}})
-        kwargs.update({"config": global_config})
-
-        kwargs.update({"dtg_start": self.dtg.strftime("%Y%m%d%H")})
-        kwargs.update({"dtg_stop": (self.dtg + self.fcint).strftime("%Y%m%d%H")})
-
-        forcing_dir = self.platform.get_system_value("forcing_dir")
-        forcing_dir = self.platform.substitute(forcing_dir, basetime=self.dtg)
-        os.makedirs(forcing_dir, exist_ok=True)
-
-        output_format = self.config["SURFEX.IO.CFORCING_FILETYPE"].lower()
+        cforcing_filetype = self.soda_settings.get_setting("NAM_IO_OFFLINE#CFORCING_FILETYPE")
+        output_format = cforcing_filetype.lower()
         if output_format == "netcdf":
-            output = forcing_dir + "/FORCING.nc"
+            output = f"{forcing_dir}/FORCING.nc"
+            logger.info("Forcing output: {}", output)
         else:
             raise NotImplementedError(output_format)
 
-        kwargs.update({"of": output})
-        kwargs.update({"output_format": output_format})
+        self.args.update({"output-filename": output})
+        self.args.update({"output-format": output_format})
+        self.args.update({"system-file-paths": self.get_exp_file_paths_file()})
 
-        try:
-            args = self.config[f"forcing.{self.arg_defs}"]
-        except KeyError:
-            logger.warning("No forcing arguments found for {}. Using default values.", self.arg_defs)
-            args = {}
+        logger.info("args={}", self.args)
+        argv = []
+        for key, value in self.args.items():
+            if isinstance(value, str):
+                value = self.substitute(value, basetime=self.basetime)
+            if isinstance(value, bool):
+                if value:
+                    argv.append(f"--{key}")
+            else:
+                argv.append(f"--{key}")
+                argv.append(str(value))
 
-        for key, value in args.items():
-            value = self.platform.substitute(value)
-            if key in kwargs:
-                logger.info("Override setting {} with value {}. New value: {}", key, kwargs[key], value)
-            kwargs.update({key: value})
-
-        if os.path.exists(output) and not self.force:
-            logger.info("Output already exists: {}", output)
-        else:
-            if os.path.exists(output):
-                logger.info("Overwrite output: {}", output)
-            options, var_objs, att_objs = set_forcing_config(**kwargs)
-            run_time_loop(options, var_objs, att_objs)
+        argv += [dtg_start, dtg_stop]
+        logger.info("argv={}", " ".join(argv))
+        create_forcing(argv=argv)
 
 
 class ModifyForcing(PySurfexBaseTask):
@@ -133,33 +105,36 @@ class ModifyForcing(PySurfexBaseTask):
 
         """
         PySurfexBaseTask.__init__(self, config, "ModifyForcing")
-        self.var_name = self.config["task.var_name"]
         try:
-            user_config = self.config["task.forcing_user_config"]
-        except AttributeError:
-            user_config = None
-        self.user_config = user_config
+            self.mode = self.config['task.args.mode']
+        except KeyError:
+            raise RuntimeError from KeyError
+
+        try:
+            self.config["forcing.modify_variables"]
+        except KeyError:
+            self.variables = ["LWdown", "DIR_SWdown"]
 
     def execute(self):
         """Execute the forcing task."""
-        dtg = self.dtg
-        dtg_prev = dtg - self.fcint
-        logger.debug("modify forcing dtg={} dtg_prev={}", dtg, dtg_prev)
-        forcing_dir = self.platform.get_system_value("forcing_dir")
+        dtg_prev = self.basetime - self.fcint
+        logger.debug("modify forcing dtg={} dtg_prev={}", self.basetime, dtg_prev)
+        forcing_dir = self.config["system.forcing_dir"]
+        forcing_dir = f"{forcing_dir}/{self.mode}"
         input_dir = self.platform.substitute(forcing_dir, basetime=dtg_prev)
-        output_dir = self.platform.substitute(forcing_dir, basetime=dtg)
+        output_dir = self.platform.substitute(forcing_dir, basetime=self.basetime)
         input_file = input_dir + "FORCING.nc"
         output_file = output_dir + "FORCING.nc"
         time_step = -1
-        variables = ["LWdown", "DIR_SWdown"]
-        kwargs = {}
 
-        kwargs.update({"input_file": input_file})
-        kwargs.update({"output_file": output_file})
-        kwargs.update({"time_step": time_step})
-        kwargs.update({"variables": variables})
+        argv = [
+            "--input-file", input_file,
+            "--output-file", output_file,
+            "--time-step", time_step,
+            self.variables
+        ]
         if os.path.exists(output_file) and os.path.exists(input_file):
-            modify_forcing(**kwargs)
+            modify_forcing(argv=argv)
         else:
             logger.info("Output or input is missing: {}", output_file)
 
@@ -176,16 +151,20 @@ class Interpolate2grid(PySurfexBaseTask):
         """
         PySurfexBaseTask.__init__(self, config, "Interpolate2grid")
         try:
-            step = self.config["task.args.step"]
+            self.steps = [int(self.config["task.args.step"])]
         except KeyError:
-            step = None
-        if step is None:
-            self.steps = range(0, 25)
-        else:
-            self.steps = [int(step)]
+            fc_length = int(int(self.fcint.total_seconds())/3600)
+            self.steps = range(0, fc_length)
+        try:
+            self.mode = self.config['task.args.mode']
+        except KeyError:
+            self.mode = "default"
+        if self.mode == "an_forcing":
+            self.basetime = self.basetime - self.fcint
+        self.mars_config = self.config[f"mars.{self.mode}.config"]
 
     def execute(self):
-        vars=[
+        variables = [
             "surface_geopotential",
             "air_temperature_2m",
             "dew_point_temperature_2m",
@@ -244,35 +223,36 @@ class Interpolate2grid(PySurfexBaseTask):
         }
 
         for leadtime in self.steps:
-            validtime = self.dtg + timedelta(hours=leadtime)
+            validtime = self.basetime + timedelta(hours=leadtime)
             validtime = validtime.strftime("%Y%m%d%H")
             ofiles = []
-            for var in vars:
+            for var in variables:
                 try:
                     timeRangeIndicator = mapping[var]["timeRangeIndicator"]
                 except KeyError:
                     timeRangeIndicator = 0
                 indicatorOfParameter = mapping[var]["indicatorOfParameter"]
-                output = f"{ncdir}/{var}_{self.dtg.strftime('%Y%m%d%H')}+{leadtime:02d}.nc"
-                input_file = f"{gribdir}/dt_{self.dtg.strftime('%Y%m%d%H')}+{leadtime:02d}.grib1"
+                output = f"{ncdir}/{self.mode}/{var}_{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.nc"
+                input_file = f"{gribdir}/{self.mode}/{self.mars_config}_{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.grib1"
                 ofiles.append(output)
                 argv = [
                     "-g", domain_file,
-                    "-o", output,
-                    "converter",
-                    "-i", input_file,
-                    "-it", "grib1",
+                    "--output", output,
+                    "--inputfile", input_file,
+                    "--inputtype", "grib1",
                     "--indicatorOfParameter", f"{indicatorOfParameter}",
                     "--levelType", "1",
                     "--level", "0",
                     "--timeRangeIndicator", f"{timeRangeIndicator}",
-                    "-v", var,
-                    "-t", validtime
+                    "--out-variable", var,
+                    "--basetime", self.basetime.strftime("%Y%m%d%H"),
+                    "--validtime", validtime
                 ]
+                print("converter2ds ".join(argv))
                 converter2ds(argv=argv)
 
             argv = [
-                "-o", f"{ncdir}/dt_{self.dtg.strftime('%Y%m%d%H')}+{leadtime:02d}.nc",
+                "-o", f"{ncdir}/{self.mode}/{self.mars_config}_{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.nc",
             ]
             argv = argv + ofiles
             concat_datasets(argv=argv)

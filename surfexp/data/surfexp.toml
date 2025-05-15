@@ -20,8 +20,11 @@
   # Compilation settings
   #####################################################################################################
   build = true # Turn on or off the compilation and binary build (true/false)
+  ial_source = ""
+  build_config = ""
 
 [pgd]
+  tolerate_missing = false
   clay_format = "direct"
   clay_input = "soilgrid"
   sand_format = "direct"
@@ -30,7 +33,9 @@
   soc_input = "soilgrid"
   zs_format = "direct"
   zs_input = "gmted2010"
-
+  #blocks = [
+  #  "pgd_ecoclimap_sg_single_decade"
+  #]
   #extra_namelist_blocks = [
   #  "pgd_ecoclimap_sg_single_decade", "pgd_ecoclimap_sg_single_decade_albnir_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albnir_veg_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_soil_netcdf", "pgd_ecoclimap_sg_single_decade_albvis_veg_netcdf", "pgd_ecoclimap_sg_single_decade_lai_netcdf", "pgd_ecoclimap_sg_single_decade_tree_height_netcdf",
   #  "pgd_cover_direct",
@@ -47,19 +52,24 @@
   # Optional flake: "pgd_flake_depth_status_netcdf" "pgd_cover_lrm_river_true"
 
 [prep]
+  deode = false
+  tolerate_missing = false
 
 [soda]
+  deode = false
+  tolerate_missing = false
 
 [offline]
-
-[pysurfex]
-  first_guess_yml_file = ""
-  forcing_variable_config_yml_file = ""
+  deode = false
+  tolerate_missing = false
 
 [suite_control]
   create_static_data = true
   suite_definition = "SurfexSuiteDefinition"
   do_prep = true
+  do_marsprep = false
+  interpolate2grid = false
+  do_verification = true
 
 [system]
   climdir = "@casedir@/climate/@DOMAIN@/"
@@ -75,6 +85,29 @@
 
 [assim]
   update_snow_cycles = []
+
+[verification.forecast]
+  variables = ["T2M", "HU2M"]
+
+[verification.forecast.T2M]
+  harp_param = "T2m"
+  harp_param_unit = "K"
+
+[verification.forecast.HU2M]
+  harp_param = "HU2m"
+  harp_param_unit = "%"
+
+[verification.cycle]
+  variables = ["T2M", "HU2M"]
+
+[verification.cycle.T2M]
+  harp_param = "T2m"
+  harp_param_unit = "K"
+
+[verification.cycle.HU2M]
+  harp_param = "HU2m"
+  harp_param_unit = "%"
+
 #####################################################################################################
 # Geometry
 #####################################################################################################
@@ -82,6 +115,11 @@
 ###########################################################################################################################
 
 [forcing]
+  modify_forcing = true
+
+[forcing.args]
+
+[forcing.args.default]
   # After 2023013123
   #pattern = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
   # Before 2023020100
@@ -91,12 +129,12 @@
   # pattern = "/lustre/storeB/immutable/archive/projects/metproduction/yr_short//@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
   # pattern = "/lustre/storeB/project/metkl/klinogrid/archive/met_nordic_analysis/v3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
   input_format = "netcdf"
-  geo_input_file = "" # Needed for some surfex file types
   # pattern = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
   # input_format = "grib2"
+  geo_input_file = "@climdir@/domain.json"
   analysis = true
   co2 = "constant"
-  debug = false
+  debug = true
   dir_sw_converter = "analysis"
   interpolation = "bilinear"
   lw_converter = "analysis"
@@ -110,10 +148,33 @@
   uref = "screen"
   uval = "constant"
   wind_converter = "none"
-  winddir_converter = "none"
+  wind_dir_converter = "none"
   zref = "screen"
   zsoro_converter = "none"
   zval = "constant"
+  diskless_write = true
+
+[an_forcing]
+  enabled = false
+  first_cycle = true
+  forecast_mode = true
+  variables = ["t2m", "rh2m"]
+
+[mars]
+
+[mars.an_forcing]
+  config = "sfx_hres"
+
+[mars.default]
+  config = "sfx_hres"
+
+[mars.sfx_hres]
+  class = "OD"
+  expver = "1"
+
+[mars.sfx_dt]
+  class = "RD"
+  expver = "iekm"
 
 [forecast]
   #####################################################################################################
@@ -130,7 +191,7 @@
   prep_input_file = ""
   prep_pgdfile = ""
 
-[initial_conditions.fg4oi]
+[initial_conditions.fg4oi.analysis]
   # inputfile = "https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_2_5km_@YYYY@@MM@@DD@T@HH@Z.nc"
   inputfile = "@sfx_exp_data@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
   # inputfile = "/tmp/host1/testdata/fc@YYYY@@MM@@DD@@HH@+@LLLL@grib2"
@@ -140,21 +201,21 @@
   converter = "none"
   geo_input_file = "" # Needed for some surfex file types
 
-[initial_conditions.fg4oi.air_temperature_2m]
+[initial_conditions.fg4oi.analysis.air_temperature_2m]
   converter = "none"
 
-[initial_conditions.fg4oi.altitude]
+[initial_conditions.fg4oi.analysis.altitude]
   converter = "none"
-  inputfile = "@CLIMDIR@/PGD_@ONE_DECADE@.nc"
+  inputfile = "@CLIMDIR@/PGD@DECADE@.nc"
 
-[initial_conditions.fg4oi.land_area_fraction]
+[initial_conditions.fg4oi.analysis.land_area_fraction]
   converter = "nature_town"
-  inputfile = "@CLIMDIR@/PGD_@ONE_DECADE@.nc"
+  inputfile = "@CLIMDIR@/PGD@DECADE@.nc"
 
-[initial_conditions.fg4oi.relative_humidity_2m]
+[initial_conditions.fg4oi.analysis.relative_humidity_2m]
   converter = "none"
 
-[initial_conditions.fg4oi.surface_snow_thickness]
+[initial_conditions.fg4oi.analysis.surface_snow_thickness]
   converter = "none"
 
 ##################################################################################################################
@@ -180,6 +241,8 @@
   cryo_step = 2
   cryo_var_name = "classed_value_c"
   filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/ob@YYYY@@MM@@DD@@HH@"
+  cryo_slope_file = "@CLIMDIR@/PGD@DECADE@.nc"
+  cryo_perm_snow_file = "@CLIMDIR@/PGD@DECADE@.nc"
 
 [Observations.oi.rh2m]
   hlength = 30000

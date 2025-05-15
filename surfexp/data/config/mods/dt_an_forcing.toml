@@ -1,5 +1,8 @@
 [suite_control]
-  suite_definition = "SurfexSuiteDefinitionDTAnalysedForcing"
+  do_verification = true
+
+[forcing.an_forcing]
+  user_config = "@PLUGIN_HOME@/surfexp/data/config/forcing/forcing_dt_config_an.yml"
 
 [forcing.args.an_forcing]
   analysis = false
@@ -30,7 +33,12 @@
   zval = "constant"
   diskless_write = true
 
+[forcing.config_an]
+  force = true
+  user_config = "@PLUGIN_HOME@/surfexp/data/config/forcing/forcing_dt_config_an.yml"
+
 [an_forcing]
+  enabled = true
   variables = ["t2m", "rh2m"]
 
 [initial_conditions.fg4oi]
@@ -58,10 +66,67 @@ filepattern = "/hpcperm/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_
   tests = ["domain", "nometa", "plausibility"]
 
 [extractsqlite]
-  station_list = "@PLUGIN_HOME@/surfexp/data/config/stationlist/stationlist.json"
+  station_list = "@PLUGIN_HOME@/surfexp/data/config/stationlist/stationlist_dt.json"
 
 [pysurfex]
   first_guess_yml_file = "@PLUGIN_HOME@/surfexp/data/first_guess_dt.yml"
 
 [system]
   assemble_file = "@PLUGIN_HOME@/surfexp/data/config/nam/dt_an_assemble.yml"
+
+[pgd]
+  deode = false
+  blocks = [
+  "io", "constants", "treedrag", "pgd", "ecoclimap_sg", "pgd_isba", "pgd_seaflx", "pgd_teb",
+  "pgd_watflx", "pgd_cover", "pgd_arrange_cover", "pgd_cover_direct", "pgd_cover_lrm_river_true",
+  "pgd_cv_sg", "pgd_rsmin_sg",
+  "pgd_ecoclimap_sg",
+  "pgd_ecoclimap_sg_single_decade",
+  "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_lai_dirtyp",
+  "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
+  "pgd_zs", "pgd_zs_direct",
+  "pgd_sea",
+  "pgd_isba",
+  "pgd_isba_sand_direct", "pgd_isba_clay_direct",
+  "meb",
+  "pgd_meb"
+  ]
+
+[prep]
+  deode = false
+  blocks = [
+  "io",
+  "constants",
+  "treedrag",
+  "prep",
+  "ecoclimap_sg",
+  "prep_from_namelist",
+  "prep_seaflux",
+  "prep_isba",
+  "prep_isba_snow",
+  "meb"
+  ]
+
+[offline]
+  deode = false
+  blocks = [
+  "io",
+  "constants",
+  "treedrag",
+  "ecoclimap_sg",
+  "offline",
+  "offline_sso",
+  "offline_sso_none",
+  "offline_seaice",
+  "offline_isba",
+  "offline_pert_isba_settings",
+  "offline_teb",
+  "offline_selected_output"
+  ]
+
+[soda]
+  blocks = ["io", "treedrag", "ecoclimap_sg", "soda"]
