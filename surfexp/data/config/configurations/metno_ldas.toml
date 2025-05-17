@@ -12,6 +12,15 @@
 [system]
   namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/cy46_carra2/surfex_namelists.yml"
 
+[suite_control]
+  create_static_data = true
+  suite_definition = "SurfexSuiteDefinition"
+  do_pgd = true
+  do_prep = true
+  do_marsprep = false
+  interpolate2grid = false
+  do_verification = true
+
 # Snow analysis
 [assim]
   update_snow_cycles = ["06"]
@@ -23,6 +32,7 @@
   inputtype = "surfex"
   converter = "none"
   basetime = "@FG_BASETIME@"
+  variable = "T2M"
   outfile-var = "air_temperature_2m"
   fcint = "10800"
   file-inc = "3600"
@@ -32,6 +42,7 @@
   inputtype = "surfex"
   converter = "none"
   basetime = "@FG_BASETIME@"
+  variable = "HU2M"
   outfile-var = "relative_humidity_2m"
   fcint = "10800"
   file-inc = "3600"
@@ -41,8 +52,9 @@
   inputtype = "surfex"
   converter = "none"
   basetime = "@FG_BASETIME@"
+  variable = "DSN_T_ISBA"
   outfile-var = "surface_snow_thickness"
-  fcint = "10800"
+  fcint = "3600"
   file-inc = "3600"
 
 [initial_conditions.fg4oi.altitude]
@@ -124,8 +136,12 @@
     "offline_selected_output"
   ]
 
+[offline.args]
+  force = true
+  output-frequency = 3600
+
 [soda]
-  blocks = ["io", "treedrag", "ecoclimap_sg", "soda"]
+  blocks = ["io", "treedrag", "ecoclimap_sg", "soda", "soda_snow_ass_only"]
 
 # Normal forcing as this is already analysed
 [forcing.args.default]

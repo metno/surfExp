@@ -58,6 +58,7 @@ poetry shell
 
 ### South-Norway domain
 ```
+# export DEODE_HOST="ppi_rhel8_b1"
 time surfExp -o dt_offline_drammen.toml --case-name CY49DT_OFFLINE_DRAMMEN --plugin-home /home/$USER/projects/surfExp surfexp/data/config/configurations/dt.toml surfexp/data/config/domains/DRAMMEN2.toml surfexp/data/config/mods/dt_an_forcing.toml
 time deode start suite --config-file dt_offline_drammen.toml
 ```

@@ -112,6 +112,8 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
             deode = False
         if deode:
             # SURFEX: Namelists and input data
+            if program == "offline":
+                program = "forecast"
             nlgen_surfex = DeodeNamelistGenerator(config, "surfex")
             nlgen_surfex.load(program)
             settings = nlgen_surfex.assemble_namelist(program)

@@ -105,6 +105,7 @@
   modify_forcing = true
 
 [forcing.args]
+  modify_forcing = false
 
 [forcing.args.default]
   # After 2023013123
@@ -115,29 +116,27 @@
   # pattern = "/lustre/storeB/project/metproduction/products/yr_short/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
   # pattern = "/lustre/storeB/immutable/archive/projects/metproduction/yr_short//@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
   # pattern = "/lustre/storeB/project/metkl/klinogrid/archive/met_nordic_analysis/v3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
-  input_format = "netcdf"
-  geo_input_file = "@climdir@/domain.json"
+  input-format = "netcdf"
   analysis = true
   co2 = "constant"
   debug = true
-  dir_sw_converter = "analysis"
+  dir-sw-converter = "analysis"
   interpolation = "bilinear"
-  lw_converter = "analysis"
-  modify_forcing = false
-  ps_converter = "mslp2ps"
-  qa_converter = "rh2q_mslp"
-  rain_converter = "calcrain"
-  sca_sw = "constant"
-  snow_converter = "calcsnow"
+  lw-converter = "analysis"
+  ps-converter = "mslp2ps"
+  qa-converter = "rh2q_mslp"
+  rain-converter = "calcrain"
+  sca-sw = "constant"
+  snow-converter = "calcsnow"
   timestep = 3600
   uref = "screen"
   uval = "constant"
-  wind_converter = "none"
-  wind_dir_converter = "none"
+  wind-converter = "none"
+  wind-dir-converter = "none"
   zref = "screen"
-  zsoro_converter = "none"
+  zsoro-converter = "none"
   zval = "constant"
-  diskless_write = true
+  diskless-write = true
 
 [an_forcing]
   enabled = false
@@ -267,7 +266,7 @@
   tests = ["domain", "nometa", "plausibility", "sct"]
 
 [observations.qc.sd]
-  tests = ["domain", "blacklist", "nometa", "plausibility", "firstguess"]
+  tests = ["domain", "nometa", "plausibility", "firstguess"]
 
 ############################################################################################################################
 

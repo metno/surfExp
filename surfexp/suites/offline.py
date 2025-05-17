@@ -74,6 +74,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
         time_trigger_times = {}
         prediction_trigger_times = {}
 
+        logger.info("unique_cycles={}", unique_cycles)
         cont = True
         while cont:
             for cycle in unique_cycles:
@@ -215,6 +216,13 @@ class SurfexSuiteDefinition(SuiteDefinition):
             cycles_values = cycles.values()
         else:
             cycles_values = []
+
+        day_family = None
+        time_trigger = None
+        prev_cycle_input = None
+        prev_initialization = None
+        prev_prediction = None
+        logger.info("cycles: {}", cycles)
         for cycle in cycles_values:
             cycle_day = cycle["day"]
             basetime = as_datetime(cycle["basetime"])
@@ -224,7 +232,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 "VALIDTIME": cycle["validtime"],
             }
 
-            day_family = None
             if cycle_day not in days:
                 day_family = EcflowSuiteFamily(
                     cycle["day"],
@@ -235,7 +242,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 )
                 days.append(cycle_day)
 
-            time_trigger = None
             if (
                 c_index in time_trigger_times
                 and time_trigger_times[c_index] is not None
@@ -243,6 +249,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
             ):
                 time_trigger = cycle_input_nodes[time_trigger_times[c_index]]
 
+            logger.info("cycle_time={}", cycle["time"])
             triggers = EcflowSuiteTriggers([comp_complete, static_complete, time_trigger])
 
             time_family = EcflowSuiteFamily(
@@ -264,6 +271,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 input_template=template,
             )
             prepare_cycle_complete = EcflowSuiteTrigger(prepare_cycle)
+
 
             triggers = EcflowSuiteTriggers(
                 [comp_complete, static_complete, time_trigger, prepare_cycle_complete]
@@ -532,9 +540,9 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
                 obs_types = settings.get_setting("NAM_OBS#COBS_M", default=[])
                 nnco = settings.get_nnco(config, basetime=as_datetime(cycle["basetime"]))
-                for ivar, val in enumerate(nnco):
-                    if val == 1 and obs_types[ivar] == "SWE":
-                        do_soda = True
+                logger.info("nnco={}", nnco)
+                if sum(nnco) > 0:
+                    do_soda = True
                 if do_soda:
                     do_initialization = True
 
@@ -844,13 +852,20 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 triggers.add_triggers(EcflowSuiteTrigger(initialization))
             do_prediction = True
             if not do_forecast:
-                if basetime != endtime:
+                if basetime == endtime:
                     do_prediction = False
                 if do_an_forcing:
                     do_prediction = False
 
             prediction = None
             if do_prediction:
+
+                if prev_cycle_input is not None:
+                    triggers.add_triggers(EcflowSuiteTrigger(prev_cycle_input))
+                if prev_initialization is not None:
+                    triggers.add_triggers(EcflowSuiteTrigger(prev_initialization))
+                if prev_prediction is not None:
+                    triggers.add_triggers(EcflowSuiteTrigger(prev_prediction))
                 prediction = EcflowSuiteFamily(
                     "Prediction", time_family, self.ecf_files, trigger=triggers
                 )
@@ -892,10 +907,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
             else:
                 triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(prediction)])
 
-            pp_fam = EcflowSuiteFamily(
-                "PostProcessing", time_family, self.ecf_files, trigger=triggers
-            )
-
             verification_fam = None
             do_verification = False
             if config["suite_control.do_verification"]:
@@ -911,6 +922,18 @@ class SurfexSuiteDefinition(SuiteDefinition):
                             do_verification = True
                     except KeyError:
                         pass
+
+            do_postproc = False
+            if do_verification:
+                do_postproc = True
+            if do_an_forcing or analysis:
+                do_postproc = True
+
+            pp_fam = None
+            if do_postproc:
+                pp_fam = EcflowSuiteFamily(
+                    "PostProcessing", time_family, self.ecf_files, trigger=triggers
+                )
 
             if do_verification:
                 verification_fam = EcflowSuiteFamily(
@@ -1036,7 +1059,9 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     input_template=template,
                 )
 
-            trigger = EcflowSuiteTriggers(EcflowSuiteTrigger(pp_fam))
+            trigger = None
+            if pp_fam is not None:
+                trigger = EcflowSuiteTriggers(EcflowSuiteTrigger(pp_fam))
             cday = cycle["day"]
             ctime = cycle["time"]
             task_logs = config["system.wrk"]
@@ -1059,3 +1084,10 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 variables=variables,
                 input_template=template,
             )
+
+            if cycle_input is not None:
+                prev_cycle_input = cycle_input
+            if initialization is not None:
+                prev_initialization = initialization
+            if prediction is not None:
+                prev_prediction = prediction

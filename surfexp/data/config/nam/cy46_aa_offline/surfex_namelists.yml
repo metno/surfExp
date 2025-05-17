@@ -1501,20 +1501,8 @@ soda_snow_ass_only:
     LOBSNAT: false
     LSWE: false
     NNCO:
-     - 0
-     - 0
-     - 0
-     - 0
      - 1
     COBS_M:
-     - T2M
-     - HU2M
-     - WG2
-     - LAI
      - SWE
     XERROBS_M:
-     - 1.0
-     - 0.1
-     - 0.1
-     - 0.1
      - 20.0

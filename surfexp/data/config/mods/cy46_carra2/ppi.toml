@@ -1,0 +1,7 @@
+[compile]
+  build = true
+  build_config = "PPI-RH8-IB.offline"
+  ial_source = "/home/trygveasp/projects/CARRA2-offline/"
+
+[system]
+  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/cy46_carra2/surfex_namelists.yml"

@@ -310,6 +310,7 @@ class OfflineForecast(SurfexBinaryTask):
                 data_dict = json.load(fhandler)
 
         validtime = self.basetime + dt
+        print(validtime, self.basetime,dt, forecast_range)
         while validtime <= (self.basetime + forecast_range):
             ymd = validtime.strftime("%Y%m%d")
             chour = validtime.strftime("%H")

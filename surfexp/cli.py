@@ -36,6 +36,30 @@ def pysfxexp(argv=None):
         required=True,
     )
     parser.add_argument(
+        "--start-time",
+        dest="start_time",
+        type=str,
+        help="ISO start time",
+        default=None,
+        required=False,
+    )
+    parser.add_argument(
+        "--end-time",
+        dest="end_time",
+        type=str,
+        help="ISO end time",
+        default=None,
+        required=False,
+    )
+    parser.add_argument(
+        "--continue",
+        dest="continue_mode",
+        action="store_true",
+        help="Disable prep and continue run",
+        default=False,
+        required=False,
+    )
+    parser.add_argument(
         "args", help="Optional extra input configuration files", nargs="*"
     )
     args = parser.parse_args(argv)
@@ -43,11 +67,15 @@ def pysfxexp(argv=None):
     output = args.output
     case_name = args.case_name
     plugin_home = args.plugin_home
+    start_time = args.start_time
+    end_time = args.end_time
+    continue_mode = args.continue_mode
     args = args.args
 
     deode_path = deode.__path__[0]
     surfexp_path = surfexp.__path__[0]
     tmp_output = f"{output}.tmp.{os.getpid()}.toml"
+    tmp_mods_output = f"{output}.mods.tmp.{os.getpid()}.toml"
     argv = [
         "case",
         "--case-name",
@@ -60,8 +88,24 @@ def pysfxexp(argv=None):
         tmp_output,
         f"{surfexp_path}/data/surfexp.toml",
     ]
+
+    if start_time is not None or end_time is not None:
+        with open(tmp_mods_output, mode="w", encoding="utf8") as fhandler:
+            fhandler.write("[general.times]\n")
+            if start_time is not None:
+                fhandler.write(f'  start = "{start_time}"\n')
+            if end_time is not None:
+                fhandler.write(f'  end = "{end_time}"\n')
+            fhandler.write("[troika]\n")
+            fhandler.write("  troika = '/modules/rhel8/user-apps/suv-modules/micromamba/envs/surfExp_python3_10/bin/troika'\n")
+            if continue_mode:
+                fhandler.write("[suite_control]\n")
+                fhandler.write(" do_prep = false\n")
+
     argv += args
+    argv.append(tmp_mods_output)
     cmd = " ".join(argv)
+
     logger.debug("deode case command: deode {}", cmd)
     main(argv=argv)
     with open(tmp_output, mode="r", encoding="utf8") as fhandler_in:
@@ -70,3 +114,5 @@ def pysfxexp(argv=None):
                 line = line.replace("@PLUGIN_HOME@", plugin_home)
                 fhandler_out.write(line)
     os.remove(tmp_output)
+    if os.path.exists(tmp_mods_output):
+        os.remove(tmp_mods_output)
