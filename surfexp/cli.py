@@ -89,18 +89,18 @@ def pysfxexp(argv=None):
         f"{surfexp_path}/data/surfexp.toml",
     ]
 
-    if start_time is not None or end_time is not None:
-        with open(tmp_mods_output, mode="w", encoding="utf8") as fhandler:
+    with open(tmp_mods_output, mode="w", encoding="utf8") as fhandler:
+        if start_time is not None or end_time is not None:
             fhandler.write("[general.times]\n")
             if start_time is not None:
                 fhandler.write(f'  start = "{start_time}"\n')
             if end_time is not None:
                 fhandler.write(f'  end = "{end_time}"\n')
-            fhandler.write("[troika]\n")
-            fhandler.write("  troika = '/modules/rhel8/user-apps/suv-modules/micromamba/envs/surfExp_python3_10/bin/troika'\n")
-            if continue_mode:
-                fhandler.write("[suite_control]\n")
-                fhandler.write(" do_prep = false\n")
+        fhandler.write("[troika]\n")
+        fhandler.write("  troika = '/modules/rhel8/user-apps/suv-modules/micromamba/envs/surfExp_python3_10/bin/troika'\n")
+        if continue_mode:
+            fhandler.write("[suite_control]\n")
+            fhandler.write(" do_prep = false\n")
 
     argv += args
     argv.append(tmp_mods_output)
