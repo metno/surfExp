@@ -1,24 +1,23 @@
-[general]
-  cycle = "CY49t2"
-  csc = "HARMONIE_AROME"
-
 [general.times]
   cycle_length = "PT24H"
   forecast_range = "PT0H"
 
 [mars.an_forcing]
-  config = "sfx_dt"
+  config = "sfx_hres"
 
 [mars.default]
-  config = "sfx_dt"
+  config = "sfx_hres"
 
-[mars.sfx_dt]
-  class = "RD"
-  expver = "iekm"
-  grid = "0.04/0.04"
+[mars.sfx_hres]
+  class = "OD"
+  expver = "1"
+  grid = "0.01/0.01"
 
-[initial_conditions]
-  prep_input_file = "@casedir@/grib/an_forcing/sfx_dt_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+[submission.task_exceptions.Forcing.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+
+[submission.task_exceptions.FirstGuess4OI.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
 
 [forcing.args.default]
   analysis = false
@@ -28,9 +27,8 @@
   input-format = "netcdf"
   interpolation = "bilinear"
   lw-converter = "none"
-  config = "/home/sbu/projects/surfExp/surfexp/data/config/forcing/forcing_dt_config.yml"
-  pattern =  "@casedir@/grib/an_forcing/sfx_dt_@YYYY@@MM@@DD@@HH@+@LL@.nc"
-  output-file = "@forcing_dir@/FORCING_DT.nc"
+  config = "@PLUGIN_HOME@/surfexp/data/config/forcing/forcing_dt_config.yml"
+  pattern = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
   ps-converter = "none"
   qa-converter = "td2q"
   rain-converter = "totalprec"
@@ -58,7 +56,6 @@
   input-format = "surfex"
   interpolation = "bilinear"
   lw-converter = "none"
-  modify-forcing = false
   config = "@PLUGIN_HOME@/surfexp/data/config/forcing/forcing_dt_config_an.yml"
   pattern = "@default_forcing_dir@/FORCING.nc"
   ps-converter = "none"
@@ -93,39 +90,20 @@
   do_prep = true
   do_soil = true
   interpolate2grid = true
-  do_verification = true
+  do_verification = false
 
 [pgd]
   clay_format = "direct"
   clay_input = "soilgrid"
-  deode = true
-  blocks = []
 
 [prep]
-  deode = true
-  blocks = []
-
-[prep.args]
-  prep-file = "@casedir@/grib/an_forcing/sfx_dt_@YYYY@@MM@@DD@@HH@+@LL@.grib1"
+  deode = false
 
 [offline]
   deode = false
-  blocks = [
-  "io",
-  "constants",
-  "treedrag",
-  "ecoclimap_sg",
-  "offline",
-  "offline_sso",
-  "offline_sso_none",
-  "offline_seaice",
-  "offline_isba",
-  "offline_teb",
-  "offline_selected_output"
-  ]
 
 [soda]
-  blocks = ["io", "treedrag", "ecoclimap_sg", "soda"]
+  deode = false
 
 [extractsqlite]
   station_list = "@PLUGIN_HOME@/surfexp/data/config/stationlist/stationlist_dt.json"
@@ -136,41 +114,34 @@
 [observations.qc]
   tests = ["domain", "nometa", "plausibility"]
 
-# TODO submission files
-[submission.task_exceptions.Forcing.ENV]
-  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
-
-[submission.task_exceptions.FirstGuess4OI.ENV]
-  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
-
 [initial_conditions.fg4oi.an_forcing]
+
+[initial_conditions.fg4oi.an_forcing.t2m]
+  inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+  inputtype = "netcdf"
+  variable = "air_temperature_2m"
+  timeRangeIndicator = "0"
+  basetime = "@FG_BASETIME@"
+  outfile-var = "air_temperature_2m"
+  fcint = "86400"
+  file-inc = "3600"
 
 [initial_conditions.fg4oi.an_forcing.rh2m]
   outfile-var = "relative_humidity_2m"
   converter = "td2rh"
   converter-variables = ["td", "t"]
   td-variable = "dew_point_temperature_2m"
-  td-inputfile = "@casedir@/grib/an_forcing/sfx_dt_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+  td-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
   td-inputtype = "netcdf"
   td-basetime = "@FG_BASETIME@"
   td-fcint = "86400"
   td-file-inc = "3600"
   t-variable = "air_temperature_2m"
-  t-inputfile = "@casedir@/grib/an_forcing/sfx_dt_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+  t-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
   t-inputtype = "netcdf"
   t-basetime = "@FG_BASETIME@"
   t-fcint = "86400"
   t-file-inc = "3600"
-
-[initial_conditions.fg4oi.an_forcing.t2m]
-  basetime = "@FG_BASETIME@"
-  converter = "none"
-  fcint = "86400"
-  file-inc = "3600"
-  inputfile = "@casedir@/grib/an_forcing/sfx_dt_@YYYY@@MM@@DD@@HH@+@LL@.nc"
-  inputtype = "netcdf"
-  outfile-var = "air_temperature_2m"
-  variable = "air_temperature_2m"
 
 [initial_conditions.fg4oi.an_forcing.altitude]
   inputfile = "@climdir@/PGD_@DECADE@.nc"
@@ -192,3 +163,4 @@
   town-variable = "FRAC_NATURE"
   town-basetime = "@BASETIME@"
   outfile-var = "land_area_fraction"
+

@@ -158,23 +158,6 @@ class OfflinePrep(SurfexBinaryTask):
 
         pgd_file_path = f"{self.get_pgdfile(self.basetime)}"
 
-        try:
-            prep_file = self.config["initial_conditions.prep_input_file"]
-        except AttributeError:
-            prep_file = None
-        if prep_file is not None:
-            if prep_file == "":
-                prep_file = None
-            else:
-                prep_file = self.platform.substitute(
-                    prep_file, validtime=self.basetime, basetime=self.fg_basetime
-                )
-        try:
-            prep_pgdfile = self.config["initial_conditions.prep_pgdfile"]
-        except AttributeError:
-            prep_pgdfile = None
-        if prep_pgdfile == "":
-            prep_pgdfile = None
         cprepfile = self.soda_settings.get_setting("NAM_IO_OFFLINE#CPREPFILE")
         cprepfile = f"{cprepfile}{self.suffix}"
 
@@ -203,12 +186,8 @@ class OfflinePrep(SurfexBinaryTask):
             self.wrapper,
         ]
 
-        if prep_file is not None:
-            argv += ["--prep-file", prep_file]
-        if prep_pgdfile is not None:
-            argv += ["--prep-pgdfile", prep_pgdfile]
-
         for key, val in self.args.items():
+            logger.info("Argument from config: {} = {}", key, val)
             if f"--{key}" not in argv:
                 if isinstance(val, bool):
                     if val:
@@ -219,6 +198,7 @@ class OfflinePrep(SurfexBinaryTask):
                 logger.warning("setting {} can not be overriden", key)
 
         # Run PREP
+        logger.info("argv={}", " ".join(argv))
         prep(argv=argv)
         # run_surfex_binary(self.mode, **kwargs)
         self.archive_logs(["OPTIONS.nam", "LISTING_PREP0.txt"])

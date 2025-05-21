@@ -975,6 +975,8 @@ class FirstGuess4OI(PySurfexBaseTask):
             raise RuntimeError from KeyError
 
         self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
+        #self.basetime = self.basetime - self.fcint
+        logger.info("basetime: {}", self.basetime)
         logger.info("validtime: {}", self.validtime)
 
     def execute(self):

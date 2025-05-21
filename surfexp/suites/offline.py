@@ -401,7 +401,11 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 )
                 triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing)])
 
-            if do_an_forcing and not self.do_prep:
+            if do_an_forcing:
+                if self.do_prep:
+                    do_an_forcing = False
+
+            if do_an_forcing:
                 an_forcing = EcflowSuiteFamily(
                     "AnalyseForcing", cycle_input, self.ecf_files, trigger=triggers
                 )
@@ -854,7 +858,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
             if not do_forecast:
                 if basetime == endtime:
                     do_prediction = False
-                if do_an_forcing:
+                if config["an_forcing.enabled"]:
                     do_prediction = False
 
             prediction = None
@@ -1070,6 +1074,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     f"joboutdir={self.ecf_out}/{self.name}/{cday}/{ctime}",
                     f"tarname={self.name}_{cday}{ctime}",
                     f"task_logs={task_logs}",
+                    "config_label=hourlogs",
                 ]
             )
             variables = {"ARGS": args}

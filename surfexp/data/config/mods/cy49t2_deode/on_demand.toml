@@ -1,0 +1,4 @@
+
+[system]
+  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/cy49t2_deode/surfex_namelists.yml"
+

@@ -2,6 +2,7 @@
 import argparse
 import os
 import sys
+import shutil
 
 import deode
 from deode.__main__ import main
@@ -52,6 +53,23 @@ def pysfxexp(argv=None):
         required=False,
     )
     parser.add_argument(
+        "--troika-command",
+        dest="troika_command",
+        type=str,
+        help="Troika command",
+        default=None,
+        required=False,
+    )
+    parser.add_argument(
+        "--start-suite",
+        dest="start_suite",
+        action="store_true",
+        help="Start suite",
+        default=False,
+        required=False,
+    )
+
+    parser.add_argument(
         "--continue",
         dest="continue_mode",
         action="store_true",
@@ -69,7 +87,9 @@ def pysfxexp(argv=None):
     plugin_home = args.plugin_home
     start_time = args.start_time
     end_time = args.end_time
+    start_suite = args.start_suite
     continue_mode = args.continue_mode
+    troika_command = args.troika_command
     args = args.args
 
     deode_path = deode.__path__[0]
@@ -89,6 +109,8 @@ def pysfxexp(argv=None):
         f"{surfexp_path}/data/surfexp.toml",
     ]
 
+    if troika_command is None:
+        troika_command = shutil.which("troika")
     with open(tmp_mods_output, mode="w", encoding="utf8") as fhandler:
         if start_time is not None or end_time is not None:
             fhandler.write("[general.times]\n")
@@ -96,8 +118,9 @@ def pysfxexp(argv=None):
                 fhandler.write(f'  start = "{start_time}"\n')
             if end_time is not None:
                 fhandler.write(f'  end = "{end_time}"\n')
-        fhandler.write("[troika]\n")
-        fhandler.write("  troika = '/modules/rhel8/user-apps/suv-modules/micromamba/envs/surfExp_python3_10/bin/troika'\n")
+        if troika_command != "":
+            fhandler.write("[troika]\n")
+            fhandler.write(f"  troika = '{troika_command}'\n")
         if continue_mode:
             fhandler.write("[suite_control]\n")
             fhandler.write(" do_prep = false\n")
@@ -116,3 +139,11 @@ def pysfxexp(argv=None):
     os.remove(tmp_output)
     if os.path.exists(tmp_mods_output):
         os.remove(tmp_mods_output)
+
+    if start_suite:
+        argv = [
+          "start", "suite", "--config-file", output
+        ]
+        cmd = " ".join(argv)
+        main(argv=argv)
+

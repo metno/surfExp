@@ -58,8 +58,10 @@ class Forcing(PySurfexBaseTask):
 
         logger.info("start={} stop={}", dtg_start, dtg_stop)
         forcing_dir = self.config["system.forcing_dir"]
+        default_forcing_dir = f"{forcing_dir}/default"
         forcing_dir = f"{forcing_dir}/{self.mode}"
         forcing_dir = self.platform.substitute(forcing_dir, basetime=self.basetime)
+        self.exp_file_paths.system_file_paths.update({"default_forcing_dir": default_forcing_dir})
         deodemakedirs(forcing_dir)
 
         cforcing_filetype = self.soda_settings.get_setting(

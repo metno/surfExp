@@ -104,9 +104,6 @@
 [forcing]
   modify_forcing = true
 
-[forcing.args]
-  modify_forcing = false
-
 [forcing.args.default]
   # After 2023013123
   #pattern = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
@@ -168,10 +165,6 @@
   physics = "arome"
 
 [initial_conditions]
-  anasurf = "gridpp"
-  # "/nobackup/prod2/cooper/BD_archive/2020/09/16/00/fc20200916_00+003
-  prep_input_file = ""
-  prep_pgdfile = ""
 
 [initial_conditions.fg4oi.analysis]
 [initial_conditions.fg4oi.analysis.t2m]
@@ -231,8 +224,8 @@
   #---------------------------------------------------
   cryo_obs_sd = false # Use cryoclim snow pseudo-observations
   netatmo_filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/"
-  netatmo_obs_rh2m = true # 2m relative humidity observations from Netatmo stations
-  netatmo_obs_t2m = true # 2m air temperature observations from Netatmo stations
+  netatmo_obs_rh2m = false # 2m relative humidity observations from Netatmo stations
+  netatmo_obs_t2m = false # 2m air temperature observations from Netatmo stations
   synop_obs_rh2m = true # SYNOP 2m relative humidity from bufr files
   synop_obs_sd = true # SYNOP snow depth from bufr files
   synop_obs_t2m = true # SYNOP 2m air temperature from bufr files
