@@ -202,11 +202,9 @@ class PySurfexBaseTask(Task):
     def get_forecast_start_file(self, basetime, mode):
         csurffile = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
         archive = self.config["system.archive_dir"]
-        if self.config["an_forcing.enabled"]:
-            archive = self.platform.substitute(archive, basetime=basetime)
-        else:
-            archive = self.platform.substitute(archive, basetime=(basetime-self.fcint))
-        csurffile = f"{archive}/{csurffile}{self.suffix}"
+        archive = self.platform.substitute(archive, basetime=basetime)
+        fg_archive = self.platform.substitute(archive, basetime=(basetime-self.fcint))
+        csurffile = f"{fg_archive}/{csurffile}{self.suffix}"
         analysis = f"{archive}/ANALYSIS{self.suffix}"
 
         logger.info("do_prep={}", self.config["suite_control.do_prep"])
