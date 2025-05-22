@@ -35,7 +35,7 @@ Now it is easy to create a suitable environment for surfExp. Below is a recipie 
 
     micromamba create env surfExp
     micromamba activate surfExp
-    micromamba install python==3.10 poetry gdal
+    micromamba install python==3.10 poetry gdal ecflow
 
 Now you have installed a suitable environment. To install surfExp the recommended installation method is using poetry which we just instlled in the environment.
 
