@@ -15,10 +15,8 @@
   requires = ["poetry-core >= 1.0.0"]
 
 [tool.poetry.dependencies]
-  #deode = {git = "git@github.com:uandrae/Deode-Prototype.git", develop=true, branch="feature/multi_path_search"}
-  deode = {git = "git@github.com:destination-earth-digital-twins/Deode-Prototype.git", develop=true}
+  deode = {git = "git@github.com:destination-earth-digital-twins/Deode-Prototype.git", develop=true, branch="v0.16.0"}
   pysurfex = {git = "https://github.com/trygveasp/pysurfex.git", develop = true, branch = "feature/new_version"}
-  #pysurfex = {path = "/home/trygveasp/projects/pysurfex_new_version", develop=true}
   python = ">=3.10,<3.13"
 
 [tool.poetry.group.linting.dependencies]
