@@ -26,10 +26,13 @@ Now it is easy to create a suitable environment for surfExp. Below is a recipie 
 
     # Install micromamba (linux, https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)
     "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
-    # specify a installation location and add it to path. Default it will install in $HOME/.local/bin
+
+    # specify a installation location for micromamba and add it to your path afterwards. Default it will install in $HOME/.local/bin
     export PATH=$HOME/.local/bin:$PATH
-    # initialize your shell, e.g:
+
+    # initialize your shell (needed in all shells), e.g:
     eval "$(micromamba shell hook --shell bash)"
+
     micromamba create env surfExp
     micromamba activate surfExp
     micromamba install python==3.10 poetry gdal
@@ -50,6 +53,9 @@ you will need to run either "poetry shell" or "poetry run [cmd]" to execute comm
 
  # Clone the source code
  clone https://github.com/metno/surfExp
+
+ # initialize your shell (needed in all shells), e.g:
+ eval "$(micromamba shell hook --shell bash)"
 
  # activate the environment
  micromamba activate surfExp
@@ -90,13 +96,18 @@ from the config file.
 
  # First make sure you are in the proper environment
  cd ~/projects/surfExp
+
+ # initialize your shell (needed in all shells), e.g:
+ eval "$(micromamba shell hook --shell bash)"
+
+ # Activate the environment
  micromamba activate surfExp
 
  # Alternative way of setting up a pre-defined SEKF configuration
  surfExp -o my_config.toml --case-name SEKF --plugin-home $PWD surfexp/data/config/configurations/sekf.toml
 
  # Use AROME Arctic branch on PPI together with MET-Norway LDAS
- surfExp -o my_config.toml --case-name LDAS surfexp/data/config/configurations/metno_ldas.toml surfexp/data/config/mods/arome_arctic_offline_ppi.toml
+ surfExp -o my_config.toml --case-name LDAS --plugin-home $PWD surfexp/data/config/configurations/metno_ldas.toml surfexp/data/config/mods/cy46_aa_offline/ppi.toml
 
  # To start you experiment
  deode start suite --config-file my_config.toml
@@ -112,7 +123,7 @@ Extra environment on PPI-RHEL8 needed to start experiments
  ssh ppi-r8login-b1.int.met.no
 
  # Get surfExp
- git clone github.com:trygveasp/surfExp.git  --branch feature/deode_offline_surfex surfExp
+ git clone github.com:trygveasp/surfExp.git  --branch feature/deode_offline_surfex surfExp_new_pysurfex
 
  # conda setup
  source /modules/rhel8/user-apps/suv-modules/miniconda3/24.7.1/etc/profile.d/conda.sh
@@ -123,11 +134,28 @@ Extra environment on PPI-RHEL8 needed to start experiments
  # Install
  poetry install
 
- surfExp -o offline_drammen_metno_ldas.toml --case-name METNO_LDAS --plugin-home /home/$USER/projects/surfExp surfexp/data/config/configurations/metno_ldas.toml surfexp/data/config/domains/DRAMMEN.toml surfexp/data/config/scheduler/ecflow_ppi_rhel8-trygveasp.toml surfexp/data/config/mods/cy46_carra2/ppi.toml surfexp/data/config/mods/cy46_carra2/isba_dif_snow_ass_decade_dirtyp.toml --start-time 2025-04-17T03:00:00Z --end-time 2025-04-17T07:00:00Z --continue
+ surfExp -o offline_drammen_metno_ldas.toml \
+ --case-name METNO_LDAS \
+ --plugin-home /home/$USER/projects/surfExp \
+ surfexp/data/config/configurations/metno_ldas.toml \
+ surfexp/data/config/domains/DRAMMEN.toml \
+ surfexp/data/config/scheduler/ecflow_ppi_rhel8-trygveasp.toml \
+ surfexp/data/config/mods/cy46_aa_offline/ppi.toml \
+ surfexp/data/config/mods/cy46_aa_offline/isba_dif_snow_ass_decade_dirtyp.toml \
+ --start-time 2025-04-17T03:00:00Z \
+ --end-time 2025-04-17T07:00:00Z \
+ --continue
 
- # MET-Norway LDAS experiment
+ # MET-Norway LDAS experiment (using netcdf input to PGD)
  mkdir -f exps
- surfExp -o exps/LDAS.toml --case-name LDAS --plugin-home $PWD surfexp/data/config/configurations/metno_ldas.toml $PWD/data/config/domains/MET_NORDIC_1_0.toml $PWD/data/config/mods/arome_arctic_offline_ppi.toml $PWD/data/config/mods/netcdf_input_pgd.toml $PWD/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
+ surfExp -o exps/LDAS.toml \
+ --case-name LDAS \
+ --plugin-home $PWD \
+ surfexp/data/config/configurations/metno_ldas.toml \
+ surfexp/data/config/domains/MET_NORDIC_1_0.toml \
+ surfexp/data/config/mods/cy46_aa_offline/ppi.toml \
+ surfexp/data/config/mods/netcdf_input_pgd.toml \
+ surfexp/pdata/config/scheduler/ecflow_ppi_rhel8-$USER.toml
 
  # PPI ECFLOW
  # If your server is not running you should start it!
