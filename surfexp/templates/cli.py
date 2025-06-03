@@ -1,4 +1,4 @@
-"""Entry point to execute a task in a template"""
+"""Entry point to execute a task in a template."""
 import json
 import sys
 
@@ -7,6 +7,12 @@ from .stand_alone import stand_alone_main
 
 
 def execute_task(argv=None):
+    """Execute task.
+
+    Args:
+        argv (list, optional): Arguments
+
+    """
     if argv is None:
         argv = sys.argv[1:]
 

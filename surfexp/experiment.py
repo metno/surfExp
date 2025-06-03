@@ -7,7 +7,17 @@ from pysurfex.namelist import NamelistGenerator, NamelistGeneratorAssemble
 
 
 class SettingsFromNamelist:
+    """Settings from namelist."""
+
     def __init__(self, program, nml, assemble=None):
+        """Setttings from namelist.
+
+        Args:
+            program (str): Calling program
+            nml (str) : Namelist file
+            assemble (str): Asseble file
+
+        """
         self.program = program
         if assemble is not None:
             nam_gen = NamelistGeneratorAssemble(self.program, nml, assemble)
@@ -22,6 +32,7 @@ class SettingsFromNamelist:
         Args:
             setting (str): Setting
             sep (str, optional): _description_. Defaults to "#".
+            default (any): Default value
 
         Returns:
             any: Found setting
@@ -38,31 +49,28 @@ class SettingsFromNamelist:
                     default,
                 )
                 return default
-            else:
-                raise RuntimeError from KeyError
+            raise RuntimeError from KeyError
 
     def setting_is(self, setting, value, sep="#"):
         """Check if setting is value.
 
         Args:
-            config (.config_parser.ParsedConfig): Parsed config file contents.
+            config (deode.config_parser.ParsedConfig): Parsed config file contents.
             setting (str): Setting
             value (any): Value
-            realization (int, optional): Realization number
+            sep (str, optional): Separator
 
         Returns:
             bool: True if found, False if not found.
 
         """
-        if self.get_setting(setting, sep=sep) == value:
-            return True
-        return False
+        return self.get_setting(setting, sep=sep) == value
 
     def get_nnco(self, config, basetime=None):
         """Get the active observations.
 
         Args:
-            config (.config_parser.ParsedConfig): Parsed config file contents.
+            config (deode.config_parser.ParsedConfig): Parsed config file contents.
             basetime (as_datetime, optional): Basetime. Defaults to None.
 
         Returns:
@@ -91,7 +99,7 @@ class SettingsFromNamelist:
             ival = 0
             if nnco_r[ivar] == 1:
                 ival = 1
-                if obs_types[ivar] == "SWE" and not snow_ass_done:
+                if __ == "SWE" and not snow_ass_done:
                     logger.info(
                         "Disabling snow assimilation since cycle is not in {}",
                         snow_ass,
@@ -105,7 +113,16 @@ class SettingsFromNamelist:
 
 
 class SettingsFromNamelistAndConfig(SettingsFromNamelist):
+    """Setttings from namelist and config."""
+
     def __init__(self, program, config):
+        """Setttings from namelist and config.
+
+        Args:
+            program (str): Calling program
+            config (deode.config_parser.ParsedConfig): Parsed config file contents.
+
+        """
         try:
             deode = config[f"{program}.deode"]
         except KeyError:
@@ -117,6 +134,22 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
             nlgen_surfex = DeodeNamelistGenerator(config, "surfex")
             nlgen_surfex.load(program)
             settings = nlgen_surfex.assemble_namelist(program)
+            try:
+                nam_io_offline = config["nam_io_offline"]
+            except KeyError:
+                nam_io_offline = None
+            if nam_io_offline is not None:
+                for key, value in nam_io_offline.items():
+                    if key in settings["nam_io_offline"]:
+                        origval = settings["nam_io_offline"][key]
+                        if value != origval:
+                            logger.warning(
+                                "Override key={} setting={} with new setting={}",
+                                key,
+                                origval,
+                                value,
+                            )
+                    settings["nam_io_offline"].update({key: value})
         else:
             try:
                 blocks = config[f"{program}.blocks"]
@@ -142,8 +175,16 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
 
 
 class SettingsFromNamelistAndConfigDeode(SettingsFromNamelist):
+    """Set namelist and config from Deode configuration."""
+
     def __init__(self, program, config):
-        # SURFEX: Namelists and input data
+        """Set namelist and config from Deode configuration.
+
+        Args:
+            program (str): Calling program
+            config (deode.config_parser.ParsedConfig): Parsed config file contents.
+
+        """
         nlgen_surfex = DeodeNamelistGenerator(config, "surfex")
         nlgen_surfex.load(program)
         settings = nlgen_surfex.assemble_namelist(program)
@@ -151,6 +192,12 @@ class SettingsFromNamelistAndConfigDeode(SettingsFromNamelist):
 
 
 def check_consistency(config):
+    """Check consistency.
+
+    Args:
+        config (deode.config_parser.ParsedConfig): Parsed config file contents.
+
+    """
     modes = ["pgd", "prep", "offline", "soda"]
     problems = False
     exceptions = ["cobs_m", "nnco", "nobstypes"]

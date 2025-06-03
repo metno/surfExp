@@ -19,6 +19,7 @@ class SurfexBinaryTask(PySurfexBaseTask):
 
         Args:
             config (deode.ParsedConfig): Configuration
+            name (str): Name
 
         """
         PySurfexBaseTask.__init__(self, config, name)
@@ -34,14 +35,12 @@ class SurfexBinaryTask(PySurfexBaseTask):
         Returns:
             str: Path to PGD fil
         """
-        if self.one_decade:
-            decade = f"_{get_decade(as_datetime(basetime))}"
-        else:
-            decade = ""
+        decade = f"_{get_decade(as_datetime(basetime))}" if self.one_decade else ""
         pgdfile = f"{self.climdir}/PGD{decade}{self.suffix}"
         return pgdfile
 
     def execute(self):
+        """Execute."""
         raise NotImplementedError
 
 
@@ -71,7 +70,6 @@ class OfflinePgd(SurfexBinaryTask):
 
     def execute(self):
         """Execute."""
-
         # Create namelists
         nml_file = "OPTIONS_input.nam"
         settings = SettingsFromNamelistAndConfig(self.mode, self.config)
@@ -200,7 +198,6 @@ class OfflinePrep(SurfexBinaryTask):
         # Run PREP
         logger.info("argv={}", " ".join(argv))
         prep(argv=argv)
-        # run_surfex_binary(self.mode, **kwargs)
         self.archive_logs(["OPTIONS.nam", "LISTING_PREP0.txt"])
 
 
@@ -251,7 +248,6 @@ class OfflineForecast(SurfexBinaryTask):
 
     def execute(self):
         """Execute."""
-
         # Create namelist
         nml_file = "OPTIONS_input.nam"
         settings = SettingsFromNamelistAndConfig("offline", self.config)
@@ -274,7 +270,7 @@ class OfflineForecast(SurfexBinaryTask):
         except KeyError:
             archive_data = None
 
-        if self.mode == "reforecast" or self.mode == "cycle":
+        if self.mode in ("reforecast", "cycle"):
             forecast_range = as_timedelta(self.config["general.times.cycle_length"])
         else:
             forecast_range = as_timedelta(self.config["general.times.forecast_range"])
@@ -290,7 +286,6 @@ class OfflineForecast(SurfexBinaryTask):
                 data_dict = json.load(fhandler)
 
         validtime = self.basetime + dt
-        print(validtime, self.basetime,dt, forecast_range)
         while validtime <= (self.basetime + forecast_range):
             ymd = validtime.strftime("%Y%m%d")
             chour = validtime.strftime("%H")
@@ -303,7 +298,8 @@ class OfflineForecast(SurfexBinaryTask):
                 logger.warning("Only NC archiving implemented")
             validtime += dt
         archive_data = "archive_data.json"
-        json.dump(data_dict, open(archive_data, mode="w", encoding="utf8"))
+        with open(archive_data, mode="w", encoding="utf8") as fhandler:
+            json.dump(data_dict, fhandler)
 
         # Forcing dir
         forcing_dir = self.config["system.forcing_dir"]
@@ -392,7 +388,6 @@ class PerturbedRun(SurfexBinaryTask):
 
     def execute(self):
         """Execute."""
-
         # Create namelist
         nml_file = "OPTIONS_input.nam"
         settings = SettingsFromNamelistAndConfig("offline", self.config)
@@ -483,7 +478,6 @@ class Soda(SurfexBinaryTask):
 
     def execute(self):
         """Execute."""
-
         # Create namelist
         nml_file = "OPTIONS_input.nam"
         settings = SettingsFromNamelistAndConfig(self.mode, self.config)

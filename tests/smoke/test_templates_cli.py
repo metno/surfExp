@@ -5,14 +5,14 @@ import pytest
 from surfexp.templates.cli import execute_task
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def templates_mocker(session_mocker):
     session_mocker.patch("surfexp.templates.stand_alone.get_task")
     session_mocker.patch("surfexp.templates.ecflow.default.get_task")
     session_mocker.patch("surfexp.templates.ecflow.default.EcflowServer")
 
 
-@pytest.fixture(name="template_args_ecflow", scope="function")
+@pytest.fixture(name="template_args_ecflow")
 def fixture_template_args_ecflow(tmp_directory, default_config_file):
     fname = f"{tmp_directory}/template_args_ecflow.json"
     data = {
@@ -43,7 +43,7 @@ def test_execute_task_ecflow(template_args_ecflow):
     execute_task(argv=argv)
 
 
-@pytest.fixture(name="template_args_stand_alone", scope="function")
+@pytest.fixture(name="template_args_stand_alone")
 def fixture_template_args_stand_alone(tmp_directory, default_config_file):
     fname = f"{tmp_directory}/template_args_stand_alone.json"
     data = {

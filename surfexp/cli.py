@@ -1,8 +1,8 @@
-"""Command line interface"""
+"""Command line interface."""
 import argparse
 import os
-import sys
 import shutil
+import sys
 
 import deode
 from deode.__main__ import main
@@ -131,19 +131,17 @@ def pysfxexp(argv=None):
 
     logger.debug("deode case command: deode {}", cmd)
     main(argv=argv)
-    with open(tmp_output, mode="r", encoding="utf8") as fhandler_in:
-        with open(output, mode="w", encoding="utf8") as fhandler_out:
-            for line in fhandler_in.readlines():
-                line = line.replace("@PLUGIN_HOME@", plugin_home)
-                fhandler_out.write(line)
+    with open(tmp_output, mode="r", encoding="utf8") as fhandler_in, open(
+        output, mode="w", encoding="utf8"
+    ) as fhandler_out:
+        for lline in fhandler_in.readlines():
+            line = lline.replace("@PLUGIN_HOME@", plugin_home)
+            fhandler_out.write(line)
     os.remove(tmp_output)
     if os.path.exists(tmp_mods_output):
         os.remove(tmp_mods_output)
 
     if start_suite:
-        argv = [
-          "start", "suite", "--config-file", output
-        ]
+        argv = ["start", "suite", "--config-file", output]
         cmd = " ".join(argv)
         main(argv=argv)
-

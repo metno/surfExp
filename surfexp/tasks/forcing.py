@@ -1,5 +1,4 @@
 """Forcing task."""
-import json
 import os
 from datetime import timedelta
 
@@ -39,7 +38,7 @@ class Forcing(PySurfexBaseTask):
             self.basetime = self.basetime - self.fcint
         if mode == "default" and self.config["an_forcing.enabled"]:
             self.basetime = self.basetime - self.fcint
-        if mode == "default" or mode == "an_forcing":
+        if mode in ("default", "an_forcing"):
             self.duration = self.fcint
         else:
             self.duration = as_timedelta(self.config["general.times.forecast_range"])
@@ -61,7 +60,9 @@ class Forcing(PySurfexBaseTask):
         default_forcing_dir = f"{forcing_dir}/default"
         forcing_dir = f"{forcing_dir}/{self.mode}"
         forcing_dir = self.platform.substitute(forcing_dir, basetime=self.basetime)
-        self.exp_file_paths.system_file_paths.update({"default_forcing_dir": default_forcing_dir})
+        self.exp_file_paths.system_file_paths.update(
+            {"default_forcing_dir": default_forcing_dir}
+        )
         deodemakedirs(forcing_dir)
 
         cforcing_filetype = self.soda_settings.get_setting(
@@ -80,7 +81,8 @@ class Forcing(PySurfexBaseTask):
 
         logger.info("args={}", self.args)
         argv = []
-        for key, value in self.args.items():
+        for key, lvalue in self.args.items():
+            value = lvalue
             if isinstance(value, str):
                 value = self.substitute(value, basetime=self.basetime)
             if isinstance(value, bool):
@@ -158,7 +160,7 @@ class Interpolate2grid(PySurfexBaseTask):
             self.steps = [int(self.config["task.args.step"])]
         except KeyError:
             fc_length = int(int(self.fcint.total_seconds()) / 3600)
-            self.steps = range(0, fc_length)
+            self.steps = range(fc_length)
         try:
             self.mode = self.config["task.args.mode"]
         except KeyError:
@@ -168,6 +170,7 @@ class Interpolate2grid(PySurfexBaseTask):
         self.mars_config = self.config[f"mars.{self.mode}.config"]
 
     def execute(self):
+        """Execute."""
         variables = [
             "surface_geopotential",
             "air_temperature_2m",
@@ -181,11 +184,6 @@ class Interpolate2grid(PySurfexBaseTask):
             "integral_of_surface_downwelling_longwave_flux_in_air_wrt_time",
         ]
 
-        domain_file = "domain.json"
-        domain_json = self.geo.json
-        domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
-        with open(domain_file, mode="w", encoding="utf-8") as file_handler:
-            json.dump(domain_json, file_handler, indent=2)
         ncdir = f"{self.platform.get_system_value('casedir')}/grib"
         gribdir = ncdir
 
@@ -217,16 +215,22 @@ class Interpolate2grid(PySurfexBaseTask):
             ofiles = []
             for var in variables:
                 try:
-                    timeRangeIndicator = mapping[var]["timeRangeIndicator"]
+                    time_range_indicator = mapping[var]["timeRangeIndicator"]
                 except KeyError:
-                    timeRangeIndicator = 0
-                indicatorOfParameter = mapping[var]["indicatorOfParameter"]
-                output = f"{ncdir}/{self.mode}/{var}_{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.nc"
-                input_file = f"{gribdir}/{self.mode}/{self.mars_config}_{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.grib1"
+                    time_range_indicator = 0
+                indicator_of_parameter = mapping[var]["indicatorOfParameter"]
+                output = (
+                    f"{ncdir}/{self.mode}/{var}_"
+                    + f"{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.nc"
+                )
+                input_file = (
+                    f"{gribdir}/{self.mode}/{self.mars_config}_"
+                    + f"{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.grib1"
+                )
                 ofiles.append(output)
                 argv = [
                     "-g",
-                    domain_file,
+                    self.domain_file,
                     "--output",
                     output,
                     "--inputfile",
@@ -234,13 +238,13 @@ class Interpolate2grid(PySurfexBaseTask):
                     "--inputtype",
                     "grib1",
                     "--indicatorOfParameter",
-                    f"{indicatorOfParameter}",
+                    f"{indicator_of_parameter}",
                     "--levelType",
                     "1",
                     "--level",
                     "0",
                     "--timeRangeIndicator",
-                    f"{timeRangeIndicator}",
+                    f"{time_range_indicator}",
                     "--out-variable",
                     var,
                     "--basetime",
@@ -248,7 +252,7 @@ class Interpolate2grid(PySurfexBaseTask):
                     "--validtime",
                     validtime,
                 ]
-                print("converter2ds ".join(argv))
+                logger.info("converter2ds {}", " ".join(argv))
                 converter2ds(argv=argv)
 
             argv = [

@@ -28,9 +28,6 @@
 [submission.task_exceptions.ArchiveStatic.BATCH]
   WALLTIME = "#SBATCH --time=03:00:00"
 
-[submission.task_exceptions.QualityControl.MODULES]
-  PRGENV = ["load", "prgenv/gnu"]
-
 [submission.task_exceptions.C903]
   NPROC = 36
 
@@ -54,17 +51,18 @@
   NODES = "#SBATCH --nodes=1"
   NTASKS = "#SBATCH --ntasks=16"
 
+[submission.task_exceptions.Forcing.BATCH]
+  MEM = "#SBATCH --mem=200GB"
+  WALLTIME = "#SBATCH --time=01:00:00"
+
+[submission.task_exceptions.Forcing.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+
 [submission.task_exceptions.Forecast]
-  NPROC = 28
-  NPROC_IO = 4
   binary = "OFFLINE"
   bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
-
-[submission.task_exceptions.OfflineForecast.BATCH]
-  #  MEM = "#SBATCH --mem=200GB"
-  NODES = "#SBATCH --nodes=1"
-  NTASKS = "#SBATCH --ntasks=32"
-  WALLTIME = "#SBATCH --time=02:00:00"
+  NPROC = 28
+  NPROC_IO = 4
 
 [submission.task_exceptions.Forecast.ENV]
   RTTOV_COEFDIR = "/hpcperm/snh02/DEODE/satellite/rtcoef_rttov12/harm_coef/"
@@ -79,33 +77,36 @@
 [submission.task_exceptions.Marsprep]
   bindir = "/usr/local/bin/"
 
-[submission.task_exceptions.PrefetchMars.BATCH]
-  MEM = "#SBATCH --mem=0GB"
+[submission.task_exceptions.OfflineForecast.BATCH]
+  #  MEM = "#SBATCH --mem=200GB"
   NODES = "#SBATCH --nodes=1"
-  NTASKS = "#SBATCH --ntasks=1"
-  QOS = "#SBATCH --qos=np"
-  WALLTIME = "#SBATCH --time=03:00:00"
-
-[submission.task_exceptions.PrefetchMars.ENV]
-  MARS_READANY_BUFFER_SIZE = 17893020000
-
-[submission.task_exceptions.Forcing.BATCH]
-  WALLTIME = "#SBATCH --time=01:00:00"
-  MEM = "#SBATCH --mem=200GB"
-
-[submission.task_exceptions.Pgd]
-  WRAPPER = "srun -n @NPROC@"
-  binary = "PGD"
-  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
+  NTASKS = "#SBATCH --ntasks=32"
+  WALLTIME = "#SBATCH --time=02:00:00"
 
 [submission.task_exceptions.OfflinePgd]
-  WRAPPER = "srun -n 6"
   NTASKS = "#SBATCH --ntasks=6"
+  WRAPPER = "srun -n 6"
 
 [submission.task_exceptions.OfflinePgd.BATCH]
   NODES = "#SBATCH --nodes=1"
   NTASKS = "#SBATCH --ntasks=6"
   WALLTIME = "#SBATCH --time=10:00:00"
+
+[submission.task_exceptions.OfflinePrep.BATCH]
+  NODES = "#SBATCH --nodes=1"
+  NTASKS = "#SBATCH --ntasks=32"
+  WALLTIME = "#SBATCH --time=01:30:00"
+
+[submission.task_exceptions.OptimalInterpolation.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+
+[submission.task_exceptions.OptimalInterpolation.MODULES]
+  UDUNITS = ["load", "udunits/2.2.28"]
+
+[submission.task_exceptions.Pgd]
+  binary = "PGD"
+  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
+  WRAPPER = "srun -n @NPROC@"
 
 [submission.task_exceptions.Pgd.BATCH]
   NODES = "#SBATCH --nodes=1"
@@ -116,27 +117,26 @@
   binary = "gl"
   bindir = "/perm/deployde330/github-actions/install/gl/latest/bin/"
 
-[submission.task_exceptions.OptimalInterpolation.MODULES]
- UDUNITS = ["load", "udunits/2.2.28"]
+[submission.task_exceptions.PrefetchMars.BATCH]
+  MEM = "#SBATCH --mem=0GB"
+  NODES = "#SBATCH --nodes=1"
+  NTASKS = "#SBATCH --ntasks=1"
+  QOS = "#SBATCH --qos=np"
+  WALLTIME = "#SBATCH --time=03:00:00"
 
-[submission.task_exceptions.OptimalInterpolation.ENV]
-  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+[submission.task_exceptions.PrefetchMars.ENV]
+  MARS_READANY_BUFFER_SIZE = 17893020000
 
-[submission.task_exceptions.Forcing.ENV]
-  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+[submission.task_exceptions.Prep]
+  binary = "PREP"
+  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
+  WRAPPER = "srun -n @NPROC@"
 
 [submission.task_exceptions.Qc2obsmon.ENV]
   LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
 
-[submission.task_exceptions.Prep]
-  WRAPPER = "srun -n @NPROC@"
-  binary = "PREP"
-  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
-
-[submission.task_exceptions.OfflinePrep.BATCH]
-  NODES = "#SBATCH --nodes=1"
-  NTASKS = "#SBATCH --ntasks=32"
-  WALLTIME = "#SBATCH --time=01:30:00"
+[submission.task_exceptions.QualityControl.MODULES]
+  PRGENV = ["load", "prgenv/gnu"]
 
 [submission.task_exceptions.Soil.MODULES]
   GDAL = ["load", "gdal/3.6.2"]
@@ -172,7 +172,17 @@
 [submission.types.parallel]
   NPROC = 32
   SCHOST = "hpc"
-  tasks = ["Forecast", "E927", "Pgd", "Prep", "C903", "OfflinePgd", "OfflinePrep", "OfflineForecast", "Forcing"]
+  tasks = [
+    "Forecast",
+    "E927",
+    "Pgd",
+    "Prep",
+    "C903",
+    "OfflinePgd",
+    "OfflinePrep",
+    "OfflineForecast",
+    "Forcing",
+  ]
   WRAPPER = "srun"
 
 [submission.types.parallel.BATCH]

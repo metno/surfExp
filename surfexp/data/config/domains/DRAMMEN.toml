@@ -1,14 +1,14 @@
 [domain]
-gridtype = "linear"
-name = "DRAMMEN"
-nimax = 50
-njmax = 60
-tstep = 75
-xdx = 2500.0
-xdy = 2500.0
-xlat0 = 60.0
-xlatcen = 60.0
-xlon0 = 10.0
-xloncen = 10.0
-ilate = 0
-ilone = 0
+  gridtype = "linear"
+  ilate = 0
+  ilone = 0
+  name = "DRAMMEN"
+  nimax = 50
+  njmax = 60
+  tstep = 75
+  xdx = 2500.0
+  xdy = 2500.0
+  xlat0 = 60.0
+  xlatcen = 60.0
+  xlon0 = 10.0
+  xloncen = 10.0

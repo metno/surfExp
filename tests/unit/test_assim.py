@@ -5,7 +5,7 @@ import pytest
 from surfexp.tasks.tasks import OptimalInterpolation, QualityControl
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def _mockers_for_task_run_tests(session_mocker):
     session_mocker.patch("surfexp.tasks.tasks.titan")
     session_mocker.patch("surfexp.tasks.tasks.gridpp")

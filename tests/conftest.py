@@ -1,9 +1,9 @@
 import os
-import sys
 
 import pytest
 from deode.config_parser import ConfigParserDefaults, ParsedConfig
 from deode.derived_variables import set_times
+from deode.logs import logger
 
 from surfexp import PACKAGE_DIRECTORY
 from surfexp.cli import pysfxexp
@@ -15,45 +15,14 @@ def project_directory():
 
 
 def new_main(argv=None):
-    print(argv)
-    os.system(f"touch {tmp_directory}/out.toml.tmp.{os.getpid()}.toml")
-
-
-"""
-deode = type(sys)("deode")
-deode.__path__ = ["/tmp"]
-deode.submodule = type(sys)("__main__")
-deode.submodule.main = new_main
-sys.modules["deode"] = deode
-sys.modules["deode.__main__"] = deode.submodule
-"""
+    logger.info("argv={}", argv)
+    os.system(f"touch {tmp_directory}/out.toml.tmp.{os.getpid()}.toml")  # noqa S605
 
 
 @pytest.fixture(scope="module")
 def tmp_directory(tmp_path_factory):
     """Return a temp directory valid for this module."""
     return tmp_path_factory.getbasetemp().as_posix()
-
-
-"""
-@pytest.fixture(name="mock_deode", scope="module")
-def fixture_mock_deode(session_mocker, tmp_directory):
-    def new_main(argv=None):
-        print(argv)
-        os.system(f"touch {tmp_directory}/out.toml.tmp.{os.getpid()}.toml")
-
-    deode = type(sys)("deode")
-    deode.submodule = type(sys)("__main__")
-    deode.submodule.main = new_main
-    sys.modules["deode"] = deode
-    sys.modules["deode.__main__"] = deode.submodule
-
-    session_mocker.patch("surfexp.cli.main", new=new_main)
-"""
-
-# @pytest.fixture(name="mock_submission", scope="module")
-# def fixture_mock_submission(session_mocker, tmp_directory):
-#    session_mocker.patch("deode.submission.TaskSettings")
 
 
 @pytest.fixture(scope="module")
@@ -114,7 +83,7 @@ def default_config_file(tmp_directory):
             f"{PACKAGE_DIRECTORY}/data/config/domains/DRAMMEN.toml",
         ]
         pysfxexp(argv=argv)
-        os.system(f"cp {output_file} {output_file_static}")
+        os.system(f"cp {output_file} {output_file_static}")  # noqa S605
 
     output_file = output_file_static
     return output_file

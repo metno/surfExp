@@ -4,157 +4,28 @@
   cycle_length = "PT1H"
   forecast_range = "PT0H"
 
+# Snow analysis
+[assim]
+  update_snow_cycles = ["06"]
+
 [compile]
   build = true
   build_config = "PPI-RH8-IB.offline"
   ial_source = "/home/trygveasp/projects/CARRA2-offline/"
 
-[system]
-  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/cy46_carra2/surfex_namelists.yml"
-
-[suite_control]
-  create_static_data = true
-  suite_definition = "SurfexSuiteDefinition"
-  do_pgd = true
-  do_prep = true
-  do_marsprep = false
-  interpolate2grid = false
-  do_verification = true
-
-# Snow analysis
-[assim]
-  update_snow_cycles = ["06"]
-
-# First guess for anlysis
-[initial_conditions.fg4oi.analysis]
-[initial_conditions.fg4oi.analysis.t2m]
-  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
-  inputtype = "surfex"
-  converter = "none"
-  basetime = "@FG_BASETIME@"
-  variable = "T2M"
-  outfile-var = "air_temperature_2m"
-  fcint = "10800"
-  file-inc = "3600"
-
-[initial_conditions.fg4oi.analysis.rh2m]
-  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
-  inputtype = "surfex"
-  converter = "none"
-  basetime = "@FG_BASETIME@"
-  variable = "HU2M"
-  outfile-var = "relative_humidity_2m"
-  fcint = "10800"
-  file-inc = "3600"
-
-[initial_conditions.fg4oi.analysis.sd]
-  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
-  inputtype = "surfex"
-  converter = "none"
-  basetime = "@FG_BASETIME@"
-  variable = "DSN_T_ISBA"
-  outfile-var = "surface_snow_thickness"
-  fcint = "3600"
-  file-inc = "3600"
-
-[initial_conditions.fg4oi.altitude]
-  inputfile = "@climdir@/PGD_@DECADE@.nc"
-  inputtype = "surfex"
-  converter = "none"
-  variable = "ZS"
-  basetime = "@BASETIME@"
-  outfile-var = "altitude"
-
-[initial_conditions.fg4oi.laf]
-  converter = "nature_town"
-  converter-variables = ["nature", "town"]
-  nature-inputfile = "@climdir@/PGD_@DECADE@.nc"
-  nature-inputtype = "surfex"
-  nature-variable = "FRAC_NATURE"
-  nature-basetime = "@BASETIME@"
-  town-inputfile = "@climdir@/PGD_@DECADE@.nc"
-  town-inputtype = "surfex"
-  town-variable = "FRAC_NATURE"
-  town-basetime = "@BASETIME@"
-  outfile-var = "land_area_fraction"
-
-# Observations
-[observations]
-  filepattern = "/lustre/storeA/project/metproduction/products/obs_dec/bufr/syno/syno_@YYYY@@MM@@DD@@HH@.bufr"
-
-[pgd]
-  one_decade = true
-  blocks = [
-    "io", "constants", "treedrag", "pgd", "ecoclimap_sg",
-    "pgd_isba", "pgd_seaflx", "pgd_teb",
-    "pgd_watflx", "pgd_cover", "pgd_arrange_cover", "pgd_cover_direct",
-    "pgd_cover_lrm_river_true",
-    "pgd_cv_sg", "pgd_rsmin_sg",
-    "pgd_ecoclimap_sg",
-    "pgd_ecoclimap_sg_single_decade",
-    "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_lai_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
-    "pgd_zs", "pgd_zs_direct",
-    "pgd_sea",
-    "pgd_isba",
-    "pgd_isba_sand_direct", "pgd_isba_clay_direct",
-    "meb",
-    "pgd_meb"
-  ]
-
-[prep]
-  blocks = [
-    "io",
-    "constants",
-    "treedrag",
-    "prep",
-    "ecoclimap_sg",
-    "prep_from_namelist",
-    "prep_seaflux",
-    "prep_isba",
-    "prep_isba_snow",
-    "meb"
-  ]
-
-[offline]
-  deode = false
-  blocks = [
-    "io",
-    "constants",
-    "treedrag",
-    "ecoclimap_sg",
-    "offline",
-    "offline_sso",
-    "offline_sso_none",
-    "offline_seaice",
-    "offline_isba",
-    "offline_teb",
-    "offline_selected_output"
-  ]
-
-[offline.args]
-  force = true
-  output-frequency = 3600
-
-[soda]
-  blocks = ["io", "treedrag", "ecoclimap_sg", "soda", "soda_snow_ass_only"]
-
 # Normal forcing as this is already analysed
 [forcing.args.default]
-  domain = "@climdir@/domain.json"
-  pattern = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
-  output-filename = "@forcing_dir@/default/FORCING.nc"
-  output-format = "netcdf"
   analysis = true
   co2 = "constant"
   debug = false
   dir-sw-converter = "analysis"
+  diskless-write = true
+  domain = "@climdir@/domain.json"
   interpolation = "bilinear"
   lw-converter = "analysis"
+  output-filename = "@forcing_dir@/default/FORCING.nc"
+  output-format = "netcdf"
+  pattern = "https://thredds.met.no/thredds/dodsC/metpparchive/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
   ps-converter = "mslp2ps"
   qa-converter = "rh2q_mslp"
   rain-converter = "calcrain"
@@ -168,4 +39,146 @@
   zref = "screen"
   zsoro-converter = "none"
   zval = "constant"
-  diskless-write = true
+
+[initial_conditions.fg4oi.altitude]
+  basetime = "@BASETIME@"
+  converter = "none"
+  inputfile = "@climdir@/PGD_@DECADE@.nc"
+  inputtype = "surfex"
+  outfile-var = "altitude"
+  variable = "ZS"
+
+# First guess for anlysis
+[initial_conditions.fg4oi.analysis]
+
+[initial_conditions.fg4oi.analysis.rh2m]
+  basetime = "@FG_BASETIME@"
+  converter = "none"
+  fcint = "10800"
+  file-inc = "3600"
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  outfile-var = "relative_humidity_2m"
+  variable = "HU2M"
+
+[initial_conditions.fg4oi.analysis.sd]
+  basetime = "@FG_BASETIME@"
+  converter = "none"
+  fcint = "3600"
+  file-inc = "3600"
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  outfile-var = "surface_snow_thickness"
+  variable = "DSN_T_ISBA"
+
+[initial_conditions.fg4oi.analysis.t2m]
+  basetime = "@FG_BASETIME@"
+  converter = "none"
+  fcint = "10800"
+  file-inc = "3600"
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  outfile-var = "air_temperature_2m"
+  variable = "T2M"
+
+[initial_conditions.fg4oi.laf]
+  converter = "nature_town"
+  converter-variables = ["nature", "town"]
+  nature-basetime = "@BASETIME@"
+  nature-inputfile = "@climdir@/PGD_@DECADE@.nc"
+  nature-inputtype = "surfex"
+  nature-variable = "FRAC_NATURE"
+  outfile-var = "land_area_fraction"
+  town-basetime = "@BASETIME@"
+  town-inputfile = "@climdir@/PGD_@DECADE@.nc"
+  town-inputtype = "surfex"
+  town-variable = "FRAC_NATURE"
+
+# Observations
+[observations]
+  filepattern = "/lustre/storeA/project/metproduction/products/obs_dec/bufr/syno/syno_@YYYY@@MM@@DD@@HH@.bufr"
+
+[offline]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "ecoclimap_sg",
+    "offline",
+    "offline_sso",
+    "offline_sso_none",
+    "offline_seaice",
+    "offline_isba",
+    "offline_teb",
+    "offline_selected_output",
+  ]
+  deode = false
+
+[offline.args]
+  force = true
+  output-frequency = 3600
+
+[pgd]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "pgd",
+    "ecoclimap_sg",
+    "pgd_isba",
+    "pgd_seaflx",
+    "pgd_teb",
+    "pgd_watflx",
+    "pgd_cover",
+    "pgd_arrange_cover",
+    "pgd_cover_direct",
+    "pgd_cover_lrm_river_true",
+    "pgd_cv_sg",
+    "pgd_rsmin_sg",
+    "pgd_ecoclimap_sg",
+    "pgd_ecoclimap_sg_single_decade",
+    "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_lai_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
+    "pgd_zs",
+    "pgd_zs_direct",
+    "pgd_sea",
+    "pgd_isba",
+    "pgd_isba_sand_direct",
+    "pgd_isba_clay_direct",
+    "meb",
+    "pgd_meb",
+  ]
+  one_decade = true
+
+[prep]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "prep",
+    "ecoclimap_sg",
+    "prep_from_namelist",
+    "prep_seaflux",
+    "prep_isba",
+    "prep_isba_snow",
+    "meb",
+  ]
+
+[soda]
+  blocks = ["io", "treedrag", "ecoclimap_sg", "soda", "soda_snow_ass_only"]
+
+[suite_control]
+  create_static_data = true
+  do_marsprep = false
+  do_pgd = true
+  do_prep = true
+  do_verification = true
+  interpolate2grid = false
+  suite_definition = "SurfexSuiteDefinition"
+
+[system]
+  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/cy46_carra2/surfex_namelists.yml"

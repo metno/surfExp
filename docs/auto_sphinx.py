@@ -10,8 +10,10 @@ methods = []
 code_dirs = ["surfexp"]
 os.chdir("..")
 for code_dir in code_dirs:
-    for root, __, files in os.walk("./" + code_dir):
-        for f in files:
+    for lroot, __, files in os.walk("./" + code_dir):
+        root = lroot
+        for lf in files:
+            f = lf
             f = f.strip()
             if f.endswith(".py"):
                 root = root.replace("./", "")
@@ -20,7 +22,8 @@ for code_dir in code_dirs:
                 logging.debug("fname=%s", fname)
                 with open(fname, "r") as fh:
                     cl = None
-                    for line in fh.readlines():
+                    for lline in fh.readlines():
+                        line = lline
                         line = line.rstrip()
                         if "class " in line:
                             if line.find("(") > 0 and line.find(":") == (len(line) - 1):
@@ -35,15 +38,15 @@ for code_dir in code_dirs:
                                 m = m.split("(")[0]
                                 if cl is not None:
                                     class_methods.append(cl + "." + m)
-                        else:
-                            if "def " in line:
-                                if line.find("(") > 0 and line.find(":") == (
-                                    len(line) - 1
-                                ):
-                                    line = line.lstrip()
-                                    m = line.split(" ")[1]
-                                    m = m.split("(")[0]
-                                    methods.append(root + "." + ff + "." + m)
+                        elif (
+                            "def " in line
+                            and line.find("(") > 0
+                            and line.find(":") == (len(line) - 1)
+                        ):
+                            line = line.lstrip()
+                            m = line.split(" ")[1]
+                            m = m.split("(")[0]
+                            methods.append(root + "." + ff + "." + m)
 
 with open("index.rst", mode="w", encoding="utf-8") as fh:
     fh.write(".. surfExp documentation master file, created by\n")

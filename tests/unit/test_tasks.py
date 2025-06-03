@@ -5,6 +5,7 @@ import types
 from pathlib import Path
 
 import pytest
+from deode.logs import logger
 from deode.os_utils import deodemakedirs
 from deode.tasks.base import Task
 from deode.tasks.discover_task import discover, get_task
@@ -33,7 +34,7 @@ def available_tasks():
     found_types = discover(tasks, Task)
     for ftype, cls in found_types.items():
         if ftype in known_types:
-            print("Overriding suite {}", ftype)
+            logger.info("Overriding suite {}", ftype)
         if ftype not in ["pysurfexbase", "surfexbinary"]:
             known_types[ftype] = cls
 
@@ -63,7 +64,7 @@ def create_binaries(casedir, task_name, task_config):
     need_pgd = False
     need_prep = False
     task_config = task_config.copy(update)
-    if task_name == "offlineforecast" or task_name == "perturbedrun":
+    if task_name in ("offlineforecast", "perturbedrun"):
         need_pgd = True
         need_prep = True
         if task_name == "perturbedrun":
@@ -73,28 +74,28 @@ def create_binaries(casedir, task_name, task_config):
             task_config = task_config.copy(args)
             archive = f"{casedir}/archive/2025/02/08/21/"
             deodemakedirs(archive)
-            os.system(f"touch {archive}/ANALYSIS.nc")
+            os.system(f"touch {archive}/ANALYSIS.nc")  # noqa S605
         else:
             forcing_dir = f"{casedir}/forcing/2025020900/"
             diag_output = "SURFOUT.20250209_03h00.nc"
             archive = f"{casedir}/archive/2025/02/09/00/"
             deodemakedirs(archive)
-            os.system(f"touch {archive}/PREP.nc")
+            os.system(f"touch {archive}/PREP.nc")  # noqa S605
         binary = f"{bindir}/OFFLINE"
         with open(binary, mode="w", encoding="utf8") as fhandler:
             fhandler.write("#!/bin/bash\n")
             fhandler.write("touch SURFOUT.nc\n")
             fhandler.write(f"touch {diag_output}\n")
-        os.chmod(binary, 0o0755)
+        os.chmod(binary, 0o0700)
         deodemakedirs(forcing_dir)
-        os.system(f"touch {forcing_dir}/FORCING.nc")
+        os.system(f"touch {forcing_dir}/FORCING.nc")  # noqa S605
     elif task_name.lower() == "offlinepgd":
         binary = f"{bindir}/PGD"
         with open(binary, mode="w", encoding="utf8") as fhandler:
             fhandler.write("#!/bin/bash\n")
             fhandler.write("touch PGD.nc\n")
             fhandler.write("touch LISTING_PGD.txt\n")
-        os.chmod(binary, 0o0755)
+        os.chmod(binary, 0o0700)
         args = {"task": {"args": {"basetime": "2025-02-09T00:00:00Z"}}}
         task_config = task_config.copy(args)
     elif task_name.lower() == "offlineprep":
@@ -103,7 +104,7 @@ def create_binaries(casedir, task_name, task_config):
         with open(binary, mode="w", encoding="utf8") as fhandler:
             fhandler.write("#!/bin/bash\n")
             fhandler.write("touch PREP.nc\n")
-        os.chmod(binary, 0o0755)
+        os.chmod(binary, 0o0700)
         update = {"prep": {"tolerate_missing": True}}
         task_config = task_config.copy(update)
     elif task_name.lower() == "soda":
@@ -113,7 +114,7 @@ def create_binaries(casedir, task_name, task_config):
         with open(binary, mode="w", encoding="utf8") as fhandler:
             fhandler.write("#!/bin/bash\n")
             fhandler.write("touch SURFOUT.nc\n")
-        os.chmod(binary, 0o0755)
+        os.chmod(binary, 0o0700)
 
         obdir = f"{casedir}/archive/observations/2025/02/09/00/"
         deodemakedirs(obdir)
@@ -122,28 +123,26 @@ def create_binaries(casedir, task_name, task_config):
         archive = f"{casedir}/archive/2025/02/09/00/"
         deodemakedirs(archive)
         deodemakedirs(f"{casedir}/20250209_0000/")
-        os.system(f"touch {fg_dir}/SURFOUT.nc")
-        os.system(f"touch {obdir}/OBSERVATIONS_250209H00.DAT")
-        os.system(f"touch {archive}/SURFOUT_PERT0.nc")
-        os.system(f"touch {archive}/SURFOUT_PERT2.nc")
-        os.system(f"touch {archive}/SURFOUT_PERT4.nc")
-        os.system(f"touch {archive}/SURFOUT_PERT6.nc")
-        os.system(f"touch {archive}/SURFOUT_PERT8.nc")
+        os.system(f"touch {fg_dir}/SURFOUT.nc")  # noqa S605
+        os.system(f"touch {obdir}/OBSERVATIONS_250209H00.DAT")  # noqa S605
+        os.system(f"touch {archive}/SURFOUT_PERT0.nc")  # noqa S605
+        os.system(f"touch {archive}/SURFOUT_PERT2.nc")  # noqa S605
+        os.system(f"touch {archive}/SURFOUT_PERT4.nc")  # noqa S605
+        os.system(f"touch {archive}/SURFOUT_PERT6.nc")  # noqa S605
+        os.system(f"touch {archive}/SURFOUT_PERT8.nc")  # noqa S605
     else:
         raise NotImplementedError
     if need_pgd:
         climdir = f"{casedir}/climate/DRAMMEN/"
         deodemakedirs(climdir)
-        os.system(f"touch {climdir}/PGD_0215.nc")
+        os.system(f"touch {climdir}/PGD_0215.nc")  # noqa S605
     if need_prep:
         deodemakedirs(f"{casedir}/20250209_0000/")
-        os.system(f"touch {casedir}/20250209_0000/fc_start_sfx")
+        os.system(f"touch {casedir}/20250209_0000/fc_start_sfx")  # noqa S605
     return task_config
 
 
-@pytest.fixture(
-    name="task_name_and_configs", params=classes_to_be_tested(), scope="function"
-)
+@pytest.fixture(name="task_name_and_configs", params=classes_to_be_tested())
 def fixture_task_name_and_configs(request, default_config, tmp_directory):
     """Return a ParsedConfig with a task-specific section according to `params`."""
     task_name = request.param
@@ -198,31 +197,37 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
         deodemakedirs(builddir)
         programs = ["PGD-offline", "PREP-offline", "OFFLINE-offline", "SODA-offline"]
         for program in programs:
-            os.system(f"touch {builddir}/{program}")
+            os.system(f"touch {builddir}/{program}")  # noqa S605
     elif task_name.lower() == "soil":
         soilgrid_data_path = f"{casedir}/SOILGRID"
         deodemakedirs(soilgrid_data_path)
         update = {"platform": {"soilgrid_data_path": soilgrid_data_path}}
         task_config = task_config.copy(update)
-        os.system(f"touch {soilgrid_data_path}/CLYPPT.tif")
-        os.system(f"touch {soilgrid_data_path}/SNDPPT.tif")
-        os.system(f"touch {soilgrid_data_path}/SOC_TOP.tif")
-        os.system(f"touch {soilgrid_data_path}/SOC_SUB")
+        os.system(f"touch {soilgrid_data_path}/CLYPPT.tif")  # noqa S605
+        os.system(f"touch {soilgrid_data_path}/SNDPPT.tif")  # noqa S605
+        os.system(f"touch {soilgrid_data_path}/SOC_TOP.tif")  # noqa S605
+        os.system(f"touch {soilgrid_data_path}/SOC_SUB")  # noqa S605
     elif task_name.lower() == "gmted":
         gmted2010_data_path = f"{casedir}/GMTED"
         deodemakedirs(gmted2010_data_path)
         update = {"platform": {"gmted2010_data_path": gmted2010_data_path}}
         task_config = task_config.copy(update)
-        os.system(f"touch {gmted2010_data_path}/50N000E_20101117_gmted_mea075.tif")
+        os.system(  # noqa S605
+            f"touch {gmted2010_data_path}/50N000E_20101117_gmted_mea075.tif"
+        )
     elif task_name.lower() == "fetchmars":
         deodemakedirs(f"{casedir}/grib/default")
-        os.system(f"touch {casedir}/grib/default/sfx_hres_20250209_0000.grib1")
-        for t in range(0, 25):
-            os.system(f"touch {casedir}/grib/default/sfx_hres_split_2025020900+{t}.grib1")
+        os.system(  # noqa S605
+            f"touch {casedir}/grib/default/sfx_hres_20250209_0000.grib1"
+        )
+        for t in range(25):
+            os.system(  # noqa S605
+                f"touch {casedir}/grib/default/sfx_hres_split_2025020900+{t}.grib1"
+            )
     elif task_name.lower() == "firstguess4oi":
         archive = f"{casedir}/archive/2025/02/09/00/"
         deodemakedirs(archive)
-        os.system(f"touch {archive}/raw.nc")
+        os.system(f"touch {archive}/raw.nc")  # noqa S605
         update = {"task": {"args": {"mode": "analysis"}}}
         task_config = task_config.copy(update)
     elif task_name.lower() == "qc2obsmon":
@@ -234,7 +239,7 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
     return task_name, task_config
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def _mockers_for_task_run_tests(session_mocker):
     session_mocker.patch("surfexp.tasks.compilation.BatchJob")
     session_mocker.patch("surfexp.tasks.tasks.converter2harp_cli")

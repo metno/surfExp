@@ -3,9 +3,6 @@
   prep_input_file = ""
   prep_pgdfile = ""
 
-[prep]
-  extra_namelist_blocks = ["prep_from_namelist"]
-
 [initial_conditions.fg4oi]
   fileformat = "surfex"
   inputfile = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.nc"
@@ -21,6 +18,9 @@
 [initial_conditions.fg4oi.surface_snow_thickness]
   converter = "none"
   inputfile = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+
+[prep]
+  extra_namelist_blocks = ["prep_from_namelist"]
 
 [SURFEX.ASSIM.ISBA]
   UPDATE_SNOW_CYCLES = ["06"] # Cycles to update snow depths/SWE in assimilation.

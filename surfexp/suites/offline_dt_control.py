@@ -31,7 +31,6 @@ class SurfexSuiteDefinitionDTAnalysedForcingControl(SuiteDefinition):
         template = Path(__file__).parent.resolve() / "../templates/ecflow/requeue.py"
         template = template.as_posix()
 
-        # start_offline_sfx = EcflowSuiteFamily("DT_OFFLINE_CONTROL", self.suite, self.ecf_files)
         start_offline_sfx = EcflowSuiteTask(
             "StartOfflineSfx",
             self.suite,

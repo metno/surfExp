@@ -1,41 +1,3 @@
-[pgd]
-  one_decade = true
-  blocks = [
-    "io", "constants", "treedrag", "pgd", "ecoclimap_sg",
-    "pgd_isba", "pgd_seaflx", "pgd_teb",
-    "pgd_watflx", "pgd_cover", "pgd_arrange_cover", "pgd_cover_direct",
-    "pgd_cover_lrm_river_true",
-    "pgd_cv_sg", "pgd_rsmin_sg",
-    "pgd_ecoclimap_sg",
-    "pgd_ecoclimap_sg_single_decade",
-    "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_lai_dirtyp",
-    "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
-    "pgd_zs", "pgd_zs_direct",
-    "pgd_sea",
-    "pgd_isba",
-    "pgd_isba_sand_direct", "pgd_isba_clay_direct",
-    "meb",
-    "pgd_meb"
-  ]
-
-[prep]
-  blocks = [
-    "io",
-    "constants",
-    "treedrag",
-    "prep",
-    "ecoclimap_sg",
-    "prep_from_namelist",
-    "prep_seaflux",
-    "prep_isba",
-    "prep_isba_snow",
-    "meb"
-  ]
-
 [offline]
   blocks = [
     "io",
@@ -48,7 +10,57 @@
     "offline_seaice",
     "offline_isba",
     "offline_teb",
-    "offline_selected_output"
+    "offline_selected_output",
+  ]
+
+[pgd]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "pgd",
+    "ecoclimap_sg",
+    "pgd_isba",
+    "pgd_seaflx",
+    "pgd_teb",
+    "pgd_watflx",
+    "pgd_cover",
+    "pgd_arrange_cover",
+    "pgd_cover_direct",
+    "pgd_cover_lrm_river_true",
+    "pgd_cv_sg",
+    "pgd_rsmin_sg",
+    "pgd_ecoclimap_sg",
+    "pgd_ecoclimap_sg_single_decade",
+    "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_lai_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
+    "pgd_zs",
+    "pgd_zs_direct",
+    "pgd_sea",
+    "pgd_isba",
+    "pgd_isba_sand_direct",
+    "pgd_isba_clay_direct",
+    "meb",
+    "pgd_meb",
+  ]
+  one_decade = true
+
+[prep]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "prep",
+    "ecoclimap_sg",
+    "prep_from_namelist",
+    "prep_seaflux",
+    "prep_isba",
+    "prep_isba_snow",
+    "meb",
   ]
 
 [soda]

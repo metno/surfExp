@@ -1,5 +1,7 @@
 [scheduler]
+
 [scheduler.ecfvars]
+  case_prefix = ""
   ecf_deode_home = "@DEODE_HOME@"
   ecf_files = "@HOME@/deode_ecflow/ecf_files"
   ecf_files_remotely = "@HOME@/deode_ecflow/ecf_files"
@@ -8,8 +10,6 @@
   ecf_jobout = "@HOME@/deode_ecflow/jobout"
   ecf_out = "@HOME@/deode_ecflow/jobout"
   ecf_ssl = "1"
-  case_prefix = ""
 
 [scheduler.ecfvars.troika]
   config_file = "@PLUGIN_HOME@/surfexp/data/config/troika/troika_config.yml"
-

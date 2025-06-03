@@ -1,0 +1,28 @@
+[general]
+  cycle = "CY49t2"
+
+[nam_io_offline]
+  cpgdfile = "PGD"
+  cprepfile = "PREP"
+  csurf_filetype = "NC"
+  csurffile = "SURFOUT"
+  ctimeseries_filetype = "NC"
+  lfagmap = true
+  lrestart = true
+  lrestart_2m = true
+
+[offline]
+  deode = true
+
+[pgd]
+  deode = true
+
+[prep]
+  deode = true
+
+[soda]
+  blocks = ["io", "io_nc", "treedrag", "ecoclimap_sg", "soda"]
+  deode = false
+
+[system]
+  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/dev-CY49T2h_deode/surfex_namelists.yml"

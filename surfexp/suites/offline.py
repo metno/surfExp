@@ -1,4 +1,5 @@
 """Offline suite."""
+import contextlib
 from pathlib import Path
 
 from deode.datetime_utils import as_datetime, as_timedelta, get_decadal_list, get_decade
@@ -272,7 +273,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
             )
             prepare_cycle_complete = EcflowSuiteTrigger(prepare_cycle)
 
-
             triggers = EcflowSuiteTriggers(
                 [comp_complete, static_complete, time_trigger, prepare_cycle_complete]
             )
@@ -329,7 +329,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     )
                     fcint = as_timedelta(self.config["general.times.cycle_length"])
                     steps = int(int(fcint.total_seconds()) / 3600)
-                    for bd in range(0, steps + 1):
+                    for bd in range(steps + 1):
                         bd_input = EcflowSuiteFamily(
                             f"bd_input{bd}",
                             interpolate2grid_fam,
@@ -401,9 +401,8 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 )
                 triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(forcing)])
 
-            if do_an_forcing:
-                if self.do_prep:
-                    do_an_forcing = False
+            if do_an_forcing and self.do_prep:
+                do_an_forcing = False
 
             if do_an_forcing:
                 an_forcing = EcflowSuiteFamily(
@@ -419,7 +418,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     as_timedelta(config["general.times.cycle_length"]).total_seconds()
                     / 3600
                 )
-                offsets = range(0, fcint + 1)
+                offsets = range(fcint + 1)
                 for offset in offsets:
                     fg_trigger = triggers
                     offset_args = f"offset={offset};"
@@ -479,6 +478,13 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 )
 
                 reforecast_trigger = EcflowSuiteTriggers([EcflowSuiteTrigger(an_forcing)])
+                if prev_cycle_input is not None:
+                    reforecast_trigger = EcflowSuiteTriggers(
+                        [
+                            EcflowSuiteTrigger(an_forcing),
+                            EcflowSuiteTrigger(prev_cycle_input),
+                        ]
+                    )
                 rerun_fam = EcflowSuiteFamily(
                     "ReForecast", cycle_input, self.ecf_files, trigger=reforecast_trigger
                 )
@@ -659,7 +665,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                                         variables=variables,
                                         input_template=template,
                                     )
-                                    nfam += 1
+                                    nfam += 1  # noqa SIM113
                                 nivar = nivar + 1
 
                     prepare_oi_soil_input = None
@@ -863,7 +869,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
             prediction = None
             if do_prediction:
-
                 if prev_cycle_input is not None:
                     triggers.add_triggers(EcflowSuiteTrigger(prev_cycle_input))
                 if prev_initialization is not None:
@@ -913,19 +918,16 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
             verification_fam = None
             do_verification = False
-            if config["suite_control.do_verification"]:
-                if do_forecast:
-                    do_verification = True
+            if config["suite_control.do_verification"] and do_forecast:
+                do_verification = True
             offline_settings = SettingsFromNamelistAndConfig("offline", config)
             if do_verification:
                 do_verification = False
                 for mode in ["cycle", "forecast"]:
-                    try:
+                    with contextlib.suppress(KeyError):
                         ver_vars = config[f"verification.{mode}.variables"]
                         if len(ver_vars) > 0:
                             do_verification = True
-                    except KeyError:
-                        pass
 
             do_postproc = False
             if do_verification:
@@ -973,7 +975,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
                             except KeyError:
                                 output_frequency = None
 
-                        # logger.info("offline_settings={}", offline_settings.nml)
                         logger.info("mode={} output_frequency={}", mode, output_frequency)
                         if output_frequency is not None:
                             verification_mode_fam = EcflowSuiteFamily(
@@ -995,7 +996,11 @@ class SurfexSuiteDefinition(SuiteDefinition):
                                     self.ecf_files,
                                 )
                                 for var_name in ver_vars:
-                                    args = f"mode={mode};var_name={var_name};basetime={iso_basetime};validtime={iso_validtime};"
+                                    args = (
+                                        f"mode={mode};var_name={var_name};"
+                                        + f"basetime={iso_basetime};"
+                                        + f"validtime={iso_validtime};"
+                                    )
                                     variables = {"ARGS": args}
                                     harp_fam = EcflowSuiteFamily(
                                         var_name,
@@ -1023,7 +1028,7 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     as_timedelta(config["general.times.cycle_length"]).total_seconds()
                     / 3600
                 )
-                offsets = range(0, fcint + 1)
+                offsets = range(fcint + 1)
 
                 if len(offsets) > 0:
                     qc2obsmon_an_forcing = EcflowSuiteFamily(

@@ -14,4 +14,3 @@
 
 [scheduler.ecfvars.troika]
   config_file = "@PLUGIN_HOME@/surfexp/data/config/troika/troika_config.yml"
-

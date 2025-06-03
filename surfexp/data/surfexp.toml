@@ -1,12 +1,12 @@
-[general.plugin_registry.plugins]
-  surfexp = "@PLUGIN_HOME@"
-
 [general]
   loglevel = "INFO"
   os_macros = ["HOME"]
   realization = ""
   realizations = []
   tstep = 60
+
+[general.plugin_registry.plugins]
+  surfexp = "@PLUGIN_HOME@"
 
 [general.times]
   cycle_length = "PT3H"
@@ -15,22 +15,29 @@
 # SURFEX experiment configuration file
 #
 
+[assim]
+  update_snow_cycles = []
+
 [compile]
   ####################################################################################################
   # Compilation settings
   #####################################################################################################
   build = true # Turn on or off the compilation and binary build (true/false)
-  ial_source = ""
   build_config = ""
+  ial_source = ""
+
+[offline]
+  deode = false
+  tolerate_missing = false
 
 [pgd]
-  tolerate_missing = false
   clay_format = "direct"
   clay_input = "soilgrid"
   sand_format = "direct"
   sand_input = "soilgrid"
   soc_format = "direct"
   soc_input = "soilgrid"
+  tolerate_missing = false
   zs_format = "direct"
   zs_input = "gmted2010"
 
@@ -42,64 +49,61 @@
   deode = false
   tolerate_missing = false
 
+[suite_control]
+  create_static_data = true
+  do_marsprep = false
+  do_pgd = true
+  do_prep = true
+  do_verification = true
+  interpolate2grid = false
+  suite_definition = "SurfexSuiteDefinition"
+
+[system]
+  archive_dir = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/"
+  assemble_file = "@PLUGIN_HOME@/surfexp/data/config/nam/default_assemble.yml"
+  binary_input_files = "@PLUGIN_HOME@/surfexp/data/config/input/binary_input_data.json"
+  bindir = "@casedir@/offline/exe"
+  climdir = "@casedir@/climate/@DOMAIN@/"
+  extrarch_dir = "@casedir@/archive/extract/"
+  forcing_dir = "@casedir@/forcing/@YYYY@@MM@@DD@@HH@/"
+  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/surfex_namelists.yml"
+  obs_dir = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/"
+  sfx_input_definition = "@PLUGIN_HOME@/surfexp/data/config/input/binary_input_data.json"
+
 [troika]
   config_file = "@PLUGIN_HOME@/surfexp/data/config/troika/troika_config.yml"
 
-[offline]
-  deode = false
-  tolerate_missing = false
-
-[suite_control]
-  create_static_data = true
-  suite_definition = "SurfexSuiteDefinition"
-  do_pgd = true
-  do_prep = true
-  do_marsprep = false
-  interpolate2grid = false
-  do_verification = true
-
-[system]
-  climdir = "@casedir@/climate/@DOMAIN@/"
-  archive_dir = "@casedir@/archive/@YYYY@/@MM@/@DD@/@HH@/"
-  extrarch_dir = "@casedir@/archive/extract/"
-  forcing_dir = "@casedir@/forcing/@YYYY@@MM@@DD@@HH@/"
-  obs_dir = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/"
-  namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/surfex_namelists.yml"
-  assemble_file = "@PLUGIN_HOME@/surfexp/data/config/nam/default_assemble.yml"
-  binary_input_files = "@PLUGIN_HOME@/surfexp/data/config/input/binary_input_data.json"
-  sfx_input_definition = "@PLUGIN_HOME@/surfexp/data/config/input/binary_input_data.json"
-  bindir = "@casedir@/offline/exe"
-
-[assim]
-  update_snow_cycles = []
-
-[verification.forecast]
-  variables = ["T2M", "HU2M"]
-
-[verification.forecast.T2M]
-  harp_param = "T2m"
-  harp_param_unit = "K"
-
-[verification.forecast.HU2M]
-  harp_param = "HU2m"
-  harp_param_unit = "%"
-
 [verification.cycle]
   variables = ["T2M", "HU2M"]
+
+[verification.cycle.HU2M]
+  harp_param = "HU2m"
+  harp_param_unit = "%"
 
 [verification.cycle.T2M]
   harp_param = "T2m"
   harp_param_unit = "K"
 
-[verification.cycle.HU2M]
+[verification.forecast]
+  variables = ["T2M", "HU2M"]
+
+[verification.forecast.HU2M]
   harp_param = "HU2m"
   harp_param_unit = "%"
+
+[verification.forecast.T2M]
+  harp_param = "T2m"
+  harp_param_unit = "K"
 
 #####################################################################################################
 # Geometry
 #####################################################################################################
 
 ###########################################################################################################################
+
+[an_forcing]
+  enabled = false
+  variables = ["t2m", "rh2m"]
 
 [forcing]
   modify_forcing = true
@@ -113,11 +117,12 @@
   # pattern = "/lustre/storeB/project/metproduction/products/yr_short/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
   # pattern = "/lustre/storeB/immutable/archive/projects/metproduction/yr_short//@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc
   # pattern = "/lustre/storeB/project/metkl/klinogrid/archive/met_nordic_analysis/v3/@YYYY@/@MM@/@DD@/met_analysis_1_0km_nordic_@YYYY@@MM@@DD@T@HH@Z.nc"
-  input-format = "netcdf"
   analysis = true
   co2 = "constant"
   debug = true
   dir-sw-converter = "analysis"
+  diskless-write = true
+  input-format = "netcdf"
   interpolation = "bilinear"
   lw-converter = "analysis"
   ps-converter = "mslp2ps"
@@ -133,27 +138,6 @@
   zref = "screen"
   zsoro-converter = "none"
   zval = "constant"
-  diskless-write = true
-
-[an_forcing]
-  enabled = false
-  variables = ["t2m", "rh2m"]
-
-[mars]
-
-[mars.an_forcing]
-  config = "sfx_hres"
-
-[mars.default]
-  config = "sfx_hres"
-
-[mars.sfx_hres]
-  class = "OD"
-  expver = "1"
-
-[mars.sfx_dt]
-  class = "RD"
-  expver = "iekm"
 
 [forecast]
   #####################################################################################################
@@ -167,53 +151,70 @@
 [initial_conditions]
 
 [initial_conditions.fg4oi.analysis]
-[initial_conditions.fg4oi.analysis.t2m]
-  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
-  inputtype = "surfex"
-  converter = "none"
-  basetime = "@FG_BASETIME@"
-  outfile-var = "air_temperature_2m"
-  fcint = "10800"
-  file-inc = "3600"
-
-[initial_conditions.fg4oi.analysis.rh2m]
-  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
-  inputtype = "surfex"
-  converter = "none"
-  basetime = "@FG_BASETIME@"
-  outfile-var = "relative_humidity_2m"
-  fcint = "10800"
-  file-inc = "3600"
-
-[initial_conditions.fg4oi.analysis.sd]
-  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
-  inputtype = "surfex"
-  converter = "none"
-  basetime = "@FG_BASETIME@"
-  outfile-var = "surface_snow_thickness"
-  fcint = "10800"
-  file-inc = "3600"
 
 [initial_conditions.fg4oi.analysis.altitude]
+  basetime = "@BASETIME@"
+  converter = "none"
   inputfile = "@climdir@/PGD_@DECADE@.nc"
   inputtype = "surfex"
-  converter = "none"
-  variable = "ZS"
-  basetime = "@BASETIME@"
   outfile-var = "altitude"
+  variable = "ZS"
 
 [initial_conditions.fg4oi.analysis.laf]
   converter = "nature_town"
   converter-variables = ["nature", "town"]
+  nature-basetime = "@BASETIME@"
   nature-inputfile = "@climdir@/PGD_@DECADE@.nc"
   nature-inputtype = "surfex"
   nature-variable = "FRAC_NATURE"
-  nature-basetime = "@BASETIME@"
+  outfile-var = "land_area_fraction"
+  town-basetime = "@BASETIME@"
   town-inputfile = "@climdir@/PGD_@DECADE@.nc"
   town-inputtype = "surfex"
   town-variable = "FRAC_NATURE"
-  town-basetime = "@BASETIME@"
-  outfile-var = "land_area_fraction"
+
+[initial_conditions.fg4oi.analysis.rh2m]
+  basetime = "@FG_BASETIME@"
+  converter = "none"
+  fcint = "10800"
+  file-inc = "3600"
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  outfile-var = "relative_humidity_2m"
+
+[initial_conditions.fg4oi.analysis.sd]
+  basetime = "@FG_BASETIME@"
+  converter = "none"
+  fcint = "10800"
+  file-inc = "3600"
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  outfile-var = "surface_snow_thickness"
+
+[initial_conditions.fg4oi.analysis.t2m]
+  basetime = "@FG_BASETIME@"
+  converter = "none"
+  fcint = "10800"
+  file-inc = "3600"
+  inputfile = "@casedir@/archive/@FG_YYYY@/@FG_MM@/@FG_DD@/@FG_HH@/SURFOUT.@YYYY@@MM@@DD@_@HH_LL@h00.nc"
+  inputtype = "surfex"
+  outfile-var = "air_temperature_2m"
+
+[mars]
+
+[mars.an_forcing]
+  config = "sfx_hres"
+
+[mars.default]
+  config = "sfx_hres"
+
+[mars.sfx_dt]
+  class = "RD"
+  expver = "iekm"
+
+[mars.sfx_hres]
+  class = "OD"
+  expver = "1"
 
 ##################################################################################################################
 [observations]
@@ -235,11 +236,11 @@
   cryo_filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/daily-avhrr-sce-nhl_ease-50_@YYYY@@MM@@DD@@HH@"
   cryo_laf_threshold = 0.1
   cryo_new_snow = 0.1
+  cryo_perm_snow_file = "@CLIMDIR@/PGD@DECADE@.nc"
+  cryo_slope_file = "@CLIMDIR@/PGD@DECADE@.nc"
   cryo_step = 2
   cryo_var_name = "classed_value_c"
   filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/ob@YYYY@@MM@@DD@@HH@"
-  cryo_slope_file = "@CLIMDIR@/PGD@DECADE@.nc"
-  cryo_perm_snow_file = "@CLIMDIR@/PGD@DECADE@.nc"
 
 [Observations.oi.rh2m]
   hlength = 30000

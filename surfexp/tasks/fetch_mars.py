@@ -42,9 +42,9 @@ class FetchMars(PySurfexBaseTask):
         self.hour = self.basetime.strftime("%H%M")
         lon0 = self.geo.lonrange[0]
         lon0 = int(self.geo.lonrange[0])
-        lon1 = int(math.ceil(self.geo.lonrange[1]))
+        lon1 = math.ceil(self.geo.lonrange[1])
         lat0 = int(self.geo.latrange[0])
-        lat1 = int(math.ceil(self.geo.latrange[1]))
+        lat1 = math.ceil(self.geo.latrange[1])
         self.area = f"{lat1}/{lon0}/{lat0}/{lon1}"
         self.mars_config = self.config[f"mars.{mode}.config"]
         self.gribfile = f"{self.mars_config}_{self.date}_{self.hour}.grib1"
@@ -66,6 +66,7 @@ class FetchMars(PySurfexBaseTask):
         self.split_files()
 
     def fetch_mars(self):
+        """Fetch mars."""
         request_file = "request.mars"
         with open(request_file, mode="w", encoding="utf8") as fhandler:
             fhandler.write("")
@@ -76,8 +77,6 @@ class FetchMars(PySurfexBaseTask):
             clas = "RD"
         expver = self.config[f"mars.{self.mars_config}.expver"]
         grid = self.config[f"mars.{self.mars_config}.grid"]
-        # DT: RD/"iekm",
-        # HRES: OD / 1
         req = Request(
             action="retrieve",
             dates=self.date,
@@ -97,16 +96,18 @@ class FetchMars(PySurfexBaseTask):
             req.write_request(rf)
 
         rte = os.environ.copy()
-        os.system(f"cat {request_file}")
+        os.system(f"cat {request_file}")  # noqa S605
         BatchJob(rte).run(f"mars {request_file}")
         shutil.move(self.gribfile, self.gribdir)
 
     def split_files(self):
+        """Split files."""
         rule_file = f"{self.mars_config}_filter1.rule"
         with open(rule_file, mode="w", encoding="utf8") as fhandler:
             fhandler.write("set timeRangeIndicator = 0;\n")
             fhandler.write(
-                f'write "{self.gribdir}/{self.mars_config}_split_{self.basetime.strftime("%Y%m%d%H")}+[step].grib1";\n'
+                f'write "{self.gribdir}/{self.mars_config}_split_'
+                + f'{self.basetime.strftime("%Y%m%d%H")}+[step].grib1";\n'
             )
         logger.info("grib_filter {} {}", rule_file, self.grib_file_with_path)
         rte = os.environ.copy()
@@ -114,17 +115,25 @@ class FetchMars(PySurfexBaseTask):
         rule_file = f"{self.mars_config}_filter2.rule"
         with open(rule_file, mode="w", encoding="utf8") as fhandler:
             fhandler.write(
-                'print "found indicatorOfParameter=[indicatorOfParameter] timeRangeIndicator=[timeRangeIndicator] date=[date] step=[step]";\n'
+                'print "found indicatorOfParameter=[indicatorOfParameter] '
+                + 'timeRangeIndicator=[timeRangeIndicator] date=[date] step=[step]";\n'
             )
             fhandler.write(
-                "if (indicatorOfParameter == 228 || indicatorOfParameter == 144 || indicatorOfParameter == 169 || indicatorOfParameter == 175) {\n"
+                "if (indicatorOfParameter == 228 || indicatorOfParameter == 144 "
+                + "|| indicatorOfParameter == 169 || indicatorOfParameter == 175) {\n"
             )
             fhandler.write("  set timeRangeIndicator = 4;\n")
             fhandler.write("}\n")
             fhandler.write("write;\n")
         for ltime in self.leadtimes:
-            infile = f"{self.gribdir}/{self.mars_config}_split_{self.basetime.strftime('%Y%m%d%H')}+{ltime}.grib1"
-            outfile = f"{self.gribdir}/{self.mars_config}_{self.basetime.strftime('%Y%m%d%H')}+{ltime:02d}.grib1"
+            infile = (
+                f"{self.gribdir}/{self.mars_config}_split_"
+                + f"{self.basetime.strftime('%Y%m%d%H')}+{ltime}.grib1"
+            )
+            outfile = (
+                f"{self.gribdir}/{self.mars_config}_"
+                + f"{self.basetime.strftime('%Y%m%d%H')}+{ltime:02d}.grib1"
+            )
             if os.path.exists(infile):
                 BatchJob(rte).run(f"grib_filter -o {outfile} {rule_file} {infile}")
             else:
@@ -132,6 +141,8 @@ class FetchMars(PySurfexBaseTask):
 
 
 class Request(object):
+    """Mars request class."""
+
     def __init__(
         self,
         action=None,
@@ -152,18 +163,18 @@ class Request(object):
         grid=None,
         area=None,
     ):
-        """Construct a request for mars"""
+        """Construct a request for mars."""
         self.action = action
         self.target = target
         self.source = source
         self.database = database
-        self.dates = dates if type(dates) == list else [dates]
-        self.hours = hours if type(hours) == list else [hours]
+        self.dates = dates if type(dates) is list else [dates]
+        self.hours = hours if type(hours) is list else [hours]
         self.origin = origin
         self.type = typ
-        self.step = step if type(step) == list else [step]
-        self.param = param if type(param) == list else [param]
-        self.levelist = levelist if type(levelist) == list else [levelist]
+        self.step = step if type(step) is list else [step]
+        self.param = param if type(param) is list else [param]
+        self.levelist = levelist if type(levelist) is list else [levelist]
         self.levtype = levtype
         self.expver = expver
         self.marsClass = clas
@@ -179,6 +190,12 @@ class Request(object):
         )
 
     def write_request(self, f):
+        """Write mars request.
+
+        Args:
+            f (str): File name
+
+        """
         separator = "/"
         if self.action == "archive":
             if self.database:

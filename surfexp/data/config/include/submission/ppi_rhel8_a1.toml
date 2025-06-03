@@ -1,11 +1,19 @@
 [submission]
-bindir = "/lustre/storeA/users/trygveasp/deode/test_ib_a1/lib/offline/exe/"
-default_submit_type = "background"
-lfftw = true
-module_initpath = "/usr/share/Modules/init/"
-nproma = -32
+  bindir = "/lustre/storeA/users/trygveasp/deode/test_ib_a1/lib/offline/exe/"
+  default_submit_type = "background"
+  lfftw = true
+  module_initpath = "/usr/share/Modules/init/"
+  nproma = -32
 
-submit_types = ["serial", "parallel", "background"]
+  submit_types = ["serial", "parallel", "background"]
+
+[submission.background]
+  SCHOST = "localhost"
+  WRAPPER = ""
+
+[submission.background.MODULES]
+  0_ECFLOW_0 = ["use", "/modules/MET/rhel8/user-modules/"]
+  0_ECFLOW_1 = ["load", "ecflow/5.8.1"]
 
 [submission.parallel]
   NPROC = 1
@@ -25,8 +33,8 @@ submit_types = ["serial", "parallel", "background"]
 
 [submission.parallel.BATCH]
   NAME = "#$ -N @TASK_NAME@"
-  QUEUE = "#$ -q ib-dev-ucx1-17-a-r8.q"
   PE = "#$ -pe ib-fn 48"
+  QUEUE = "#$ -q ib-dev-ucx1-17-a-r8.q"
   VMEM = "#$ -l h_rss=3G,mem_free=3G"
   WALLTIME = "#$ -l h_rt=00:30:00"
 
@@ -45,14 +53,6 @@ submit_types = ["serial", "parallel", "background"]
   1_INTEL_RUNTIME_1 = ["load", "compiler/Intel2022"]
   2_OPENMPI = ["load", " IB-R8-A/UCX1.17/openmpi/5.0.5-IB-ucx1.17-i22-2024"]
 
-[submission.background]
-  SCHOST = "localhost"
-  WRAPPER = ""
-
-[submission.background.MODULES]
-  0_ECFLOW_0 = ["use", "/modules/MET/rhel8/user-modules/"]
-  0_ECFLOW_1 = ["load", "ecflow/5.8.1"]
-
 [submission.serial]
   NPROC = 1
   NPROCX = 1
@@ -63,8 +63,8 @@ submit_types = ["serial", "parallel", "background"]
 
 [submission.serial.BATCH]
   NAME = "#$ -N @TASK_NAME@"
-  QUEUE = "#$ -q ib-dev-ucx1-17-a-r8.q"
   PE = "#$ -pe shmem-1 1"
+  QUEUE = "#$ -q ib-dev-ucx1-17-a-r8.q"
   VMEM = "#$ -l h_rss=5G,mem_free=5G"
   WALLTIME = "#$ -l h_rt=00:30:00"
 
@@ -82,7 +82,7 @@ submit_types = ["serial", "parallel", "background"]
 [submission.task]
   wrapper = ""
 
-[submission.task_exceptions.MakeOfflineBinaries.BATCH]
+[submission.task_exceptions.CMakeBuild.BATCH]
   PE = "#$ -pe shmem-1 1"
   VMEM = "#$ -l h_rss=30G,mem_free=30G"
   WALLTIME = "#$ -l h_rt=01:00:00"
@@ -94,7 +94,7 @@ submit_types = ["serial", "parallel", "background"]
   1_INTEL_RUNTIME_1 = ["load", "compiler/Intel2022"]
   2_OPENMPI = ["load", "IB-R8-A/UCX1.17/openmpi/5.0.5-IB-ucx1.17-i22-2024"]
 
-[submission.task_exceptions.CMakeBuild.BATCH]
+[submission.task_exceptions.MakeOfflineBinaries.BATCH]
   PE = "#$ -pe shmem-1 1"
   VMEM = "#$ -l h_rss=30G,mem_free=30G"
   WALLTIME = "#$ -l h_rt=01:00:00"
@@ -102,12 +102,12 @@ submit_types = ["serial", "parallel", "background"]
 [submission.task_exceptions.MakeOfflineBinaries.MODULES]
   ECCODES = ["load", "IB-R8-A/UCX1.17/eccodes/2.38.3-IB-ucx1.17-i22-2024"]
 
+[submission.task_exceptions.OfflineForecast]
+  WRAPPER = "mpiexec -np 32"
+
 [submission.task_exceptions.OfflinePgd]
-  WRAPPER = "mpiexec -np 1"
   WALLTIME = "#$ -l h_rt=02:00:00"
+  WRAPPER = "mpiexec -np 1"
 
 [submission.task_exceptions.OfflinePrep]
   WRAPPER = "mpiexec -np 1"
-
-[submission.task_exceptions.OfflineForecast]
-  WRAPPER = "mpiexec -np 32"

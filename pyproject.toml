@@ -1,10 +1,10 @@
 [tool.poetry]
   authors = ["Trygve Aspelien <trygveasp@met.no>"]
   description = "surfExp"
+  include = [{path = "surfexp/data", format = ["sdist", "wheel"]}]
   name = "surfexp"
   readme = "README.rst"
   version = "0.4.0"
-  include = [ {path="surfexp/data", format = ["sdist", "wheel"]} ]
 
 [tool.poetry.scripts]
   execute_task = "surfexp.templates.cli:execute_task"
@@ -15,20 +15,24 @@
   requires = ["poetry-core >= 1.0.0"]
 
 [tool.poetry.dependencies]
-  deode = {git = "git@github.com:destination-earth-digital-twins/Deode-Prototype.git", develop=true, branch="v0.16.0"}
-  pysurfex = {git = "https://github.com/trygveasp/pysurfex.git", develop = true, branch = "feature/new_version"}
+  deode = {git = "git@github.com:destination-earth-digital-twins/Deode-Prototype.git", develop = false, branch = "v0.16.1"}
+  pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = false, branch = "0.1.0", extras = []}
   python = ">=3.10,<3.13"
+
+  poethepoet = "^0.34.0"
+
+[tool.poetry.group.doc.dependencies]
+  coveralls = "^3.3.1"
+  sphinx = "^6.1.3"
+  sphinx-rtd-theme = "^1.2.0"
 
 [tool.poetry.group.linting.dependencies]
   black = {extras = ["jupyter"], version = "^23.10.0"}
-  flake8 = ">=4.0.1, <5.0.0"
-  flakeheaven = "^3.3.0"
   isort = "^5.12.0"
-  ruff = "^0.1.0"
-  toml-formatter = {git = "https://github.com/paulovcmedeiros/toml-formatter"}
-  # flake8 plugins for stuff not yet on ruff.
-  # See <https://github.com/astral-sh/ruff/issues/458>.
+  poethepoet = {extras = ["poetry-plugin"], version = "^0.34.0"}
   pydoclint = "^0.3.8" # Replaces darglint, but is maintained & faster
+  ruff = "^0.11.0"
+  toml-formatter = {git = "https://github.com/paulovcmedeiros/toml-formatter"}
 
 [tool.poetry.group.test.dependencies]
   pytest = "^7.2.2"
@@ -37,9 +41,6 @@
   pytest-profiling = "^1.7.0"
   pytest-timeout = "^2.1.0"
   pytest-xdist = "^3.2.0"
-  coveralls = "^3.3.1"
-  sphinx = "^6.1.3"
-  sphinx-rtd-theme = "^1.2.0"
 
   ##################
   # Linter configs #
@@ -211,7 +212,6 @@
 
 [[tool.poe.tasks.lint.switch]]
   case = "True"
-  #sequence = ["_isort", "_black", "_ruff --fix", "_flake8", "_toml_formatter --fix"]
   sequence = ["_isort", "_black", "_ruff --fix", "_toml_formatter --fix"]
 
 [[tool.poe.tasks.lint.switch]]
