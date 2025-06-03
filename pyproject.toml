@@ -16,10 +16,8 @@
 
 [tool.poetry.dependencies]
   deode = {git = "git@github.com:destination-earth-digital-twins/Deode-Prototype.git", develop = false, branch = "v0.16.1"}
-  pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = false, branch = "0.1.0", extras = []}
+  pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = true, branch = "0.1.1", extras = ["plot", "verification"]}
   python = ">=3.10,<3.13"
-
-  poethepoet = "^0.34.0"
 
 [tool.poetry.group.doc.dependencies]
   coveralls = "^3.3.1"
