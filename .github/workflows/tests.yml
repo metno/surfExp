@@ -38,23 +38,17 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      #----------------------------------------------
-      #           add matrix specifics
-      #----------------------------------------------
-      - name: Install system gdal libs
-        run: |
-          apt-get update
-          apt-get install -y gdal-bin libgdal-dev
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: environment.yml
+          init-shell: >-
+            bash
+          cache-environment: true
+          post-cleanup: 'all'
 
-      - name: Install pygdal
-        run: |
-          pip install pygdal=="`gdal-config --version`.*"
-
-      - name: Install other pysurfex dependencies
-        run: |
-           apt-get update
-           apt-get install -y libeccodes-dev libproj-dev libudunits2-dev
-
+      - name: Run custom command in micromamba environment
+        run: pytest --version
+        shell: micromamba-shell {0}
       #----------------------------------------------
       #  --- configure poetry & install project  ----
       #----------------------------------------------
@@ -74,9 +68,11 @@ jobs:
       - name: Install dependencies (if venv cache is not found)
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root --only main,test
+        shell: micromamba-shell {0}       
 
       - name: Install the project itself
         run: poetry install --no-interaction --only-root
+        shell: micromamba-shell {0}
 
       #----------------------------------------------
       #      run test suite and report coverage
@@ -84,6 +80,7 @@ jobs:
       - name: Run tests
         run: |
           poetry run pytest
+        shell: micromamba-shell {0}
 
       #- name: Upload test coverage report to Codecov
       #  uses: codecov/codecov-action@v3
@@ -98,11 +95,13 @@ jobs:
         run: |
           export COVERALLS_REPO_TOKEN=${{secrets.COVERALLS_REPO_TOKEN}}
           poetry run coveralls
+        shell: micromamba-shell {0}
 
       - name: Create documentation
         if: ${{ matrix.python-version == 3.11 }}
         run: |
           poetry run sphinx-build . docs/build/html
+        shell: micromamba-shell {0}
       - name: Commit documentation changes
         if: ${{ matrix.python-version == 3.11 && github.event_name != 'pull_request' }}
         run: |
