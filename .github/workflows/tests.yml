@@ -67,9 +67,13 @@ jobs:
         run: poetry install --no-interaction --no-root --only main,test
         shell: micromamba-shell {0}       
 
+      - name: Modify pyproject.toml
+        run: |
+          sed -i 's#https://github.com:destination-earth-digital-twins/Deode-Prototype#https://${GITHUB_TOKEN}@github.com:destination-earth-digital-twins/Deode-Prototype#g' pyproject.toml
+          
       - name: Install the project itself
         run: |
-          poetry config http-basic.deode x-token-auth ${{secrets.DEODE_WORKFLOW_ACCESS}}
+          # poetry config http-basic.deode x-token-auth ${{secrets.DEODE_WORKFLOW_ACCESS}}
           poetry install --no-interaction --only-root
         shell: micromamba-shell {0}
 
