@@ -68,7 +68,9 @@ jobs:
         shell: micromamba-shell {0}       
 
       - name: Install the project itself
-        run: poetry install --no-interaction --only-root
+        run: |
+          poetry config http-basic.deode x-token-auth ${{secrets.DEODE_WORKFLOW_ACCESS}}
+          poetry install --no-interaction --only-root
         shell: micromamba-shell {0}
 
       #----------------------------------------------
