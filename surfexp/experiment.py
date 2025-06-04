@@ -135,21 +135,27 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
             nlgen_surfex.load(program)
             settings = nlgen_surfex.assemble_namelist(program)
             try:
-                nam_io_offline = config["nam_io_offline"]
+                namelist_mods = config["namelist_mods"].dict()
             except KeyError:
-                nam_io_offline = None
-            if nam_io_offline is not None:
-                for key, value in nam_io_offline.items():
-                    if key in settings["nam_io_offline"]:
-                        origval = settings["nam_io_offline"][key]
-                        if value != origval:
-                            logger.warning(
-                                "Override key={} setting={} with new setting={}",
-                                key,
-                                origval,
-                                value,
-                            )
-                    settings["nam_io_offline"].update({key: value})
+                namelist_mods = None
+            if namelist_mods is not None:
+                for block, mods in namelist_mods.items():
+                    try:
+                        changes = settings[block]
+                    except KeyError:
+                        changes = {}
+                    for key, value in mods.items():
+                        if key in block:
+                            origval = block[key]
+                            if value != origval:
+                                logger.warning(
+                                    "Override key={} setting={} with new setting={}",
+                                    key,
+                                    origval,
+                                    value,
+                                )
+                        changes.update({key: value})
+                    settings.update({block: changes})
         else:
             try:
                 blocks = config[f"{program}.blocks"]

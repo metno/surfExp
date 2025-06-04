@@ -141,20 +141,11 @@
   tests = ["domain", "nometa", "plausibility"]
 
 [offline]
-  blocks = [
-    "io",
-    "constants",
-    "treedrag",
-    "ecoclimap_sg",
-    "offline",
-    "offline_sso",
-    "offline_sso_none",
-    "offline_seaice",
-    "offline_isba",
-    "offline_teb",
-    "offline_selected_output",
-  ]
-  deode = false
+  blocks = []
+  deode = true
+
+[offline.args]
+  forc-zs = true
 
 [pgd]
   blocks = []
@@ -171,6 +162,7 @@
 
 [soda]
   blocks = ["io", "treedrag", "ecoclimap_sg", "soda"]
+  deode = false
 
 [submission.task_exceptions.FirstGuess4OI.ENV]
   LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"

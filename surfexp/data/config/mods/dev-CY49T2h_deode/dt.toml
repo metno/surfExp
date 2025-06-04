@@ -1,7 +1,10 @@
 [general]
   cycle = "CY49t2"
 
-[nam_io_offline]
+[namelist_mods]
+
+[namelist_mods.nam_io_offline]
+  cforcing_filetype = "NETCDF"
   cpgdfile = "PGD"
   cprepfile = "PREP"
   csurf_filetype = "NC"

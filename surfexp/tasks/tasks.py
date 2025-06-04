@@ -1042,7 +1042,7 @@ class FirstGuess4OI(PySurfexBaseTask):
         output = archive + "/raw" + extra + ".nc"
 
         argv = ["--fg-variables"]
-        argv = [*argv, raw_vars]
+        argv += raw_vars
         argv += [
             "--validtime",
             self.validtime.strftime("%Y%m%d%H"),
@@ -1068,7 +1068,7 @@ class FirstGuess4OI(PySurfexBaseTask):
                 val = list(val)
                 argv += [f"--{var}-{setting}", *val]
 
-        logger.info("argv: {}", " ".join(argv))
+        logger.info("argv: {}", str(argv))
         first_guess_for_oi(argv)
 
         # Create symlinks

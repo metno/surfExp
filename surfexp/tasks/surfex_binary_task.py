@@ -274,7 +274,10 @@ class OfflineForecast(SurfexBinaryTask):
             forecast_range = as_timedelta(self.config["general.times.cycle_length"])
         else:
             forecast_range = as_timedelta(self.config["general.times.forecast_range"])
-        xtstep_output = settings.nml["nam_io_offline"]["xtstep_output"]
+        try:
+            xtstep_output = settings.nml["nam_io_offline"]["xtstep_output"]
+        except KeyError:
+            xtstep_output = int(forecast_range.total_seconds())
         if "output-frequency" in self.args:
             xtstep_output = int(self.args["output-frequency"])
         dt = as_timedelta(f"PT{int(xtstep_output)}S")

@@ -58,12 +58,13 @@ Create and start experiments
 
 South-Norway domain
 -------------------------
-
 .. code-block:: bash
 
     surfExp -o dt_offline_drammen.toml \
     --case-name CY49DT_OFFLINE_DRAMMEN \
     --plugin-home /home/$USER/projects/surfExp \
+    --troika troika \
+
     surfexp/data/config/configurations/dt.toml \
     surfexp/data/config/domains/DRAMMEN.toml \
     surfExp/surfexp/data/config/mods/dev-CY49T2h_deode/dt.toml
@@ -79,8 +80,26 @@ DT_2_5_2500x2500
     surfExp -o dt_offline_dt_2_5_2500x2500.toml \
     --case-name CY49DT_OFFLINE_dt_2_5_2500x2500 \
     --plugin-home /home/$USER/projects/surfExp \
+    --troika troika \
     surfexp/data/config/configurations/dt.toml \
     surfexp/data/config/domains/dt_2_5_2500x2500.toml \
     surfexp/data/config/mods/dev-CY49T2h_deode/dt.toml
 
     deode start suite --config-file dt_offline_dt_2_5_2500x2500.toml
+
+DT_2_5_2500x2500 Initial conditions from namelist
+-------------------------
+
+.. code-block:: bash
+
+    surfExp -o dt_offline_dt_2_5_2500x2500.toml \
+    --case-name CY49DT_OFFLINE_dt_2_5_2500x2500 \
+    --plugin-home /home/$USER/projects/surfExp \
+    --troika troika \
+    surfexp/data/config/configurations/dt.toml \
+    surfexp/data/config/domains/dt_2_5_2500x2500.toml \
+    surfexp/data/config/mods/dev-CY49T2h_deode/dt.toml \
+    surfexp/data/config/mods/dev-CY49T2h_deode/dt_prep_from_namelist.toml
+
+    deode start suite --config-file dt_offline_dt_2_5_2500x2500.toml
+
