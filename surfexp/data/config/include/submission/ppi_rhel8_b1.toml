@@ -1,0 +1,114 @@
+[submission]
+  bindir = "/lustre/storeA/users/trygveasp/deode/test_ib_a1/lib/offline/exe/"
+  default_submit_type = "background"
+  lfftw = true
+  module_initpath = "/usr/share/Modules/init/"
+  nproma = -32
+
+[submission.task]
+  wrapper = ""
+
+[submission.task_exceptions.CMakeBuild.BATCH]
+  #PE = "#$ -pe shmem-1 1"
+  VMEM = "#$ -l h_rss=30G,mem_free=30G"
+  WALLTIME = "#$ -l h_rt=01:00:00"
+
+[submission.task_exceptions.CMakeBuild.MODULES]
+  0_ECFLOW_0 = ["use", "/modules/MET/rhel8/user-modules/"]
+  0_ECFLOW_1 = ["load", "ecflow/5.8.1"]
+  1_INTEL_RUNTIME_0 = ["use", "/modules/MET/rhel8/IT-modules"]
+  1_INTEL_RUNTIME_1 = ["load", "compiler/Intel2022"]
+  2_OPENMPI = ["load", "IB-R8-A/UCX1.17/openmpi/5.0.5-IB-ucx1.17-i22-2024"]
+
+[submission.task_exceptions.MakeOfflineBinaries.BATCH]
+  PE = "#$ -pe shmem-1 1"
+  VMEM = "#$ -l h_rss=30G,mem_free=30G"
+  WALLTIME = "#$ -l h_rt=01:00:00"
+
+[submission.task_exceptions.MakeOfflineBinaries.MODULES]
+  ECCODES = ["load", "IB-R8-A/UCX1.17/eccodes/2.38.3-IB-ucx1.17-i22-2024"]
+
+[submission.task_exceptions.OfflineForecast]
+  WRAPPER = "mpirun -mca btl self -mca pml ucx -x UCX_NET_DEVICES=mlx5_2:1 -x UCX_TLS=ib,shm,rc_x"
+
+[submission.task_exceptions.OfflinePgd]
+  WALLTIME = "#$ -l h_rt=02:00:00"
+  WRAPPER = "mpiexec -np 1"
+
+[submission.task_exceptions.OfflinePrep]
+  WRAPPER = "mpiexec -np 1"
+
+[submission.task_exceptions.Soda]
+  WRAPPER = "mpirun -mca btl self -mca pml ucx -x UCX_NET_DEVICES=mlx5_2:1 -x UCX_TLS=ib,shm,rc_x"
+
+[submission.types.background]
+  SCHOST = "localhost"
+  WRAPPER = ""
+
+[submission.types.background.MODULES]
+  0_ECFLOW_0 = ["use", "/modules/MET/rhel8/user-modules/"]
+  0_ECFLOW_1 = ["load", "ecflow/5.8.1"]
+
+[submission.types.parallel]
+  NPROC = 1
+  SCHOST = "ppi-rhel8"
+  tasks = [
+    "OfflineForecast",
+    "e927",
+    "OfflinePgd",
+    "OfflinePrep",
+    "c903",
+    "Soda",
+    "PerturbedRun",
+    "CMakeBuild",
+    "MakeOfflineBinaries",
+  ]
+  WRAPPER = "mpiexec -np 1"
+
+[submission.types.parallel.BATCH]
+  NAME = "#$ -N @TASK_NAME@"
+  PE = "#$ -pe ib-fn 48"
+  QUEUE = "#$ -q ib-dev-ucx1-17-b-r8.q"
+  VMEM = "#$ -l h_rss=3G,mem_free=3G"
+  WALLTIME = "#$ -l h_rt=00:30:00"
+
+[submission.types.parallel.ENV]
+  DR_HOOK = 1
+  DR_HOOK_IGNORE_SIGNALS = -1
+  OMP_NUM_THREADS = 1
+  #OMPI_MCA_btl = "^vader"
+  ECF_SSL = 1
+  UDUNITS2_XML_PATH = "/usr/share/udunits/udunits2.xml"
+
+[submission.types.parallel.MODULES]
+  0_ECFLOW_0 = ["use", "/modules/MET/rhel8/user-modules/"]
+  0_ECFLOW_1 = ["load", "ecflow/5.8.1"]
+  1_INTEL_RUNTIME_0 = ["use", "/modules/MET/rhel8/IT-modules"]
+  1_INTEL_RUNTIME_1 = ["load", "compiler/Intel2022"]
+  2_OPENMPI = ["load", " IB-R8-A/UCX1.17/openmpi/5.0.5-IB-ucx1.17-i22-2024"]
+
+[submission.types.serial]
+  NPROC = 1
+  NPROCX = 1
+  NPROCY = 1
+  SCHOST = "ppi-rhel8"
+  tasks = ["CreateGrib", "Gmted", "Soil", "Marsprep"]
+  WRAPPER = ""
+
+[submission.types.serial.BATCH]
+  NAME = "#$ -N @TASK_NAME@"
+  PE = "#$ -pe shmem-1 1"
+  QUEUE = "#$ -q ib-dev-ucx1-17-b-r8.q"
+  VMEM = "#$ -l h_rss=5G,mem_free=5G"
+  WALLTIME = "#$ -l h_rt=00:30:00"
+
+[submission.types.serial.ENV]
+  DR_HOOK_IGNORE_SIGNALS = -1
+  ECF_SSL = 1
+  OMP_NUM_THREADS = 1
+  OMPI_MCA_btl = "^vader"
+  UDUNITS2_XML_PATH = "/usr/share/udunits/udunits2.xml"
+
+[submission.types.serial.MODULES]
+  ECFLOW_0 = ["use", "/modules/MET/rhel8/user-modules/"]
+  ECFLOW_1 = ["load", "ecflow/5.8.1"]

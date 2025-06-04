@@ -1,0 +1,145 @@
+[an_forcing]
+  enabled = true
+  variables = ["t2m", "rh2m"]
+
+[extractsqlite]
+  station_list = "@PLUGIN_HOME@/surfexp/data/config/stationlist/stationlist_dt.json"
+
+[forcing.an_forcing]
+  user_config = "@PLUGIN_HOME@/surfexp/data/config/forcing/forcing_dt_config_an.yml"
+
+[forcing.args.an_forcing]
+  analysis = false
+  co2 = "constant"
+  dir_sw_converter = "none"
+  diskless_write = true
+  geo_input_file = "@climdir@/domain.json"
+  input_format = "surfex"
+  interpolation = "bilinear"
+  lw_converter = "none"
+  modify_forcing = false
+  of = "@forcing_dir@/FORCING.nc"
+  pattern = "@forcing_dir@/FORCING_DT.nc"
+  ps_converter = "none"
+  qa = "netcdf"
+  qa_converter = "rh2q_z"
+  rain_converter = "none"
+  sca_sw = "constant"
+  snow_converter = "none"
+  ta = "netcdf"
+  ta_converter = "none"
+  timestep = 3600
+  uref = "screen"
+  uval = "constant"
+  wind_converter = "none"
+  winddir_converter = "none"
+  zref = "screen"
+  zsoro_converter = "none"
+  zval = "constant"
+
+[forcing.config_an]
+  force = true
+  user_config = "@PLUGIN_HOME@/surfexp/data/config/forcing/forcing_dt_config_an.yml"
+
+[initial_conditions.fg4oi]
+  converter = "none"
+  fileformat = "grib1"
+  inputfile = "@casedir@/grib/dt_@YYYY@@MM@@DD@@HH@+@LL@.grib1"
+
+[initial_conditions.fg4oi.altitude]
+  converter = "none"
+  fileformat = "surfex"
+  inputfile = "@CLIMDIR@/PGD_@ONE_DECADE@.nc"
+
+[initial_conditions.fg4oi.land_area_fraction]
+  converter = "nature_town"
+  fileformat = "surfex"
+  inputfile = "@CLIMDIR@/PGD_@ONE_DECADE@.nc"
+
+[initial_conditions.fg4oi.relative_humidity_2m]
+  converter = "td2rh"
+
+[observations]
+  filepattern = "/hpcperm/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_@YYYY@@MM@@DD@@HH@.DAT"
+
+[observations.qc]
+  tests = ["domain", "nometa", "plausibility"]
+
+[offline]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "ecoclimap_sg",
+    "offline",
+    "offline_sso",
+    "offline_sso_none",
+    "offline_seaice",
+    "offline_isba",
+    "offline_teb",
+    "offline_selected_output",
+  ]
+  deode = false
+
+[pgd]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "pgd",
+    "ecoclimap_sg",
+    "pgd_isba",
+    "pgd_seaflx",
+    "pgd_teb",
+    "pgd_watflx",
+    "pgd_cover",
+    "pgd_arrange_cover",
+    "pgd_cover_direct",
+    "pgd_cover_lrm_river_true",
+    "pgd_cv_sg",
+    "pgd_rsmin_sg",
+    "pgd_ecoclimap_sg",
+    "pgd_ecoclimap_sg_single_decade",
+    "pgd_ecoclimap_sg_single_decade_albnir_soil_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albnir_veg_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albvis_soil_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_albvis_veg_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_lai_dirtyp",
+    "pgd_ecoclimap_sg_single_decade_tree_height_dirtyp",
+    "pgd_zs",
+    "pgd_zs_direct",
+    "pgd_sea",
+    "pgd_isba",
+    "pgd_isba_sand_direct",
+    "pgd_isba_clay_direct",
+    "meb",
+    "pgd_meb",
+  ]
+  deode = false
+
+[prep]
+  blocks = [
+    "io",
+    "constants",
+    "treedrag",
+    "prep",
+    "ecoclimap_sg",
+    "prep_from_namelist",
+    "prep_seaflux",
+    "prep_isba",
+    "prep_isba_snow",
+    "meb",
+  ]
+  deode = false
+
+[pysurfex]
+  first_guess_yml_file = "@PLUGIN_HOME@/surfexp/data/first_guess_dt.yml"
+
+[soda]
+  blocks = ["io", "treedrag", "ecoclimap_sg", "soda"]
+
+[suite_control]
+  do_verification = true
+
+[system]
+  assemble_file = "@PLUGIN_HOME@/surfexp/data/config/nam/dt_an_assemble.yml"

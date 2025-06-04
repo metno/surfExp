@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 """Smoke tests."""
+import os
+
 import pytest
 
 from surfexp.cli import pysfxexp
 
 
-def test_pysfxexp(tmp_directory, mock_deode):
-    argv = [f"{tmp_directory}/out.toml", "name"]
+@pytest.mark.usefixtures("project_directory")
+def test_pysfxexp(tmp_directory):
+    argv = [
+        "-o",
+        f"{tmp_directory}/out.toml",
+        "--plugin-home",
+        f"{os.getcwd()}../",
+        "--case-name",
+        "name",
+    ]
     pysfxexp(argv=argv)

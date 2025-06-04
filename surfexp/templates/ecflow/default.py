@@ -51,11 +51,12 @@ def default_main(**kwargs):
     args_dict = {}
     if args != "":
         for arg in args.split(";"):
-            parts = arg.split("=")
-            if len(parts) == 2:
-                args_dict.update({parts[0]: parts[1]})
-            else:
-                logger.warning("Could not convert ARGS:{} to dict, skip it", arg)
+            if arg != "":
+                parts = arg.split("=")
+                if len(parts) == 2:
+                    args_dict.update({parts[0]: parts[1]})
+                else:
+                    logger.warning("Could not convert ARGS:{} to dict, skip it", arg)
 
     # Update config based on ecflow settings
     config = config.copy(

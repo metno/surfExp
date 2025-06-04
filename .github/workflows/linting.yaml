@@ -16,7 +16,7 @@ on:
 
 jobs:
   linting:
-    if: github.repository_owner == 'metno'
+    if: github.repository_owner == 'destination-earth-digital-twins'
     name: Run Linters
     runs-on: ubuntu-latest
     environment: staging
@@ -30,7 +30,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
       #----------------------------------------------
       #  --- configure poetry & install project  ----

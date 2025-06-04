@@ -1,0 +1,69 @@
+grib1:
+  fcint: 86400
+  file_inc: 3600
+  offset: 0
+
+surfex:
+  fcint: 86400
+  file_inc: 3600
+  offset: 0
+
+air_temperature_2m:
+  grib1:
+    converter:
+      none:
+        parameter: 167
+        type: 1
+        level: 0
+        tri: 0
+
+relative_humidity_2m:
+  grib1:
+    converter:
+      none:
+        parameter: 52
+        type: 105
+        level: 2
+        tri: 0
+      rhp:
+        rhp1:
+          parameter: 52
+          type: 105
+          level: 832
+          tri: 0
+        rhp2:
+          parameter: 52
+          type: 105
+          level: 842
+          tri: 0
+      td2rh:
+        t:
+          parameter: 167
+          type: 1
+          level: 0
+          tri: 0
+        td:
+          parameter: 168
+          type: 1
+          level: 0
+          tri: 0
+
+altitude:
+  surfex:
+    converter:
+      none:
+        varname: ZS
+
+land_area_fraction:
+  surfex:
+    converter:
+      none:
+        varname: FRAC_LAND
+      sea2land:
+        sea:
+          varname: FRAC_SEA
+      nature_town:
+        nature_fraction:
+          varname: FRAC_NATURE
+        town_fraction:
+          varname: FRAC_TOWN

@@ -1,0 +1,47 @@
+[namelist_mods]
+
+[namelist_mods.nam_io_offline]
+  cpgdfile = "PGD"
+  cprepfile = "PREP"
+  csurf_filetype = "NC"
+  csurffile = "SURFOUT"
+  ctimeseries_filetype = "NC"
+  lfagmap = true
+  lrestart = true
+  lrestart_2m = true
+
+[namelist_mods.nam_prep_isba]
+  xhug_deep = 0.2
+  xhug_root = 0.2
+  xhug_surf = 0.2
+  xtg_deep = 292.0
+  xtg_root = 288.0
+  xtg_surf = 285.0
+
+[namelist_mods.nam_prep_seaflux]
+  xsic_unif = 2
+  xsss_unif = 35
+  xsst_unif = 280
+
+[namelist_mods.nam_prep_surf_atm]
+  cfile = ""
+  cfiletype = ""
+  nday = "@PREP_NDAY@"
+  nmonth = "@PREP_NMONTH@"
+  nyear = "@PREP_NYEAR@"
+  xtime = "@PREP_XTIME@"
+
+[namelist_mods.nam_prep_teb]
+  xti_bld = 285.0
+  xti_road = 285.0
+  xts_road = 285.0
+  xts_roof = 285.0
+  xts_wall = 285.0
+  xws_road = 0.0
+  xws_roof = 0.0
+
+[namelist_mods.nam_prep_watflux]
+  xts_water_unif = 280
+
+[prep.args]
+  prep-file = ""

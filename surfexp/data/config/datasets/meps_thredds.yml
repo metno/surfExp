@@ -1,0 +1,320 @@
+# General netcdf settings
+netcdf:
+  filepattern: https://thredds.met.no/thredds/dodsC/meps25epsarchive/@YYYY@/@MM@/@DD@/meps_det_sfc_@YYYY@@MM@@DD@T@HH@Z.ncml
+  interpolator: bilinear
+  offset: 10800
+  fcint: 10800
+  file_inc: 3600
+  prefer_forecast: True
+
+# Orography
+ZS: &ZS
+  netcdf:
+    converter:
+      none:
+        name: altitude
+
+# Reference height Z
+ZREF:
+  screen:
+    constant:
+      value: 2
+    surfex:
+      converter:
+        none:
+          varname: ZREF
+  ml:
+    netcdf:
+      converter:
+        none:
+          name: air_temperature_ml
+    constant:
+      value: 12.5
+
+# Reference height U
+UREF:
+  screen:
+    constant:
+      value: 10
+    surfex:
+      converter:
+        none:
+          varname: UREF
+  ml:
+    netcdf:
+      converter:
+        none:
+          name: air_temperature_ml
+    constant:
+      value: 12.5
+
+# Temperature
+TA: &TA
+  screen:
+    netcdf:
+      converter:
+        none:
+          name: air_temperature_2m
+  ml:
+    netcdf:
+      converter:
+        none:
+          name: air_temperature_ml
+          level: 0.99851962924
+
+# Specific humidity
+QA:
+  screen:
+    netcdf:
+      converter:
+        none:
+          name: specific_humidity_2m
+        rh2q:
+          rh:
+            name: relative_humidity_2m
+            level: 2
+            units: "%"
+          t:
+            name: air_temperature_2m
+            level: 2
+            units: "K"
+          p:
+            name: surface_air_pressure
+            units: "Pa"
+        rh2q_mslp:
+          rh:
+            name: relative_humidity_2m
+            level: 2
+            units: "%"
+          t:
+            name: air_temperature_2m
+            level: 2
+            units: "K"
+          altitude:
+            name: altitude
+            units: "m"
+          mslp:
+            name: air_pressure_at_sea_level
+            units: "Pa"
+        rh2q_z:
+          rh:
+            name: relative_humidity_2m
+            level: 2
+            units: "%"
+          t:
+            name: air_temperature_2m
+            level: 2
+            units: "K"
+          altitude:
+            name: altitude
+            units: "m"
+  ml:
+    netcdf:
+      converter:
+        none:
+          name: specific_humidity_ml
+          level: 0.99851962924
+        rh2q:
+          rh:
+            name: relative_humidity_ml
+            level: 0.99851962924
+            units: "%"
+          t:
+            name: air_temperature_ml
+            level: 0.99851962924
+            units: "K"
+          p:
+            name: surface_air_pressure
+            units: "Pa"
+
+# Wind speed
+WIND:
+  screen:
+    netcdf:
+      converter:
+        none:
+          name: wind_speed_10m
+        windspeed:
+          x:
+            name: x_wind_10m
+          y:
+            name: y_wind_10m
+  ml:
+    netcdf:
+      converter:
+        none:
+          name: wind_speed_ml
+          level: 0.99851962924
+        windspeed:
+          x:
+            name: x_wind_ml
+            level: 0.99851962924
+          y:
+            name: y_wind_ml
+            level: 0.99851962924
+
+# Wind direction
+WIND_DIR:
+  screen:
+    netcdf:
+      converter:
+        none:
+          name: wind_direction_10m
+        winddir:
+          x:
+            name: x_wind_10m
+            rotate_to_geographic: True
+          y:
+            name: y_wind_10m
+            rotate_to_geographic: True
+  ml:
+    netcdf:
+      converter:
+        none:
+          name: wind_direction_ml
+          level: 0.99851962924
+        winddir:
+          x:
+            name: x_wind_ml
+            level: 0.99851962924
+            rotate_to_geographic: True
+          y:
+            name: y_wind_ml
+            level: 0.99851962924
+            rotate_to_geographic: True
+
+# Rainfall rate
+RAIN:
+  netcdf:
+    converter:
+      none:
+        name: rainfall_amount
+        accumulated: False
+        instant: 3600.
+      totalprec:
+        totalprec:
+          name: precipitation_amount_acc
+          accumulated: True
+          instant: 3600.
+        snow:
+          name: snowfall_amount_acc
+          accumulated: True
+          instant: 3600.
+      calcrain:
+        totalprec:
+          name: precipitation_amount
+          accumulated: false
+          instant: 3600.
+        t:
+          name: air_temperature_2m
+
+# Snow fall amount rate
+SNOW:
+  netcdf:
+    converter:
+      none:
+        name: snowfall_amount_acc
+        accumulated: True
+        instant: 3600.
+      calcsnow:
+        totalprec:
+          name: precipitation_amount
+          accumulated: false
+          instant: 3600.
+        rh:
+          name: relative_humidity_2m
+          level: 2
+          units: "%"
+        t:
+          name: air_temperature_2m
+          level: 2
+          units: "celsius"
+        p:
+          name: surface_air_pressure
+          units: "Pa"
+
+# Surface air pressure
+PS:
+  netcdf:
+    converter:
+      none:
+        name: surface_air_pressure
+      mslp2ps:
+        t:
+          name: air_temperature_2m
+          level: 2
+          units: "K"
+        altitude:
+          name: altitude
+          units: "m"
+        mslp:
+          name: air_pressure_at_sea_level
+          units: "Pa"
+
+# Direct shortwave radiation
+DIR_SW:
+  netcdf:
+    converter:
+      none:
+        name: integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time
+        accumulated: True
+        instant: 3600.
+      analysis:
+        name: integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time
+        accumulated: False
+        instant: 3600.
+
+# Direct scattered radiation
+SCA_SW:
+  netcdf:
+    converter:
+      none:
+        name: scattered_short_wave_radiation
+  constant:
+    value: 0
+
+# Long wave radiation
+LW:
+  netcdf:
+    converter:
+      none:
+        name: integral_of_surface_downwelling_longwave_flux_in_air_wrt_time
+        accumulated: True
+        instant: 3600.
+      analysis:
+        name: integral_of_surface_downwelling_longwave_flux_in_air_wrt_time
+        accumulated: False
+        instant: 3600.
+
+# Carbon dioxide
+CO2:
+  netcdf:
+    converter:
+      none:
+        name: carbon_dioxide
+  constant:
+    value: 0.00062
+
+# First guess variables
+air_temperature_2m:
+  netcdf:
+    converter:
+      none:
+        name: air_temperature_2m
+
+relative_humidity_2m:
+  netcdf:
+    converter:
+      none:
+        name: relative_humidity_2m
+
+altitude: *ZS
+
+surface_snow_thickness:
+  netcdf:
+    converter:
+      none:
+        name: surface_snow_thickness
+      sweclim:
+        swe:
+          name: liquid_water_content_of_surface_snow

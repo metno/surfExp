@@ -5,31 +5,25 @@ import json
 import os
 import shutil
 
-import numpy as np
-import pysurfex
-import yaml
-from deode.datetime_utils import as_datetime, as_timedelta
-from deode.logs import InterceptHandler, logger, logging
+from deode.datetime_utils import as_datetime, as_timedelta, get_decade
+from deode.logs import InterceptHandler, logger
+from deode.logs import builtin_logging as logging
+from deode.os_utils import deodemakedirs
 from deode.tasks.base import Task
-from pysurfex.cache import Cache
-from pysurfex.configuration import Configuration
-from pysurfex.file import SurfFileTypeExtension
-from pysurfex.geo import ConfProj, get_geo_object
-from pysurfex.input_methods import get_datasources
-from pysurfex.interpolation import horizontal_oi
-from pysurfex.netcdf import (
-    create_netcdf_first_guess_template,
-    oi2soda,
-    read_first_guess_netcdf_file,
-    write_analysis_netcdf_file,
+from pysurfex.cli import (
+    cli_oi2soda,
+    cryoclim_pseudoobs,
+    first_guess_for_oi,
+    gridpp,
+    qc2obsmon,
+    titan,
 )
-from pysurfex.obsmon import write_obsmon_sqlite_file
-from pysurfex.pseudoobs import CryoclimObservationSet
-from pysurfex.read import ConvertedInput, Converter
+from pysurfex.geo import ConfProj
+from pysurfex.platform_deps import SystemFilePaths
 from pysurfex.run import BatchJob
-from pysurfex.titan import TitanDataSet, dataset_from_file, define_quality_control
+from pysurfex.verification import converter2harp_cli
 
-from surfexp.experiment import get_nnco
+from surfexp.experiment import SettingsFromNamelistAndConfig
 
 
 class PySurfexBaseTask(Task):
@@ -66,44 +60,80 @@ class PySurfexBaseTask(Task):
         }
 
         self.geo = ConfProj(conf_proj)
-        self.dtg = as_datetime(self.config["general.times.basetime"])
-        self.fcint = as_timedelta("PT6H")
+        self.climdir = self.platform.get_system_value("climdir")
+        deodemakedirs(self.climdir)
+        domain_json = self.geo.json
+        domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
+        self.domain_file = f"{self.climdir}/domain.json"
+        if not os.path.exists(self.domain_file):
+            with open(self.domain_file, mode="w", encoding="utf-8") as file_handler:
+                json.dump(domain_json, file_handler, indent=2)
+        self.basetime = as_datetime(self.config["general.times.basetime"])
+        casedir = self.config["system.casedir"]
+        self.casedir = self.platform.substitute(casedir, basetime=self.basetime)
+        self.archive = self.platform.get_system_value("archive")
+        self.archive_path = self.config["system.archive_dir"]
 
         self.translation = {
             "t2m": "air_temperature_2m",
             "rh2m": "relative_humidity_2m",
             "sd": "surface_snow_thickness",
         }
-        self.obs_types = self.config["SURFEX.ASSIM.OBS.COBS_M"]
-        self.nnco = get_nnco(self.config, basetime=self.dtg)
+
+        # Namelist settings
+        self.soda_settings = SettingsFromNamelistAndConfig("soda", config)
+        self.suffix = (
+            f'.{self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURF_FILETYPE").lower()}'
+        )
+        self.obs_types = self.soda_settings.get_setting("NAM_OBS#COBS_M", default=[])
+        self.nnco = self.soda_settings.get_nnco(self.config, basetime=self.basetime)
+        logger.debug("NNCO: {}", self.nnco)
 
         self.fgint = as_timedelta(self.config["general.times.cycle_length"])
         self.fcint = as_timedelta(self.config["general.times.cycle_length"])
-        self.fg_dtg = self.dtg - self.fgint
-        self.next_dtg = self.dtg + self.fcint
+        self.fg_basetime = self.basetime - self.fgint
+        self.next_dtg = self.basetime + self.fcint
         self.next_dtgpp = self.next_dtg
 
-        self.fg_guess_sfx = self.wrk + "/first_guess_sfx"
-        self.fc_start_sfx = self.wrk + "/fc_start_sfx"
+        # Binary input data
+        self.input_definition = self.platform.get_system_value("sfx_input_definition")
+        # Create PySurfex system paths
+        system_paths = self.config["system"].dict()
+        platform_paths = self.config["platform"].dict()
+        exp_file_paths = {}
+        for key, val in system_paths.items():
+            lkey = self.platform.substitute(key)
+            lval = self.platform.substitute(val)
+            exp_file_paths.update({lkey: lval})
+        for key, val in platform_paths.items():
+            lkey = self.platform.substitute(key)
+            lval = self.platform.substitute(val)
+            exp_file_paths.update({lkey: lval})
+        self.exp_file_paths = SystemFilePaths(exp_file_paths)
 
-        cfg = self.config["SURFEX"].dict()
-        sfx_config = {"SURFEX": cfg}
-        self.sfx_config = Configuration(sfx_config)
-        update = {"SURFEX": {"ASSIM": {"OBS": {"NNCO": self.nnco}}}}
-        self.config = self.config.copy(update=update)
-        logger.debug("NNCO: {}", self.nnco)
+    def get_exp_file_paths_file(self):
+        """Get exp file paths."""
+        exp_file_paths_file = "exp_file_paths.json"
+        self.exp_file_paths.save_as(exp_file_paths_file)
+        return exp_file_paths_file
 
-    def substitute(self, pattern, basetime=None, validtime=None):
-        fpattern = self.platform.substitute(
-            pattern, basetime=basetime, validtime=validtime
-        )
-        if isinstance(fpattern, str):
-            # @YYYY_FG@/@MM_FG@/@DD_FG@/@HH_FG@/
-            if basetime is not None:
-                fpattern = fpattern.replace("@YYYY_FG@", basetime.strftime("%Y"))
-                fpattern = fpattern.replace("@MM_FG@", basetime.strftime("%m"))
-                fpattern = fpattern.replace("@DD_FG@", basetime.strftime("%d"))
-                fpattern = fpattern.replace("@HH_FG@", basetime.strftime("%H"))
+    def substitute(self, pattern, basetime=None, micro="@"):
+        """Substitute value."""
+        logger.debug("pattern in {}", pattern)
+        fpattern = pattern
+        for key, val in self.exp_file_paths.system_file_paths.items():
+            logger.debug("key: {} val={}", key, val)
+            if isinstance(key, str) and isinstance(val, str):
+                fpattern = fpattern.replace(f"{micro}{key.upper()}{micro}", val)
+                fpattern = fpattern.replace(f"{micro}{key.lower()}{micro}", val)
+
+        if isinstance(fpattern, str) and basetime is not None:
+            decade_key = "decade"
+            decade_val = get_decade(basetime) if self.config["pgd.one_decade"] else ""
+            logger.debug("decade key={} val={}", decade_key, decade_val)
+            fpattern = fpattern.replace(f"{micro}{decade_key.upper()}{micro}", decade_val)
+            fpattern = fpattern.replace(f"{micro}{decade_key.lower()}{micro}", decade_val)
+        logger.debug("pattern out {}", fpattern)
         return fpattern
 
     def get_binary(self, binary):
@@ -122,11 +152,96 @@ class PySurfexBaseTask(Task):
             binary = self.config[f"submission.task_exceptions.{self.name}.binary"]
 
         try:
-            bindir = self.config[f"submission.task_exceptions.{self.name}.bindir"]
+            bindir = self.config["submission.bindir"]
         except KeyError:
-            bindir = self.platform.get_system_value("bindir")
+            bindir = None
+        with contextlib.suppress(KeyError):
+            bindir = self.config[f"submission.task_exceptions.{self.name}.bindir"]
 
-        return f"{bindir}/{binary}"
+        # surfExp binary directory
+        bindir_system = self.platform.get_system_value("bindir")
+
+        bin_paths = [f"{bindir_system}/{binary}-offline", f"{bindir_system}/{binary}"]
+        for bin_path in bin_paths:
+            if os.path.exists(bin_path):
+                return bin_path
+
+        bin_path = f"{bindir}/{binary}"
+        try:
+            if os.path.exists(bin_path):
+                return bin_path
+        except FileNotFoundError:
+            raise RuntimeError from FileNotFoundError
+
+    def get_first_guess(self, basetime):
+        """Get first guess.
+
+        Args:
+            basetime (datetime): Basetime
+
+        Returns:
+            fname (str): Filename is found. Otherwise None.
+
+        """
+        csurffile = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
+        firstguess = f"{csurffile}{self.suffix}"
+
+        fcint = as_timedelta(self.config["general.times.cycle_length"])
+        fg_basetime = basetime - fcint
+        logger.debug("DTG: {} BASEDTG: {}", basetime, fg_basetime)
+        fg_dir = self.config["system.archive_dir"]
+        fg_dir = self.platform.substitute(
+            fg_dir, basetime=fg_basetime, validtime=basetime
+        )
+        fg_file = f"{fg_dir}/{firstguess}"
+
+        logger.info("Use first guess: {}", fg_file)
+        return fg_file
+
+    def get_forecast_start_file(self, basetime, mode):
+        """Get forecast initial file.
+
+        Args:
+            basetime (datetime): Basetime
+            mode (str): Mode
+
+        Returns:
+            fname (str): Filename is found. Otherwise None.
+
+        """
+        csurffile = self.soda_settings.get_setting("NAM_IO_OFFLINE#CSURFFILE")
+        archive_dir = self.config["system.archive_dir"]
+        archive = self.platform.substitute(archive_dir, basetime=basetime)
+        fg_archive = self.platform.substitute(
+            archive_dir, basetime=(basetime - self.fcint)
+        )
+        csurffile = f"{fg_archive}/{csurffile}{self.suffix}"
+        analysis = f"{archive}/ANALYSIS{self.suffix}"
+
+        logger.info("mode={}", mode)
+        logger.info("do_prep={}", self.config["suite_control.do_prep"])
+        logger.info("basetime={}", basetime)
+        logger.info("archive={}", archive)
+        logger.info("fg_archive={}", fg_archive)
+        logger.info("starttime={}", as_datetime(self.config["general.times.start"]))
+        logger.info("archive={}", archive)
+        if self.config["suite_control.do_prep"] and basetime == as_datetime(
+            self.config["general.times.start"]
+        ):
+            cprepfile = self.soda_settings.get_setting(
+                "NAM_IO_OFFLINE#CPREPFILE", default="PREP"
+            )
+            prep_file = f"{archive}/{cprepfile}{self.suffix}"
+            if os.path.exists(prep_file):
+                logger.info("Found PREP file {}", prep_file)
+                return prep_file
+            raise FileNotFoundError(prep_file)
+        for fname in [analysis, csurffile]:
+            if os.path.exists(fname):
+                logger.info("Using {} as initial conditions", fname)
+                return fname
+            logger.warning("Could not find possible initial condition {}", fname)
+        raise RuntimeError("No initial conditions found")
 
 
 class PrepareCycle(PySurfexBaseTask):
@@ -181,24 +296,29 @@ class QualityControl(PySurfexBaseTask):
         try:
             self.var_name = self.config["task.args.var_name"]
         except KeyError:
-            self.var_name = None
+            raise RuntimeError from KeyError
+        try:
+            self.offset = int(self.config["task.args.offset"])
+        except KeyError:
+            self.offset = 0
+        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
 
     def execute(self):
         """Execute."""
-        an_time = self.dtg
+        logger.info("Analysis time: {}", self.validtime)
 
-        obsdir = self.platform.get_system_value("obs_dir")
+        obsdir = self.config["system.obs_dir"]
+        obsdir = self.platform.substitute(obsdir, basetime=self.validtime)
+
         os.makedirs(obsdir, exist_ok=True)
 
-        fg_file = f"{self.platform.get_system_value('archive_dir')}/raw.nc"
-        fg_file = self.platform.substitute(fg_file, basetime=self.dtg)
+        archive = self.config["system.archive_dir"]
+        archive = self.platform.substitute(archive, basetime=self.validtime)
+        fg_file = f"{archive}/raw.nc"
 
         # Default
-        domain_file = f"{self.wdir}/domain.json"
-        with open(domain_file, mode="w", encoding="utf8") as fh:
-            json.dump(self.geo.json, fh)
         settings = {
-            "domain": {"domain_file": domain_file},
+            "domain": {"domain_file": self.domain_file},
             "firstguess": {
                 "fg_file": fg_file,
                 "fg_var": self.translation[self.var_name],
@@ -219,6 +339,9 @@ class QualityControl(PySurfexBaseTask):
             data_sets = {}
             if synop_obs:
                 filepattern = self.config["observations.filepattern"]
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 bufr_tests = default_tests
                 bufr_tests.update(
                     {"plausibility": {"do_test": True, "maxval": 340, "minval": 200}}
@@ -244,6 +367,9 @@ class QualityControl(PySurfexBaseTask):
                     }
                 )
                 filepattern = self.config["observations.netatmo_filepattern"]
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 data_sets.update(
                     {
                         "netatmo": {
@@ -263,6 +389,9 @@ class QualityControl(PySurfexBaseTask):
             data_sets = {}
             if synop_obs:
                 filepattern = self.config["observations.filepattern"]
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 bufr_tests = default_tests
                 bufr_tests.update(
                     {"plausibility": {"do_test": True, "maxval": 100, "minval": 0}}
@@ -288,6 +417,9 @@ class QualityControl(PySurfexBaseTask):
                     }
                 )
                 filepattern = self.config["observations.netatmo_filepattern"]
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 data_sets.update(
                     {
                         "netatmo": {
@@ -308,6 +440,9 @@ class QualityControl(PySurfexBaseTask):
             data_sets = {}
             if synop_obs:
                 filepattern = self.config["observations.filepattern"]
+                filepattern = self.platform.substitute(
+                    filepattern, basetime=self.validtime
+                )
                 bufr_tests = default_tests
                 bufr_tests.update(
                     {
@@ -356,25 +491,52 @@ class QualityControl(PySurfexBaseTask):
 
         try:
             tests = self.config[f"observations.qc.{lname}.tests"]
-            logger.info("Using observations.qc.{lname}.tests")
+            logger.info("Using observations.qc.%s.tests", lname)
         except KeyError:
             logger.info("Using default test observations.qc.tests")
             tests = self.config["observations.qc.tests"]
 
-        indent = 2
-        blacklist = {}
-        with open("settings.json", mode="w", encoding="utf-8") as fh:
-            json.dump(settings, fh, indent=2)
-        tests = define_quality_control(
-            tests, settings, an_time, domain_geo=self.geo, blacklist=blacklist
-        )
+        try:
+            indent = self.config["observations.qc.indent"]
+        except KeyError:
+            indent = 2
 
-        datasources = get_datasources(an_time, settings["sets"])
-        data_set = TitanDataSet(self.var_name, settings, tests, datasources, an_time)
-        data_set.perform_tests()
+        try:
+            blacklist_file = self.config[f"observations.qc.{lname}.blacklist"]
+            logger.info("Using variable specific blacklist file {}", blacklist_file)
+        except KeyError:
+            blacklist_file = None
+        if blacklist_file is None:
+            try:
+                blacklist_file = self.config["observations.qc.blacklist"]
+                logger.info("Using general blacklist file {}", blacklist_file)
+            except KeyError:
+                blacklist_file = None
 
-        logger.debug("Write to {}", output)
-        data_set.write_output(output, indent=indent)
+        settings_file = "settings.json"
+        with open(settings_file, mode="w", encoding="utf-8") as fh:
+            json.dump({self.var_name: settings}, fh, indent=2)
+
+        argv = [
+            "-i",
+            settings_file,
+            "-v",
+            self.var_name,
+            "-o",
+            output,
+            "--indent",
+            str(indent),
+            "--validtime",
+            self.basetime.strftime("%Y%m%d%H"),
+            "--domain",
+            self.domain_file,
+        ]
+        if blacklist_file is not None:
+            argv += ["--blacklist", blacklist_file]
+
+        tests = list(tests)
+        argv += tests
+        titan(argv)
 
 
 class OptimalInterpolation(PySurfexBaseTask):
@@ -395,11 +557,20 @@ class OptimalInterpolation(PySurfexBaseTask):
 
         """
         PySurfexBaseTask.__init__(self, config, "OptimalInterpolation")
-        self.var_name = self.config["task.args.var_name"]
+        try:
+            self.var_name = self.config["task.args.var_name"]
+        except KeyError:
+            raise RuntimeError from KeyError
+        try:
+            self.offset = int(self.config["task.args.offset"])
+        except KeyError:
+            self.offset = 0
+        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
 
     def execute(self):
         """Execute."""
-        archive = self.platform.get_system_value("archive_dir")
+        archive = self.config["system.archive_dir"]
+        archive = self.platform.substitute(archive, basetime=self.validtime)
         if self.var_name in self.translation:
             var = self.translation[self.var_name]
         else:
@@ -452,95 +623,43 @@ class OptimalInterpolation(PySurfexBaseTask):
         input_file = archive + "/raw_" + var + ".nc"
         output_file = archive + "/an_" + var + ".nc"
 
-        # Get input fields
-        geo, validtime, background, glafs, gelevs = read_first_guess_netcdf_file(
-            input_file, var
-        )
-
-        an_time = validtime
-        # TODO
-        an_time = an_time.replace(tzinfo=None)
+        logger.info("Analysis time: {}", self.validtime)
         # Read OK observations
-        obs_file = f"{self.platform.get_system_value('obs_dir')}/qc_{var}.json"
-        logger.info("Obs file: {}", obs_file)
-        observations = dataset_from_file(an_time, obs_file, qc_flag=0)
-        field = horizontal_oi(
-            geo,
-            background,
-            observations,
-            gelevs=gelevs,
-            hlength=hlength,
-            vlength=vlength,
-            wlength=wlength,
-            max_locations=max_locations,
-            elev_gradient=elev_gradient,
-            epsilon=epsilon,
-            minvalue=minvalue,
-            maxvalue=maxvalue,
-            interpol="bilinear",
-            only_diff=only_diff,
-        )
-        logger.info("Write output file {}", output_file)
+        obs_dir = self.config["system.obs_dir"]
+        obs_dir = self.platform.substitute(obs_dir, basetime=self.validtime)
+        obs_file = f"{obs_dir}/qc_{var}.json"
+
+        argv = [
+            "-i",
+            input_file,
+            "-obs",
+            obs_file,
+            "-o",
+            output_file,
+            "-v",
+            var,
+            "-hor",
+            str(hlength),
+            "-vert",
+            str(vlength),
+            "--wlength",
+            str(wlength),
+            "--maxLocations",
+            str(max_locations),
+            "--elevGradient",
+            str(elev_gradient),
+            "--epsilon",
+            str(epsilon),
+        ]
+        if maxvalue is not None:
+            argv += ["--maxvalue", maxvalue]
+        if minvalue is not None:
+            argv += ["--minvalue", minvalue]
+        if only_diff:
+            argv += ["--only_diff"]
         if os.path.exists(output_file):
             os.unlink(output_file)
-        write_analysis_netcdf_file(
-            output_file, field, var, validtime, gelevs, glafs, new_file=True, geo=geo
-        )
-
-
-class FirstGuess(PySurfexBaseTask):
-    """Find first guess.
-
-    Args:
-    -------------------------------
-        Task (Task): Base class
-
-    """
-
-    def __init__(self, config, name=None):
-        """Construct a FistGuess task.
-
-        Args:
-        -------------------------------------------------------
-            config (ParsedObject): Parsed configuration
-            name (str, optional): Task name. Defaults to None
-
-        """
-        if name is None:
-            name = "FirstGuess"
-        PySurfexBaseTask.__init__(self, config, name)
-        try:
-            self.var_name = self.config["task.var_name"]
-        except KeyError:
-            self.var_name = None
-        # TODO
-        masterodb = False
-        try:
-            lfagmap = self.sfx_config.get_setting("SURFEX#IO#LFAGMAP")
-        except AttributeError:
-            lfagmap = False
-        self.csurf_filetype = self.sfx_config.get_setting("SURFEX#IO#CSURF_FILETYPE")
-        self.suffix = SurfFileTypeExtension(
-            self.csurf_filetype, lfagmap=lfagmap, masterodb=masterodb
-        ).suffix
-        self.fgint = as_timedelta(self.config["general.times.cycle_length"])
-        self.fcint = as_timedelta(self.config["general.times.cycle_length"])
-        self.fg_dtg = self.dtg - self.fgint
-
-    def execute(self):
-        """Execute."""
-        firstguess = self.sfx_config.get_setting("SURFEX#IO#CSURFFILE") + self.suffix
-        logger.debug("DTG: {} BASEDTG: {}", self.dtg, self.fg_dtg)
-        fg_dir = self.config["system.archive_dir"]
-        fg_dir = self.platform.substitute(
-            fg_dir, basetime=self.fg_dtg, validtime=self.dtg
-        )
-        fg_file = f"{fg_dir}/{firstguess}"
-
-        logger.info("Use first guess: {}", fg_file)
-        if os.path.islink(self.fg_guess_sfx) or os.path.exists(self.fg_guess_sfx):
-            os.unlink(self.fg_guess_sfx)
-        os.symlink(fg_file, self.fg_guess_sfx)
+        gridpp(argv)
 
 
 class CryoClim2json(PySurfexBaseTask):
@@ -573,82 +692,68 @@ class CryoClim2json(PySurfexBaseTask):
         """Execute."""
         archive = self.platform.get_system_value("archive_dir")
         var = "surface_snow_thickness"
-        input_file = archive + "/raw_" + var + ".nc"
-
-        # Get input fields
-        geo, validtime, background, glafs, gelevs = read_first_guess_netcdf_file(
-            input_file, var
-        )
+        fg_input_file = archive + "/raw_" + var + ".nc"
 
         obs_file = self.config["observations.cryo_filepattern"]
-        obs_file = [self.platform.substitute(obs_file)]
         try:
             laf_threshold = self.config["observations.cryo_laf_threshold"]
         except AttributeError:
-            laf_threshold = 0.1
+            laf_threshold = 1.0
         try:
             step = self.config["observations.cryo_step"]
-        except AttributeError:
+        except KeyError:
             step = 2
         try:
-            fg_threshold = self.config["observations.cryo_fg_threshold"]
-        except AttributeError:
-            fg_threshold = 0.4
+            cryo_slope_file = self.config["observations.cryo_slope_file"]
+        except KeyError:
+            raise RuntimeError("Missing cryo slope file") from KeyError
         try:
-            new_snow_depth = self.config["observations.cryo_new_snow"]
-        except AttributeError:
-            new_snow_depth = 0.1
+            cryo_perm_snow_file = self.config["observations.cryo_perm_snow_file"]
+        except KeyError:
+            raise RuntimeError("Missing cryo perm snow file") from KeyError
         try:
             cryo_varname = self.config["observations.cryo_varname"]
-        except AttributeError:
+        except KeyError:
             cryo_varname = None
-        obs_set = CryoclimObservationSet(
-            [obs_file],
-            validtime,
-            geo,
-            background,
-            gelevs,
-            step=step,
-            fg_threshold=fg_threshold,
-            new_snow_depth=new_snow_depth,
-            glaf=glafs,
-            laf_threshold=laf_threshold,
-            cryo_varname=cryo_varname,
-        )
-        obs_set.write_json_file(f"{self.platform.get_system_value('obs_dir')}/cryo.json")
 
+        output = f"{self.platform.get_system_value('obs_dir')}/cryo.json"
+        argv = [
+            "--infiles",
+            obs_file,
+            "--laf_treshold",
+            str(laf_threshold),
+            "-step",
+            str(step),
+            "-o",
+            output,
+        ]
+        if cryo_varname is not None:
+            argv += ["-iv", cryo_varname]
 
-class CycleFirstGuess(FirstGuess):
-    """Cycle the first guess.
+        # First guess
+        argv += ["fg", "--inputfile", fg_input_file, "-v", var]
 
-    Args:
-    ------------------------------------------
-        FirstGuess (FirstGuess): Base class
-
-    """
-
-    def __init__(self, config):
-        """Construct the cycled first guess object.
-
-        Args:
-        --------------------------------------------------
-            config (ParsedObject): Parsed configuration
-
-        """
-        FirstGuess.__init__(self, config, "CycleFirstGuess")
-
-    def execute(self):
-        """Execute."""
-        firstguess = self.sfx_config.get_setting("SURFEX#IO#CSURFFILE") + self.suffix
-        fg_dir = self.config["system.archive_dir"]
-        fg_dir = self.platform.substitute(
-            fg_dir, basetime=self.fg_dtg, validtime=self.dtg
-        )
-        fg_file = f"{fg_dir}/{firstguess}"
-
-        if os.path.islink(self.fc_start_sfx):
-            os.unlink(self.fc_start_sfx)
-        os.symlink(fg_file, self.fc_start_sfx)
+        # Slope
+        argv += [
+            "slope",
+            "--inputfile",
+            cryo_slope_file,
+            "-v",
+            "SFX.SSO_SLOPE",
+            "-it",
+            "surfex",
+        ]
+        # Permanent snow
+        argv += [
+            "perm_snow",
+            "--inputfile",
+            cryo_perm_snow_file,
+            "-v",
+            "SFX.COVER006",
+            "-it",
+            "surfex",
+        ]
+        cryoclim_pseudoobs(argv)
 
 
 class Oi2soda(PySurfexBaseTask):
@@ -676,10 +781,10 @@ class Oi2soda(PySurfexBaseTask):
 
     def execute(self):
         """Execute."""
-        yy2 = self.dtg.strftime("%y")
-        mm2 = self.dtg.strftime("%m")
-        dd2 = self.dtg.strftime("%d")
-        hh2 = self.dtg.strftime("%H")
+        yy2 = self.basetime.strftime("%y")
+        mm2 = self.basetime.strftime("%m")
+        dd2 = self.basetime.strftime("%d")
+        hh2 = self.basetime.strftime("%H")
         obfile = "OBSERVATIONS_" + yy2 + mm2 + dd2 + "H" + hh2 + ".DAT"
         output = f"{self.platform.get_system_value('obs_dir')}/{obfile}"
 
@@ -696,16 +801,17 @@ class Oi2soda(PySurfexBaseTask):
                 "ivar={} NNCO[ivar]={} obtype={}",
                 ivar,
                 self.nnco[ivar],
-                obs_types[ivar],
+                __,
             )
             if self.nnco[ivar] == 1:
-                if obs_types[ivar] == "T2M" or obs_types[ivar] == "T2M_P":
+                if __ in ("T2M", "T2M_P"):
                     an_variables.update({"t2m": True})
-                elif obs_types[ivar] == "HU2M" or obs_types[ivar] == "HU2M_P":
+                elif __ in ("HU2M", "HU2M_P"):
                     an_variables.update({"rh2m": True})
-                elif obs_types[ivar] == "SWE":
+                elif __ == "SWE":
                     an_variables.update({"sd": True})
 
+        argv = ["-o", output, self.basetime.strftime("%Y%m%d%H")]
         logger.info(an_variables)
         for var, status in an_variables.items():
             if status:
@@ -715,21 +821,40 @@ class Oi2soda(PySurfexBaseTask):
                         "file": archive + "/an_" + lvar_name + ".nc",
                         "var": lvar_name,
                     }
+                    argv += [
+                        "--t2m_file",
+                        archive + "/an_" + lvar_name + ".nc",
+                        "--t2m_var",
+                        lvar_name,
+                    ]
+
                 elif var == "rh2m":
                     rh2m = {
                         "file": archive + "/an_" + lvar_name + ".nc",
                         "var": lvar_name,
                     }
+                    argv += [
+                        "--rh2m_file",
+                        archive + "/an_" + lvar_name + ".nc",
+                        "--rh2m_var",
+                        lvar_name,
+                    ]
                 elif var == "sd":
                     s_d = {
                         "file": archive + "/an_" + lvar_name + ".nc",
                         "var": lvar_name,
                     }
+                    argv += [
+                        "--sd_file",
+                        archive + "/an_" + lvar_name + ".nc",
+                        "--sd_var",
+                        lvar_name,
+                    ]
         logger.info("t2m  {} ", t2m)
         logger.info("rh2m {}", rh2m)
         logger.info("sd   {}", s_d)
         logger.debug("Write to {}", output)
-        oi2soda(self.dtg, t2m=t2m, rh2m=rh2m, s_d=s_d, output=output)
+        cli_oi2soda(argv)
 
 
 class Qc2obsmon(PySurfexBaseTask):
@@ -754,44 +879,78 @@ class Qc2obsmon(PySurfexBaseTask):
             self.var_name = self.config["task.args.var_name"]
         except KeyError:
             self.var_name = None
+        try:
+            self.offset = int(self.config["task.args.offset"])
+        except KeyError:
+            self.offset = 0
+        try:
+            self.mode = self.config["task.args.mode"]
+        except KeyError:
+            raise RuntimeError("Mode not set") from KeyError
+        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
 
     def execute(self):
         """Execute."""
+        logger.info("Analysis time: {}", self.validtime)
         archive = self.platform.get_system_value("archive_dir")
         extrarch = self.platform.get_system_value("extrarch_dir")
         obsdir = self.platform.get_system_value("obs_dir")
-        outdir = extrarch + "/ecma_sfc/" + self.dtg.strftime("%Y%m%d%H") + "/"
+        outdir = f"{extrarch}/ecma_sfc/{self.validtime.strftime('%Y%m%d%H')}/{self.mode}"
         os.makedirs(outdir, exist_ok=True)
         output = outdir + "/ecma.db"
 
         logger.info("Write to {}", output)
         if os.path.exists(output):
             os.unlink(output)
-        obs_types = self.obs_types
-        for ivar, val in enumerate(self.nnco):
-            if val == 1 and len(obs_types) > ivar:
-                if obs_types[ivar] == "T2M" or obs_types[ivar] == "T2M_P":
-                    var_in = "t2m"
-                elif obs_types[ivar] == "HU2M" or obs_types[ivar] == "HU2M_P":
-                    var_in = "rh2m"
-                elif obs_types[ivar] == "SWE":
-                    var_in = "sd"
-                else:
-                    raise NotImplementedError(obs_types[ivar])
 
-                var_name = self.translation[var_in]
-                q_c = obsdir + "/qc_" + var_name + ".json"
-                fg_file = archive + "/raw_" + var_name + ".nc"
-                an_file = archive + "/an_" + var_name + ".nc"
-                write_obsmon_sqlite_file(
-                    dtg=self.dtg,
-                    output=output,
-                    qc=q_c,
-                    fg_file=fg_file,
-                    an_file=an_file,
-                    varname=var_in,
-                    file_var=var_name,
-                )
+        variables = []
+        if self.mode == "an_forcing":
+            # Add variables if used in analysed forcing
+            try:
+                an_forcing = self.config["an_forcing"]["enabled"]
+            except KeyError:
+                raise RuntimeError("an_forcing should not be false") from KeyError
+            try:
+                an_forc_vars = self.config["an_forcing"]["variables"]
+            except KeyError:
+                an_forc_vars = []
+            if an_forcing:
+                for var in an_forc_vars:
+                    if var not in variables:
+                        variables.append(var)
+        else:
+            obs_types = self.obs_types
+            for ivar, val in enumerate(self.nnco):
+                if val == 1 and len(obs_types) > ivar:
+                    if obs_types[ivar] == "T2M" or obs_types[ivar] == "T2M_P":
+                        var_in = "t2m"
+                    elif obs_types[ivar] == "HU2M" or obs_types[ivar] == "HU2M_P":
+                        var_in = "rh2m"
+                    elif obs_types[ivar] == "SWE":
+                        var_in = "sd"
+                    else:
+                        raise NotImplementedError(obs_types[ivar])
+                    variables.append(var_in)
+
+        for var_in in variables:
+            var_name = self.translation[var_in]
+            q_c = obsdir + "/qc_" + var_name + ".json"
+            fg_file = archive + "/raw_" + var_name + ".nc"
+            an_file = archive + "/an_" + var_name + ".nc"
+            argv = [
+                "--operator",
+                "bilinear",
+                "--file_var",
+                var_name,
+                "--an_file",
+                an_file,
+                "--fg_file",
+                fg_file,
+                "-o",
+                output,
+            ]
+            argv += [self.basetime.strftime("%Y%m%d%H"), var_name, q_c]
+            qc2obsmon(argv)
 
 
 class FirstGuess4OI(PySurfexBaseTask):
@@ -816,14 +975,27 @@ class FirstGuess4OI(PySurfexBaseTask):
             self.var_name = self.config["task.var_name"]
         except KeyError:
             self.var_name = None
+        try:
+            self.offset = int(self.config["task.args.offset"])
+        except KeyError:
+            self.offset = 0
+        try:
+            self.mode = self.config["task.args.mode"]
+        except KeyError:
+            raise RuntimeError from KeyError
+
+        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
+        logger.info("basetime: {}", self.basetime)
+        logger.info("validtime: {}", self.validtime)
 
     def execute(self):
         """Execute."""
-        validtime = self.dtg
-
         extra = ""
         symlink_files = {}
-        archive = self.platform.get_system_value("archive_dir")
+        archive = self.config["system.archive_dir"]
+        archive = self.platform.substitute(archive, basetime=self.validtime)
+        deodemakedirs(archive)
+
         if self.var_name in self.translation:
             var = self.translation[self.var_name]
             variables = [var]
@@ -831,37 +1003,73 @@ class FirstGuess4OI(PySurfexBaseTask):
             symlink_files.update({archive + "/raw.nc": "raw" + extra + ".nc"})
         else:
             var_in = []
-            obs_types = self.obs_types
-            for ivar, val in enumerate(self.nnco):
-                if val == 1 and len(obs_types) > ivar:
-                    if obs_types[ivar] == "T2M" or obs_types[ivar] == "T2M_P":
-                        var_in.append("t2m")
-                    elif obs_types[ivar] == "HU2M" or obs_types[ivar] == "HU2M_P":
-                        var_in.append("rh2m")
-                    elif obs_types[ivar] == "SWE":
-                        var_in.append("sd")
-                    else:
-                        raise NotImplementedError(obs_types[ivar])
+            if self.mode == "analysis":
+                obs_types = self.obs_types
+                for ivar, val in enumerate(self.nnco):
+                    if val == 1 and len(obs_types) > ivar:
+                        if obs_types[ivar] == "T2M" or obs_types[ivar] == "T2M_P":
+                            var_in.append("t2m")
+                        elif obs_types[ivar] == "HU2M" or obs_types[ivar] == "HU2M_P":
+                            var_in.append("rh2m")
+                        elif obs_types[ivar] == "SWE":
+                            var_in.append("sd")
+                        else:
+                            raise NotImplementedError(obs_types[ivar])
+            if self.mode == "an_forcing":
+                try:
+                    an_forc_vars = self.config["an_forcing.variables"]
+                except KeyError:
+                    an_forc_vars = []
+
+                for var in an_forc_vars:
+                    if var not in var_in:
+                        var_in.append(var)
 
             variables = []
+            raw_vars = []
             try:
                 for var in var_in:
                     var_name = self.translation[var]
                     variables.append(var_name)
+                    raw_vars.append(var)
                     symlink_files.update({archive + "/raw_" + var_name + ".nc": "raw.nc"})
             except KeyError as exc:
                 raise KeyError("Variables could not be translated") from exc
 
         variables = [*variables, "altitude", "land_area_fraction"]
+        raw_vars = [*raw_vars, "altitude", "laf"]
 
         output = archive + "/raw" + extra + ".nc"
-        cache_time = 3600
-        cache = Cache(cache_time)
-        if os.path.exists(output):
-            logger.info("Output already exists {}", output)
-        else:
-            os.makedirs(os.path.dirname(output), exist_ok=True)
-            self.write_file(output, variables, self.geo, validtime, cache=cache)
+
+        argv = ["--fg-variables"]
+        argv += raw_vars
+        argv += [
+            "--validtime",
+            self.validtime.strftime("%Y%m%d%H"),
+            "--domain",
+            self.domain_file,
+            "-o",
+            output,
+            "--debug",
+        ]
+
+        for __, var in enumerate(raw_vars):
+            argv += [f"--{var}-system-file-paths", self.get_exp_file_paths_file()]
+            settings = self.config[f"initial_conditions.fg4oi.{self.mode}.{var}"]
+            for setting, lval in settings.items():
+                val = lval
+                if isinstance(val, str):
+                    prev_basetime = self.basetime - self.fcint
+                    val = val.replace("@BASETIME@", self.basetime.strftime("%Y%m%d%H"))
+                    val = val.replace("@FG_BASETIME@", prev_basetime.strftime("%Y%m%d%H"))
+                    val = val.replace("@VALIDTIME@", self.validtime.strftime("%Y%m%d%H"))
+                    val = val.replace("@DECADE@", get_decade(prev_basetime))
+                    val = [val]
+                val = list(val)
+                argv += [f"--{var}-{setting}", *val]
+
+        logger.info("argv: {}", str(argv))
+        first_guess_for_oi(argv)
 
         # Create symlinks
         for target, linkfile in symlink_files.items():
@@ -869,179 +1077,61 @@ class FirstGuess4OI(PySurfexBaseTask):
                 os.unlink(target)
             os.symlink(linkfile, target)
 
-    def write_file(self, output, variables, geo, validtime, cache=None):
-        """Write the first guess file.
+    def get_var_settings(self, var):
+        """Get variable setting.
 
         Args:
-        --------------------------------------------------------
-            output (str): Output file
-            variables (list): Variables
-            geo (Geo): Geometry
-            validtime (as_datetime): Validtime
-            cache (Cache, optional): Cache. Defaults to None.
-
-        Raises:
-        ---------------------------------------------
-            KeyError: Converter not found
-            RuntimeError: No valid data read
+            var (str): variable
 
         """
-        f_g = None
-        for var in variables:
-            lvar = var.lower()
+        lvar = var.lower()
+        try:
+            identifier = f"initial_conditions.fg4oi.{self.mode}.{lvar}.inputfile"
+            inputfile = self.config[identifier]
+        except KeyError:
+            identifier = f"initial_conditions.fg4oi.{self.mode}.inputfile"
+            inputfile = self.config[identifier]
+        logger.info("inputfile0={} basetime={}", inputfile, self.basetime)
+        inputfile = self.substitute(inputfile, basetime=self.basetime)
+        logger.info("inputfile1={}", inputfile)
+
+        try:
+            identifier = f"initial_conditions.fg4oi.{self.mode}.{lvar}.fileformat"
+            fileformat = self.config[identifier]
+        except KeyError:
+            identifier = f"initial_conditions.fg4oi.{self.mode}.fileformat"
+            fileformat = self.config[identifier]
+
+        try:
+            identifier = f"initial_conditions.fg4oi.{self.mode}.{lvar}.converter"
+            converter = self.config[identifier]
+        except KeyError:
+            identifier = f"initial_conditions.fg4oi.{self.mode}.converter"
+            converter = self.config[identifier]
+
+        try:
+            identifier = f"initial_conditions.fg4oi.{self.mode}.{lvar}.geo_input_file"
+            geo_input_file = self.config[identifier]
+        except KeyError:
             try:
-                identifier = "initial_conditions.fg4oi." + lvar + "."
-                inputfile = self.config[identifier + "inputfile"]
+                identifier = f"initial_conditions.fg4oi.{self.mode}.geo_input_file"
+                geo_input_file = self.config[identifier]
             except KeyError:
-                identifier = "initial_conditions.fg4oi."
-                inputfile = self.config[identifier + "inputfile"]
-
-            logger.info("inputfile0={}", inputfile)
-            inputfile = self.substitute(
-                inputfile, basetime=self.fg_dtg, validtime=self.dtg
-            )
-            logger.info("inputfile1={}", inputfile)
-
+                geo_input_file = ""
+        try:
+            identifier = f"initial_conditions.fg4oi.{self.mode}.{lvar}.config"
+            config = self.config[identifier]
+        except KeyError:
             try:
-                identifier = "initial_conditions.fg4oi." + lvar + "."
-                fileformat = self.config[identifier + "fileformat"]
+                identifier = f"initial_conditions.fg4oi.{self.mode}.config"
+                config = self.config[identifier]
             except KeyError:
-                identifier = "initial_conditions.fg4oi."
-                fileformat = self.config[identifier + "fileformat"]
-            fileformat = self.platform.substitute(
-                fileformat, basetime=self.fg_dtg, validtime=self.dtg
-            )
+                config = ""
 
-            try:
-                identifier = "initial_conditions.fg4oi." + lvar + "."
-                converter = self.config[identifier + "converter"]
-            except KeyError:
-                identifier = "initial_conditions.fg4oi."
-                converter = self.config[identifier + "converter"]
-
-            try:
-                identifier = "initial_conditions.fg4oi." + lvar + "."
-                input_geo_file = self.config[identifier + "input_geo_file"]
-            except KeyError:
-                identifier = "initial_conditions.fg4oi."
-                input_geo_file = self.config[identifier + "input_geo_file"]
-
-            logger.info("inputfile={}, fileformat={}", inputfile, fileformat)
-            logger.info("converter={}, input_geo_file={}", converter, input_geo_file)
-
-            try:
-                config_file = self.config["pysurfex.first_guess_yml_file"]
-            except KeyError:
-                config_file = None
-            if config_file is None or config_file == "":
-                config_file = f"{os.path.dirname(pysurfex.__path__[0])}/pysurfex/cfg/first_guess.yml"
-            with open(config_file, mode="r", encoding="utf-8") as file_handler:
-                config = yaml.safe_load(file_handler)
-            logger.info("config_file={}", config_file)
-            defs = config[fileformat]
-            geo_input = None
-            if input_geo_file != "":
-                with open(input_geo_file, mode="r", encoding="utf-8") as fh:
-                    geo_dict = json.load(fh)
-                geo_input = get_geo_object(geo_dict)
-            defs.update({"filepattern": inputfile, "geo_input": geo_input})
-
-            converter_conf = config[var][fileformat]["converter"]
-            if converter not in config[var][fileformat]["converter"]:
-                raise KeyError(
-                    f"No converter {converter} definition found in {config_file}!"
-                )
-
-            defs.update({"fcint": self.fcint.total_seconds()})
-            initial_basetime = validtime - self.fgint
-            logger.debug("Converter={}", str(converter))
-            logger.debug("Converter_conf={}", str(converter_conf))
-            logger.debug("Defs={}", defs)
-            logger.debug(
-                "valitime={} fcint={} initial_basetime={}",
-                str(validtime),
-                str(self.fcint),
-                str(initial_basetime),
-            )
-            logger.debug("Fileformat: {}", fileformat)
-
-            logger.info(
-                "Set up converter. defs={} converter_conf={}", defs, converter_conf
-            )
-            converter = Converter(
-                converter, initial_basetime, defs, converter_conf, fileformat
-            )
-            logger.info("Read converted input for var={} validtime={}", var, validtime)
-            field = ConvertedInput(geo, var, converter).read_time_step(validtime, cache)
-            field = np.reshape(field, [geo.nlons, geo.nlats])
-
-            if np.all(np.isnan(field)):
-                raise RuntimeError("All data read are undefined!")
-
-            # Create file
-            if f_g is None:
-                n_x = geo.nlons
-                n_y = geo.nlats
-                f_g = create_netcdf_first_guess_template(variables, n_x, n_y, output)
-                f_g.variables["time"][:] = float(validtime.strftime("%s"))
-                f_g.variables["longitude"][:] = np.transpose(geo.lons)
-                f_g.variables["latitude"][:] = np.transpose(geo.lats)
-                f_g.variables["x"][:] = [range(n_x)]
-                f_g.variables["y"][:] = [range(n_y)]
-
-            if var == "altitude":
-                field[field < 0] = 0
-
-            f_g.variables[var][:] = np.transpose(field)
-
-        if f_g is not None:
-            f_g.close()
-
-
-class LogProgress(PySurfexBaseTask):
-    """Log progress for restart.
-
-    Args:
-    ------------------------------------
-        Task (_type_): _description_
-
-    """
-
-    def __init__(self, config):
-        """Construct the LogProgress task.
-
-        Args:
-        --------------------------------------------------
-            config (ParsedObject): Parsed configuration
-
-        """
-        PySurfexBaseTask.__init__(self, config, "LogProgress")
-
-    def execute(self):
-        """Execute."""
-
-
-class LogProgressPP(PySurfexBaseTask):
-    """Log progress for PP restart.
-
-    Args:
-    -------------------------------------
-        Task (_type_): _description_
-
-    """
-
-    def __init__(self, config):
-        """Construct the LogProgressPP task.
-
-        Args:
-        ---------------------------------------------------
-            config (ParsedObject): Parsed configuration
-
-        """
-        PySurfexBaseTask.__init__(self, config, "LogProgressPP")
-
-    def execute(self):
-        """Execute."""
+        logger.info("inputfile={}, fileformat={}", inputfile, fileformat)
+        logger.info("converter={}, geo_input_file={}", converter, geo_input_file)
+        logger.info("config={}", config)
+        return inputfile, fileformat, converter, geo_input_file, config
 
 
 class FetchMarsObs(PySurfexBaseTask):
@@ -1062,7 +1152,6 @@ class FetchMarsObs(PySurfexBaseTask):
 
         """
         PySurfexBaseTask.__init__(self, config, "FetchMarsObs")
-        self.basetime = as_datetime(self.config["basetime"])
         self.obsdir = self.platform.get_system_value("obs_dir")
 
     def execute(self):
@@ -1093,3 +1182,135 @@ class FetchMarsObs(PySurfexBaseTask):
             batch.run(cmd)
         except RuntimeError as exc:
             raise RuntimeError from exc
+
+
+class HarpSQLite(PySurfexBaseTask):
+    """Extract observations to SQLite for HARP.
+
+    Args:
+    -----------------------------------
+        Task (_type_): _description_
+
+    """
+
+    def __init__(self, config):
+        """Construct the HarpSQLite task.
+
+        Args:
+        ---------------------------------------------------
+            config (ParsedObject): Parsed configuration
+
+        """
+        PySurfexBaseTask.__init__(self, config, "HarpSQLite")
+
+        try:
+            self.var_name = self.config["task.args.var_name"]
+        except KeyError:
+            raise RuntimeError("Var name is needed") from KeyError
+        try:
+            self.basetime = as_datetime(self.config["task.args.basetime"])
+        except KeyError:
+            raise RuntimeError("Basetime is needed") from KeyError
+        try:
+            self.validtime = as_datetime(self.config["task.args.validtime"])
+        except KeyError:
+            raise RuntimeError("Validtime is needed") from KeyError
+        try:
+            mode = self.config["task.args.mode"]
+        except KeyError:
+            raise RuntimeError("Mode is needed") from KeyError
+        try:
+            self.harp_param = self.config[
+                f"verification.{mode}.{self.var_name}.harp_param"
+            ]
+        except KeyError:
+            raise RuntimeError("harp param is needed") from KeyError
+        try:
+            self.harp_param_unit = self.config[
+                f"verification.{mode}.{self.var_name}.harp_param_unit"
+            ]
+        except KeyError:
+            raise RuntimeError("harp_param_unit is needed") from KeyError
+
+        self.model = self.platform.substitute(
+            self.config["extractsqlite.sqlite_model_name"]
+        )
+        self.stationlist_file = self.platform.substitute(
+            self.config["extractsqlite.station_list"]
+        )
+        self.sqlite_path = self.platform.substitute(
+            self.config["extractsqlite.sqlite_path"]
+        )
+        self.sqlite_template = self.platform.substitute(
+            self.config["extractsqlite.sqlite_template"]
+        )
+
+        archive = self.config["system.archive_dir"]
+        archive = self.platform.substitute(
+            archive, basetime=self.basetime, validtime=self.validtime
+        )
+        if mode == "forecast":
+            archive = f"{archive}/forecast/"
+        input_pattern = f"{archive}/SURFOUT.@YYYY_LL@@MM_LL@@DD_LL@_@HH_LL@h00.nc"
+        logger.info("validtime={}", self.validtime)
+        logger.info("archive={}", archive)
+        self.input = self.substitute(input_pattern)  # , basetime=self.basetime)
+        logger.info("input={}", self.input)
+
+    def execute(self):
+        """Execute."""
+        dt_string = self.validtime.strftime("%Y%m%d%H")
+        basetime = self.basetime.strftime("%Y%m%d%H")
+        argv = [
+            "--station-list",
+            self.stationlist_file,
+            "-b",
+            basetime,
+            "--harp-param",
+            self.harp_param,
+            "--harp-param-unit",
+            self.harp_param_unit,
+            "--model-name",
+            self.model,
+            "-o",
+            f"{self.sqlite_path}/{self.sqlite_template}",
+            "converter",
+            "-i",
+            self.input,
+            "-it",
+            "surfex",
+            "-v",
+            self.var_name,
+            "-t",
+            dt_string,
+            "-b",
+            basetime,
+        ]
+        logger.info("Args: {}", " ".join(argv))
+        converter2harp_cli(argv=argv)
+
+
+class StartOfflineSfx(PySurfexBaseTask):
+    """Start offline surfex suite from control suite."""
+
+    def __init__(self, config):
+        """Construct the HarpSQLite task.
+
+        Args:
+        ---------------------------------------------------
+            config (ParsedObject): Parsed configuration
+
+        """
+        PySurfexBaseTask.__init__(self, config, "StartOfflineSfx")
+        try:
+            self.run_cmd = self.config["task.args.run_cmd"]
+        except KeyError:
+            raise RuntimeError from KeyError
+
+    def execute(self):
+        """Execute."""
+        logger.info("Running command: {}", self.run_cmd)
+        try:
+            BatchJob(os.environ).run(self.run_cmd)
+        except Exception as exc:
+            raise RuntimeError("Command failed") from exc

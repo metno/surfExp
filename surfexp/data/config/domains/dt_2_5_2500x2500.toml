@@ -1,0 +1,15 @@
+[domain]
+  gridtype = "linear"
+  ilate = 0
+  ilone = 0
+  name = "DT_2_5_2500x2500"
+  nimax = 2500
+  njmax = 2500
+  tstep = 75
+  xbeta = 0.0
+  xdx = 2500.0
+  xdy = 2500.0
+  xlat0 = 50.0
+  xlatcen = 50.0
+  xlon0 = 8.0
+  xloncen = 8.0

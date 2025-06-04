@@ -1,0 +1,165 @@
+[general.times]
+  cycle_length = "PT24H"
+  forecast_range = "PT0H"
+
+[an_forcing]
+  enabled = true
+
+[compile]
+  build = false
+
+[extractsqlite]
+  station_list = "@PLUGIN_HOME@/surfexp/data/config/stationlist/stationlist_dt.json"
+
+[forcing.args.an_forcing]
+  analysis = false
+  co2 = "constant"
+  config = "@PLUGIN_HOME@/surfexp/data/config/forcing/forcing_dt_config_an.yml"
+  dir-sw-converter = "none"
+  diskless-write = true
+  domain = "@climdir@/domain.json"
+  input-format = "surfex"
+  input-geo-file = "@climdir@/domain.json"
+  interpolation = "bilinear"
+  lw-converter = "none"
+  pattern = "@default_forcing_dir@/FORCING.nc"
+  ps-converter = "none"
+  qa = "netcdf"
+  qa-converter = "rh2q_z"
+  rain-converter = "none"
+  sca-sw = "constant"
+  snow-converter = "none"
+  ta = "netcdf"
+  ta-converter = "none"
+  timestep = 3600
+  uref = "screen"
+  uval = "constant"
+  wind-converter = "none"
+  wind-dir-converter = "none"
+  zref = "screen"
+  zsoro-converter = "none"
+  zval = "constant"
+
+[forcing.args.default]
+  analysis = false
+  co2 = "constant"
+  config = "@PLUGIN_HOME@/surfexp/data/config/forcing/forcing_dt_config.yml"
+  dir-sw-converter = "none"
+  diskless-write = true
+  domain = "@climdir@/domain.json"
+  input-format = "netcdf"
+  interpolation = "bilinear"
+  lw-converter = "none"
+  pattern = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+  ps-converter = "none"
+  qa-converter = "td2q"
+  rain-converter = "totalprec"
+  sca-sw = "constant"
+  snow-converter = "none"
+  timestep = 3600
+  uref = "screen"
+  uval = "constant"
+  wind-converter = "windspeed"
+  wind-dir-converter = "winddir"
+  zref = "screen"
+  zsoro-converter = "phi2m"
+  zval = "constant"
+
+[initial_conditions.fg4oi.an_forcing]
+
+[initial_conditions.fg4oi.an_forcing.altitude]
+  basetime = "@BASETIME@"
+  converter = "none"
+  inputfile = "@climdir@/PGD_@DECADE@.nc"
+  inputtype = "surfex"
+  outfile-var = "altitude"
+  variable = "ZS"
+
+[initial_conditions.fg4oi.an_forcing.laf]
+  converter = "nature_town"
+  converter-variables = ["nature", "town"]
+  nature-basetime = "@BASETIME@"
+  nature-inputfile = "@climdir@/PGD_@DECADE@.nc"
+  nature-inputtype = "surfex"
+  nature-variable = "FRAC_NATURE"
+  outfile-var = "land_area_fraction"
+  town-basetime = "@BASETIME@"
+  town-inputfile = "@climdir@/PGD_@DECADE@.nc"
+  town-inputtype = "surfex"
+  town-variable = "FRAC_NATURE"
+
+[initial_conditions.fg4oi.an_forcing.rh2m]
+  converter = "td2rh"
+  converter-variables = ["td", "t"]
+  outfile-var = "relative_humidity_2m"
+  t-basetime = "@FG_BASETIME@"
+  t-fcint = "86400"
+  t-file-inc = "3600"
+  t-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+  t-inputtype = "netcdf"
+  t-variable = "air_temperature_2m"
+  td-basetime = "@FG_BASETIME@"
+  td-fcint = "86400"
+  td-file-inc = "3600"
+  td-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+  td-inputtype = "netcdf"
+  td-variable = "dew_point_temperature_2m"
+
+[initial_conditions.fg4oi.an_forcing.t2m]
+  basetime = "@FG_BASETIME@"
+  fcint = "86400"
+  file-inc = "3600"
+  inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+  inputtype = "netcdf"
+  outfile-var = "air_temperature_2m"
+  timeRangeIndicator = "0"
+  variable = "air_temperature_2m"
+
+[mars.an_forcing]
+  config = "sfx_hres"
+
+[mars.default]
+  config = "sfx_hres"
+
+[mars.sfx_hres]
+  class = "OD"
+  expver = "1"
+  grid = "0.01/0.01"
+
+[observations]
+  filepattern = "/hpcperm/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_@YYYY@@MM@@DD@@HH@.DAT"
+
+[observations.qc]
+  tests = ["domain", "nometa", "plausibility"]
+
+[offline]
+  deode = false
+
+[pgd]
+  clay_format = "direct"
+  clay_input = "soilgrid"
+
+[prep]
+  deode = false
+
+[soda]
+  deode = false
+
+[submission.task_exceptions.FirstGuess4OI.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+
+[submission.task_exceptions.Forcing.ENV]
+  LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"
+
+[suite_control]
+  create_static_data = true
+  create_time_dependent_suite = true
+  do_marsprep = true
+  do_pgd = true
+  do_prep = true
+  do_soil = true
+  do_verification = false
+  interpolate2grid = true
+
+[troika]
+  config_file = "@PLUGIN_HOME@/surfexp/data/config/troika/troika_config.yml"
