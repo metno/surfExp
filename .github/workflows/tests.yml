@@ -46,9 +46,6 @@ jobs:
           cache-environment: true
           post-cleanup: 'all'
 
-      - name: Run custom command in micromamba environment
-        run: pytest --version
-        shell: micromamba-shell {0}
       #----------------------------------------------
       #  --- configure poetry & install project  ----
       #----------------------------------------------
