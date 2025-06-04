@@ -66,6 +66,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
+          export GITHUB_TOKEN=${{ secrets.GH_REPO_READ_TOKEN }}
           sed -i 's#https://github.com/destination-earth-digital-twins/Deode-Workflow#https://${GITHUB_TOKEN}@github.com/destination-earth-digital-twins/Deode-Workflow#g' pyproject.toml
   
       - name: Install dependencies (if venv cache is not found)
