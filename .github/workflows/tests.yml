@@ -66,9 +66,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          export GITHUB_TOKEN=${{ secrets.GH_REPO_READ_TOKEN }}
-          export GITHUB_TOKEN="trygve"
-          sed -i 's#https://github.com/destination-earth-digital-twins/Deode-Workflow#https://${GITHUB_TOKEN}@github.com/destination-earth-digital-twins/Deode-Workflow#g' pyproject.toml
+          #export GITHUB_TOKEN=${{ secrets.GH_REPO_READ_TOKEN }}
+          #export GITHUB_TOKEN="trygve"
+          sed -i "s#https://github.com/destination-earth-digital-twins/Deode-Workflow#https://${GITHUB_TOKEN}@github.com/destination-earth-digital-twins/Deode-Workflow#g" pyproject.toml
   
       - name: Install dependencies (if venv cache is not found)
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
