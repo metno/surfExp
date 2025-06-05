@@ -31,13 +31,14 @@ class SurfexSuiteDefinitionDTAnalysedForcingControl(SuiteDefinition):
         template = Path(__file__).parent.resolve() / "../templates/ecflow/requeue.py"
         template = template.as_posix()
 
+        run_cmd = self.config["suite_control.run_cmd"]
         start_offline_sfx = EcflowSuiteTask(
             "StartOfflineSfx",
             self.suite,
             config,
             self.task_settings,
             self.ecf_files,
-            variables={"ARGS": f"run_cmd={os.environ['HOME']}/DE_surfExp/run.sh"},
+            variables={"ARGS": f"run_cmd={run_cmd}"},
             input_template=template,
         )
         start_offline_sfx.ecf_node.add_time("03:00")

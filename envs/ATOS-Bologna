@@ -1,0 +1,9 @@
+
+# Platform specific  ATOS snh02
+plugin_home="/home/sbu/projects/surfExp_deode_master"
+scratch="/scratch/$USER/deode/"
+binaries_opt="/hpcperm/sbu/binaries/optimized_prep/"
+binaries_de="/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
+micromamba_path="/perm/$USER/micromamba/"
+micromamba_env_name="test_surfExp"
+

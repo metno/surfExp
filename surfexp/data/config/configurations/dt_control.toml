@@ -1,0 +1,4 @@
+[suite_control]
+   suite_definition = "SurfexSuiteDefinitionDTAnalysedForcingControl"
+   run_cmd = "/home/snh02/DE_surfExp/surfExp_0_4_0/bin/run.sh /home/snh02/DE_surfExp/surfExp_0_4_0/ surfExp_0_4_0"
+
