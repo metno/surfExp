@@ -1,5 +1,4 @@
 """Offline control suite."""
-import os
 from pathlib import Path
 
 from deode.suites.base import EcflowSuiteTask, SuiteDefinition
