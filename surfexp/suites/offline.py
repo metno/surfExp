@@ -918,12 +918,13 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
             verification_fam = None
             do_verification = False
-            if config["suite_control.do_verification"] and do_forecast:
-                do_verification = True
             offline_settings = SettingsFromNamelistAndConfig("offline", config)
-            if do_verification:
+            if config["suite_control.do_verification"]:
                 do_verification = False
-                for mode in ["cycle", "forecast"]:
+                modes = ["cycle"]
+                if do_forecast:
+                    modes += ["forecast"]
+                for mode in modes:
                     with contextlib.suppress(KeyError):
                         ver_vars = config[f"verification.{mode}.variables"]
                         if len(ver_vars) > 0:
@@ -945,7 +946,10 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 verification_fam = EcflowSuiteFamily(
                     "Verification", pp_fam, self.ecf_files
                 )
-                for mode in ["cycle", "forecast"]:
+                modes = ["cycle"]
+                if do_forecast:
+                    modes += ["forecast"]
+                for mode in modes:
                     try:
                         ver_vars = config[f"verification.{mode}.variables"]
                     except KeyError:
@@ -973,7 +977,9 @@ class SurfexSuiteDefinition(SuiteDefinition):
                                     "xtstep_output"
                                 ]
                             except KeyError:
-                                output_frequency = None
+                                raise RuntimeError(
+                                    "No value for output-frequency or xtstep_output found"
+                                ) from KeyError
 
                         logger.info("mode={} output_frequency={}", mode, output_frequency)
                         if output_frequency is not None:

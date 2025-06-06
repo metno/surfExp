@@ -15,7 +15,7 @@
   requires = ["poetry-core >= 1.2.0"]
 
 [tool.poetry.dependencies]
-  deode = {git = "git@github.com:destination-earth-digital-twins/Deode-Prototype.git", develop = false, branch = "v0.16.1"}
+  deode = {git = "git@github.com:destination-earth-digital-twins/Deode-Workflow.git", develop = false, branch = "v0.16.1"}
   pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = false, branch = "0.1.1", extras = ["plot", "verification"]}
   python = ">=3.10,<3.13"
 

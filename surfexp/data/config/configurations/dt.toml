@@ -146,6 +146,7 @@
 
 [offline.args]
   forc-zs = true
+  output-frequency = 86400.0
 
 [pgd]
   blocks = []
