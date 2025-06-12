@@ -1,6 +1,7 @@
 
 # Platform specific  ATOS snh02
 scratch="/scratch/$USER/deode/"
+ecf_dir="/perm/$USER/deode_ecflow/"
 binaries_opt="/hpcperm/sbu/binaries/optimized_prep/"
 binaries_de="/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
 micromamba_path="/perm/$USER/micromamba/"

@@ -2,7 +2,7 @@
 
 if [ $# -ne 3 -a $# -ne 5 -a $# -ne 6 ]; then
   echo "Usage: $0 host-file plugin_home micromamba_env_name [prep iso-date [iso-end-date]]"
-  echo "$0 $PWD/envs/ATOS-Bologna $PWD surfExp true 2025-01-01T00:00:00Z 2025-01-02T00:00:00Z"
+  echo "$0 $PWD/envs/ATOS-Bologna $PWD `basename $PWD` false 2025-01-01T00:00:00Z 2025-01-02T00:00:00Z"
   exit 1
 else
   echo
@@ -35,6 +35,7 @@ exp="CY49DT_OFFLINE_dt_2_5_2500x2500"
 
 # Platform specific variables
 [ "$scratch" == "" ] && echo "scratch not set!" && exit 1
+[ "$ecf_dir" == "" ] && echo "ecf_dir not set!" && exit 1
 [ "$binaries_opt" == "" ] && echo "binaries_opt not set!" && exit 1
 [ "$binaries_de" == "" ] && echo "binaries_de not set!" && exit 1
 [ "$micromamba_path" == "" ] && echo "micromamba_path not set!" && exit 1
@@ -54,7 +55,7 @@ set -x
 cd $plugin_home
 
 # Clean
-$plugin_home/bin/clean.sh "$scratch/$exp"
+$plugin_home/bin/clean.sh "$scratch/$exp" "$ecf_dir"
 
 mods="mods_run.toml"
 cat > $mods << EOF
@@ -67,11 +68,11 @@ cat > $mods << EOF
 
 
 [scheduler.ecfvars]
-  ecf_files = "/perm/@USER@/deode_ecflow/ecf_files"
-  ecf_files_remotely = "/perm/@USER@/deode_ecflow/ecf_files"
-  ecf_home = "/perm/@USER@/deode_ecflow/jobout"
-  ecf_jobout = "/perm/@USER@/deode_ecflow/jobout"
-  ecf_out = "/perm/@USER@/deode_ecflow/jobout"
+  ecf_files = "$ecf_dir/ecf_files"
+  ecf_files_remotely = "$ecf_dir/ecf_files"
+  ecf_home = "$ecf_dir/jobout"
+  ecf_jobout = "$ecf_dir/jobout"
+  ecf_out = "$ecf_dir/jobout"
 
 [suite_control]
   create_static_data = false
@@ -94,6 +95,28 @@ cat > $mods << EOF
   bindir = "$binaries_opt"
 [submission.task_exceptions.QualityControl.MODULES]
   PRGENV = ["load", "prgenv/gnu"]
+
+# HRES
+#[mars.an_forcing]
+#  config = "sfx_hres"
+#
+#[mars.default]
+#  config = "sfx_hres"
+#
+#[mars.sfx_hres]
+#  class = "OD"
+#  expver = "1"
+#  grid = "0.04/0.04"
+#
+#[forcing.args.default]
+#  pattern = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+#
+#[initial_conditions.fg4oi.an_forcing.rh2m]
+#  t-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+#  td-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+#
+#[initial_conditions.fg4oi.an_forcing.t2m]
+#  inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
 
 EOF
 

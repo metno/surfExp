@@ -27,6 +27,7 @@ exp="CY49DT_OFFLINE_dt_2_5_2500x2500"
 
 # Platform specific  ATOS snh02
 [ "$plugin_home" == "" ] && echo "plugin_home not set!" && exit 1
+[ "$ecf_dir" == "" ] && echo "ecf_dir not set!" && exit 1
 [ "$scratch" == "" ] && echo "scratch not set!" && exit 1
 [ "$binaries_opt" == "" ] && echo "binaries_opt not set!" && exit 1
 [ "$binaries_de" == "" ] && echo "binaries_de not set!" && exit 1
@@ -56,11 +57,11 @@ cat > $mods << EOF
   cycle_length = "PT96H"
 
 [scheduler.ecfvars]
-  ecf_files = "/perm/@USER@/deode_ecflow/ecf_files"
-  ecf_files_remotely = "/perm/@USER@/deode_ecflow/ecf_files"
-  ecf_home = "/perm/@USER@/deode_ecflow/jobout"
-  ecf_jobout = "/perm/@USER@/deode_ecflow/jobout"
-  ecf_out = "/perm/@USER@/deode_ecflow/jobout"
+  ecf_files = "$ecf_dir/ecf_files"
+  ecf_files_remotely = "$ecf_dir/ecf_files"
+  ecf_home = "$ecf_dir/jobout"
+  ecf_jobout = "$ecf_dir/jobout"
+  ecf_out = "$ecf_dir/jobout"
 
 [suite_control]
   create_time_dependent_suite = false
