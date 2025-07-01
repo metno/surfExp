@@ -54,8 +54,11 @@ micromamba activate $micromamba_env_name || exit 1
 set -x
 cd $plugin_home
 
+# Archive previous run
+$plugin_home/bin/archive_ecfs.sh "$scratch/surfexp/$exp" "$start_time" "$exp" || exit 1
+
 # Clean
-$plugin_home/bin/clean.sh "$scratch/$exp" "$ecf_dir"
+$plugin_home/bin/clean.sh "$scratch/surfexp/$exp" "$ecf_dir" "$exp" "DT_2_5_2500x2500"
 
 mods="mods_run.toml"
 cat > $mods << EOF
@@ -66,6 +69,11 @@ cat > $mods << EOF
   start = "$start_time"
   end = "$end_time"
 
+[system]
+   casedir = "$scratch/surfexp/@CASE@"
+
+[platform]
+  scratch = "$scratch"
 
 [scheduler.ecfvars]
   ecf_files = "$ecf_dir/ecf_files"
@@ -97,30 +105,30 @@ cat > $mods << EOF
   PRGENV = ["load", "prgenv/gnu"]
 
 # HRES
-#[mars.an_forcing]
-#  config = "sfx_hres"
-#
-#[mars.default]
-#  config = "sfx_hres"
-#
-#[mars.sfx_hres]
-#  class = "OD"
-#  expver = "1"
-#  grid = "0.04/0.04"
-#
-#[forcing.args.default]
-#  pattern = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
-#
-#[initial_conditions.fg4oi.an_forcing.rh2m]
-#  t-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
-#  td-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
-#
-#[initial_conditions.fg4oi.an_forcing.t2m]
-#  inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+[mars.an_forcing]
+  config = "sfx_hres"
+
+[mars.default]
+  config = "sfx_hres"
+
+[mars.sfx_hres]
+  class = "OD"
+  expver = "1"
+  grid = "0.04/0.04"
+
+[forcing.args.default]
+  pattern = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+
+[initial_conditions.fg4oi.an_forcing.rh2m]
+  t-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+  td-inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
+
+[initial_conditions.fg4oi.an_forcing.t2m]
+  inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
 
 EOF
 
-surfExp -o $config \
+time surfExp -o $config \
 --case-name $exp \
 --plugin-home $plugin_home  \
 --troika troika \

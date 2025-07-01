@@ -53,6 +53,15 @@ cat > $mods << EOF
   ecf_jobout = "$ecf_dir/jobout"
   ecf_out = "$ecf_dir/jobout"
 
+[suite_control]
+  run_cmd = "$plugin_home/bin/run.sh $host_file $plugin_home $micromamba_env_name"
+
+[system]
+   casedir = "$scratch/surfexp/@CASE@"
+
+[platform]
+  scratch = "$scratch"
+
 EOF
 
 time surfExp -o $config \

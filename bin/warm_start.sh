@@ -7,8 +7,8 @@ else
   dtg=$1
 fi
 
-new_exp_scratch="/scratch/$USER/deode/CY49DT_OFFLINE_dt_2_5_2500x2500/"
-old_exp_scratch="/scratch/snh02/deode/CY49DT_OFFLINE_dt_2_5_2500x2500/"
+new_exp_scratch="/scratch/$USER/surfexp/CY49DT_OFFLINE_dt_2_5_2500x2500/"
+old_exp_scratch="/scratch/snh02/surfexp/CY49DT_OFFLINE_dt_2_5_2500x2500/"
 
 set -x
 # Climate data

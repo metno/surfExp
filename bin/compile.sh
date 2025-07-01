@@ -2,7 +2,7 @@
 
 if [ $# -ne 3 ]; then
   echo "Usage: $0 host-file plugin_home micromamba_env_name"
-  echo "$0 /home/sbu/projects/surfExp_deode_master/envs/ATOS-Bologna /home/sbu/projects/surfExp_deode_master test_surfExp"
+  echo "$0 $PWD/envs/ATOS-Bologna $PWD `basename $PWD`"
   exit 1
 else
   echo

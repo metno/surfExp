@@ -56,6 +56,10 @@ cat > $mods << EOF
   end = "$end_time"
   cycle_length = "PT96H"
 
+[system]
+   scratch = "$scratch"
+   casedir = "$scratch/surfexp/@CASE@"
+
 [scheduler.ecfvars]
   ecf_files = "$ecf_dir/ecf_files"
   ecf_files_remotely = "$ecf_dir/ecf_files"
