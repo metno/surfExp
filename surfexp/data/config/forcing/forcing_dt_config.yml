@@ -284,8 +284,8 @@ DIR_SW:
     converter:
       none:
         name: integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time
-        accumulated: True
-        instant: 3600.
+        accumulated: False
+        instant: 0.
       analysis:
         name: integral_of_surface_downwelling_shortwave_flux_in_air_wrt_time
         accumulated: False
@@ -309,8 +309,8 @@ LW:
     converter:
       none:
         name: integral_of_surface_downwelling_longwave_flux_in_air_wrt_time
-        accumulated: True
-        instant: 3600.
+        accumulated: False
+        instant: 0.
       analysis:
         name: integral_of_surface_downwelling_longwave_flux_in_air_wrt_time
         accumulated: False
