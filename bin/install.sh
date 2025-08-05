@@ -2,6 +2,7 @@
 
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 host_file plugin_home micromamba_env_name"
+  echo "$0 $PWD/envs/ATOS-Bologna $PWD `basename $PWD`"
   exit 1
 else
   host_file=$1

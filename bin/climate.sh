@@ -2,6 +2,7 @@
 
 if [ $# -ne 3 ]; then
   echo "Usage: $0 host-file plugin_home micromamba_env_name"
+  echo "$0 $PWD/envs/ATOS-Bologna $PWD `basename $PWD`"
   exit 1
 else
   echo
@@ -37,6 +38,14 @@ exp="CY49DT_OFFLINE_dt_2_5_2500x2500"
 # Experiment specific
 config="dt_offline_dt_2_5_2500x2500_climate.toml"
 domain="surfexp/data/config/domains/dt_2_5_2500x2500.toml"
+
+# Staging environment
+if [ "$USER" == "sbu" ]; then
+  config="dt_offline_dt_2_5_50x60_climate.toml"
+  domain="surfexp/data/config/domains/DRAMMEN.toml"
+  exp="CY49DT_OFFLINE_dt_2_5_50x60"
+fi
+
 export PATH=${micromamba_path}/bin/:$PATH
 export MAMBA_ROOT_PREFIX=${micromamba_path}  # optional, defaults to ~/micromamba
 eval "$(micromamba shell hook -s posix)"
@@ -57,8 +66,10 @@ cat > $mods << EOF
   cycle_length = "PT96H"
 
 [system]
-   scratch = "$scratch"
    casedir = "$scratch/surfexp/@CASE@"
+
+[platform]
+   scratch = "$scratch"
 
 [scheduler.ecfvars]
   ecf_files = "$ecf_dir/ecf_files"
@@ -82,7 +93,7 @@ time surfExp -o $config \
 --plugin-home $plugin_home  \
 --troika troika \
 surfexp/data/config/configurations/dt.toml \
-surfexp/data/config/domains/dt_2_5_2500x2500.toml \
+$domain \
 surfexp/data/config/mods/dev-CY49T2h_deode/dt.toml \
 $mods \
 --start-time $start_time \

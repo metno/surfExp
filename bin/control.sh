@@ -33,6 +33,14 @@ exp="CY49DT_OFFLINE_dt_2_5_2500x2500_control"
 config="dt_offline_dt_2_5_2500x2500_control.toml"
 domain="surfexp/data/config/domains/dt_2_5_2500x2500.toml"
 
+# Staging environment
+if [ "$USER" == "sbu" ]; then
+  config="dt_offline_dt_2_5_50x60_running.toml"
+  domain="surfexp/data/config/domains/DRAMMEN.toml"
+  domain_name="DRAMMEN"
+  exp="CY49DT_OFFLINE_dt_2_5_50x60_control"
+fi
+
 # Micromamba
 export PATH=${micromamba_path}/bin/:$PATH
 export MAMBA_ROOT_PREFIX=${micromamba_path}  # optional, defaults to ~/micromamba

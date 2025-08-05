@@ -23,6 +23,7 @@ else
     start_time=$5
   else
     start_time=`date -d "today" '+%Y-%m-%d'`"T00:00:00Z"
+    [ "$USER" == "sbu" ] && start_time=`date -d "2 day ago" '+%Y-%m-%d'`"T00:00:00Z"
   fi
   end_time=$start_time
   if [ $# -gt 5 ]; then
@@ -43,7 +44,15 @@ exp="CY49DT_OFFLINE_dt_2_5_2500x2500"
 # Experiment specific
 config="dt_offline_dt_2_5_2500x2500_running.toml"
 domain="surfexp/data/config/domains/dt_2_5_2500x2500.toml"
+domain_name="DT_2_5_2500x2500"
 
+# Staging environment
+if [ "$USER" == "sbu" ]; then
+  config="dt_offline_dt_2_5_50x60_running.toml"
+  domain="surfexp/data/config/domains/DRAMMEN.toml"
+  domain_name="DRAMMEN"
+  exp="CY49DT_OFFLINE_dt_2_5_50x60"
+fi
 # Micromamba
 export PATH=${micromamba_path}/bin/:$PATH
 export MAMBA_ROOT_PREFIX=${micromamba_path}  # optional, defaults to ~/micromamba
@@ -58,7 +67,7 @@ cd $plugin_home
 $plugin_home/bin/archive_ecfs.sh "$scratch/surfexp/$exp" "$start_time" "$exp" || exit 1
 
 # Clean
-$plugin_home/bin/clean.sh "$scratch/surfexp/$exp" "$ecf_dir" "$exp" "DT_2_5_2500x2500"
+$plugin_home/bin/clean.sh "$scratch/surfexp/$exp" "$ecf_dir" "$exp" "$domain_name"
 
 mods="mods_run.toml"
 cat > $mods << EOF
@@ -133,7 +142,7 @@ time surfExp -o $config \
 --plugin-home $plugin_home  \
 --troika troika \
 surfexp/data/config/configurations/dt.toml \
-surfexp/data/config/domains/dt_2_5_2500x2500.toml \
+$domain \
 surfexp/data/config/mods/dev-CY49T2h_deode/dt.toml \
 surfexp/data/config/mods/dev-CY49T2h_deode/dt_prep_from_namelist.toml \
 $mods \
