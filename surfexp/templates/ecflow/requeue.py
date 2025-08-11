@@ -97,6 +97,9 @@ def default_main(**kwargs):
         logger.info("Finished task {}", task.ecf_name)
         client.client.requeue(task.ecf_name)
 
+    client = EcflowClient(server, task)
+    client.client.requeue(task.ecf_name)
+
 
 if __name__ == "__main__":
     # Get ecflow variables
