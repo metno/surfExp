@@ -225,7 +225,7 @@ class Interpolate2grid(PySurfexBaseTask):
                 )
                 input_file = (
                     f"{gribdir}/{self.mode}/{self.mars_config}_"
-                    + f"{self.basetime.strftime('%Y%m%d%H')}+{leadtime:02d}.grib1"
+                    + f"{self.basetime.strftime('%Y%m%d%H')}+@LL@.grib1"
                 )
                 ofiles.append(output)
                 argv = [
@@ -251,6 +251,7 @@ class Interpolate2grid(PySurfexBaseTask):
                     self.basetime.strftime("%Y%m%d%H"),
                     "--validtime",
                     validtime,
+                    "--fcint", "86400",
                 ]
                 logger.info("converter2ds {}", " ".join(argv))
                 converter2ds(argv=argv)
