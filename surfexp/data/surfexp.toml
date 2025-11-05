@@ -208,6 +208,9 @@
 [mars.default]
   config = "sfx_hres"
 
+[mars.prep]
+  config = "sfx_hres"
+
 [mars.sfx_dt]
   class = "RD"
   expver = "iekm"
@@ -215,6 +218,7 @@
 [mars.sfx_hres]
   class = "OD"
   expver = "1"
+  grid = "0.01/0.01"
 
 ##################################################################################################################
 [observations]
