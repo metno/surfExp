@@ -311,6 +311,23 @@ class SurfexSuiteDefinition(SuiteDefinition):
                     )
                     triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars)])
 
+                if self.do_prep:
+                    settings = SettingsFromNamelistAndConfig("prep", self.config)
+                    cfile = settings.get_setting("NAM_PREP_SURF_ATM#CFILE")
+                    cfiletype = settings.get_setting("NAM_PREP_SURF_ATM#CFILETYPE")
+                    if cfile != "" and cfiletype == "GRIB":
+                        mars_prep = EcflowSuiteTask(
+                            "FetchMarsPrep",
+                            mars_fam,
+                            config,
+                            self.task_settings,
+                            self.ecf_files,
+                            input_template=template,
+                            variables={"ARGS": "prep"},
+                        )
+                        triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars),
+                                                        EcflowSuiteTrigger(mars_prep)])
+
             interpolate_bd = None
             if config["suite_control.interpolate2grid"]:
                 interpolate_bd = EcflowSuiteFamily(
@@ -575,9 +592,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 )
                 prep_complete = EcflowSuiteTrigger(prep)
                 # Might need an extra trigger for input
-
-                # For now set do_prep False after for next cycles and do cycling
-                self.do_prep = False
 
             else:
                 triggers = EcflowSuiteTriggers(prep_complete)
@@ -856,7 +870,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
                         input_template=template,
                     )
 
-            self.do_prep = False
             triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(cycle_input)])
             if initialization is not None:
                 triggers.add_triggers(EcflowSuiteTrigger(initialization))
@@ -929,6 +942,9 @@ class SurfexSuiteDefinition(SuiteDefinition):
                         ver_vars = config[f"verification.{mode}.variables"]
                         if len(ver_vars) > 0:
                             do_verification = True
+                # Skip verfication when doinf prep and not forecast
+                if not do_forecast and self.do_prep:
+                    do_verification = False
 
             do_postproc = False
             if do_verification:
@@ -1107,3 +1123,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 prev_initialization = initialization
             if prediction is not None:
                 prev_prediction = prediction
+
+            # For now set do_prep False after for next cycles and do cycling
+            self.do_prep = False

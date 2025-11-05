@@ -1,3 +1,6 @@
+[general]
+  csc = "HARMONIE_AROME"
+
 [general.times]
   cycle_length = "PT24H"
   forecast_range = "PT0H"
@@ -18,6 +21,7 @@
   dir-sw-converter = "none"
   diskless-write = true
   domain = "@climdir@/domain.json"
+  modify-forcing = false
   input-format = "surfex"
   input-geo-file = "@climdir@/domain.json"
   interpolation = "bilinear"
@@ -107,12 +111,12 @@
 
 [initial_conditions.fg4oi.an_forcing.t2m]
   basetime = "@FG_BASETIME@"
+  converter = "none"
   fcint = "86400"
   file-inc = "3600"
   inputfile = "@casedir@/grib/an_forcing/sfx_hres_@YYYY@@MM@@DD@@HH@+@LL@.nc"
   inputtype = "netcdf"
   outfile-var = "air_temperature_2m"
-  timeRangeIndicator = "0"
   variable = "air_temperature_2m"
 
 [mars.an_forcing]
@@ -121,10 +125,13 @@
 [mars.default]
   config = "sfx_hres"
 
+[mars.prep]
+  config = "sfx_hres"
+
 [mars.sfx_hres]
   class = "OD"
   expver = "1"
-  grid = "0.01/0.01"
+  grid = "0.04/0.04"
 
 [observations]
   filepattern = "/hpcperm/snh02/DE_observations/mergedBufr/@YYYY@/@MM@/@DD@/synop_@YYYY@@MM@@DD@@HH@.DAT"
@@ -133,14 +140,24 @@
   tests = ["domain", "nometa", "plausibility"]
 
 [offline]
+  blocks = []
   deode = false
 
+[offline.args]
+  forc-zs = true
+  output-frequency = 86400.0
+
 [pgd]
+  blocks = []
   clay_format = "direct"
   clay_input = "soilgrid"
 
 [prep]
+  blocks = []
   deode = false
+
+[prep.args]
+  prep-file = "@casedir@/grib/prep_input_@YYYY@@MM@@DD@_@HH@@LL@.grib1"
 
 [soda]
   deode = false
@@ -158,7 +175,7 @@
   do_pgd = true
   do_prep = true
   do_soil = true
-  do_verification = false
+  do_verification = true
   interpolate2grid = true
 
 [troika]

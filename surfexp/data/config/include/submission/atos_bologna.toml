@@ -1,5 +1,5 @@
 [submission]
-  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
+  bindir = "/perm/deployde330/github-actions/install/CY49t2/latest/bin/"
   default_submit_type = "serial"
   lfftw = true
   module_initpath = "/usr/local/apps/lmod/8.6.8/init"
@@ -60,7 +60,7 @@
 
 [submission.task_exceptions.Forecast]
   binary = "OFFLINE"
-  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
+  bindir = "/perm/deployde330/github-actions/install/CY49t2/latest/bin/"
   NPROC = 28
   NPROC_IO = 4
 
@@ -105,7 +105,7 @@
 
 [submission.task_exceptions.Pgd]
   binary = "PGD"
-  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
+  bindir = "/perm/deployde330/github-actions/install/CY49t2/latest/bin/"
   WRAPPER = "srun -n @NPROC@"
 
 [submission.task_exceptions.Pgd.BATCH]
@@ -129,7 +129,7 @@
 
 [submission.task_exceptions.Prep]
   binary = "PREP"
-  bindir = "/perm/deployde330/github-actions/install/cy49t2/latest/bin/"
+  bindir = "/perm/deployde330/github-actions/install/CY49t2/latest/bin/"
   WRAPPER = "srun -n @NPROC@"
 
 [submission.task_exceptions.Qc2obsmon.ENV]
