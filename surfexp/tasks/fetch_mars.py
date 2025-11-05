@@ -140,6 +140,82 @@ class FetchMars(PySurfexBaseTask):
                 raise FileNotFoundError(f"Infile {infile} is missing")
 
 
+class FetchMarsPrep(PySurfexBaseTask):
+    """Fetch mars grib file for PREP."""
+
+    def __init__(self, config):
+        """Construct task.
+
+        Args:
+            config (dict): Actual configuration dict
+
+        """
+        PySurfexBaseTask.__init__(self, config, name="FetchMarsPrep")
+        gribfile = self.config["prep.args.prep-file"]
+        gribfile = self.platform.substitute(gribfile)
+        gribdir = os.path.dirname(gribfile)
+        gribdir = f"{self.platform.get_system_value('casedir')}/grib/"
+        os.makedirs(gribdir, exist_ok=True)
+        self.date = self.basetime.strftime("%Y%m%d")
+        self.hour = self.basetime.strftime("%H%M")
+        lon0 = self.geo.lonrange[0]
+        lon0 = int(self.geo.lonrange[0])
+        lon1 = math.ceil(self.geo.lonrange[1])
+        lat0 = int(self.geo.latrange[0])
+        lat1 = math.ceil(self.geo.latrange[1])
+        self.area = f"{lat1}/{lon0}/{lat0}/{lon1}"
+        self.mars_config = self.config["mars.prep.config"]
+        self.grib_file_with_path = gribfile
+
+    def execute(self):
+        """Execute the perturb state task.
+
+        Raises:
+            NotImplementedError: _description_
+        """
+        if not os.path.exists(self.grib_file_with_path):
+            self.fetch_mars()
+        else:
+            logger.warning(
+                "The file {} is already fetched, consider to clean",
+                self.grib_file_with_path,
+            )
+
+    def fetch_mars(self):
+        """Fetch mars."""
+        request_file = "request.mars"
+        with open(request_file, mode="w", encoding="utf8") as fhandler:
+            fhandler.write("")
+
+        try:
+            clas = self.config[f"mars.{self.mars_config}.class"]
+        except KeyError:
+            clas = "RD"
+        expver = self.config[f"mars.{self.mars_config}.expver"]
+        grid = self.config[f"mars.{self.mars_config}.grid"]
+        req = Request(
+            action="retrieve",
+            dates=self.date,
+            hours=self.hour,
+            step=0,
+            levtype="sfc",
+            param="32/33/39/40/41/42/139/141/170/172/183/198/235/236/35/36/37/38/238/243/244/245/31/34/129",
+            expver=expver,
+            clas=clas,
+            typ="an/fc",
+            stream="oper",
+            target=f"'{self.grib_file_with_path}'",
+            grid=grid,
+            area=self.area,
+        )
+        with open(request_file, mode="a", encoding="utf8") as rf:
+            req.write_request(rf)
+
+        rte = os.environ.copy()
+        os.system(f"cat {request_file}")  # noqa S605
+        BatchJob(rte).run(f"mars {request_file}")
+
+
 class Request(object):
     """Mars request class."""
 

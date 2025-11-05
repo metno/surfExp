@@ -126,8 +126,8 @@ class ModifyForcing(PySurfexBaseTask):
         forcing_dir = f"{forcing_dir}/{self.mode}"
         input_dir = self.platform.substitute(forcing_dir, basetime=dtg_prev)
         output_dir = self.platform.substitute(forcing_dir, basetime=self.basetime)
-        input_file = input_dir + "FORCING.nc"
-        output_file = output_dir + "FORCING.nc"
+        input_file = input_dir + "/FORCING.nc"
+        output_file = output_dir + "/FORCING.nc"
         time_step = -1
 
         argv = [
