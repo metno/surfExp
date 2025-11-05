@@ -11,15 +11,14 @@ from surfexp.tasks.tasks import PySurfexBaseTask
 
 
 class FetchMars(PySurfexBaseTask):
-    """Perturb state task."""
+    """Perturb state task.
 
-    def __init__(self, config):
-        """Construct assim task.
-
-        Args:
+    Args:
             config (dict): Actual configuration dict
 
-        """
+    """
+
+    def __init__(self, config):
         PySurfexBaseTask.__init__(self, config, name="FetchMars")
         try:
             mode = self.config["task.args.mode"]
@@ -141,15 +140,13 @@ class FetchMars(PySurfexBaseTask):
 
 
 class FetchMarsPrep(PySurfexBaseTask):
-    """Fetch mars grib file for PREP."""
+    """Fetch mars grib file for PREP.
+
+    Args:
+        config (dict): Actual configuration dict
+    """
 
     def __init__(self, config):
-        """Construct task.
-
-        Args:
-            config (dict): Actual configuration dict
-
-        """
         PySurfexBaseTask.__init__(self, config, name="FetchMarsPrep")
         gribfile = self.config["prep.args.prep-file"]
         gribfile = self.platform.substitute(gribfile)
@@ -193,13 +190,15 @@ class FetchMarsPrep(PySurfexBaseTask):
             clas = "RD"
         expver = self.config[f"mars.{self.mars_config}.expver"]
         grid = self.config[f"mars.{self.mars_config}.grid"]
+        params = "32/33/39/40/41/42/139/141/170/172/183/198/235/236/" + \
+                 "35/36/37/38/238/243/244/245/31/34/129"
         req = Request(
             action="retrieve",
             dates=self.date,
             hours=self.hour,
             step=0,
             levtype="sfc",
-            param="32/33/39/40/41/42/139/141/170/172/183/198/235/236/35/36/37/38/238/243/244/245/31/34/129",
+            param=params,
             expver=expver,
             clas=clas,
             typ="an/fc",
@@ -239,7 +238,6 @@ class Request(object):
         grid=None,
         area=None,
     ):
-        """Construct a request for mars."""
         self.action = action
         self.target = target
         self.source = source

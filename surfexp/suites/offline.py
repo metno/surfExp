@@ -313,8 +313,9 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
                 if self.do_prep:
                     settings = SettingsFromNamelistAndConfig("prep", self.config)
-                    if settings.get_setting("NAM_PREP_SURF_ATM#CFILE") != "" \
-                            and settings.get_setting("NAM_PREP_SURF_ATM#CFILETYPE") == "GRIB":
+                    cfile = settings.get_setting("NAM_PREP_SURF_ATM#CFILE")
+                    cfiletype = settings.get_setting("NAM_PREP_SURF_ATM#CFILETYPE")
+                    if cfile != "" and cfiletype == "GRIB":
                         mars_prep = EcflowSuiteTask(
                             "FetchMarsPrep",
                             mars_fam,
@@ -324,7 +325,8 @@ class SurfexSuiteDefinition(SuiteDefinition):
                             input_template=template,
                             variables={"ARGS": "prep"},
                         )
-                        triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars), EcflowSuiteTrigger(mars_prep)])
+                        triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars),
+                                                        EcflowSuiteTrigger(mars_prep)])
 
             interpolate_bd = None
             if config["suite_control.interpolate2grid"]:
@@ -1121,7 +1123,6 @@ class SurfexSuiteDefinition(SuiteDefinition):
                 prev_initialization = initialization
             if prediction is not None:
                 prev_prediction = prediction
-
 
             # For now set do_prep False after for next cycles and do cycling
             self.do_prep = False
