@@ -5,7 +5,7 @@ from datetime import timedelta
 from deode.datetime_utils import as_timedelta
 from deode.logs import logger
 from deode.os_utils import deodemakedirs
-from pysurfex.cli import create_forcing, modify_forcing
+from pysurfex.cli import create_forcing, cli_modify_forcing
 from pysurfex.verification import concat_datasets, converter2ds
 
 from surfexp.tasks.tasks import PySurfexBaseTask
@@ -128,19 +128,19 @@ class ModifyForcing(PySurfexBaseTask):
         output_dir = self.platform.substitute(forcing_dir, basetime=self.basetime)
         input_file = input_dir + "/FORCING.nc"
         output_file = output_dir + "/FORCING.nc"
-        time_step = -1
+        time_step = int(self.fcint.total_seconds()/3600)
 
         argv = [
-            "--input-file",
+            "--input_file",
             input_file,
-            "--output-file",
+            "--output_file",
             output_file,
-            "--time-step",
-            time_step,
-            self.variables,
+            "--time_step",
+            str(time_step),
         ]
+        argv = argv + self.variables
         if os.path.exists(output_file) and os.path.exists(input_file):
-            modify_forcing(argv=argv)
+            cli_modify_forcing(argv=argv)
         else:
             logger.info("Output or input is missing: {}", output_file)
 
