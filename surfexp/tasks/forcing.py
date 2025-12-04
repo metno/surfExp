@@ -137,7 +137,6 @@ class ModifyForcing(PySurfexBaseTask):
             output_file,
             "--time_step",
             str(time_step),
-            time_step,
         ]
         argv = argv + self.variables
         if os.path.exists(output_file) and os.path.exists(input_file):
