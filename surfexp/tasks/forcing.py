@@ -131,11 +131,11 @@ class ModifyForcing(PySurfexBaseTask):
         time_step = -1
 
         argv = [
-            "--input-file",
+            "--input_file",
             input_file,
-            "--output-file",
+            "--output_file",
             output_file,
-            "--time-step",
+            "--time_step",
             time_step,
             self.variables,
         ]
