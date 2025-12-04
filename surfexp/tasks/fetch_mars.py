@@ -11,7 +11,7 @@ from surfexp.tasks.tasks import PySurfexBaseTask
 
 
 class FetchMars(PySurfexBaseTask):
-    """Perturb state task.
+    """Fetch mars data.
 
     Args:
             config (dict): Actual configuration dict
