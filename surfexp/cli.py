@@ -4,9 +4,9 @@ import os
 import shutil
 import sys
 
-import deode
-from deode.__main__ import main
-from deode.logs import logger
+import tactus
+from tactus.__main__ import main
+from tactus.logs import logger
 
 import surfexp
 
@@ -92,7 +92,7 @@ def pysfxexp(argv=None):
     troika_command = args.troika_command
     args = args.args
 
-    deode_path = deode.__path__[0]
+    tactus_path = tactus.__path__[0]
     surfexp_path = surfexp.__path__[0]
     tmp_output = f"{output}.tmp.{os.getpid()}.toml"
     tmp_mods_output = f"{output}.mods.tmp.{os.getpid()}.toml"
@@ -101,7 +101,7 @@ def pysfxexp(argv=None):
         "--case-name",
         case_name,
         "--config-file",
-        f"{deode_path}/data/config_files/config.toml",
+        f"{tactus_path}/data/config_files/config.toml",
         "--config-data-dir",
         f"{surfexp_path}/data/config/",
         "--output",
@@ -129,7 +129,7 @@ def pysfxexp(argv=None):
     argv.append(tmp_mods_output)
     cmd = " ".join(argv)
 
-    logger.debug("deode case command: deode {}", cmd)
+    logger.debug("tactus case command: tactus {}", cmd)
     main(argv=argv)
     with open(tmp_output, mode="r", encoding="utf8") as fhandler_in, open(
         output, mode="w", encoding="utf8"

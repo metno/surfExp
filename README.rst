@@ -76,9 +76,9 @@ In addition you can add optional arguments like the start and end times and if y
 
 The surfex binaries executed from surfExp are of course depending on source code version.
 This means the fortran namelists must correspond to the binaries being run.
-There are two ways to generate the fortran namelists. Since surfexp is a plugin to deode
-the first way is to create the namelists is with the deode namelist generator.
-This is achieved by setting ldeode = true for the surfex binary sections.
+There are two ways to generate the fortran namelists. Since surfexp is a plugin to tactus
+the first way is to create the namelists is with the tactus namelist generator.
+This is achieved by setting tactus = true for the surfex binary sections.
 
 The other method is using the pysurfex namelist generator and is handled by the keyword blocks in the settings for the different binaries.
 Please note that since this is a list, it is not merged between diffentent configuration inputs,
@@ -110,7 +110,7 @@ from the config file.
  surfExp -o my_config.toml --case-name LDAS --plugin-home $PWD surfexp/data/config/configurations/metno_ldas.toml surfexp/data/config/mods/cy46_aa_offline/ppi.toml
 
  # To start you experiment
- deode start suite --config-file my_config.toml
+ tactus start suite --config-file my_config.toml
 
 
 
@@ -167,7 +167,7 @@ Extra environment on PPI-RHEL8 needed to start experiments
  export DEODE_HOST="ppi_rhel8_b1"
 
  # Start suite (modify dates)
- deode start suite --config-file exps/LDAS.toml
+ tactus start suite --config-file exps/LDAS.toml
 
  # MET-Norway LDAS single decade
  surfExp -o exps/LDAS_decade.toml --case-name LDAS_decade \
@@ -179,5 +179,5 @@ Extra environment on PPI-RHEL8 needed to start experiments
  surfexp/data/config/scheduler/ecflow_ppi_rhel8-$USER.toml
 
  # Start the suite
- deode start suite  --config-file exps/LDAS_decade.toml
+ tactus start suite  --config-file exps/LDAS_decade.toml
 

@@ -1,5 +1,5 @@
 [submission]
-  bindir = "/lustre/storeA/users/trygveasp/deode/test_ib_a1/lib/offline/exe/"
+  bindir = "/lustre/storeA/users/trygveasp/tactus/test_ib_a1/lib/offline/exe/"
   default_submit_type = "background"
   lfftw = true
   module_initpath = "/usr/share/Modules/init/"

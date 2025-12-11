@@ -27,7 +27,7 @@
   ial_source = ""
 
 [offline]
-  deode = false
+  tactus = false
   tolerate_missing = false
 
 [pgd]
@@ -42,11 +42,11 @@
   zs_input = "gmted2010"
 
 [prep]
-  deode = false
+  tactus = false
   tolerate_missing = false
 
 [soda]
-  deode = false
+  tactus = false
   tolerate_missing = false
 
 [suite_control]

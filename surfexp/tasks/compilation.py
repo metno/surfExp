@@ -2,7 +2,7 @@
 import os
 import shutil
 
-from deode.logs import logger
+from tactus.logs import logger
 from pysurfex.run import BatchJob
 
 from surfexp.tasks.tasks import PySurfexBaseTask

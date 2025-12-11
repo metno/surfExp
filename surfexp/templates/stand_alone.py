@@ -2,13 +2,13 @@
 
 import os
 
-from deode.config_parser import ConfigParserDefaults, ParsedConfig
-from deode.derived_variables import derived_variables, set_times
-from deode.logs import logger  # Use deode's own configs for logger
-from deode.submission import ProcessorLayout, TaskSettings
-from deode.tasks.discover_task import get_task
+from tactus.config_parser import ConfigParserDefaults, ParsedConfig
+from tactus.derived_variables import derived_variables, set_times
+from tactus.logs import logger  # Use tactus's own configs for logger
+from tactus.submission import ProcessorLayout, TaskSettings
+from tactus.tasks.discover_task import get_task
 
-logger.enable("deode")
+logger.enable("tactus")
 
 
 def stand_alone_main(task, config, deode_home):
@@ -17,7 +17,7 @@ def stand_alone_main(task, config, deode_home):
     Args:
         task (str): Task name
         config (str): Config file
-        deode_home(str): Deode home path
+        deode_home(str): Tactus home path
     """
     config = ParsedConfig.from_file(
         config, json_schema=ConfigParserDefaults.MAIN_CONFIG_JSON_SCHEMA

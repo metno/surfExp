@@ -16,8 +16,8 @@
   requires = ["poetry-core >= 1.2.0"]
 
 [tool.poetry.dependencies]
-  deode = {git = "git@github.com:destination-earth-digital-twins/Deode-Workflow.git", develop = false, branch = "v0.16.1"}
-  pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = false, branch = "0.1.1", extras = ["plot", "verification"]}
+  tactus = {git = "git@github.com:mfroelund/Tactus.git", branch = "feature/prepare-tactus-package"}
+  pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = false, branch = "0.1.2", extras = ["points", "netcdf", "plot", "verification"]}
   python = ">=3.10,<3.13"
 
 [tool.poetry.group.doc.dependencies]
@@ -192,7 +192,7 @@
 
 [[tool.poe.tasks.doc.switch]]
   case = "clean"
-  cmd = "rm -rf docs/_build/ docs/deode.rst docs/markdown_docs/config.md"
+  cmd = "rm -rf docs/_build/ docs/markdown_docs/config.md"
 
 [[tool.poe.tasks.doc.switch]]
   case = "build"

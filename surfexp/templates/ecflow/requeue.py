@@ -2,14 +2,14 @@
 
 import os
 
-from deode.config_parser import ConfigParserDefaults, ParsedConfig
-from deode.derived_variables import derived_variables
-from deode.logs import LogDefaults, LoggerHandlers, logger
-from deode.scheduler import EcflowClient, EcflowServer, EcflowTask
-from deode.submission import ProcessorLayout
-from deode.tasks.discover_task import get_task
+from tactus.config_parser import ConfigParserDefaults, ParsedConfig
+from tactus.derived_variables import derived_variables
+from tactus.logs import LogDefaults, LoggerHandlers, logger
+from tactus.scheduler import EcflowClient, EcflowServer, EcflowTask
+from tactus.submission import ProcessorLayout
+from tactus.tasks.discover_task import get_task
 
-logger.enable("deode")
+logger.enable("tactus")
 
 
 def parse_ecflow_vars():

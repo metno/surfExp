@@ -2,9 +2,9 @@
 import os
 from datetime import timedelta
 
-from deode.datetime_utils import as_timedelta
-from deode.logs import logger
-from deode.os_utils import deodemakedirs
+from tactus.datetime_utils import as_timedelta
+from tactus.logs import logger
+from tactus.os_utils import deodemakedirs
 from pysurfex.cli import create_forcing, modify_forcing
 from pysurfex.verification import concat_datasets, converter2ds
 

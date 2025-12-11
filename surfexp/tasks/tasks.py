@@ -5,11 +5,11 @@ import json
 import os
 import shutil
 
-from deode.datetime_utils import as_datetime, as_timedelta, get_decade
-from deode.logs import InterceptHandler, logger
-from deode.logs import builtin_logging as logging
-from deode.os_utils import deodemakedirs
-from deode.tasks.base import Task
+from tactus.datetime_utils import as_datetime, as_timedelta, get_decade
+from tactus.logs import InterceptHandler, logger
+from tactus.logs import builtin_logging as logging
+from tactus.os_utils import deodemakedirs
+from tactus.tasks.base import Task
 from pysurfex.cli import (
     cli_oi2soda,
     cryoclim_pseudoobs,
