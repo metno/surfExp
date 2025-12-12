@@ -1,9 +1,9 @@
 import os
 
 import pytest
-from deode.config_parser import ConfigParserDefaults, ParsedConfig
-from deode.derived_variables import set_times
-from deode.logs import logger
+from tactus.config_parser import ConfigParserDefaults, ParsedConfig
+from tactus.derived_variables import set_times
+from tactus.logs import logger
 
 from surfexp import PACKAGE_DIRECTORY
 from surfexp.cli import pysfxexp
@@ -26,8 +26,8 @@ def tmp_directory(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
-def deode_config(tmp_directory):
-    output_file = f"{tmp_directory}/config_deode.toml"
+def tactus_config(tmp_directory):
+    output_file = f"{tmp_directory}/config_tactus.toml"
     with open(f"{tmp_directory}/mods.toml", mode="w") as fhandler:
         fhandler.write("[platform]\n")
         fhandler.write(f'scratch = "{tmp_directory}"\n')
@@ -37,7 +37,7 @@ def deode_config(tmp_directory):
         "-o",
         output_file,
         "--case-name",
-        "deode_case_name",
+        "tactus_case_name",
         "--plugin-home",
         f"{PACKAGE_DIRECTORY}/..",
         f"{tmp_directory}/mods.toml",

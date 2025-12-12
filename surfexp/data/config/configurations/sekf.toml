@@ -70,7 +70,7 @@
     "offline_teb",
     "offline_selected_output",
   ]
-  deode = false
+  tactus = false
 
 [pgd]
   blocks = [
@@ -107,7 +107,7 @@
     "meb",
     "pgd_meb",
   ]
-  deode = false
+  tactus = false
 
 [prep]
   blocks = [
@@ -123,7 +123,7 @@
     "prep_isba_snow",
     "meb",
   ]
-  deode = false
+  tactus = false
 
 [soda]
   blocks = [

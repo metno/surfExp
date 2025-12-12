@@ -1,10 +1,10 @@
 """Tasks running surfex binaries."""
 import json
 
-from deode.datetime_utils import as_datetime, as_timedelta, get_decade
-from deode.logs import logger
-from deode.namelist import NamelistGenerator
-from deode.os_utils import deodemakedirs
+from tactus.datetime_utils import as_datetime, as_timedelta, get_decade
+from tactus.logs import logger
+from tactus.namelist import NamelistGenerator
+from tactus.os_utils import deodemakedirs
 from pysurfex.cli import offline, perturbed_offline, pgd, prep, soda
 
 from surfexp.experiment import SettingsFromNamelistAndConfig, check_consistency
@@ -18,7 +18,7 @@ class SurfexBinaryTask(PySurfexBaseTask):
         """Construct object.
 
         Args:
-            config (deode.ParsedConfig): Configuration
+            config (tactus.ParsedConfig): Configuration
             name (str): Name
 
         """
@@ -51,7 +51,7 @@ class OfflinePgd(SurfexBinaryTask):
         """Construct object.
 
         Args:
-            config (deode.ParsedConfig): Configuration
+            config (tactus.ParsedConfig): Configuration
 
         """
         SurfexBinaryTask.__init__(self, config, __class__.__name__)
@@ -127,7 +127,7 @@ class OfflinePrep(SurfexBinaryTask):
         """Construct object.
 
         Args:
-            config (deode.ParsedConfig): Configuration
+            config (tactus.ParsedConfig): Configuration
 
         """
         SurfexBinaryTask.__init__(self, config, __class__.__name__)

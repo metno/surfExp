@@ -3,12 +3,12 @@
 [scheduler.ecfvars]
   case_prefix = ""
   ecf_deode_home = "@DEODE_HOME@"
-  ecf_files = "@HOME@/deode_ecflow/ecf_files"
-  ecf_files_remotely = "@HOME@/deode_ecflow/ecf_files"
-  ecf_home = "@HOME@/deode_ecflow/jobout"
+  ecf_files = "@HOME@/tactus_ecflow/ecf_files"
+  ecf_files_remotely = "@HOME@/tactus_ecflow/ecf_files"
+  ecf_home = "@HOME@/tactus_ecflow/jobout"
   ecf_host = "ppi-r8login-b1.int.met.no"
-  ecf_jobout = "@HOME@/deode_ecflow/jobout"
-  ecf_out = "@HOME@/deode_ecflow/jobout"
+  ecf_jobout = "@HOME@/tactus_ecflow/jobout"
+  ecf_out = "@HOME@/tactus_ecflow/jobout"
   ecf_ssl = "1"
 
 [scheduler.ecfvars.troika]

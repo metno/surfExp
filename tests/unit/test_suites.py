@@ -1,6 +1,6 @@
 import pytest
-from deode.config_parser import ConfigParserDefaults, ParsedConfig
-from deode.derived_variables import set_times
+from tactus.config_parser import ConfigParserDefaults, ParsedConfig
+from tactus.derived_variables import set_times
 
 from surfexp import PACKAGE_DIRECTORY
 from surfexp.cli import pysfxexp
@@ -9,7 +9,7 @@ from surfexp.suites.offline import SurfexSuiteDefinition
 
 @pytest.fixture(name="mock_submission")
 def fixture_mock_submission(session_mocker):
-    session_mocker.patch("deode.submission.TaskSettings")
+    session_mocker.patch("tactus.submission.TaskSettings")
 
 
 @pytest.fixture(name="sekf_config")
@@ -24,7 +24,7 @@ def fixture_sekf_config(tmp_directory):
         "-o",
         output_file,
         "--case-name",
-        "deode_case_name",
+        "tactus_case_name",
         "--plugin-home",
         f"{PACKAGE_DIRECTORY}/..",
         f"{tmp_directory}/mods_sekf.toml",
@@ -42,8 +42,8 @@ def fixture_sekf_config(tmp_directory):
 
 
 @pytest.mark.usefixtures("mock_submission", "project_directory")
-def test_offline_deode_suite(deode_config):
-    SurfexSuiteDefinition(deode_config)
+def test_offline_tactus_suite(tactus_config):
+    SurfexSuiteDefinition(tactus_config)
 
 
 @pytest.mark.usefixtures("mock_submission", "project_directory")

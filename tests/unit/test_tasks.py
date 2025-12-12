@@ -5,10 +5,10 @@ import types
 from pathlib import Path
 
 import pytest
-from deode.logs import logger
-from deode.os_utils import deodemakedirs
-from deode.tasks.base import Task
-from deode.tasks.discover_task import discover, get_task
+from tactus.logs import logger
+from tactus.os_utils import deodemakedirs
+from tactus.tasks.base import Task
+from tactus.tasks.discover_task import discover, get_task
 
 from surfexp import PACKAGE_DIRECTORY
 
@@ -17,7 +17,7 @@ def available_tasks():
     """Create a list of available tasks.
 
     Args:
-        reg (DeodePluginRegistry): Deode plugin registry
+        reg (TactusPluginRegistry): Tactus plugin registry
 
     Returns:
         known_types (list): Task objects
@@ -148,7 +148,7 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
     task_name = request.param
     task_config = default_config
 
-    casedir = f"{tmp_directory}/deode/{task_name}"
+    casedir = f"{tmp_directory}/tactus/{task_name}"
     update = {
         "general": {"case": task_name},
         "platform": {

@@ -2,9 +2,9 @@
 import contextlib
 from pathlib import Path
 
-from deode.datetime_utils import as_datetime, as_timedelta, get_decadal_list, get_decade
-from deode.logs import logger
-from deode.suites.base import (
+from tactus.datetime_utils import as_datetime, as_timedelta, get_decadal_list, get_decade
+from tactus.logs import logger
+from tactus.suites.base import (
     EcflowSuiteFamily,
     EcflowSuiteTask,
     EcflowSuiteTrigger,
@@ -12,7 +12,7 @@ from deode.suites.base import (
     SuiteDefinition,
 )
 
-# TODO should be moved to deode.suites or a module
+# TODO should be moved to tactus.suites or a module
 from ecflow import Limit
 
 from surfexp.experiment import SettingsFromNamelistAndConfig, get_total_unique_cycle_list

@@ -5,10 +5,10 @@ import shutil
 import sys
 
 import netCDF4
-from deode.geo_utils import Projection, Projstring
-from deode.logs import logger
-from deode.os_utils import Search, deodemakedirs
-from deode.tasks.base import Task
+from tactus.geo_utils import Projection, Projstring
+from tactus.logs import logger
+from tactus.os_utils import Search, deodemakedirs
+from tactus.tasks.base import Task
 
 try:
     from osgeo import gdal
@@ -57,9 +57,10 @@ class Gmted(Task):
 
         Task.__init__(self, config, "Gmted")
 
-        self.gmted2010_path = self.fmanager.platform.get_platform_value(
-            "gmted2010_data_path"
+        self.topo_source = self.fmanager.platform.get_platform_value(
+            "topo_source", alt="gmted2010"
         )
+        self.topo_data_path = self.fmanager.platform.get_platform_value("topo_data_path")
 
     def get_domain_properties(self, config) -> dict:
         """Get domain properties.
@@ -172,7 +173,7 @@ class Gmted(Task):
 
         for lat in gmted2010_input_lats:
             for lon in gmted2010_input_lons:
-                tif_file = f"{self.gmted2010_path}/{lat}{lon}_20101117_gmted_mea075.tif"
+                tif_file = f"{self.topo_data_path}/{lat}{lon}_20101117_gmted_mea075.tif"
                 tif_files.append(tif_file)
 
         for tif_file in tif_files:
@@ -294,7 +295,7 @@ class Soil(Task):
 
         Args:
         ----
-            config (deode.ParsedConfig): Configuration
+            config (tactus.ParsedConfig): Configuration
 
         """
         self.domain = self.get_domain_properties(config)
@@ -307,7 +308,7 @@ class Soil(Task):
 
         Args:
         ----
-            config (deode.ParsedConfig): Configuration
+            config (tactus.ParsedConfig): Configuration
 
         Returns:
         -------

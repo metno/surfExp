@@ -5,11 +5,11 @@ import json
 import os
 import shutil
 
-from deode.datetime_utils import as_datetime, as_timedelta, get_decade
-from deode.logs import InterceptHandler, logger
-from deode.logs import builtin_logging as logging
-from deode.os_utils import deodemakedirs
-from deode.tasks.base import Task
+from tactus.datetime_utils import as_datetime, as_timedelta, get_decade
+from tactus.logs import InterceptHandler, logger
+from tactus.logs import builtin_logging as logging
+from tactus.os_utils import deodemakedirs
+from tactus.tasks.base import Task
 from pysurfex.cli import (
     cli_oi2soda,
     cryoclim_pseudoobs,
@@ -299,9 +299,13 @@ class QualityControl(PySurfexBaseTask):
             raise RuntimeError from KeyError
         try:
             self.offset = int(self.config["task.args.offset"])
+            fcint = self.config["general.times.cycle_length"]
+            fcint = as_timedelta(f"{fcint}")
         except KeyError:
             self.offset = 0
-        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
+            fcint = as_timedelta(f"PT0H")
+
+        self.validtime = self.basetime - fcint + as_timedelta(f"{self.offset:02d}:00:00")
 
     def execute(self):
         """Execute."""
@@ -527,7 +531,7 @@ class QualityControl(PySurfexBaseTask):
             "--indent",
             str(indent),
             "--validtime",
-            self.basetime.strftime("%Y%m%d%H"),
+            self.validtime.strftime("%Y%m%d%H"),
             "--domain",
             self.domain_file,
         ]
@@ -563,9 +567,12 @@ class OptimalInterpolation(PySurfexBaseTask):
             raise RuntimeError from KeyError
         try:
             self.offset = int(self.config["task.args.offset"])
+            fcint = self.config["general.times.cycle_length"]
+            fcint = as_timedelta(f"{fcint}")
         except KeyError:
             self.offset = 0
-        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
+            fcint = as_timedelta(f"PT0H")
+        self.validtime = self.basetime -fcint + as_timedelta(f"{self.offset:02d}:00:00")
 
     def execute(self):
         """Execute."""

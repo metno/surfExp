@@ -1,8 +1,8 @@
 """Experiment tools."""
 import yaml
-from deode.datetime_utils import as_datetime, as_timedelta
-from deode.logs import logger
-from deode.namelist import NamelistGenerator as DeodeNamelistGenerator
+from tactus.datetime_utils import as_datetime, as_timedelta
+from tactus.logs import logger
+from tactus.namelist import NamelistGenerator as TactusNamelistGenerator
 from pysurfex.namelist import NamelistGenerator, NamelistGeneratorAssemble
 
 
@@ -55,7 +55,7 @@ class SettingsFromNamelist:
         """Check if setting is value.
 
         Args:
-            config (deode.config_parser.ParsedConfig): Parsed config file contents.
+            config (tactus.config_parser.ParsedConfig): Parsed config file contents.
             setting (str): Setting
             value (any): Value
             sep (str, optional): Separator
@@ -70,7 +70,7 @@ class SettingsFromNamelist:
         """Get the active observations.
 
         Args:
-            config (deode.config_parser.ParsedConfig): Parsed config file contents.
+            config (tactus.config_parser.ParsedConfig): Parsed config file contents.
             basetime (as_datetime, optional): Basetime. Defaults to None.
 
         Returns:
@@ -120,18 +120,18 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
 
         Args:
             program (str): Calling program
-            config (deode.config_parser.ParsedConfig): Parsed config file contents.
+            config (tactus.config_parser.ParsedConfig): Parsed config file contents.
 
         """
         try:
-            deode = config[f"{program}.deode"]
+            tactus = config[f"{program}.tactus"]
         except KeyError:
-            deode = False
-        if deode:
+            tactus = False
+        if tactus:
             # SURFEX: Namelists and input data
             if program == "offline":
                 program = "forecast"
-            nlgen_surfex = DeodeNamelistGenerator(config, "surfex")
+            nlgen_surfex = TactusNamelistGenerator(config, "surfex")
             nlgen_surfex.load(program)
             settings = nlgen_surfex.assemble_namelist(program)
             try:
@@ -180,18 +180,18 @@ class SettingsFromNamelistAndConfig(SettingsFromNamelist):
         SettingsFromNamelist.__init__(self, program, settings, assemble=None)
 
 
-class SettingsFromNamelistAndConfigDeode(SettingsFromNamelist):
-    """Set namelist and config from Deode configuration."""
+class SettingsFromNamelistAndConfigTactus(SettingsFromNamelist):
+    """Set namelist and config from Tactus configuration."""
 
     def __init__(self, program, config):
-        """Set namelist and config from Deode configuration.
+        """Set namelist and config from Tactus configuration.
 
         Args:
             program (str): Calling program
-            config (deode.config_parser.ParsedConfig): Parsed config file contents.
+            config (tactus.config_parser.ParsedConfig): Parsed config file contents.
 
         """
-        nlgen_surfex = DeodeNamelistGenerator(config, "surfex")
+        nlgen_surfex = TactusNamelistGenerator(config, "surfex")
         nlgen_surfex.load(program)
         settings = nlgen_surfex.assemble_namelist(program)
         SettingsFromNamelist.__init__(self, program, settings, assemble=None)
@@ -201,7 +201,7 @@ def check_consistency(config):
     """Check consistency.
 
     Args:
-        config (deode.config_parser.ParsedConfig): Parsed config file contents.
+        config (tactus.config_parser.ParsedConfig): Parsed config file contents.
 
     """
     modes = ["pgd", "prep", "offline", "soda"]
