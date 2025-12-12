@@ -299,9 +299,13 @@ class QualityControl(PySurfexBaseTask):
             raise RuntimeError from KeyError
         try:
             self.offset = int(self.config["task.args.offset"])
+            fcint = self.config["general.times.cycle_length"]
+            fcint = as_timedelta(f"{fcint}")
         except KeyError:
             self.offset = 0
-        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
+            fcint = as_timedelta(f"PT0H")
+
+        self.validtime = self.basetime - fcint + as_timedelta(f"{self.offset:02d}:00:00")
 
     def execute(self):
         """Execute."""
@@ -527,7 +531,7 @@ class QualityControl(PySurfexBaseTask):
             "--indent",
             str(indent),
             "--validtime",
-            self.basetime.strftime("%Y%m%d%H"),
+            self.validtime.strftime("%Y%m%d%H"),
             "--domain",
             self.domain_file,
         ]
@@ -563,9 +567,12 @@ class OptimalInterpolation(PySurfexBaseTask):
             raise RuntimeError from KeyError
         try:
             self.offset = int(self.config["task.args.offset"])
+            fcint = self.config["general.times.cycle_length"]
+            fcint = as_timedelta(f"{fcint}")
         except KeyError:
             self.offset = 0
-        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
+            fcint = as_timedelta(f"PT0H")
+        self.validtime = self.basetime -fcint + as_timedelta(f"{self.offset:02d}:00:00")
 
     def execute(self):
         """Execute."""
