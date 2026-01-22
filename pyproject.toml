@@ -16,7 +16,7 @@
   requires = ["poetry-core >= 1.2.0"]
 
 [tool.poetry.dependencies]
-  tactus = {git = "git@github.com:mfroelund/Tactus.git", branch = "feature/prepare-tactus-package"}
+  tactus = {git = "git@github.com:ACCORD-NWP/tactus", branch = "feature/prepare-tactus-package"}
   pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = false, branch = "0.1.2", extras = ["points", "netcdf", "plot", "verification"]}
   python = ">=3.10,<3.13"
 
