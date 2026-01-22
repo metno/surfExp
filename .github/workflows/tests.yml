@@ -63,7 +63,7 @@ jobs:
 
       - name: Install the project itself
         run: |
-          export PATH=$PATH
+          export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
           poetry install --no-interaction --only-root
 
       #----------------------------------------------
