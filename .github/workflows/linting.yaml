@@ -40,7 +40,7 @@ jobs:
 
       - name: Set PATH
         run: |
-          echo "export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH" >> ~/.bashrc
+          echo "/tmp/micromamba/envs/surfExp/bin" >> $GITHUB_PATH
 
       - name: Set python
         run: |

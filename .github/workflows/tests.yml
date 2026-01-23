@@ -41,6 +41,7 @@ jobs:
       - name: Set python
         run: |
           ls -l /tmp/micromamba/envs/surfExp/bin/poetry
+          echo $GITHUB_PATH
           poetry env use /tmp/micromamba/envs/surfExp/bin/python
 
       - name: Load cached venv (if cache exists)
