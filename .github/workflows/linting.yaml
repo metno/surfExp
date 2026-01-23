@@ -16,7 +16,7 @@ on:
 
 jobs:
   linting:
-    if: github.repository_owner == 'destination-earth-digital-twins'
+    if: github.repository_owner == 'metno'
     name: Run Linters
     runs-on: ubuntu-latest
     environment: staging
@@ -46,25 +46,25 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+          key: venv-${{ hashFiles('pyproject.toml') }}
 
       - name: Install dependencies (if venv cache is not found)
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root --only linting
+        run: |
+          export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
+          poetry env use /tmp/micromamba/envs/surfExp/bin/python
+          poetry install --no-interaction --no-root --only linting
 
       - name: Install the project itself
-        run: poetry install --no-interaction --only-root
+        run: |
+          export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
+          poetry env use /tmp/micromamba/envs/surfExp/bin/python
+          poetry install --no-interaction --only-root
 
       #----------------------------------------------
       #         Run the linting checks
       #----------------------------------------------
-      - name: isort
+      - name: Linting
         run: |
-          poetry run isort --check-only .
-      - name: black
-        run: |
-          poetry run black --check --diff .
-      - name: flakeheaven
-        run: |
-          export FLAKEHEAVEN_CACHE="${TMPDIR:-${TEMP:-${TMP:-/tmp}}}/flakeheaven_cache.$(openssl rand -hex 12)"
-          poetry run flakeheaven lint .
+          export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
+          poetry run poetry devtools lint
