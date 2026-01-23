@@ -40,6 +40,9 @@ jobs:
 
       - name: Set python
         run: |
+          ls -l ~/.bashrc
+          cat ~/.bashrc
+          ls -l /tmp/micromamba/envs/surfExp/bin/poetry
           poetry env use /tmp/micromamba/envs/surfExp/bin/python
 
       - name: Load cached venv (if cache exists)
