@@ -36,7 +36,7 @@ jobs:
 
       - name: Set PATH
         run: |
-          echo "export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH" | sudo tee -a /etc/bash.bashrc
+          echo "export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH" >> $GITHUB_PATH
 
       - name: Set python
         run: |
