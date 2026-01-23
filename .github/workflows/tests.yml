@@ -72,7 +72,12 @@ jobs:
       #----------------------------------------------
       - name: Run tests
         run: |
+          echo "/tmp/micromamba/envs/surfExp/bin"
           ls -l /tmp/micromamba/envs/surfExp/bin
+          echo "/home/runner/work/surfExp/surfExp/.venv/bin/python"
+          ls -l /home/runner/work/surfExp/surfExp/.venv/bin/python
+          echo "/home/runner/work/surfExp/surfExp/.venv/lib/python3.11/site-packages"
+          ls -l 
           export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
           poetry run pytest
 
