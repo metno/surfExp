@@ -40,11 +40,11 @@ jobs:
 
       - name: Set PATH
         run: |
-          - echo "export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH" >> ~/.bashrc
+          echo "export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH" >> ~/.bashrc
 
       - name: Set python
         run: |
-          - poetry env use /tmp/micromamba/envs/surfExp/bin/python
+          poetry env use /tmp/micromamba/envs/surfExp/bin/python
 
       - name: Load cached venv (if cache exists)
         id: cached-poetry-dependencies
