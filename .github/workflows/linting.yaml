@@ -41,12 +41,12 @@ jobs:
         run: |
           poetry env use /tmp/micromamba/envs/surfExp/bin/python
 
-      - name: Load cached venv (if cache exists)
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ hashFiles('pyproject.toml') }}
+      #- name: Load cached venv (if cache exists)
+      #  id: cached-poetry-dependencies
+      #  uses: actions/cache@v4
+      #  with:
+      #    path: .venv
+      #    key: venv-${{ hashFiles('pyproject.toml') }}
 
       - name: Install dependencies (if venv cache is not found)
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
