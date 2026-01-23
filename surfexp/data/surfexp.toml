@@ -26,6 +26,9 @@
   build_config = ""
   ial_source = ""
 
+[extractsqlite]
+  station_list = ""
+
 [offline]
   tactus = false
   tolerate_missing = false
@@ -44,6 +47,9 @@
 [prep]
   tactus = false
   tolerate_missing = false
+
+[prep.args]
+  prep-file = ""
 
 [soda]
   tactus = false

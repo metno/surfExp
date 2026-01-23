@@ -2,8 +2,8 @@
 import os
 import shutil
 
-from tactus.logs import logger
 from pysurfex.run import BatchJob
+from tactus.logs import logger
 
 from surfexp.tasks.tasks import PySurfexBaseTask
 

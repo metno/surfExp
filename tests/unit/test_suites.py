@@ -13,12 +13,8 @@ def fixture_mock_submission(session_mocker):
 
 
 @pytest.fixture(name="sekf_config")
-def fixture_sekf_config(tmp_directory):
+def fixture_sekf_config(tmp_directory, dummy_include_files):  # noqa
     output_file = f"{tmp_directory}/config_sekf.toml"
-    with open(f"{tmp_directory}/mods_sekf.toml", mode="w", encoding="utf8") as fhandler:
-        fhandler.write("[platform]\n")
-        fhandler.write(f'scratch = "{tmp_directory}"\n')
-        fhandler.write('unix_group = "suv"\n')
 
     argv = [
         "-o",

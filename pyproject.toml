@@ -2,8 +2,8 @@
   authors = ["Trygve Aspelien <trygveasp@met.no>"]
   description = "surfExp"
   include = [{path = "surfexp/data", format = ["sdist", "wheel"]}]
-  name = "surfexp"
   license = "Apache-2.0"
+  name = "surfexp"
   readme = "README.rst"
   version = "0.4.1"
 
@@ -16,9 +16,9 @@
   requires = ["poetry-core >= 1.2.0"]
 
 [tool.poetry.dependencies]
-  tactus = {git = "https://github.com/ACCORD-NWP/tactus", branch = "feature/prepare-tactus-package"}
   pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = false, branch = "0.1.2", extras = ["points", "netcdf", "plot", "verification"]}
   python = ">=3.10,<3.13"
+  tactus = {git = "https://github.com/ACCORD-NWP/tactus", branch = "feature/prepare-tactus-package"}
 
 [tool.poetry.group.doc.dependencies]
   coveralls = "^3.3.1"
@@ -27,10 +27,9 @@
 
 [tool.poetry.group.linting.dependencies]
   black = {extras = ["jupyter"], version = "^23.10.0"}
-  isort = "^5.12.0"
   poethepoet = {extras = ["poetry-plugin"], version = "^0.34.0"}
   pydoclint = "^0.3.8" # Replaces darglint, but is maintained & faster
-  ruff = "^0.11.0"
+  ruff = "^0.14.11"
   toml-formatter = {git = "https://github.com/paulovcmedeiros/toml-formatter"}
 
 [tool.poetry.group.test.dependencies]
@@ -61,10 +60,6 @@
   "*" = ["-*"]
   # Activate only those plugins not covered by ruff
   pydoclint = []
-
-[tool.isort]
-  line_length = 90
-  profile = "black"
 
 [tool.ruff]
   ignore = [
@@ -168,7 +163,6 @@
   """
   # Linting tasks
   _black = "black ."
-  _isort = "isort ."
   _ruff = "ruff check ."
   _toml_formatter = "toml-formatter check ."
   # Test-related tasks
@@ -211,13 +205,8 @@
 
 [[tool.poe.tasks.lint.switch]]
   case = "True"
-  sequence = ["_isort", "_black", "_ruff --fix", "_toml_formatter --fix"]
+  sequence = ["_black", "_ruff --fix", "_toml_formatter --fix"]
 
 [[tool.poe.tasks.lint.switch]]
   case = "False"
-  sequence = [
-    "_isort --check-only",
-    "_black --check --diff",
-    "_ruff",
-    "_toml_formatter",
-  ]
+  sequence = ["_black --check --diff", "_ruff", "_toml_formatter"]

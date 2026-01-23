@@ -129,7 +129,7 @@ def pysfxexp(argv=None):
     argv.append(tmp_mods_output)
     cmd = " ".join(argv)
 
-    logger.debug("tactus case command: tactus {}", cmd)
+    logger.info("tactus case command: tactus {}", cmd)
     main(argv=argv)
     with open(tmp_output, mode="r", encoding="utf8") as fhandler_in, open(
         output, mode="w", encoding="utf8"

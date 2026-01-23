@@ -5,11 +5,6 @@ import json
 import os
 import shutil
 
-from tactus.datetime_utils import as_datetime, as_timedelta, get_decade
-from tactus.logs import InterceptHandler, logger
-from tactus.logs import builtin_logging as logging
-from tactus.os_utils import deodemakedirs
-from tactus.tasks.base import Task
 from pysurfex.cli import (
     cli_oi2soda,
     cryoclim_pseudoobs,
@@ -22,6 +17,11 @@ from pysurfex.geo import ConfProj
 from pysurfex.platform_deps import SystemFilePaths
 from pysurfex.run import BatchJob
 from pysurfex.verification import converter2harp_cli
+from tactus.datetime_utils import as_datetime, as_timedelta, get_decade
+from tactus.logs import InterceptHandler, logger
+from tactus.logs import builtin_logging as logging
+from tactus.os_utils import deodemakedirs
+from tactus.tasks.base import Task
 
 from surfexp.experiment import SettingsFromNamelistAndConfig
 
@@ -303,7 +303,7 @@ class QualityControl(PySurfexBaseTask):
             fcint = as_timedelta(f"{fcint}")
         except KeyError:
             self.offset = 0
-            fcint = as_timedelta(f"PT0H")
+            fcint = as_timedelta("PT0H")
 
         self.validtime = self.basetime - fcint + as_timedelta(f"{self.offset:02d}:00:00")
 
@@ -571,8 +571,8 @@ class OptimalInterpolation(PySurfexBaseTask):
             fcint = as_timedelta(f"{fcint}")
         except KeyError:
             self.offset = 0
-            fcint = as_timedelta(f"PT0H")
-        self.validtime = self.basetime -fcint + as_timedelta(f"{self.offset:02d}:00:00")
+            fcint = as_timedelta("PT0H")
+        self.validtime = self.basetime - fcint + as_timedelta(f"{self.offset:02d}:00:00")
 
     def execute(self):
         """Execute."""

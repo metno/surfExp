@@ -1,9 +1,9 @@
 """Experiment tools."""
 import yaml
+from pysurfex.namelist import NamelistGenerator, NamelistGeneratorAssemble
 from tactus.datetime_utils import as_datetime, as_timedelta
 from tactus.logs import logger
 from tactus.namelist import NamelistGenerator as TactusNamelistGenerator
-from pysurfex.namelist import NamelistGenerator, NamelistGeneratorAssemble
 
 
 class SettingsFromNamelist:

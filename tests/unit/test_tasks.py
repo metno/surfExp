@@ -148,7 +148,7 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
     task_name = request.param
     task_config = default_config
 
-    casedir = f"{tmp_directory}/tactus/{task_name}"
+    casedir = f"{tmp_directory}/surfexp/{task_name}"
     update = {
         "general": {"case": task_name},
         "platform": {
@@ -198,6 +198,7 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
         programs = ["PGD-offline", "PREP-offline", "OFFLINE-offline", "SODA-offline"]
         for program in programs:
             os.system(f"touch {builddir}/{program}")  # noqa S605
+        # /tmp/pytest-of-trygveasp/pytest-10/deode/cmakebuild/offline/build/bin/PGD-offline
     elif task_name.lower() == "soil":
         soilgrid_data_path = f"{casedir}/SOILGRID"
         deodemakedirs(soilgrid_data_path)

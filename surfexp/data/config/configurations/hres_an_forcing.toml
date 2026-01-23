@@ -21,11 +21,11 @@
   dir-sw-converter = "none"
   diskless-write = true
   domain = "@climdir@/domain.json"
-  modify-forcing = false
   input-format = "surfex"
   input-geo-file = "@climdir@/domain.json"
   interpolation = "bilinear"
   lw-converter = "none"
+  modify-forcing = false
   pattern = "@default_forcing_dir@/FORCING.nc"
   ps-converter = "none"
   qa = "netcdf"

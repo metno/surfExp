@@ -2,11 +2,11 @@
 import os
 from datetime import timedelta
 
+from pysurfex.cli import cli_modify_forcing, create_forcing
+from pysurfex.verification import concat_datasets, converter2ds
 from tactus.datetime_utils import as_timedelta
 from tactus.logs import logger
 from tactus.os_utils import deodemakedirs
-from pysurfex.cli import create_forcing, cli_modify_forcing
-from pysurfex.verification import concat_datasets, converter2ds
 
 from surfexp.tasks.tasks import PySurfexBaseTask
 
@@ -128,7 +128,7 @@ class ModifyForcing(PySurfexBaseTask):
         output_dir = self.platform.substitute(forcing_dir, basetime=self.basetime)
         input_file = input_dir + "/FORCING.nc"
         output_file = output_dir + "/FORCING.nc"
-        time_step = int(self.fcint.total_seconds()/3600)
+        time_step = int(self.fcint.total_seconds() / 3600)
 
         argv = [
             "--input_file",
@@ -251,7 +251,8 @@ class Interpolate2grid(PySurfexBaseTask):
                     self.basetime.strftime("%Y%m%d%H"),
                     "--validtime",
                     validtime,
-                    "--fcint", "86400",
+                    "--fcint",
+                    "86400",
                 ]
                 logger.info("converter2ds {}", " ".join(argv))
                 converter2ds(argv=argv)

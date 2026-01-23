@@ -1,11 +1,11 @@
 """Tasks running surfex binaries."""
 import json
 
+from pysurfex.cli import offline, perturbed_offline, pgd, prep, soda
 from tactus.datetime_utils import as_datetime, as_timedelta, get_decade
 from tactus.logs import logger
 from tactus.namelist import NamelistGenerator
 from tactus.os_utils import deodemakedirs
-from pysurfex.cli import offline, perturbed_offline, pgd, prep, soda
 
 from surfexp.experiment import SettingsFromNamelistAndConfig, check_consistency
 from surfexp.tasks.tasks import PySurfexBaseTask
