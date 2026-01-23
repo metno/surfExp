@@ -63,6 +63,7 @@ jobs:
 
       - name: Install the project itself
         run: |
+          ls -l /tmp/micromamba/envs/surfExp/bin
           export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
           poetry install --no-interaction --only-root
 
@@ -71,6 +72,8 @@ jobs:
       #----------------------------------------------
       - name: Run tests
         run: |
+          ls -l /tmp/micromamba/envs/surfExp/bin
+          export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
           poetry run pytest
 
 #      - name: Coveralls
