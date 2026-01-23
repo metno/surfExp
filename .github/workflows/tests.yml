@@ -36,12 +36,10 @@ jobs:
 
       - name: Set PATH
         run: |
-          echo "export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH" >> ~/.bashrc
+          echo "export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH" | sudo tee -a /etc/bash.bashrc
 
       - name: Set python
         run: |
-          ls -l ~/.bashrc
-          cat ~/.bashrc
           ls -l /tmp/micromamba/envs/surfExp/bin/poetry
           poetry env use /tmp/micromamba/envs/surfExp/bin/python
 
