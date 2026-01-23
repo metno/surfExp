@@ -65,6 +65,7 @@ jobs:
         run: |
           ls -l /tmp/micromamba/envs/surfExp/bin
           export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
+          poetry env use /tmp/micromamba/envs/surfExp/bin/python
           poetry install --no-interaction --only-root
 
       #----------------------------------------------
@@ -77,7 +78,7 @@ jobs:
           echo "/home/runner/work/surfExp/surfExp/.venv/bin/python"
           ls -l /home/runner/work/surfExp/surfExp/.venv/bin/python
           echo "/home/runner/work/surfExp/surfExp/.venv/lib/python3.11/site-packages"
-          ls -l 
+          ls -l
           export PATH=/tmp/micromamba/envs/surfExp/bin:$PATH
           poetry run pytest
 
