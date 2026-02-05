@@ -18,7 +18,7 @@
 [tool.poetry.dependencies]
   pysurfex = {git = "https://github.com/metno/pysurfex.git", develop = false, branch = "0.1.2", extras = ["points", "netcdf", "plot", "verification"]}
   python = ">=3.10,<3.13"
-  tactus = {git = "https://github.com/ACCORD-NWP/tactus", branch = "develop"}
+  tactus = {git = "https://github.com/ACCORD-NWP/tactus"}
 
 [tool.poetry.group.doc.dependencies]
   coveralls = "^3.3.1"
