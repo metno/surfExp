@@ -7,7 +7,7 @@ import sys
 import netCDF4
 from tactus.geo_utils import Projection, Projstring
 from tactus.logs import logger
-from tactus.os_utils import Search, deodemakedirs
+from tactus.os_utils import Search, tactusmakedirs
 from tactus.tasks.base import Task
 
 try:
@@ -237,7 +237,7 @@ class Gmted(Task):
         """
         climdir = self.platform.get_system_value("climdir")
         unix_group = self.platform.get_platform_value("unix_group")
-        deodemakedirs(climdir, unixgroup=unix_group)
+        tactusmakedirs(climdir, unixgroup=unix_group)
 
         projstr = Projstring().get_projstring(
             lon0=self.domain["lon0"], lat0=self.domain["lat0"]
@@ -498,7 +498,7 @@ class Soil(Task):
 
         climdir = self.platform.get_system_value("climdir")
         unix_group = self.platform.get_platform_value("unix_group")
-        deodemakedirs(climdir, unixgroup=unix_group)
+        tactusmakedirs(climdir, unixgroup=unix_group)
 
         for subarea_file in soilgrid_tif_subarea_files:
             fact = 10

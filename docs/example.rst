@@ -36,8 +36,8 @@ To detect the proper host on MET-Norway PPI you need to export one of the follow
 
 .. code-block:: bash
 
-  export DEODE_HOST="ppi_rhel8_b1"
-  export DEODE_HOST="ppi_rhel8_a1"
+  export TACTUS_HOST="ppi_rhel8_b1"
+  export TACTUS_HOST="ppi_rhel8_a1"
 
 The variables below are needed for ecflow for MET-Norway PPI
 

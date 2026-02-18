@@ -20,7 +20,7 @@ from pysurfex.verification import converter2harp_cli
 from tactus.datetime_utils import as_datetime, as_timedelta, get_decade
 from tactus.logs import InterceptHandler, logger
 from tactus.logs import builtin_logging as logging
-from tactus.os_utils import deodemakedirs
+from tactus.os_utils import tactusmakedirs
 from tactus.tasks.base import Task
 
 from surfexp.experiment import SettingsFromNamelistAndConfig
@@ -61,7 +61,7 @@ class PySurfexBaseTask(Task):
 
         self.geo = ConfProj(conf_proj)
         self.climdir = self.platform.get_system_value("climdir")
-        deodemakedirs(self.climdir)
+        tactusmakedirs(self.climdir)
         domain_json = self.geo.json
         domain_json.update({"nam_pgd_grid": {"cgrid": "CONF PROJ"}})
         self.domain_file = f"{self.climdir}/domain.json"
@@ -1001,7 +1001,7 @@ class FirstGuess4OI(PySurfexBaseTask):
         symlink_files = {}
         archive = self.config["system.archive_dir"]
         archive = self.platform.substitute(archive, basetime=self.validtime)
-        deodemakedirs(archive)
+        tactusmakedirs(archive)
 
         if self.var_name in self.translation:
             var = self.translation[self.var_name]

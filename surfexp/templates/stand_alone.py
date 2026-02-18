@@ -11,19 +11,19 @@ from tactus.tasks.discover_task import get_task
 logger.enable("tactus")
 
 
-def stand_alone_main(task, config, deode_home):
+def stand_alone_main(task, config, tactus_home):
     """Execute default main.
 
     Args:
         task (str): Task name
         config (str): Config file
-        deode_home(str): Tactus home path
+        tactus_home(str): Tactus home path
     """
     config = ParsedConfig.from_file(
         config, json_schema=ConfigParserDefaults.MAIN_CONFIG_JSON_SCHEMA
     )
     config = config.copy(update=set_times(config))
-    config = config.copy(update={"platform": {"deode_home": deode_home}})
+    config = config.copy(update={"platform": {"tactus_home": tactus_home}})
 
     task_settings = TaskSettings(config).get_task_settings(task)
     processor_layout = ProcessorLayout(task_settings)
@@ -38,5 +38,5 @@ def stand_alone_main(task, config, deode_home):
 if __name__ == "__main__":
     TASK_NAME = os.environ["STAND_ALONE_TASK_NAME"]
     CONFIG = os.environ["STAND_ALONE_TASK_CONFIG"]
-    DEODE_HOME = os.environ["STAND_ALONE_DEODE_HOME"]
-    stand_alone_main(TASK_NAME, CONFIG, DEODE_HOME)
+    TACTUS_HOME = os.environ["STAND_ALONE_TACTUS_HOME"]
+    stand_alone_main(TASK_NAME, CONFIG, TACTUS_HOME)

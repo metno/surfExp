@@ -6,7 +6,7 @@ from pysurfex.cli import cli_modify_forcing, create_forcing
 from pysurfex.verification import concat_datasets, converter2ds
 from tactus.datetime_utils import as_timedelta
 from tactus.logs import logger
-from tactus.os_utils import deodemakedirs
+from tactus.os_utils import tactusmakedirs
 
 from surfexp.tasks.tasks import PySurfexBaseTask
 
@@ -63,7 +63,7 @@ class Forcing(PySurfexBaseTask):
         self.exp_file_paths.system_file_paths.update(
             {"default_forcing_dir": default_forcing_dir}
         )
-        deodemakedirs(forcing_dir)
+        tactusmakedirs(forcing_dir)
 
         cforcing_filetype = self.soda_settings.get_setting(
             "NAM_IO_OFFLINE#CFORCING_FILETYPE"

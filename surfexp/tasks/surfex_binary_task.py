@@ -5,7 +5,7 @@ from pysurfex.cli import offline, perturbed_offline, pgd, prep, soda
 from tactus.datetime_utils import as_datetime, as_timedelta, get_decade
 from tactus.logs import logger
 from tactus.namelist import NamelistGenerator
-from tactus.os_utils import deodemakedirs
+from tactus.os_utils import tactusmakedirs
 
 from surfexp.experiment import SettingsFromNamelistAndConfig, check_consistency
 from surfexp.tasks.tasks import PySurfexBaseTask
@@ -148,7 +148,7 @@ class OfflinePrep(SurfexBinaryTask):
         output = f"{self.archive}/ICMSH{cnmexp}INIT.sfx"
 
         binary = self.get_binary("PREP")
-        deodemakedirs(self.archive)
+        tactusmakedirs(self.archive)
 
         nml_file = "OPTIONS_input.nam"
         settings = SettingsFromNamelistAndConfig(self.mode, self.config)

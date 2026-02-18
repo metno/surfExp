@@ -28,7 +28,7 @@ def parse_ecflow_vars():
         "ARGS": os.environ["ARGS"],
         "WRAPPER": os.environ["WRAPPER"],
         "CONFIG": os.environ["CONFIG"],
-        "DEODE_HOME": os.environ["DEODE_HOME"],
+        "TACTUS_HOME": os.environ["TACTUS_HOME"],
     }
 
 
@@ -70,7 +70,7 @@ def default_main(**kwargs):
                 },
                 "loglevel": loglevel,
             },
-            "platform": {"deode_home": kwargs.get("DEODE_HOME")},
+            "platform": {"tactus_home": kwargs.get("TACTUS_HOME")},
         }
     )
 

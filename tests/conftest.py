@@ -29,7 +29,7 @@ def tmp_directory(tmp_path_factory):
 @pytest.fixture(scope="module")
 def test_arch():
     my_host = "my_dummy_host"
-    os.environ["DEODE_HOST"] = my_host
+    os.environ["TACTUS_HOST"] = my_host
     return my_host
 
 
@@ -50,16 +50,16 @@ def dummy_include_files(test_arch, module_initfile, scratch_dir):
             "scheduler": {
                 "ecfvars": {
                     "case_prefix": "",
-                    "ecf_deode_home": "strip_off_mount_path('@DEODE_HOME@',)",
-                    "ecf_files": "@HOME@/deode_ecflow/ecf_files",
-                    "ecf_files_remotely": "@HOME@/deode_ecflow/ecf_files",
-                    "ecf_home": "@HOME@/deode_ecflow/jobout",
+                    "ecf_tactus_home": "strip_off_mount_path('@TACTUS_HOME@',)",
+                    "ecf_files": "@HOME@/tactus_ecflow/ecf_files",
+                    "ecf_files_remotely": "@HOME@/tactus_ecflow/ecf_files",
+                    "ecf_home": "@HOME@/tactus_ecflow/jobout",
                     "ecf_host": "pc5709",
-                    "ecf_jobout": "@HOME@/deode_ecflow/jobout",
-                    "ecf_out": "@HOME@/deode_ecflow/jobout",
+                    "ecf_jobout": "@HOME@/tactus_ecflow/jobout",
+                    "ecf_out": "@HOME@/tactus_ecflow/jobout",
                     "ecf_port": 44855,
                     "troika": {
-                        "config_file": "@ECF_DEODE_HOME@/data/config_files/troika.yml"
+                        "config_file": "@ECF_TACTUS_HOME@/data/config_files/troika.yml"
                     },
                 }
             }
@@ -105,7 +105,7 @@ def dummy_include_files(test_arch, module_initfile, scratch_dir):
                     "albvis_veg_dir": "@CLIMDATA@/ECOCLIMAP-SG/V0/ALB_SAT",
                     "archive_type": "ecfs",
                     "climdata": "@STATIC_DATA@/climate",
-                    "deode_home": "set-by-the-system",
+                    "tactus_home": "set-by-the-system",
                     "e923_data": "@STATIC_DATA@/climate/E923_DATA",
                     "ecoclim_data_path": "@CLIMDATA@/ecoclimap",
                     "ecoclimap_bin_dir": "@ecoclim_data_path@",

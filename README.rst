@@ -10,7 +10,7 @@ This repository is a setup to create and run offline SURFEX experiments.
 
 See online documentation in https://metno.github.io/surfExp/
 
-The setup is dependent of pysurfex (https://metno.github.io/pysurfex) and deode workflow (https://github.com/destination-earth-digital-twins/Deode-Workflow).
+The setup is dependent of pysurfex (https://metno.github.io/pysurfex) and tactus (https://github.com/ACCORD-NWP/tactus).
 
 
 
@@ -164,7 +164,7 @@ Extra environment on PPI-RHEL8 needed to start experiments
  export ECF_SSL=1
 
  # Set HOST
- export DEODE_HOST="ppi_rhel8_b1"
+ export TACTUS_HOST="ppi_rhel8_b1"
 
  # Start suite (modify dates)
  tactus start suite --config-file exps/LDAS.toml

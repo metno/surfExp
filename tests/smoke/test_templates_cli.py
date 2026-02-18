@@ -30,7 +30,7 @@ def fixture_template_args_ecflow(tmp_directory, default_config_file):
         "ARGS": "arg1=val1;",
         "WRAPPER": "time",
         "CONFIG": default_config_file,
-        "DEODE_HOME": "DEODE_HOME",
+        "TACTUS_HOME": "TACTUS_HOME",
     }
     with open(fname, mode="w", encoding="utf8") as fhandler:
         json.dump(data, fhandler)
@@ -54,7 +54,7 @@ def fixture_template_args_stand_alone(tmp_directory, default_config_file):
         "ARGS": "arg1=val1;",
         "WRAPPER": "time",
         "STAND_ALONE_TASK_CONFIG": default_config_file,
-        "STAND_ALONE_DEODE_HOME": "DEODE_HOME",
+        "STAND_ALONE_TACTUS_HOME": "TACTUS_HOME",
         "STAND_ALONE_TASK_NAME": "task_name",
     }
     with open(fname, mode="w", encoding="utf8") as fhandler:
