@@ -26,8 +26,11 @@
   build_config = ""
   ial_source = ""
 
+[extractsqlite]
+  station_list = ""
+
 [offline]
-  deode = false
+  tactus = false
   tolerate_missing = false
 
 [pgd]
@@ -42,11 +45,14 @@
   zs_input = "gmted2010"
 
 [prep]
-  deode = false
+  tactus = false
   tolerate_missing = false
 
+[prep.args]
+  prep-file = ""
+
 [soda]
-  deode = false
+  tactus = false
   tolerate_missing = false
 
 [suite_control]

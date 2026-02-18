@@ -141,7 +141,7 @@
 
 [offline]
   blocks = []
-  deode = true
+  tactus = true
 
 [offline.args]
   forc-zs = true
@@ -151,18 +151,18 @@
   blocks = []
   clay_format = "direct"
   clay_input = "soilgrid"
-  deode = true
+  tactus = true
 
 [prep]
   blocks = []
-  deode = true
+  tactus = true
 
 [prep.args]
   prep-file = "@casedir@/grib/prep_input_@YYYY@@MM@@DD@_@HH@@LL@.grib1"
 
 [soda]
   blocks = ["io", "treedrag", "ecoclimap_sg", "soda"]
-  deode = false
+  tactus = false
 
 [submission.task_exceptions.FirstGuess4OI.ENV]
   LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"

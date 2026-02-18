@@ -21,11 +21,11 @@
   dir-sw-converter = "none"
   diskless-write = true
   domain = "@climdir@/domain.json"
-  modify-forcing = false
   input-format = "surfex"
   input-geo-file = "@climdir@/domain.json"
   interpolation = "bilinear"
   lw-converter = "none"
+  modify-forcing = false
   pattern = "@default_forcing_dir@/FORCING.nc"
   ps-converter = "none"
   qa = "netcdf"
@@ -141,7 +141,7 @@
 
 [offline]
   blocks = []
-  deode = false
+  tactus = false
 
 [offline.args]
   forc-zs = true
@@ -154,13 +154,13 @@
 
 [prep]
   blocks = []
-  deode = false
+  tactus = false
 
 [prep.args]
   prep-file = "@casedir@/grib/prep_input_@YYYY@@MM@@DD@_@HH@@LL@.grib1"
 
 [soda]
-  deode = false
+  tactus = false
 
 [submission.task_exceptions.FirstGuess4OI.ENV]
   LD_LIBRARY_PATH = "/usr/local/apps/udunits/2.2.28/lib:$LD_LIBRARY_PATH"

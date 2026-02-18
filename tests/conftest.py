@@ -1,9 +1,10 @@
 import os
 
 import pytest
-from deode.config_parser import ConfigParserDefaults, ParsedConfig
-from deode.derived_variables import set_times
-from deode.logs import logger
+import tomli_w
+from tactus.config_parser import ConfigParserDefaults, ParsedConfig
+from tactus.derived_variables import set_times
+from tactus.logs import logger
 
 from surfexp import PACKAGE_DIRECTORY
 from surfexp.cli import pysfxexp
@@ -26,21 +27,131 @@ def tmp_directory(tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
-def deode_config(tmp_directory):
-    output_file = f"{tmp_directory}/config_deode.toml"
-    with open(f"{tmp_directory}/mods.toml", mode="w") as fhandler:
-        fhandler.write("[platform]\n")
-        fhandler.write(f'scratch = "{tmp_directory}"\n')
-        fhandler.write('unix_group = "suv"\n')
+def test_arch():
+    my_host = "my_dummy_host"
+    os.environ["TACTUS_HOST"] = my_host
+    return my_host
+
+
+@pytest.fixture(scope="module")
+def scratch_dir(tmp_directory):
+    return f"{tmp_directory}/scratch"
+
+
+@pytest.fixture(scope="module")
+def dummy_include_files(test_arch, module_initfile, scratch_dir):
+    incdir = f"{PACKAGE_DIRECTORY}/data/config/include"
+    os.makedirs(incdir, exist_ok=True)
+    incdirs = ["scheduler", "archiving", "platform_paths", "submission"]
+    for incdir1 in incdirs:
+        os.makedirs(f"{incdir}/{incdir1}", exist_ok=True)
+    with open(f"{incdir}/scheduler/ecflow_{test_arch}.toml", mode="wb") as fhandler:
+        fdef = {
+            "scheduler": {
+                "ecfvars": {
+                    "case_prefix": "",
+                    "ecf_tactus_home": "strip_off_mount_path('@TACTUS_HOME@',)",
+                    "ecf_files": "@HOME@/tactus_ecflow/ecf_files",
+                    "ecf_files_remotely": "@HOME@/tactus_ecflow/ecf_files",
+                    "ecf_home": "@HOME@/tactus_ecflow/jobout",
+                    "ecf_host": "pc5709",
+                    "ecf_jobout": "@HOME@/tactus_ecflow/jobout",
+                    "ecf_out": "@HOME@/tactus_ecflow/jobout",
+                    "ecf_port": 44855,
+                    "troika": {
+                        "config_file": "@ECF_TACTUS_HOME@/data/config_files/troika.yml"
+                    },
+                }
+            }
+        }
+        tomli_w.dump(fdef, fhandler)
+    with open(f"{incdir}/submission/{test_arch}.toml", mode="wb") as fhandler:
+        tomli_w.dump(
+            {
+                "submission": {
+                    "bindir": f"{scratch_dir}/surfexp/bin",
+                    "default_submit_type": "serial",
+                    "module_initfile": module_initfile,
+                    "task": {"wrapper": ""},
+                    "types": {
+                        "serial": {
+                            "NPROC": 1,
+                            "NPROCX": 1,
+                            "NPROCY": 1,
+                            "SCHOST": "localhost",
+                            "WRAPPER": "",
+                            "BATCH": {},
+                            "ENV": {},
+                            "MODULES": {},
+                        }
+                    },
+                }
+            },
+            fhandler,
+        )
+
+    with open(f"{incdir}/archiving/{test_arch}.toml", mode="wb") as fhandler:
+        tomli_w.dump({"archiving": {}}, fhandler)
+
+    with open(f"{incdir}/platform_paths/{test_arch}.toml", mode="wb") as fhandler:
+        tomli_w.dump(
+            {
+                "platform": {
+                    "scratch": scratch_dir,
+                    "archive_root": "@SCRATCH@/@CASE@/archive",
+                    "albnir_soil_dir": "@CLIMDATA@/ECOCLIMAP-SG/V0/ALB_SAT",
+                    "albnir_veg_dir": "@CLIMDATA@/ECOCLIMAP-SG/V0/ALB_SAT",
+                    "albvis_soil_dir": "@CLIMDATA@/ECOCLIMAP-SG/V0/ALB_SAT",
+                    "albvis_veg_dir": "@CLIMDATA@/ECOCLIMAP-SG/V0/ALB_SAT",
+                    "archive_type": "ecfs",
+                    "climdata": "@STATIC_DATA@/climate",
+                    "tactus_home": "set-by-the-system",
+                    "e923_data": "@STATIC_DATA@/climate/E923_DATA",
+                    "ecoclim_data_path": "@CLIMDATA@/ecoclimap",
+                    "ecoclimap_bin_dir": "@ecoclim_data_path@",
+                    "ecosg_data_path": "@CLIMDATA@/ECOCLIMAP-SG/V0",
+                    "fixed_bdclimdir": "",
+                    "fixed_bddir": "",
+                    "fixed_bddir_sfx": "",
+                    "flake_dir": "@STATIC_DATA@/climate/",
+                    "global_sfcdir": "@STATIC_DATA@/climate_fields_mir/climate.v020_MIR_orog/",
+                    "lai_dir": "@CLIMDATA@/ECOCLIMAP-SG/V0/LAI_SAT",
+                    "ncdir": "@STATIC_DATA@/ncdir",
+                    "osm_data": "@CLIMDATA@/OSM_SFX8_1/GARDEN/",
+                    "pgd_data_path": "@CLIMDATA@/PGD",
+                    "rrtm_dir": "@STATIC_DATA@/rrtm/@CYCLE@",
+                    "soilgrid_data_path": "@SCRATCH@/surfexp/@CASE@/SOIL",
+                    "static_data": "@HOME@/static_data/harmonie/",
+                    "task_name": "@STAND_ALONE_TASK_NAME@",
+                    "tree_height_dir": "@CLIMDATA@/ECOCLIMAP-SG/V0/HT",
+                    "unix_group": "",
+                    "windfarm_path": "@STATIC_DATA@/WFP_input_files/",
+                    "topo_data_path": "@SCRATCH@/surfexp/@CASE@/GMTED",
+                },
+                "system": {"casedir": "@SCRATCH@/surfexp/@CASE@"},
+            },
+            fhandler,
+        )
+
+
+@pytest.fixture(scope="module")
+def module_initfile(tmp_directory):
+    module_initfile = f"{tmp_directory}/module_initfile"
+    os.system(f"touch {module_initfile}")  # noqa S605
+    return module_initfile
+
+
+@pytest.fixture(scope="module")
+def tactus_config(tmp_directory, dummy_include_files):  # noqa
+    output_file = f"{tmp_directory}/config_tactus.toml"
 
     argv = [
         "-o",
         output_file,
         "--case-name",
-        "deode_case_name",
+        "tactus_case_name",
         "--plugin-home",
         f"{PACKAGE_DIRECTORY}/..",
-        f"{tmp_directory}/mods.toml",
         f"{PACKAGE_DIRECTORY}/data/config/domains/DRAMMEN.toml",
         f"{PACKAGE_DIRECTORY}/data/config/configurations/dt.toml",
         f"{PACKAGE_DIRECTORY}/data/config/mods/dt_an_forcing.toml",
@@ -64,26 +175,19 @@ def default_config(default_config_file):
 
 
 @pytest.fixture(scope="module")
-def default_config_file(tmp_directory):
-    output_file_static = "/home/trygveasp/projects/surfExp/config.toml"
+def default_config_file(dummy_include_files):  # noqa
+    output_file_static = "static_config.toml"
     if True:
-        output_file = f"{tmp_directory}/config_default.toml"
-        with open(f"{tmp_directory}/mods.toml", mode="w", encoding="utf8") as fhandler:
-            fhandler.write("[platform]\n")
-            fhandler.write(f'scratch = "{tmp_directory}"\n')
-            fhandler.write('unix_group = "suv"\n')
         argv = [
             "-o",
-            output_file,
+            output_file_static,
             "--case-name",
             "default_case_name",
             "--plugin-home",
             f"{PACKAGE_DIRECTORY}/..",
-            f"{tmp_directory}/mods.toml",
             f"{PACKAGE_DIRECTORY}/data/config/domains/DRAMMEN.toml",
         ]
         pysfxexp(argv=argv)
-        os.system(f"cp {output_file} {output_file_static}")  # noqa S605
 
     output_file = output_file_static
     return output_file

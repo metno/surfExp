@@ -5,66 +5,61 @@ on:
   pull_request:
     branches:
       - master
-      - develop
-    paths:
-      - '**.py'
   push:
     branches:
       - '**' # Every branch
-    paths:
-      - '**.py'
+
+env:
+  USER: "github_runner"
+  HOME: "/tmp"
 
 jobs:
   linting:
-    if: github.repository_owner == 'destination-earth-digital-twins'
     name: Run Linters
     runs-on: ubuntu-latest
-    environment: staging
+
     steps:
       #----------------------------------------------
-      #       check-out repo and set-up python
+      #           check-out repo
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
 
-      #----------------------------------------------
-      #  --- configure poetry & install project  ----
-      #----------------------------------------------
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+      - uses: mamba-org/setup-micromamba@v2
         with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+          environment-file: environment.yml
+          init-shell: >-
+            bash
+          cache-environment: true
+          post-cleanup: 'all'
 
-      - name: Load cached venv (if cache exists)
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+      - name: Set PATH
+        run: |
+          echo "/tmp/micromamba/envs/surfExp/bin" >> $GITHUB_PATH
+
+      - name: Set python
+        run: |
+          poetry env use /tmp/micromamba/envs/surfExp/bin/python
+
+      #- name: Load cached venv (if cache exists)
+      #  id: cached-poetry-dependencies
+      #  uses: actions/cache@v4
+      #  with:
+      #    path: .venv
+      #    key: venv-${{ hashFiles('pyproject.toml') }}
 
       - name: Install dependencies (if venv cache is not found)
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root --only linting
+        run: |
+          poetry install -vvv --no-interaction --no-root --only linting
 
       - name: Install the project itself
-        run: poetry install --no-interaction --only-root
+        run: |
+          poetry install -vvv --no-interaction --only-root
 
       #----------------------------------------------
       #         Run the linting checks
       #----------------------------------------------
-      - name: isort
+      - name: Linting
         run: |
-          poetry run isort --check-only .
-      - name: black
-        run: |
-          poetry run black --check --diff .
-      - name: flakeheaven
-        run: |
-          export FLAKEHEAVEN_CACHE="${TMPDIR:-${TEMP:-${TMP:-/tmp}}}/flakeheaven_cache.$(openssl rand -hex 12)"
-          poetry run flakeheaven lint .
+          poetry run poetry devtools lint

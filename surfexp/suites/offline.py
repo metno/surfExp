@@ -2,18 +2,17 @@
 import contextlib
 from pathlib import Path
 
-from deode.datetime_utils import as_datetime, as_timedelta, get_decadal_list, get_decade
-from deode.logs import logger
-from deode.suites.base import (
+# TODO should be moved to tactus.suites or a module
+from ecflow import Limit
+from tactus.datetime_utils import as_datetime, as_timedelta, get_decadal_list, get_decade
+from tactus.logs import logger
+from tactus.suites.base import (
     EcflowSuiteFamily,
     EcflowSuiteTask,
     EcflowSuiteTrigger,
     EcflowSuiteTriggers,
     SuiteDefinition,
 )
-
-# TODO should be moved to deode.suites or a module
-from ecflow import Limit
 
 from surfexp.experiment import SettingsFromNamelistAndConfig, get_total_unique_cycle_list
 
@@ -313,8 +312,10 @@ class SurfexSuiteDefinition(SuiteDefinition):
 
                 if self.do_prep:
                     settings = SettingsFromNamelistAndConfig("prep", self.config)
-                    cfile = settings.get_setting("NAM_PREP_SURF_ATM#CFILE")
-                    cfiletype = settings.get_setting("NAM_PREP_SURF_ATM#CFILETYPE")
+                    cfile = settings.get_setting("NAM_PREP_SURF_ATM#CFILE", default="")
+                    cfiletype = settings.get_setting(
+                        "NAM_PREP_SURF_ATM#CFILETYPE", default=""
+                    )
                     if cfile != "" and cfiletype == "GRIB":
                         mars_prep = EcflowSuiteTask(
                             "FetchMarsPrep",
@@ -325,8 +326,9 @@ class SurfexSuiteDefinition(SuiteDefinition):
                             input_template=template,
                             variables={"ARGS": "prep"},
                         )
-                        triggers = EcflowSuiteTriggers([EcflowSuiteTrigger(mars),
-                                                        EcflowSuiteTrigger(mars_prep)])
+                        triggers = EcflowSuiteTriggers(
+                            [EcflowSuiteTrigger(mars), EcflowSuiteTrigger(mars_prep)]
+                        )
 
             interpolate_bd = None
             if config["suite_control.interpolate2grid"]:

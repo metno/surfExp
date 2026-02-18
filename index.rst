@@ -16,7 +16,7 @@ surfExp documentation
 Classes
 ---------------------------------------------
 .. autoclass:: surfexp.experiment.SettingsFromNamelistAndConfig
-.. autoclass:: surfexp.experiment.SettingsFromNamelistAndConfigDeode
+.. autoclass:: surfexp.experiment.SettingsFromNamelistAndConfigTactus
 .. autoclass:: surfexp/suites.offline_dt_control.SurfexSuiteDefinitionDTAnalysedForcingControl
 .. autoclass:: surfexp/suites.offline.SurfexSuiteDefinition
 .. autoclass:: surfexp/tasks.surfex_binary_task.SurfexBinaryTask
@@ -48,7 +48,7 @@ Classes
 Class methods
 ---------------------------------------------
 .. automethod:: surfexp.experiment.SettingsFromNamelistAndConfig.__init__
-.. automethod:: surfexp.experiment.SettingsFromNamelistAndConfigDeode.__init__
+.. automethod:: surfexp.experiment.SettingsFromNamelistAndConfigTactus.__init__
 .. automethod:: surfexp/tasks.surfex_binary_task.SurfexBinaryTask.__init__
 .. automethod:: surfexp/tasks.surfex_binary_task.SurfexBinaryTask.get_pgdfile
 .. automethod:: surfexp/tasks.surfex_binary_task.SurfexBinaryTask.execute

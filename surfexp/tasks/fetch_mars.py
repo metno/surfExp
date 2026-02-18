@@ -3,9 +3,9 @@ import math
 import os
 import shutil
 
-from deode.datetime_utils import as_timedelta
-from deode.logs import logger
 from pysurfex.run import BatchJob
+from tactus.datetime_utils import as_timedelta
+from tactus.logs import logger
 
 from surfexp.tasks.tasks import PySurfexBaseTask
 
@@ -19,6 +19,11 @@ class FetchMars(PySurfexBaseTask):
     """
 
     def __init__(self, config):
+        """Fetch mars data for forcing.
+
+        :param self: Description
+        :param config: Description
+        """
         PySurfexBaseTask.__init__(self, config, name="FetchMars")
         try:
             mode = self.config["task.args.mode"]
@@ -147,6 +152,11 @@ class FetchMarsPrep(PySurfexBaseTask):
     """
 
     def __init__(self, config):
+        """Fetch mars data for prep.
+
+        :param self: Description
+        :param config: Description
+        """
         PySurfexBaseTask.__init__(self, config, name="FetchMarsPrep")
         gribfile = self.config["prep.args.prep-file"]
         gribfile = self.platform.substitute(gribfile)
@@ -190,8 +200,10 @@ class FetchMarsPrep(PySurfexBaseTask):
             clas = "RD"
         expver = self.config[f"mars.{self.mars_config}.expver"]
         grid = self.config[f"mars.{self.mars_config}.grid"]
-        params = "32/33/39/40/41/42/139/141/170/172/183/198/235/236/" + \
-                 "35/36/37/38/238/243/244/245/31/34/129"
+        params = (
+            "32/33/39/40/41/42/139/141/170/172/183/198/235/236/"
+            + "35/36/37/38/238/243/244/245/31/34/129"
+        )
         req = Request(
             action="retrieve",
             dates=self.date,
@@ -238,6 +250,27 @@ class Request(object):
         grid=None,
         area=None,
     ):
+        """Create request.
+
+        :param self: Description
+        :param action: Description
+        :param source: Description
+        :param dates: Description
+        :param hours: Description
+        :param origin: Description
+        :param typ: Description
+        :param step: Description
+        :param levelist: Description
+        :param param: Description
+        :param levtype: Description
+        :param database: Description
+        :param expver: Description
+        :param clas: Description
+        :param stream: Description
+        :param target: Description
+        :param grid: Description
+        :param area: Description
+        """
         self.action = action
         self.target = target
         self.source = source

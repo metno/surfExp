@@ -27,7 +27,7 @@ def execute_task(argv=None):
     elif template == "stand_alone":
         task_name = kwargs["STAND_ALONE_TASK_NAME"]
         config = kwargs["STAND_ALONE_TASK_CONFIG"]
-        deode_home = kwargs["STAND_ALONE_DEODE_HOME"]
-        stand_alone_main(task_name, config, deode_home)
+        tactus_home = kwargs["STAND_ALONE_TACTUS_HOME"]
+        stand_alone_main(task_name, config, tactus_home)
     else:
         raise NotImplementedError

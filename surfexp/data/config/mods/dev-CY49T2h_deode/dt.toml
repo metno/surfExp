@@ -15,17 +15,17 @@
   lrestart_2m = true
 
 [offline]
-  deode = true
+  tactus = true
 
 [pgd]
-  deode = true
+  tactus = true
 
 [prep]
-  deode = true
+  tactus = true
 
 [soda]
   blocks = ["io", "io_nc", "treedrag", "ecoclimap_sg", "soda"]
-  deode = false
+  tactus = false
 
 [system]
   namelist_defs = "@PLUGIN_HOME@/surfexp/data/config/nam/dev-CY49T2h_deode/surfex_namelists.yml"
