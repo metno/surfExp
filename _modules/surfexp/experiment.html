@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>surfexp.experiment &#8212; surfExp  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">surfExp  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">surfexp.experiment</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for surfexp.experiment</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Experiment tools.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pysurfex.namelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamelistGenerator</span><span class="p">,</span> <span class="n">NamelistGeneratorAssemble</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tactus.datetime_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_datetime</span><span class="p">,</span> <span class="n">as_timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tactus.logs</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tactus.namelist</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamelistGenerator</span> <span class="k">as</span> <span class="n">TactusNamelistGenerator</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SettingsFromNamelist</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Settings from namelist.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">nml</span><span class="p">,</span> <span class="n">assemble</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setttings from namelist.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            program (str): Calling program</span>
+<span class="sd">            nml (str) : Namelist file</span>
+<span class="sd">            assemble (str): Asseble file</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">program</span> <span class="o">=</span> <span class="n">program</span>
+        <span class="k">if</span> <span class="n">assemble</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nam_gen</span> <span class="o">=</span> <span class="n">NamelistGeneratorAssemble</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="p">,</span> <span class="n">nml</span><span class="p">,</span> <span class="n">assemble</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nam_gen</span> <span class="o">=</span> <span class="n">NamelistGenerator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="p">,</span> <span class="n">nml</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nam_gen</span> <span class="o">=</span> <span class="n">nam_gen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nml</span> <span class="o">=</span> <span class="n">nam_gen</span><span class="o">.</span><span class="n">get_namelist</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get setting.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            setting (str): Setting</span>
+<span class="sd">            sep (str, optional): _description_. Defaults to &quot;#&quot;.</span>
+<span class="sd">            default (any): Default value</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            any: Found setting</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">setting</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nml</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Namelist setting </span><span class="si">{}</span><span class="s2"> not found. Using default value: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">setting</span><span class="p">,</span>
+                    <span class="n">default</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">default</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span> <span class="kn">from</span><span class="w"> </span><span class="nn">KeyError</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setting_is</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">setting</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if setting is value.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (tactus.config_parser.ParsedConfig): Parsed config file contents.</span>
+<span class="sd">            setting (str): Setting</span>
+<span class="sd">            value (any): Value</span>
+<span class="sd">            sep (str, optional): Separator</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if found, False if not found.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="n">setting</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span> <span class="o">==</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nnco</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">basetime</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the active observations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            config (tactus.config_parser.ParsedConfig): Parsed config file contents.</span>
+<span class="sd">            basetime (as_datetime, optional): Basetime. Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List with either 0 or 1</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span> <span class="o">!=</span> <span class="s2">&quot;soda&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span>
+
+        <span class="c1"># Some relevant assimilation settings</span>
+        <span class="n">obs_types</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;NAM_OBS#COBS_M&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+        <span class="n">nnco_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_setting</span><span class="p">(</span><span class="s2">&quot;NAM_OBS#NNCO&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+
+        <span class="n">snow_ass</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;assim.update_snow_cycles&quot;</span><span class="p">]</span>
+        <span class="n">snow_ass_done</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">basetime</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">basetime</span> <span class="o">=</span> <span class="n">as_datetime</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;general.times.basetime&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">snow_ass</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">basetime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">hhh</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">basetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H&quot;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">s_n</span> <span class="ow">in</span> <span class="n">snow_ass</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">hhh</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">s_n</span><span class="p">):</span>
+                    <span class="n">snow_ass_done</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">nnco</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ivar</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obs_types</span><span class="p">):</span>
+            <span class="n">ival</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">nnco_r</span><span class="p">[</span><span class="n">ivar</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">ival</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">__</span> <span class="o">==</span> <span class="s2">&quot;SWE&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">snow_ass_done</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Disabling snow assimilation since cycle is not in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">snow_ass</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">ival</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;ivar=</span><span class="si">{}</span><span class="s2"> ival=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ivar</span><span class="p">,</span> <span class="n">ival</span><span class="p">)</span>
+            <span class="n">nnco</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ival</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;NNCO: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">nnco</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nnco</span>
+
+
+<div class="viewcode-block" id="SettingsFromNamelistAndConfig"><a class="viewcode-back" href="../../index.html#surfexp.experiment.SettingsFromNamelistAndConfig">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SettingsFromNamelistAndConfig</span><span class="p">(</span><span class="n">SettingsFromNamelist</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setttings from namelist and config.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SettingsFromNamelistAndConfig.__init__"><a class="viewcode-back" href="../../index.html#surfexp.experiment.SettingsFromNamelistAndConfig.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setttings from namelist and config.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            program (str): Calling program</span>
+<span class="sd">            config (tactus.config_parser.ParsedConfig): Parsed config file contents.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tactus</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">.tactus&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">tactus</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">tactus</span><span class="p">:</span>
+            <span class="c1"># SURFEX: Namelists and input data</span>
+            <span class="k">if</span> <span class="n">program</span> <span class="o">==</span> <span class="s2">&quot;offline&quot;</span><span class="p">:</span>
+                <span class="n">program</span> <span class="o">=</span> <span class="s2">&quot;forecast&quot;</span>
+            <span class="n">nlgen_surfex</span> <span class="o">=</span> <span class="n">TactusNamelistGenerator</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;surfex&quot;</span><span class="p">)</span>
+            <span class="n">nlgen_surfex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">nlgen_surfex</span><span class="o">.</span><span class="n">assemble_namelist</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">namelist_mods</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;namelist_mods&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">namelist_mods</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">namelist_mods</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">block</span><span class="p">,</span> <span class="n">mods</span> <span class="ow">in</span> <span class="n">namelist_mods</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">changes</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">block</span><span class="p">]</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">changes</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">mods</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">block</span><span class="p">:</span>
+                            <span class="n">origval</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">origval</span><span class="p">:</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                    <span class="s2">&quot;Override key=</span><span class="si">{}</span><span class="s2"> setting=</span><span class="si">{}</span><span class="s2"> with new setting=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                    <span class="n">key</span><span class="p">,</span>
+                                    <span class="n">origval</span><span class="p">,</span>
+                                    <span class="n">value</span><span class="p">,</span>
+                                <span class="p">)</span>
+                        <span class="n">changes</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+                    <span class="n">settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">block</span><span class="p">:</span> <span class="n">changes</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">blocks</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">.blocks&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">blocks</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># SURFEX: Namelists and input data</span>
+            <span class="n">namelist_defs</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;system.namelist_defs&quot;</span><span class="p">]</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">namelist_defs</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fhandler</span><span class="p">:</span>
+                <span class="n">namelist_defs</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fhandler</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">blocks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">assemble_file</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;system.assemble_file&quot;</span><span class="p">]</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;assemble_file=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">assemble_file</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">assemble_file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fhandler</span><span class="p">:</span>
+                    <span class="n">blocks</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">fhandler</span><span class="p">)</span>
+                    <span class="n">blocks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">blocks</span><span class="p">[</span><span class="n">program</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">blocks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span>
+
+            <span class="n">blocks</span> <span class="o">=</span> <span class="p">{</span><span class="n">program</span><span class="p">:</span> <span class="n">blocks</span><span class="p">}</span>
+            <span class="n">nlgen_surfex</span> <span class="o">=</span> <span class="n">NamelistGeneratorAssemble</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="n">namelist_defs</span><span class="p">,</span> <span class="n">blocks</span><span class="p">)</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">nlgen_surfex</span><span class="o">.</span><span class="n">get_namelist</span><span class="p">()</span>
+        <span class="n">SettingsFromNamelist</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">assemble</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SettingsFromNamelistAndConfigTactus"><a class="viewcode-back" href="../../index.html#surfexp.experiment.SettingsFromNamelistAndConfigTactus">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">SettingsFromNamelistAndConfigTactus</span><span class="p">(</span><span class="n">SettingsFromNamelist</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set namelist and config from Tactus configuration.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SettingsFromNamelistAndConfigTactus.__init__"><a class="viewcode-back" href="../../index.html#surfexp.experiment.SettingsFromNamelistAndConfigTactus.__init__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set namelist and config from Tactus configuration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            program (str): Calling program</span>
+<span class="sd">            config (tactus.config_parser.ParsedConfig): Parsed config file contents.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nlgen_surfex</span> <span class="o">=</span> <span class="n">TactusNamelistGenerator</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;surfex&quot;</span><span class="p">)</span>
+        <span class="n">nlgen_surfex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">nlgen_surfex</span><span class="o">.</span><span class="n">assemble_namelist</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+        <span class="n">SettingsFromNamelist</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">assemble</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="check_consistency"><a class="viewcode-back" href="../../index.html#surfexp.experiment.check_consistency">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">check_consistency</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check consistency.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (tactus.config_parser.ParsedConfig): Parsed config file contents.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pgd&quot;</span><span class="p">,</span> <span class="s2">&quot;prep&quot;</span><span class="p">,</span> <span class="s2">&quot;offline&quot;</span><span class="p">,</span> <span class="s2">&quot;soda&quot;</span><span class="p">]</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">exceptions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cobs_m&quot;</span><span class="p">,</span> <span class="s2">&quot;nnco&quot;</span><span class="p">,</span> <span class="s2">&quot;nobstypes&quot;</span><span class="p">]</span>
+    <span class="n">all_settings</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking mode=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+        <span class="n">settings</span> <span class="o">=</span> <span class="n">SettingsFromNamelistAndConfig</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">nml</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">bkey</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;key=</span><span class="si">{}</span><span class="s2">, val=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">bkey</span> <span class="ow">in</span> <span class="n">all_settings</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">all_settings</span><span class="p">[</span><span class="n">bkey</span><span class="p">]:</span>
+                        <span class="n">val2</span> <span class="o">=</span> <span class="n">all_settings</span><span class="p">[</span><span class="n">bkey</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">val2</span> <span class="o">!=</span> <span class="n">val</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exceptions</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                                <span class="s2">&quot;Inconsistent setting key=</span><span class="si">{}</span><span class="s2">, val1=</span><span class="si">{}</span><span class="s2"> val2=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="n">key</span><span class="p">,</span>
+                                <span class="n">val</span><span class="p">,</span>
+                                <span class="n">val2</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="n">problems</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">all_settings</span><span class="p">[</span><span class="n">bkey</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span><span class="p">})</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">all_settings</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">bkey</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span><span class="p">}})</span>
+    <span class="k">if</span> <span class="n">problems</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span></div>
+
+
+<div class="viewcode-block" id="get_total_unique_cycle_list"><a class="viewcode-back" href="../../index.html#surfexp.experiment.get_total_unique_cycle_list">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_total_unique_cycle_list</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a list of unique start times for the forecasts.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (.config_parser.ParsedConfig): Parsed config file contents.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: List with time deltas from midnight</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create a list of all cycles from all members</span>
+    <span class="n">realizations</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;general.realizations&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">realizations</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">realizations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_cycle_list</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="n">cycle_list_all</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">realization</span> <span class="ow">in</span> <span class="n">realizations</span><span class="p">:</span>
+        <span class="n">cycle_list_all</span> <span class="o">+=</span> <span class="n">get_cycle_list</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">realization</span><span class="o">=</span><span class="n">realization</span><span class="p">)</span>
+
+    <span class="n">cycle_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cycle_list_str</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="n">cycle_list_all</span><span class="p">:</span>
+        <span class="n">cycle_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cycle_str</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cycle_list_str</span><span class="p">:</span>
+            <span class="n">cycle_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle</span><span class="p">)</span>
+            <span class="n">cycle_list_str</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cycle</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">cycle_list</span></div>
+
+
+<div class="viewcode-block" id="get_cycle_list"><a class="viewcode-back" href="../../index.html#surfexp.experiment.get_cycle_list">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_cycle_list</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get cycle list as time deltas from midnight.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (.config_parser.ParsedConfig): Parsed config file contents.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: Cycle list</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cycle_length</span> <span class="o">=</span> <span class="n">get_fgint</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">cycle_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="n">as_timedelta</span><span class="p">(</span><span class="s2">&quot;PT24H&quot;</span><span class="p">)</span>
+
+    <span class="n">cycle_time</span> <span class="o">=</span> <span class="n">cycle_length</span>
+    <span class="k">while</span> <span class="n">cycle_time</span> <span class="o">&lt;=</span> <span class="n">day</span><span class="p">:</span>
+        <span class="n">cycle_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cycle_time</span><span class="p">)</span>
+        <span class="n">cycle_time</span> <span class="o">+=</span> <span class="n">cycle_length</span>
+    <span class="k">return</span> <span class="n">cycle_list</span></div>
+
+
+<div class="viewcode-block" id="get_fgint"><a class="viewcode-back" href="../../index.html#surfexp.experiment.get_fgint">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_fgint</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the fgint.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config (.config_parser.ParsedConfig): Parsed config file contents.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        as_timedelta: fgint</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">as_timedelta</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;general.times.cycle_length&quot;</span><span class="p">])</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">surfExp  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">surfexp.experiment</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Trygve Aspelien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,432 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>troika.controllers.base &#8212; surfExp  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/classic.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">surfExp  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">troika.controllers.base</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for troika.controllers.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Base controller class&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">InvocationError</span><span class="p">,</span> <span class="n">RunError</span><span class="p">,</span> <span class="n">hook</span><span class="p">,</span> <span class="n">site</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..directives</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALIASES</span><span class="p">,</span> <span class="n">translators</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectiveParser</span><span class="p">,</span> <span class="n">MultiParser</span><span class="p">,</span> <span class="n">ParseError</span><span class="p">,</span> <span class="n">ShebangParser</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Controller"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Controller</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main controller</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config: :py:class:`troika.config.Config`</span>
+<span class="sd">        Configuration</span>
+<span class="sd">    args: :py:class:`argparse.Namespace`</span>
+<span class="sd">        Command-line arguments</span>
+<span class="sd">    logfile: path-like or None</span>
+<span class="sd">        Path to the log file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__type_name__</span> <span class="o">=</span> <span class="s2">&quot;base&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">logfile</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="n">logfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_shebang</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unknown_directive</span> <span class="o">=</span> <span class="s2">&quot;warn&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Controller.__repr__"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.__repr__">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a printable representation&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Controller&quot;</span></div>
+
+<div class="viewcode-block" id="Controller.submit"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.submit">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a &#39;submit&#39; command</span>
+
+<span class="sd">        The script and job ID are interpreted according to the site.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the job script</span>
+<span class="sd">        user:</span>
+<span class="sd">            Remote user name</span>
+<span class="sd">        output: path-like</span>
+<span class="sd">            Path to the job output file</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not submit, only report what would be done</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Return code (0 for success)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_context</span><span class="p">(</span><span class="n">parse_script</span><span class="o">=</span><span class="n">script</span><span class="p">)</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
+            <span class="n">pp_script</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_script</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+            <span class="n">hook</span><span class="o">.</span><span class="n">pre_submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">pp_script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">status</span></div>
+
+<div class="viewcode-block" id="Controller.monitor"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.monitor">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a &#39;monitor&#39; command</span>
+
+<span class="sd">        The script and job ID are interpreted according to the site.</span>
+<span class="sd">        If no job ID is provided, it will be inferred.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the job script</span>
+<span class="sd">        user: str</span>
+<span class="sd">            Remote user name</span>
+<span class="sd">        output: path-like or None</span>
+<span class="sd">            Path to the job output file</span>
+<span class="sd">        jid: str or None</span>
+<span class="sd">            Job ID</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not do anything, only report what would be done</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Return code (0 for success)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_context</span><span class="p">()</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">monitor</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">jid</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">status</span></div>
+
+<div class="viewcode-block" id="Controller.kill"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.kill">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a &#39;kill&#39; command</span>
+
+<span class="sd">        The script and job ID are interpreted according to the site.</span>
+<span class="sd">        If no job ID is provided, it will be inferred.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the job script</span>
+<span class="sd">        user: str</span>
+<span class="sd">            Remote user name</span>
+<span class="sd">        output: path-like or None</span>
+<span class="sd">            Path to the job output file</span>
+<span class="sd">        jid: str or None</span>
+<span class="sd">            Job ID</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not kill, only report what would be done</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Return code (0 for success)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_context</span><span class="p">()</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
+            <span class="n">jid</span><span class="p">,</span> <span class="n">cancel_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">jid</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">)</span>
+            <span class="n">hook</span><span class="o">.</span><span class="n">post_kill</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">jid</span><span class="p">,</span> <span class="n">cancel_status</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">status</span></div>
+
+<div class="viewcode-block" id="Controller.check_connection"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.check_connection">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">check_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a &#39;check-connection&#39; command</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        timeout: int</span>
+<span class="sd">            If set, consider the connection is not working if no response after</span>
+<span class="sd">            this number of seconds</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not do anything but print the command that would be</span>
+<span class="sd">            executed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the connection is able to execute commands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_context</span><span class="p">()</span> <span class="k">as</span> <span class="n">context</span><span class="p">:</span>
+            <span class="n">working</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">check_connection</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="n">dryrun</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">working</span><span class="p">:</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Controller.list_sites"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.list_sites">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">list_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a &#39;list-sites&#39; command</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        -------</span>
+<span class="sd">        ``(name, type, connection)``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">yield from</span> <span class="n">site</span><span class="o">.</span><span class="n">list_sites</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span></div>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">ActionContext</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">controller</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span> <span class="o">=</span> <span class="n">controller</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">exc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">swallow</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ConfigurationError</span><span class="p">):</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Configuration error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">InvocationError</span><span class="p">):</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Invocation error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">RunError</span><span class="p">):</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Unhandled exception&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="n">swallow</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_controller</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1"># An error during the at-exit hooks should _not_ be reported as</span>
+                <span class="c1"># failure of the operation (e.g. submission failure)</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception during teardown/exit&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">swallow</span>
+
+<div class="viewcode-block" id="Controller.action_context"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.action_context">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">action_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a context manager for executing an action</span>
+
+<span class="sd">        The arguments are passed to :py:meth:`setup` when entering the context manager</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ActionContext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Controller.setup"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.setup">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parse_script</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up the controller</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parse_script: path-like, optional</span>
+<span class="sd">            Parse this script</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_site</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">parse_script</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_script</span><span class="p">(</span><span class="n">parse_script</span><span class="p">)</span>
+        <span class="n">hook</span><span class="o">.</span><span class="n">setup_hooks</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">site</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">hook</span><span class="o">.</span><span class="n">at_startup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">res</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_shebang</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;default_shebang&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unknown_directive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unknown_directive&quot;</span><span class="p">,</span> <span class="s2">&quot;warn&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Controller.teardown"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.teardown">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sts</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tear down the controller</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sts: int</span>
+<span class="sd">            Exit status</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hook</span><span class="o">.</span><span class="n">at_exit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="n">sts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Controller.parse_script"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.parse_script">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">parse_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the script</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Script to parse</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dir_parser</span> <span class="o">=</span> <span class="n">DirectiveParser</span><span class="p">(</span><span class="n">aliases</span><span class="o">=</span><span class="n">ALIASES</span><span class="p">)</span>
+        <span class="n">parsers</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;directives&quot;</span><span class="p">,</span> <span class="n">dir_parser</span><span class="p">)]</span>
+        <span class="n">native</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">get_native_parser</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">native</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parsers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;native&quot;</span><span class="p">,</span> <span class="n">native</span><span class="p">))</span>
+        <span class="n">parsers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;shebang&quot;</span><span class="p">,</span> <span class="n">ShebangParser</span><span class="p">()))</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">MultiParser</span><span class="p">(</span><span class="n">parsers</span><span class="p">)</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_parser</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">parser</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">body</span>
+        <span class="n">dir_defines</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;define&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">dir_overrides</span> <span class="o">=</span> <span class="n">dir_parser</span><span class="o">.</span><span class="n">parse_directive_args</span><span class="p">(</span><span class="n">dir_defines</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="p">[</span><span class="s2">&quot;directives&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dir_overrides</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Controller.run_parser"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.run_parser">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">parser</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the parser on the script</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the script</span>
+<span class="sd">        parser: :py:class:`troika.parser.Parser`</span>
+<span class="sd">            Parser to use</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        file-like</span>
+<span class="sd">            Script body</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+        <span class="n">stmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">SpooledTemporaryFile</span><span class="p">(</span>
+            <span class="n">max_size</span><span class="o">=</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w+b&quot;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">script</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">script</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">sin</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sin</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">drop</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">drop</span><span class="p">:</span>
+                        <span class="n">stmp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">ParseError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParseError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;in </span><span class="si">{</span><span class="n">script</span><span class="si">!s}</span><span class="s2">, line </span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="n">stmp</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stmp</span></div>
+
+<div class="viewcode-block" id="Controller.generate_script"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.generate_script">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the post-processed script</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the script</span>
+<span class="sd">        user: str or None</span>
+<span class="sd">            Remote user name</span>
+<span class="sd">        output: path-like</span>
+<span class="sd">            Path to the job output file</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        path-like</span>
+<span class="sd">            Path to the post-processed script</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default_shebang</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shebang&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="p">[</span><span class="s2">&quot;shebang&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_shebang</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">directive_prefix</span><span class="p">,</span> <span class="n">directive_translate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">get_directive_translation</span><span class="p">()</span>
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">Generator</span><span class="p">(</span>
+            <span class="n">directive_prefix</span><span class="p">,</span> <span class="n">directive_translate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unknown_directive</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="p">[</span><span class="s2">&quot;directives&quot;</span><span class="p">][</span><span class="s2">&quot;output_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fsencode</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span> <span class="o">=</span> <span class="n">translators</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_generator</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">generator</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Controller.run_generator"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller.run_generator">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">run_generator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">generator</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the script file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the script</span>
+<span class="sd">        generator: :py:class:`troika.generator.Generator`</span>
+<span class="sd">            Generator to run</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        path-like</span>
+<span class="sd">            Path to the generated script file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+        <span class="n">orig_script</span> <span class="o">=</span> <span class="n">script</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">script</span><span class="o">.</span><span class="n">suffix</span> <span class="o">+</span> <span class="s2">&quot;.orig&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">orig_script</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Backup script file </span><span class="si">%r</span><span class="s2"> already exists, &quot;</span> <span class="o">+</span> <span class="s2">&quot;overwriting&quot;</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">orig_script</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w+b&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">script</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">script</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">sout</span><span class="p">:</span>
+            <span class="n">sout</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">script_data</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]:</span>
+                <span class="n">sout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">new_script</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">sout</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copymode</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">new_script</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">orig_script</span><span class="p">)</span>
+        <span class="n">new_script</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Script generated. Original script saved to </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">orig_script</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">script</span></div>
+
+<div class="viewcode-block" id="Controller._get_site"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/controller.html#troika.controllers.base.Controller._get_site">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">_get_site</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select the site and create the corresponding :py:class:`troika.sites.base.Site` instance&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">site</span><span class="o">.</span><span class="n">get_site</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">site</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">user</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">surfExp  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">troika.controllers.base</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Trygve Aspelien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    </div>
+  </body>
+</html>

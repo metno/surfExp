@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>troika.sites.base &#8212; surfExp  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/classic.css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">surfExp  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">troika.sites.base</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for troika.sites.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Base site class&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">generator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">PIPE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_retcode</span><span class="p">,</span> <span class="n">command_as_list</span><span class="p">,</span> <span class="n">normalise_signal</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Site"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/site.html#troika.sites.base.Site">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Site</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base site class</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config: dict</span>
+<span class="sd">        Site configuration</span>
+
+<span class="sd">    connection: :py:class:`troika.connections.base.Connection`</span>
+<span class="sd">        Connection object to interact with the site</span>
+
+<span class="sd">    global_config: :py:class:`troika.config.Config`</span>
+<span class="sd">        Global configuration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Value for the &#39;type&#39; key in the site configuration.</span>
+    <span class="c1">#: If None, the name will be computed by turning the class name to</span>
+    <span class="c1">#: lowercase and removing a trailing &quot;site&quot; if present, e.g. ``FooSite``</span>
+    <span class="c1">#: becomes ``foo``.</span>
+    <span class="n">__type_name__</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Prefix for the generated directives, e.g. ``b&quot;#SBATCH &quot;``. If ``None``,</span>
+    <span class="c1">#: no directives will be generated</span>
+    <span class="n">directive_prefix</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">#: Directive translation table (``str`` -&gt; ``bytes``). Values are formatted</span>
+    <span class="c1">#: using the ``%`` operator</span>
+    <span class="n">directive_translate</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="n">global_config</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="n">connection</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_kill_sequence</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">wait</span><span class="p">,</span> <span class="n">normalise_signal</span><span class="p">(</span><span class="n">sig</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">wait</span><span class="p">,</span> <span class="n">sig</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;kill_sequence&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid kill sequence: </span><span class="si">{</span><span class="n">e</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Site.submit"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/site.html#troika.sites.base.Site.submit">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Submit a job</span>
+
+<span class="sd">        The script and output path are interpreted according to the site.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the job script</span>
+<span class="sd">        output: path-like</span>
+<span class="sd">            Path to the output file</span>
+<span class="sd">        user: str</span>
+<span class="sd">            Remote user name</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not submit, only report what would be done</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Site.monitor"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/site.html#troika.sites.base.Site.monitor">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Kill a submitted job</span>
+
+<span class="sd">        The script and job ID are interpreted according to the site.</span>
+<span class="sd">        If no job ID is provided, it will be inferred.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the job script</span>
+<span class="sd">        user: str</span>
+<span class="sd">            Remote user name</span>
+<span class="sd">        output: path-like or None</span>
+<span class="sd">            Path to the output file</span>
+<span class="sd">        jid: str or None</span>
+<span class="sd">            Job ID</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not do anything, only report what would be done</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Site.kill"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/site.html#troika.sites.base.Site.kill">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Kill a submitted or running job</span>
+
+<span class="sd">        The script and job ID are interpreted according to the site.</span>
+<span class="sd">        If no job ID is provided, it will be inferred.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        script: path-like</span>
+<span class="sd">            Path to the job script</span>
+<span class="sd">        user: str</span>
+<span class="sd">            Remote user name</span>
+<span class="sd">        output: path-like or None</span>
+<span class="sd">            Path to the output file</span>
+<span class="sd">        jid: str or None</span>
+<span class="sd">            Job ID</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not kill, only report what would be done</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple:</span>
+<span class="sd">            [0]</span>
+<span class="sd">                The job ID of the killed job</span>
+<span class="sd">            [1]</span>
+<span class="sd">                CANCELLED:</span>
+<span class="sd">                    the job was cancelled before it started</span>
+<span class="sd">                KILLED:</span>
+<span class="sd">                    the job was killed while running without a</span>
+<span class="sd">                    catchable signal allowing it to clean up or</span>
+<span class="sd">                    report its demise</span>
+<span class="sd">                TERMINATED:</span>
+<span class="sd">                    the job was sent a catchable signal while running</span>
+<span class="sd">                    and is expected to clean up and report its own</span>
+<span class="sd">                    demise if necessary</span>
+<span class="sd">                VANISHED:</span>
+<span class="sd">                    the job has disappeared so no further attempt</span>
+<span class="sd">                    could be made to kill it</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Site.check_connection"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/site.html#troika.sites.base.Site.check_connection">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">check_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the connection is working</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        timeout: int</span>
+<span class="sd">            If set, consider the connection is not working if no response after</span>
+<span class="sd">            this number of seconds</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not do anything but print the command that would be</span>
+<span class="sd">            executed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the connection is able to execute commands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">checkstatus</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="n">dryrun</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Site.create_output_dir"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/site.html#troika.sites.base.Site.create_output_dir">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">create_output_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the output directory for a job to be submitted</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output: path-like</span>
+<span class="sd">            Path to the output file</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not do anything but print the command that would be</span>
+<span class="sd">            executed</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :py:class:`pathlib.PurePath`</span>
+<span class="sd">            Path to the newly created directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePath</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">pmkdir_command</span> <span class="o">=</span> <span class="n">command_as_list</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pmkdir_command&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;mkdir&quot;</span><span class="p">,</span> <span class="s2">&quot;-p&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="n">pmkdir_command</span> <span class="o">+</span> <span class="p">[</span><span class="n">out_dir</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="n">dryrun</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">dryrun</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">out_dir</span>
+        <span class="n">proc_stdout</span><span class="p">,</span> <span class="n">proc_stderr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">proc_stdout</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> stdout:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pmkdir_command</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">proc_stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">proc_stderr</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> stderr:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pmkdir_command</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">proc_stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">check_retcode</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="n">what</span><span class="o">=</span><span class="s2">&quot;Output directory creation&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">proc_stdout</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> stdout:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pmkdir_command</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">proc_stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">proc_stderr</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> stderr:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pmkdir_command</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">proc_stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">out_dir</span></div>
+
+<div class="viewcode-block" id="Site.get_native_parser"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/site.html#troika.sites.base.Site.get_native_parser">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_native_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a :py:class:`troika.parser.Parser` for native directives</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :py:class:`troika.parser.Parser` or None</span>
+<span class="sd">            Directive parser, if any</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Site.get_directive_translation"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/site.html#troika.sites.base.Site.get_directive_translation">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_directive_translation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct the translation params</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            ``(directive_prefix, directive_translate)``, updated with the</span>
+<span class="sd">            configuration overrides</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;directive_prefix&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">directive_prefix</span><span class="p">)</span>
+        <span class="n">translate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">directive_translate</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;directive_translate&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">translate</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">ignore</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">translate</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">translate</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_previous_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove previous output file if existing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output: path-like</span>
+<span class="sd">            Path to the output file</span>
+<span class="sd">        dryrun: bool</span>
+<span class="sd">            If True, do not do anything but print the command that would be</span>
+<span class="sd">            executed</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dryrun</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;removing:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">output</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">surfExp  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">troika.sites.base</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Trygve Aspelien.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    </div>
+  </body>
+</html>

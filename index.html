@@ -23,6 +23,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">surfExp  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">surfExp documentation</a></li> 
       </ul>
@@ -42,18 +45,31 @@
 </section>
 <section id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
 <h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this heading">¶</a></h1>
-<p>See online documentation in <a class="reference external" href="https://metno.github.io/surfExp/">https://metno.github.io/surfExp/</a>
-The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and deode workflow (<a class="reference external" href="https://github.com/destination-earth-digital-twins/Deode-Workflow">https://github.com/destination-earth-digital-twins/Deode-Workflow</a> / <a class="reference external" href="https://github.com/trygveasp/Deode-Workflow">https://github.com/trygveasp/Deode-Workflow</a>)</p>
-<p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/surfExp/blob/master/requirements.txt">https://github.com/metno/surfExp/blob/master/requirements.txt</a></p>
+<p>See online documentation in <a class="reference external" href="https://metno.github.io/surfExp/">https://metno.github.io/surfExp/</a></p>
+<p>The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and tactus (<a class="reference external" href="https://github.com/ACCORD-NWP/tactus">https://github.com/ACCORD-NWP/tactus</a>).</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
-<p>The recommended installation method is using poetry. First install poetry. This can be done in several ways like a system package or ftom pypi. The recommended way is:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-sSL<span class="w"> </span>https://install.python-poetry.org<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-
+<p>An environment manager like miniconda or micromamba is recommended to ensure consistency between the packages.
+After installing this you need to set it up for the current session or permanently add it to your shell.
+Now it is easy to create a suitable environment for surfExp. Below is a recipie for micromamba.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install micromamba (linux, https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)</span>
+<span class="s2">&quot;</span><span class="si">${</span><span class="nv">SHELL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&lt;<span class="o">(</span>curl<span class="w"> </span>-L<span class="w"> </span>micro.mamba.pm/install.sh<span class="o">)</span>
+
+<span class="c1"># specify a installation location for micromamba and add it to your path afterwards. Default it will install in $HOME/.local/bin</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/.local/bin:<span class="nv">$PATH</span>
+
+<span class="c1"># initialize your shell (needed in all shells), e.g:</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+
+micromamba<span class="w"> </span>create<span class="w"> </span>env<span class="w"> </span>surfExp
+micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
+micromamba<span class="w"> </span>install<span class="w"> </span><span class="nv">python</span><span class="o">==</span><span class="m">3</span>.10<span class="w"> </span>poetry<span class="w"> </span>gdal<span class="w"> </span>ecflow
 </pre></div>
 </div>
-<p>When you have poetry installed make sure you have it in path. It might be installed in ~/.local/bin.
-To install the script system first clone <a class="reference external" href="https://github.com/metno/surfExp">https://github.com/metno/surfExp</a> and install it.
-To run commands interactively in the poetry environment you need to run either “poetry shell” or “poetry run [cmd]”</p>
+<p>Now you have installed a suitable environment. To install surfExp the recommended installation method is using poetry which we just instlled in the environment.</p>
+<p>To install the script system first clone <a class="reference external" href="https://github.com/metno/surfExp">https://github.com/metno/surfExp</a> and install it with poetry.</p>
+<p>NB: Poetry is also an environment manager. If not installed in a conda environment,
+you will need to run either “poetry shell” or “poetry run [cmd]” to execute commands in this environment.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
 mkdir<span class="w"> </span>-p<span class="w"> </span>projects
 <span class="nb">cd</span><span class="w"> </span>projects
@@ -61,52 +77,67 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>projects
 <span class="c1"># Clone the source code</span>
 clone<span class="w"> </span>https://github.com/metno/surfExp
 
+<span class="c1"># initialize your shell (needed in all shells), e.g:</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># activate the environment</span>
+micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
+
 <span class="c1"># Install the script system</span>
 <span class="nb">cd</span><span class="w"> </span>surfExp
 poetry<span class="w"> </span>install
-
-<span class="c1"># Enter the environment</span>
-poetry<span class="w"> </span>shell
 </pre></div>
 </div>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
-<p>The altering of the configuration must then be done by applying a defined configuration or a configuration file with patches from original configuration. Examples are local configurations, domains etc.
-In addition you will get some other config files used in the tasks. An example on how to use it inside a poetry environment (“poetry shell”)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in a poetry environment after executing &quot;poetry shell&quot;</span>
+<p>To run a surfExp experiment you will need to create a configuration file.
+The configuration is created based on a base configuration, on which you can add modifications (e.g. domain),
+and this is created with the entry point surfExp which is installed with the package.
+Required arguments are the case name (–case-name), the path to surfExp (–plugin-home) and the path to the config file (–output)
+In addition you can add optional arguments like the start and end times and if you are in continuation mode.</p>
+<p>The surfex binaries executed from surfExp are of course depending on source code version.
+This means the fortran namelists must correspond to the binaries being run.
+There are two ways to generate the fortran namelists. Since surfexp is a plugin to tactus
+the first way is to create the namelists is with the tactus namelist generator.
+This is achieved by setting tactus = true for the surfex binary sections.</p>
+<p>The other method is using the pysurfex namelist generator and is handled by the keyword blocks in the settings for the different binaries.
+Please note that since this is a list, it is not merged between diffentent configuration inputs,
+but the last one is the relevant one. This is the so called assemble blocks used by the namelist generator,
+which in addition also needs a defintion file for namelists settings.
+These two files are source code version dependent, but the resulting namelist will together
+with the rest of the configuration determine what to be run.</p>
+<p>The configuration input together with the namelist for the binaries determines what surfExp will do.
+Most tasks are executed using pysurfex as a base. To reduce maintainance the entry pysurfex points
+are called directly from the tasks. This means many of the task can specify command line arguments
+from the config file.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in the proper environment</span>
 <span class="nb">cd</span><span class="w"> </span>~/projects/surfExp
-poetry<span class="w"> </span>shell
+
+<span class="c1"># initialize your shell (needed in all shells), e.g:</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># Activate the environment</span>
+micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
 
 <span class="c1"># Alternative way of setting up a pre-defined SEKF configuration</span>
-surfExp<span class="w"> </span>my_config.toml<span class="w"> </span>SEKF<span class="w"> </span>surfexp/data/config<span class="w"> </span>data/config/configurations/sekf.toml
+surfExp<span class="w"> </span>-o<span class="w"> </span>my_config.toml<span class="w"> </span>--case-name<span class="w"> </span>SEKF<span class="w"> </span>--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span>surfexp/data/config/configurations/sekf.toml
 
 <span class="c1"># Use AROME Arctic branch on PPI together with MET-Norway LDAS</span>
-surfExp<span class="w"> </span>my_config.toml<span class="w"> </span>LDAS<span class="w"> </span>surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span>surfexp/data/config/mods/arome_arctic_offline_ppi.toml
+surfExp<span class="w"> </span>-o<span class="w"> </span>my_config.toml<span class="w"> </span>--case-name<span class="w"> </span>LDAS<span class="w"> </span>--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span>surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span>surfexp/data/config/mods/cy46_aa_offline/ppi.toml
 
 <span class="c1"># To start you experiment</span>
-deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>my_config.toml
-</pre></div>
-</div>
-<p>Here is an example with CARRA2 using poetry run.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/projects/surfExp
-
-<span class="c1"># Create experiment in file data/config/CARRA2_MINI.toml</span>
-poetry<span class="w"> </span>run<span class="w"> </span>surfExp<span class="w"> </span>CARRA2_MINI.toml<span class="w"> </span>CARRA2-MINI<span class="w"> </span>surfexp/data/config/configurations/carra2.toml
-
-<span class="c1"># Modify times in data/config/CARRA2_MINI.toml</span>
-<span class="c1"># Run experiment from config file data/config/CARRA2_MINI.toml</span>
-poetry<span class="w"> </span>run<span class="w"> </span>deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>data/config/CARRA2_MINI.toml
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>my_config.toml
 </pre></div>
 </div>
 </section>
 <section id="extra-environment-on-ppi-rhel8-needed-to-start-experiments">
 <h2>Extra environment on PPI-RHEL8 needed to start experiments<a class="headerlink" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ib-dev queue is only in A: ib-dev-a-r8.q</span>
-ssh<span class="w"> </span>ppi-r8login-a1.int.met.no
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># use ib-dev queue</span>
+ssh<span class="w"> </span>ppi-r8login-b1.int.met.no
 
 <span class="c1"># Get surfExp</span>
-git<span class="w"> </span>clone<span class="w"> </span>github.com:trygveasp/surfExp.git<span class="w">  </span>--branch<span class="w"> </span>feature/deode_offline_surfex<span class="w"> </span>surfExp
+git<span class="w"> </span>clone<span class="w"> </span>github.com:trygveasp/surfExp.git<span class="w">  </span>--branch<span class="w"> </span>feature/deode_offline_surfex<span class="w"> </span>surfExp_new_pysurfex
 
 <span class="c1"># conda setup</span>
 <span class="nb">source</span><span class="w"> </span>/modules/rhel8/user-apps/suv-modules/miniconda3/24.7.1/etc/profile.d/conda.sh
@@ -117,38 +148,264 @@ conda<span class="w"> </span>activate<span class="w"> </span>surfExp
 <span class="c1"># Install</span>
 poetry<span class="w"> </span>install
 
-<span class="c1"># MET-Norway LDAS experiment</span>
-mkdir<span class="w"> </span>-f<span class="w"> </span>exps
-surfExp<span class="w"> </span>exps/LDAS.toml<span class="w"> </span>LDAS<span class="w"> </span><span class="nv">$PWD</span>/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/arome_arctic_offline_ppi.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_pgd.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+surfExp<span class="w"> </span>-o<span class="w"> </span>offline_drammen_metno_ldas.toml<span class="w"> </span><span class="se">\</span>
+--case-name<span class="w"> </span>METNO_LDAS<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span>/home/<span class="nv">$USER</span>/projects/surfExp<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/DRAMMEN.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/scheduler/ecflow_ppi_rhel8-trygveasp.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/ppi.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/isba_dif_snow_ass_decade_dirtyp.toml<span class="w"> </span><span class="se">\</span>
+--start-time<span class="w"> </span><span class="m">2025</span>-04-17T03:00:00Z<span class="w"> </span><span class="se">\</span>
+--end-time<span class="w"> </span><span class="m">2025</span>-04-17T07:00:00Z<span class="w"> </span><span class="se">\</span>
+--continue
 
-<span class="c1"># PPI ECFLOW (in A)</span>
+<span class="c1"># MET-Norway LDAS experiment (using netcdf input to PGD)</span>
+mkdir<span class="w"> </span>-f<span class="w"> </span>exps
+surfExp<span class="w"> </span>-o<span class="w"> </span>exps/LDAS.toml<span class="w"> </span><span class="se">\</span>
+--case-name<span class="w"> </span>LDAS<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/ppi.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/netcdf_input_pgd.toml<span class="w"> </span><span class="se">\</span>
+surfexp/pdata/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+
+<span class="c1"># PPI ECFLOW</span>
 <span class="c1"># If your server is not running you should start it!</span>
 module<span class="w"> </span>use<span class="w"> </span>/modules/MET/rhel8/user-modules/
 module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
 <span class="nb">export</span><span class="w"> </span><span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
 
-<span class="c1"># Start suite (modify dates)</span>
-deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>exps/LDAS.toml
+<span class="c1"># Set HOST</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">&quot;ppi_rhel8_b1&quot;</span>
 
+<span class="c1"># Start suite (modify dates)</span>
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>exps/LDAS.toml
 
 <span class="c1"># MET-Norway LDAS single decade</span>
-surfExp<span class="w"> </span>exps/LDAS_decade.toml<span class="w"> </span>LDAS_decade<span class="w"> </span><span class="nv">$PWD</span>/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/arome_arctic_offline_ppi.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_pgd.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_single_decade.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/metno_ldas_single_decade.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
-deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w">  </span>--config-file<span class="w"> </span>exps/LDAS_decade.toml
+surfExp<span class="w"> </span>-o<span class="w"> </span>exps/LDAS_decade.toml<span class="w"> </span>--case-name<span class="w"> </span>LDAS_decade<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/ppi.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/isba_dif_snow_ass_decade_dirtyp.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+
+<span class="c1"># Start the suite</span>
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w">  </span>--config-file<span class="w"> </span>exps/LDAS_decade.toml
 </pre></div>
 </div>
 </section>
-<section id="trainings">
-<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this heading">¶</a></h2>
-<p><a class="reference external" href="https://github.com/metno/surfExp/blob/master/trainings/budapest_may_2022.rst/">Budapest May 2022</a> (Old version)</p>
+</section>
+<section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h1>
+<p>When you set up an experiment you might first define a domain to run on.
+Several pre-defined domains are defines in the surfexp/data/config/domains.
+An useful visualization tool can be found in <a class="reference external" href="https://hirlam.github.io/nwptools/domain.html">https://hirlam.github.io/nwptools/domain.html</a></p>
+<p>Special settings</p>
+<section id="atos-bologna">
+<h2>ATOS-bologna<a class="headerlink" href="#atos-bologna" title="Permalink to this heading">¶</a></h2>
+<p>The ATOS-bologna is running on a virtual machine which does not necessarily see the troika installed in the environment. If wanted the troika command can be overridden in surfExp by adding:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--troika<span class="w"> </span>troika
+</pre></div>
+</div>
+<p>Routines needing cfunits in reading netcdf files need to modify the LD_LIBRARY_PATH. This can beachieved by adding:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># TODO submission files</span>
+<span class="o">[</span>submission.task_exceptions.Forcing.ENV<span class="o">]</span>
+<span class="w">  </span><span class="nv">LD_LIBRARY_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/usr/local/apps/udunits/2.2.28/lib:</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">&quot;</span>
+
+<span class="o">[</span>submission.task_exceptions.FirstGuess4OI.ENV<span class="o">]</span>
+<span class="w">  </span><span class="nv">LD_LIBRARY_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/usr/local/apps/udunits/2.2.28/lib:</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="met-norway-ppi">
+<h2>MET-Norway PPI<a class="headerlink" href="#met-norway-ppi" title="Permalink to this heading">¶</a></h2>
+<p>To detect the proper host on MET-Norway PPI you need to export one of the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">&quot;ppi_rhel8_b1&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">&quot;ppi_rhel8_a1&quot;</span>
+</pre></div>
+</div>
+<p>The variables below are needed for ecflow for MET-Norway PPI</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>use<span class="w"> </span>/modules/MET/rhel8/user-modules/
+module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
+<span class="nb">export</span><span class="w"> </span><span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># Start the server if not running</span>
+
+<span class="c1"># Specify your user port in the following file</span>
+surfexp/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+</pre></div>
+</div>
+</section>
+<section id="create-and-start-experiments">
+<h2>Create and start experiments<a class="headerlink" href="#create-and-start-experiments" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="south-norway-domain">
+<h2>South-Norway domain<a class="headerlink" href="#south-norway-domain" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>surfExp<span class="w"> </span>-o<span class="w"> </span>dt_offline_drammen.toml<span class="w"> </span><span class="se">\</span>
+--case-name<span class="w"> </span>CY49DT_OFFLINE_DRAMMEN<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span><span class="se">\</span>
+--troika<span class="w"> </span>troika<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/dt.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/DRAMMEN.toml<span class="w"> </span><span class="se">\</span>
+surfExp/surfexp/data/config/mods/dev-CY49T2h_deode/dt.toml
+
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>dt_offline_drammen.toml
+</pre></div>
+</div>
+</section>
+<section id="dt-2-5-2500x2500">
+<h2>DT_2_5_2500x2500<a class="headerlink" href="#dt-2-5-2500x2500" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>surfExp<span class="w"> </span>-o<span class="w"> </span>dt_offline_dt_2_5_2500x2500.toml<span class="w"> </span><span class="se">\</span>
+--case-name<span class="w"> </span>CY49DT_OFFLINE_dt_2_5_2500x2500<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span>/home/<span class="nv">$USER</span>/projects/surfExp<span class="w"> </span><span class="se">\</span>
+--troika<span class="w"> </span>troika<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/dt.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/dt_2_5_2500x2500.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/dev-CY49T2h_deode/dt.toml
+
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>dt_offline_dt_2_5_2500x2500.toml
+</pre></div>
+</div>
+</section>
+<section id="dt-2-5-2500x2500-initial-conditions-from-namelist">
+<h2>DT_2_5_2500x2500 Initial conditions from namelist<a class="headerlink" href="#dt-2-5-2500x2500-initial-conditions-from-namelist" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>surfExp<span class="w"> </span>-o<span class="w"> </span>dt_offline_dt_2_5_2500x2500.toml<span class="w"> </span><span class="se">\</span>
+--case-name<span class="w"> </span>CY49DT_OFFLINE_dt_2_5_2500x2500<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span>/home/<span class="nv">$USER</span>/projects/surfExp<span class="w"> </span><span class="se">\</span>
+--troika<span class="w"> </span>troika<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/dt.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/dt_2_5_2500x2500.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/dev-CY49T2h_deode/dt.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/dev-CY49T2h_deode/dt_prep_from_namelist.toml
+
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>dt_offline_dt_2_5_2500x2500.toml
+</pre></div>
+</div>
 </section>
 <section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="surfexp.experiment.SettingsFromNamelistAndConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">surfexp.experiment.</span></span><span class="sig-name descname"><span class="pre">SettingsFromNamelistAndConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/experiment.html#SettingsFromNamelistAndConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.experiment.SettingsFromNamelistAndConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setttings from namelist and config.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="surfexp.experiment.SettingsFromNamelistAndConfigTactus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">surfexp.experiment.</span></span><span class="sig-name descname"><span class="pre">SettingsFromNamelistAndConfigTactus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/experiment.html#SettingsFromNamelistAndConfigTactus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.experiment.SettingsFromNamelistAndConfigTactus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set namelist and config from Tactus configuration.</p>
+</dd></dl>
+
 </section>
 <section id="class-methods">
 <h2>Class methods<a class="headerlink" href="#class-methods" title="Permalink to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="surfexp.experiment.SettingsFromNamelistAndConfig.__init__">
+<span class="sig-prename descclassname"><span class="pre">SettingsFromNamelistAndConfig.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/experiment.html#SettingsFromNamelistAndConfig.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.experiment.SettingsFromNamelistAndConfig.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setttings from namelist and config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>program</strong> (<em>str</em>) – Calling program</p></li>
+<li><p><strong>config</strong> (<em>tactus.config_parser.ParsedConfig</em>) – Parsed config file contents.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="surfexp.experiment.SettingsFromNamelistAndConfigTactus.__init__">
+<span class="sig-prename descclassname"><span class="pre">SettingsFromNamelistAndConfigTactus.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">program</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/experiment.html#SettingsFromNamelistAndConfigTactus.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.experiment.SettingsFromNamelistAndConfigTactus.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set namelist and config from Tactus configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>program</strong> (<em>str</em>) – Calling program</p></li>
+<li><p><strong>config</strong> (<em>tactus.config_parser.ParsedConfig</em>) – Parsed config file contents.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="methods">
 <h2>Methods<a class="headerlink" href="#methods" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="surfexp.cli.pysfxexp">
+<span class="sig-prename descclassname"><span class="pre">surfexp.cli.</span></span><span class="sig-name descname"><span class="pre">pysfxexp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/cli.html#pysfxexp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.cli.pysfxexp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up surfExp configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>argv</strong> (<em>list</em><em>, </em><em>optional</em>) – Command arguments. Defaults to None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="surfexp.experiment.check_consistency">
+<span class="sig-prename descclassname"><span class="pre">surfexp.experiment.</span></span><span class="sig-name descname"><span class="pre">check_consistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/experiment.html#check_consistency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.experiment.check_consistency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check consistency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>tactus.config_parser.ParsedConfig</em>) – Parsed config file contents.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="surfexp.experiment.get_total_unique_cycle_list">
+<span class="sig-prename descclassname"><span class="pre">surfexp.experiment.</span></span><span class="sig-name descname"><span class="pre">get_total_unique_cycle_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/experiment.html#get_total_unique_cycle_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.experiment.get_total_unique_cycle_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of unique start times for the forecasts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>.config_parser.ParsedConfig</em>) – Parsed config file contents.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List with time deltas from midnight</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="surfexp.experiment.get_cycle_list">
+<span class="sig-prename descclassname"><span class="pre">surfexp.experiment.</span></span><span class="sig-name descname"><span class="pre">get_cycle_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/experiment.html#get_cycle_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.experiment.get_cycle_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get cycle list as time deltas from midnight.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>.config_parser.ParsedConfig</em>) – Parsed config file contents.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cycle list</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="surfexp.experiment.get_fgint">
+<span class="sig-prename descclassname"><span class="pre">surfexp.experiment.</span></span><span class="sig-name descname"><span class="pre">get_fgint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/surfexp/experiment.html#get_fgint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#surfexp.experiment.get_fgint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the fgint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>.config_parser.ParsedConfig</em>) – Parsed config file contents.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>fgint</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>as_timedelta</p>
+</dd>
+</dl>
+</dd></dl>
+
 <ul class="simple">
 <li><dl class="field-list simple">
 <dt class="field-odd">ref<span class="colon">:</span></dt>
@@ -182,10 +439,33 @@ deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> 
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments">Extra environment on PPI-RHEL8 needed to start experiments</a></li>
-<li><a class="reference internal" href="#trainings">Trainings</a></li>
-<li><a class="reference internal" href="#classes">Classes</a></li>
-<li><a class="reference internal" href="#class-methods">Class methods</a></li>
-<li><a class="reference internal" href="#methods">Methods</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#atos-bologna">ATOS-bologna</a></li>
+<li><a class="reference internal" href="#met-norway-ppi">MET-Norway PPI</a></li>
+<li><a class="reference internal" href="#create-and-start-experiments">Create and start experiments</a></li>
+<li><a class="reference internal" href="#south-norway-domain">South-Norway domain</a></li>
+<li><a class="reference internal" href="#dt-2-5-2500x2500">DT_2_5_2500x2500</a></li>
+<li><a class="reference internal" href="#dt-2-5-2500x2500-initial-conditions-from-namelist">DT_2_5_2500x2500 Initial conditions from namelist</a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#surfexp.experiment.SettingsFromNamelistAndConfig"><code class="docutils literal notranslate"><span class="pre">SettingsFromNamelistAndConfig</span></code></a></li>
+<li><a class="reference internal" href="#surfexp.experiment.SettingsFromNamelistAndConfigTactus"><code class="docutils literal notranslate"><span class="pre">SettingsFromNamelistAndConfigTactus</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#class-methods">Class methods</a><ul>
+<li><a class="reference internal" href="#surfexp.experiment.SettingsFromNamelistAndConfig.__init__"><code class="docutils literal notranslate"><span class="pre">SettingsFromNamelistAndConfig.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#surfexp.experiment.SettingsFromNamelistAndConfigTactus.__init__"><code class="docutils literal notranslate"><span class="pre">SettingsFromNamelistAndConfigTactus.__init__()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#methods">Methods</a><ul>
+<li><a class="reference internal" href="#surfexp.cli.pysfxexp"><code class="docutils literal notranslate"><span class="pre">pysfxexp()</span></code></a></li>
+<li><a class="reference internal" href="#surfexp.experiment.check_consistency"><code class="docutils literal notranslate"><span class="pre">check_consistency()</span></code></a></li>
+<li><a class="reference internal" href="#surfexp.experiment.get_total_unique_cycle_list"><code class="docutils literal notranslate"><span class="pre">get_total_unique_cycle_list()</span></code></a></li>
+<li><a class="reference internal" href="#surfexp.experiment.get_cycle_list"><code class="docutils literal notranslate"><span class="pre">get_cycle_list()</span></code></a></li>
+<li><a class="reference internal" href="#surfexp.experiment.get_fgint"><code class="docutils literal notranslate"><span class="pre">get_fgint()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -219,6 +499,9 @@ deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> 
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">surfExp  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">surfExp documentation</a></li> 
       </ul>

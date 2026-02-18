@@ -23,6 +23,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">surfExp  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">This repository is a setup to create and run offline SURFEX experiments.</a></li> 
       </ul>
@@ -37,18 +40,31 @@
 <p><a class="reference external" href="https://coveralls.io/github/metno/surfExp">https://coveralls.io/github/metno/surfExp</a></p>
 <section id="this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments">
 <h1>This repository is a setup to create and run offline SURFEX experiments.<a class="headerlink" href="#this-repository-is-a-setup-to-create-and-run-offline-surfex-experiments" title="Permalink to this heading">¶</a></h1>
-<p>See online documentation in <a class="reference external" href="https://metno.github.io/surfExp/">https://metno.github.io/surfExp/</a>
-The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and deode workflow (<a class="reference external" href="https://github.com/destination-earth-digital-twins/Deode-Workflow">https://github.com/destination-earth-digital-twins/Deode-Workflow</a> / <a class="reference external" href="https://github.com/trygveasp/Deode-Workflow">https://github.com/trygveasp/Deode-Workflow</a>)</p>
-<p>You need a python3 parser and the following dependencies are needed. Install the non-standard ones e.g. with pip or your system installation system. Requirements can be found in <a class="reference external" href="https://github.com/metno/surfExp/blob/master/requirements.txt">https://github.com/metno/surfExp/blob/master/requirements.txt</a></p>
+<p>See online documentation in <a class="reference external" href="https://metno.github.io/surfExp/">https://metno.github.io/surfExp/</a></p>
+<p>The setup is dependent of pysurfex (<a class="reference external" href="https://metno.github.io/pysurfex">https://metno.github.io/pysurfex</a>) and tactus (<a class="reference external" href="https://github.com/ACCORD-NWP/tactus">https://github.com/ACCORD-NWP/tactus</a>).</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
-<p>The recommended installation method is using poetry. First install poetry. This can be done in several ways like a system package or ftom pypi. The recommended way is:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-sSL<span class="w"> </span>https://install.python-poetry.org<span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-
+<p>An environment manager like miniconda or micromamba is recommended to ensure consistency between the packages.
+After installing this you need to set it up for the current session or permanently add it to your shell.
+Now it is easy to create a suitable environment for surfExp. Below is a recipie for micromamba.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install micromamba (linux, https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)</span>
+<span class="s2">&quot;</span><span class="si">${</span><span class="nv">SHELL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&lt;<span class="o">(</span>curl<span class="w"> </span>-L<span class="w"> </span>micro.mamba.pm/install.sh<span class="o">)</span>
+
+<span class="c1"># specify a installation location for micromamba and add it to your path afterwards. Default it will install in $HOME/.local/bin</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/.local/bin:<span class="nv">$PATH</span>
+
+<span class="c1"># initialize your shell (needed in all shells), e.g:</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+
+micromamba<span class="w"> </span>create<span class="w"> </span>env<span class="w"> </span>surfExp
+micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
+micromamba<span class="w"> </span>install<span class="w"> </span><span class="nv">python</span><span class="o">==</span><span class="m">3</span>.10<span class="w"> </span>poetry<span class="w"> </span>gdal<span class="w"> </span>ecflow
 </pre></div>
 </div>
-<p>When you have poetry installed make sure you have it in path. It might be installed in ~/.local/bin.
-To install the script system first clone <a class="reference external" href="https://github.com/metno/surfExp">https://github.com/metno/surfExp</a> and install it.
-To run commands interactively in the poetry environment you need to run either “poetry shell” or “poetry run [cmd]”</p>
+<p>Now you have installed a suitable environment. To install surfExp the recommended installation method is using poetry which we just instlled in the environment.</p>
+<p>To install the script system first clone <a class="reference external" href="https://github.com/metno/surfExp">https://github.com/metno/surfExp</a> and install it with poetry.</p>
+<p>NB: Poetry is also an environment manager. If not installed in a conda environment,
+you will need to run either “poetry shell” or “poetry run [cmd]” to execute commands in this environment.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span>
 mkdir<span class="w"> </span>-p<span class="w"> </span>projects
 <span class="nb">cd</span><span class="w"> </span>projects
@@ -56,52 +72,67 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>projects
 <span class="c1"># Clone the source code</span>
 clone<span class="w"> </span>https://github.com/metno/surfExp
 
+<span class="c1"># initialize your shell (needed in all shells), e.g:</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># activate the environment</span>
+micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
+
 <span class="c1"># Install the script system</span>
 <span class="nb">cd</span><span class="w"> </span>surfExp
 poetry<span class="w"> </span>install
-
-<span class="c1"># Enter the environment</span>
-poetry<span class="w"> </span>shell
 </pre></div>
 </div>
 </section>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
-<p>The altering of the configuration must then be done by applying a defined configuration or a configuration file with patches from original configuration. Examples are local configurations, domains etc.
-In addition you will get some other config files used in the tasks. An example on how to use it inside a poetry environment (“poetry shell”)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in a poetry environment after executing &quot;poetry shell&quot;</span>
+<p>To run a surfExp experiment you will need to create a configuration file.
+The configuration is created based on a base configuration, on which you can add modifications (e.g. domain),
+and this is created with the entry point surfExp which is installed with the package.
+Required arguments are the case name (–case-name), the path to surfExp (–plugin-home) and the path to the config file (–output)
+In addition you can add optional arguments like the start and end times and if you are in continuation mode.</p>
+<p>The surfex binaries executed from surfExp are of course depending on source code version.
+This means the fortran namelists must correspond to the binaries being run.
+There are two ways to generate the fortran namelists. Since surfexp is a plugin to tactus
+the first way is to create the namelists is with the tactus namelist generator.
+This is achieved by setting tactus = true for the surfex binary sections.</p>
+<p>The other method is using the pysurfex namelist generator and is handled by the keyword blocks in the settings for the different binaries.
+Please note that since this is a list, it is not merged between diffentent configuration inputs,
+but the last one is the relevant one. This is the so called assemble blocks used by the namelist generator,
+which in addition also needs a defintion file for namelists settings.
+These two files are source code version dependent, but the resulting namelist will together
+with the rest of the configuration determine what to be run.</p>
+<p>The configuration input together with the namelist for the binaries determines what surfExp will do.
+Most tasks are executed using pysurfex as a base. To reduce maintainance the entry pysurfex points
+are called directly from the tasks. This means many of the task can specify command line arguments
+from the config file.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># First make sure you are in the proper environment</span>
 <span class="nb">cd</span><span class="w"> </span>~/projects/surfExp
-poetry<span class="w"> </span>shell
+
+<span class="c1"># initialize your shell (needed in all shells), e.g:</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># Activate the environment</span>
+micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
 
 <span class="c1"># Alternative way of setting up a pre-defined SEKF configuration</span>
-surfExp<span class="w"> </span>my_config.toml<span class="w"> </span>SEKF<span class="w"> </span>surfexp/data/config<span class="w"> </span>data/config/configurations/sekf.toml
+surfExp<span class="w"> </span>-o<span class="w"> </span>my_config.toml<span class="w"> </span>--case-name<span class="w"> </span>SEKF<span class="w"> </span>--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span>surfexp/data/config/configurations/sekf.toml
 
 <span class="c1"># Use AROME Arctic branch on PPI together with MET-Norway LDAS</span>
-surfExp<span class="w"> </span>my_config.toml<span class="w"> </span>LDAS<span class="w"> </span>surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span>surfexp/data/config/mods/arome_arctic_offline_ppi.toml
+surfExp<span class="w"> </span>-o<span class="w"> </span>my_config.toml<span class="w"> </span>--case-name<span class="w"> </span>LDAS<span class="w"> </span>--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span>surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span>surfexp/data/config/mods/cy46_aa_offline/ppi.toml
 
 <span class="c1"># To start you experiment</span>
-deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>my_config.toml
-</pre></div>
-</div>
-<p>Here is an example with CARRA2 using poetry run.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>~/projects/surfExp
-
-<span class="c1"># Create experiment in file data/config/CARRA2_MINI.toml</span>
-poetry<span class="w"> </span>run<span class="w"> </span>surfExp<span class="w"> </span>CARRA2_MINI.toml<span class="w"> </span>CARRA2-MINI<span class="w"> </span>surfexp/data/config/configurations/carra2.toml
-
-<span class="c1"># Modify times in data/config/CARRA2_MINI.toml</span>
-<span class="c1"># Run experiment from config file data/config/CARRA2_MINI.toml</span>
-poetry<span class="w"> </span>run<span class="w"> </span>deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>data/config/CARRA2_MINI.toml
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>my_config.toml
 </pre></div>
 </div>
 </section>
 <section id="extra-environment-on-ppi-rhel8-needed-to-start-experiments">
 <h2>Extra environment on PPI-RHEL8 needed to start experiments<a class="headerlink" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ib-dev queue is only in A: ib-dev-a-r8.q</span>
-ssh<span class="w"> </span>ppi-r8login-a1.int.met.no
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># use ib-dev queue</span>
+ssh<span class="w"> </span>ppi-r8login-b1.int.met.no
 
 <span class="c1"># Get surfExp</span>
-git<span class="w"> </span>clone<span class="w"> </span>github.com:trygveasp/surfExp.git<span class="w">  </span>--branch<span class="w"> </span>feature/deode_offline_surfex<span class="w"> </span>surfExp
+git<span class="w"> </span>clone<span class="w"> </span>github.com:trygveasp/surfExp.git<span class="w">  </span>--branch<span class="w"> </span>feature/deode_offline_surfex<span class="w"> </span>surfExp_new_pysurfex
 
 <span class="c1"># conda setup</span>
 <span class="nb">source</span><span class="w"> </span>/modules/rhel8/user-apps/suv-modules/miniconda3/24.7.1/etc/profile.d/conda.sh
@@ -112,29 +143,54 @@ conda<span class="w"> </span>activate<span class="w"> </span>surfExp
 <span class="c1"># Install</span>
 poetry<span class="w"> </span>install
 
-<span class="c1"># MET-Norway LDAS experiment</span>
-mkdir<span class="w"> </span>-f<span class="w"> </span>exps
-surfExp<span class="w"> </span>exps/LDAS.toml<span class="w"> </span>LDAS<span class="w"> </span><span class="nv">$PWD</span>/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/arome_arctic_offline_ppi.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_pgd.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+surfExp<span class="w"> </span>-o<span class="w"> </span>offline_drammen_metno_ldas.toml<span class="w"> </span><span class="se">\</span>
+--case-name<span class="w"> </span>METNO_LDAS<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span>/home/<span class="nv">$USER</span>/projects/surfExp<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/DRAMMEN.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/scheduler/ecflow_ppi_rhel8-trygveasp.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/ppi.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/isba_dif_snow_ass_decade_dirtyp.toml<span class="w"> </span><span class="se">\</span>
+--start-time<span class="w"> </span><span class="m">2025</span>-04-17T03:00:00Z<span class="w"> </span><span class="se">\</span>
+--end-time<span class="w"> </span><span class="m">2025</span>-04-17T07:00:00Z<span class="w"> </span><span class="se">\</span>
+--continue
 
-<span class="c1"># PPI ECFLOW (in A)</span>
+<span class="c1"># MET-Norway LDAS experiment (using netcdf input to PGD)</span>
+mkdir<span class="w"> </span>-f<span class="w"> </span>exps
+surfExp<span class="w"> </span>-o<span class="w"> </span>exps/LDAS.toml<span class="w"> </span><span class="se">\</span>
+--case-name<span class="w"> </span>LDAS<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/ppi.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/netcdf_input_pgd.toml<span class="w"> </span><span class="se">\</span>
+surfexp/pdata/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+
+<span class="c1"># PPI ECFLOW</span>
 <span class="c1"># If your server is not running you should start it!</span>
 module<span class="w"> </span>use<span class="w"> </span>/modules/MET/rhel8/user-modules/
 module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
 <span class="nb">export</span><span class="w"> </span><span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
 
-<span class="c1"># Start suite (modify dates)</span>
-deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>exps/LDAS.toml
+<span class="c1"># Set HOST</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">&quot;ppi_rhel8_b1&quot;</span>
 
+<span class="c1"># Start suite (modify dates)</span>
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>exps/LDAS.toml
 
 <span class="c1"># MET-Norway LDAS single decade</span>
-surfExp<span class="w"> </span>exps/LDAS_decade.toml<span class="w"> </span>LDAS_decade<span class="w"> </span><span class="nv">$PWD</span>/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/arome_arctic_offline_ppi.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_pgd.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/netcdf_input_single_decade.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/mods/metno_ldas_single_decade.toml<span class="w"> </span><span class="nv">$PWD</span>/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
-deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w">  </span>--config-file<span class="w"> </span>exps/LDAS_decade.toml
+surfExp<span class="w"> </span>-o<span class="w"> </span>exps/LDAS_decade.toml<span class="w"> </span>--case-name<span class="w"> </span>LDAS_decade<span class="w"> </span><span class="se">\</span>
+--plugin-home<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span><span class="se">\</span>
+surfexp/data/config/configurations/metno_ldas.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/domains/MET_NORDIC_1_0.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/ppi.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/mods/cy46_aa_offline/isba_dif_snow_ass_decade_dirtyp.toml<span class="w"> </span><span class="se">\</span>
+surfexp/data/config/scheduler/ecflow_ppi_rhel8-<span class="nv">$USER</span>.toml
+
+<span class="c1"># Start the suite</span>
+tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w">  </span>--config-file<span class="w"> </span>exps/LDAS_decade.toml
 </pre></div>
 </div>
-</section>
-<section id="trainings">
-<h2>Trainings<a class="headerlink" href="#trainings" title="Permalink to this heading">¶</a></h2>
-<p><a class="reference external" href="https://github.com/metno/surfExp/blob/master/trainings/budapest_may_2022.rst/">Budapest May 2022</a> (Old version)</p>
 </section>
 </section>
 
@@ -152,7 +208,6 @@ deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> 
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#extra-environment-on-ppi-rhel8-needed-to-start-experiments">Extra environment on PPI-RHEL8 needed to start experiments</a></li>
-<li><a class="reference internal" href="#trainings">Trainings</a></li>
 </ul>
 </li>
 </ul>
@@ -185,6 +240,9 @@ deode<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> 
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">surfExp  documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">This repository is a setup to create and run offline SURFEX experiments.</a></li> 
       </ul>
