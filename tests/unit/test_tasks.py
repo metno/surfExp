@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 from tactus.logs import logger
-from tactus.os_utils import deodemakedirs
+from tactus.os_utils import tactusmakedirs
 from tactus.tasks.base import Task
 from tactus.tasks.discover_task import discover, get_task
 
@@ -73,13 +73,13 @@ def create_binaries(casedir, task_name, task_config):
             args = {"task": {"args": {"pert": "1"}}}
             task_config = task_config.copy(args)
             archive = f"{casedir}/archive/2025/02/08/21/"
-            deodemakedirs(archive)
+            tactusmakedirs(archive)
             os.system(f"touch {archive}/ANALYSIS.nc")  # noqa S605
         else:
             forcing_dir = f"{casedir}/forcing/2025020900/"
             diag_output = "SURFOUT.20250209_03h00.nc"
             archive = f"{casedir}/archive/2025/02/09/00/"
-            deodemakedirs(archive)
+            tactusmakedirs(archive)
             os.system(f"touch {archive}/PREP.nc")  # noqa S605
         binary = f"{bindir}/OFFLINE"
         with open(binary, mode="w", encoding="utf8") as fhandler:
@@ -87,7 +87,7 @@ def create_binaries(casedir, task_name, task_config):
             fhandler.write("touch SURFOUT.nc\n")
             fhandler.write(f"touch {diag_output}\n")
         os.chmod(binary, 0o0700)
-        deodemakedirs(forcing_dir)
+        tactusmakedirs(forcing_dir)
         os.system(f"touch {forcing_dir}/FORCING.nc")  # noqa S605
     elif task_name.lower() == "offlinepgd":
         binary = f"{bindir}/PGD"
@@ -117,12 +117,12 @@ def create_binaries(casedir, task_name, task_config):
         os.chmod(binary, 0o0700)
 
         obdir = f"{casedir}/archive/observations/2025/02/09/00/"
-        deodemakedirs(obdir)
+        tactusmakedirs(obdir)
         fg_dir = f"{casedir}/archive/2025/02/08/21/"
-        deodemakedirs(fg_dir)
+        tactusmakedirs(fg_dir)
         archive = f"{casedir}/archive/2025/02/09/00/"
-        deodemakedirs(archive)
-        deodemakedirs(f"{casedir}/20250209_0000/")
+        tactusmakedirs(archive)
+        tactusmakedirs(f"{casedir}/20250209_0000/")
         os.system(f"touch {fg_dir}/SURFOUT.nc")  # noqa S605
         os.system(f"touch {obdir}/OBSERVATIONS_250209H00.DAT")  # noqa S605
         os.system(f"touch {archive}/SURFOUT_PERT0.nc")  # noqa S605
@@ -134,10 +134,10 @@ def create_binaries(casedir, task_name, task_config):
         raise NotImplementedError
     if need_pgd:
         climdir = f"{casedir}/climate/DRAMMEN/"
-        deodemakedirs(climdir)
+        tactusmakedirs(climdir)
         os.system(f"touch {climdir}/PGD_0215.nc")  # noqa S605
     if need_prep:
-        deodemakedirs(f"{casedir}/20250209_0000/")
+        tactusmakedirs(f"{casedir}/20250209_0000/")
         os.system(f"touch {casedir}/20250209_0000/fc_start_sfx")  # noqa S605
     return task_config
 
@@ -194,14 +194,13 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
         task_config = task_config.copy(update)
     elif task_name.lower() == "cmakebuild":
         builddir = f"{casedir}/offline/build/bin/"
-        deodemakedirs(builddir)
+        tactusmakedirs(builddir)
         programs = ["PGD-offline", "PREP-offline", "OFFLINE-offline", "SODA-offline"]
         for program in programs:
             os.system(f"touch {builddir}/{program}")  # noqa S605
-        # /tmp/pytest-of-trygveasp/pytest-10/deode/cmakebuild/offline/build/bin/PGD-offline
     elif task_name.lower() == "soil":
         soilgrid_data_path = f"{casedir}/SOILGRID"
-        deodemakedirs(soilgrid_data_path)
+        tactusmakedirs(soilgrid_data_path)
         update = {"platform": {"soilgrid_data_path": soilgrid_data_path}}
         task_config = task_config.copy(update)
         os.system(f"touch {soilgrid_data_path}/CLYPPT.tif")  # noqa S605
@@ -210,14 +209,14 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
         os.system(f"touch {soilgrid_data_path}/SOC_SUB")  # noqa S605
     elif task_name.lower() == "gmted":
         gmted2010_data_path = f"{casedir}/GMTED"
-        deodemakedirs(gmted2010_data_path)
+        tactusmakedirs(gmted2010_data_path)
         update = {"platform": {"gmted2010_data_path": gmted2010_data_path}}
         task_config = task_config.copy(update)
         os.system(  # noqa S605
             f"touch {gmted2010_data_path}/50N000E_20101117_gmted_mea075.tif"
         )
     elif task_name.lower() == "fetchmars":
-        deodemakedirs(f"{casedir}/grib/default")
+        tactusmakedirs(f"{casedir}/grib/default")
         os.system(  # noqa S605
             f"touch {casedir}/grib/default/sfx_hres_20250209_0000.grib1"
         )
@@ -227,7 +226,7 @@ def fixture_task_name_and_configs(request, default_config, tmp_directory):
             )
     elif task_name.lower() == "firstguess4oi":
         archive = f"{casedir}/archive/2025/02/09/00/"
-        deodemakedirs(archive)
+        tactusmakedirs(archive)
         os.system(f"touch {archive}/raw.nc")  # noqa S605
         update = {"task": {"args": {"mode": "analysis"}}}
         task_config = task_config.copy(update)
