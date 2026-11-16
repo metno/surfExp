@@ -659,9 +659,9 @@ class OptimalInterpolation(PySurfexBaseTask):
             str(epsilon),
         ]
         if maxvalue is not None:
-            argv += ["--maxvalue", maxvalue]
+            argv += ["--maxvalue", str(maxvalue)]
         if minvalue is not None:
-            argv += ["--minvalue", minvalue]
+            argv += ["--minvalue", str(minvalue)]
         if only_diff:
             argv += ["--only_diff"]
         if os.path.exists(output_file):
