@@ -31,7 +31,7 @@ class Forcing(PySurfexBaseTask):
         if lmode == "forecast":
             lmode = "default"
         try:
-            self.args = self.config[f"forcing.args.{lmode}"].dict()
+            fargs = self.config[f"forcing.args.{lmode}"]
         except KeyError:
             raise RuntimeError from KeyError
         if mode == "an_forcing":
@@ -43,6 +43,11 @@ class Forcing(PySurfexBaseTask):
         else:
             self.duration = as_timedelta(self.config["general.times.forecast_range"])
             mode = "forecast"
+        # local copy of frozen dict
+        args = {}
+        for key, val in fargs.items():
+            args.update({key: val})
+        self.args = args
         self.mode = mode
 
     def execute(self):
