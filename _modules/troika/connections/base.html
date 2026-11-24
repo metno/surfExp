@@ -37,42 +37,57 @@
           <div class="body" role="main">
             
   <h1>Source code for troika.connections.base</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Base connection class&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Base connection class"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">subprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">PIPE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..connection</span><span class="w"> </span><span class="kn">import</span> <span class="n">PIPE</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">subprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">Popen</span>
+
+    <span class="c1">#: Something that can be interpreted as a filesystem path.</span>
+    <span class="n">StrPath</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">PathLike</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="c1">#: A concrete redirection target accepted by :py:class:`subprocess.Popen`</span>
+    <span class="c1">#: (``None`` -- the default -- is spelled ``Redirect | None`` at each use).</span>
+    <span class="n">Redirect</span> <span class="o">=</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">IO</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Connection"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Connection</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base connection class</span>
+<div class="viewcode-block" id="Connection"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection">[docs]</a><span class="k">class</span><span class="w"> </span><span class="nc">Connection</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Base connection class</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    config: dict</span>
 <span class="sd">        Connection configuration</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="c1">#: Value for the &#39;connection&#39; key in the site configuration.</span>
+    <span class="c1">#: Value for the 'connection' key in the site configuration.</span>
     <span class="c1">#: If None, the name will be computed by turning the class name to</span>
-    <span class="c1">#: lowercase and removing a trailing &quot;connection&quot; if present, e.g.</span>
+    <span class="c1">#: lowercase and removing a trailing "connection" if present, e.g.</span>
     <span class="c1">#: ``FooConnection`` becomes ``foo``.</span>
-    <span class="n">__type_name__</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">__type_name__</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">user</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
 
-<div class="viewcode-block" id="Connection.is_local"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection.is_local">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the connection is local</span>
+<div class="viewcode-block" id="Connection.is_local"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection.is_local">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_local</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Check whether the connection is local</span>
 
 <span class="sd">        If the connection is local, local paths are valid through the connection</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the parent connection</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Connection</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get the parent connection</span>
 
 <span class="sd">        The parent connection can be used to interact with processes that have</span>
 <span class="sd">        been created through the current connection.</span>
@@ -81,24 +96,25 @@
 <span class="sd">        -------</span>
 <span class="sd">        Connection</span>
 <span class="sd">            The parent connection</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="Connection.execute"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection.execute">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span>
+<div class="viewcode-block" id="Connection.execute"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection.execute">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">command</span><span class="p">,</span>
-        <span class="n">stdin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">stdout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">stderr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">text</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">errors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">detach</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the given command on the host</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">stdin</span><span class="p">:</span> <span class="n">Redirect</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stdout</span><span class="p">:</span> <span class="n">Redirect</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stderr</span><span class="p">:</span> <span class="n">Redirect</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">text</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">errors</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">detach</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">env</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cwd</span><span class="p">:</span> <span class="n">StrPath</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dryrun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Popen</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Execute the given command on the host</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -119,7 +135,7 @@
 <span class="sd">        detach: bool</span>
 <span class="sd">            If True, detach from the running command</span>
 <span class="sd">        env: dict or None</span>
-<span class="sd">            Extra variables to set in the command&#39;s environment</span>
+<span class="sd">            Extra variables to set in the command's environment</span>
 <span class="sd">        cwd: path-like or None</span>
 <span class="sd">            Override default working directory if not None</span>
 <span class="sd">        dryrun: bool</span>
@@ -131,11 +147,12 @@
 <span class="sd">        :py:class:`subprocess.Popen` object or None</span>
 <span class="sd">            Local process object associated to the connection, if dryrun is False,</span>
 <span class="sd">            else None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Connection.sendfile"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection.sendfile">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">sendfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy the given file to the remote host</span>
+<div class="viewcode-block" id="Connection.sendfile"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection.sendfile">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sendfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">StrPath</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="n">StrPath</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Copy the given file to the remote host</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -146,11 +163,12 @@
 <span class="sd">        dryrun: bool</span>
 <span class="sd">            If True, do not do anything but print the command that would be</span>
 <span class="sd">            executed</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">getfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the given file from the remote host</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="n">StrPath</span><span class="p">,</span> <span class="n">dst</span><span class="p">:</span> <span class="n">StrPath</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Get the given file from the remote host</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -161,11 +179,11 @@
 <span class="sd">        dryrun: bool</span>
 <span class="sd">            If True, do not do anything but print the command that would be</span>
 <span class="sd">            executed</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<div class="viewcode-block" id="Connection.checkstatus"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection.checkstatus">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">checkstatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether the connection is working</span>
+<div class="viewcode-block" id="Connection.checkstatus"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/connection.html#troika.connections.base.Connection.checkstatus">[docs]</a>    <span class="k">def</span><span class="w"> </span><span class="nf">checkstatus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Check whether the connection is working</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -180,12 +198,11 @@
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
 <span class="sd">            True if the connection is able to execute commands</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;true&quot;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="n">dryrun</span>
-        <span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s2">"true"</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="n">dryrun</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dryrun</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">assert</span> <span class="n">proc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># execute only returns None when dryrun is True</span>
         <span class="n">proc_stdout</span><span class="p">,</span> <span class="n">proc_stderr</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
         <span class="n">retcode</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span>
         <span class="k">if</span> <span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -193,9 +210,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">log</span> <span class="o">=</span> <span class="n">_logger</span><span class="o">.</span><span class="n">error</span>
         <span class="k">if</span> <span class="n">proc_stdout</span><span class="p">:</span>
-            <span class="n">log</span><span class="p">(</span><span class="s2">&quot;stdout checking connection:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">proc_stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">log</span><span class="p">(</span><span class="s2">"stdout checking connection:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">proc_stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">proc_stderr</span><span class="p">:</span>
-            <span class="n">log</span><span class="p">(</span><span class="s2">&quot;stderr checking connection:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">proc_stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">log</span><span class="p">(</span><span class="s2">"stderr checking connection:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">proc_stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">retcode</span> <span class="o">==</span> <span class="mi">0</span></div></div>
 </pre></div>
 

@@ -37,7 +37,7 @@
           <div class="body" role="main">
             
   <h1>Source code for troika.translators.base</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Directive translator&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Directive translator"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
@@ -47,7 +47,7 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Translator</span><span class="p">(</span><span class="n">Hook</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Directive translation hook manager</span>
+<span class="w">    </span><span class="sd">"""Directive translation hook manager</span>
 
 <span class="sd">    See :py:class:`troika.hooks.base.Hook`. The only change is the behaviour of the</span>
 <span class="sd">    :py:meth:`__call__` method::</span>
@@ -56,23 +56,23 @@
 <span class="sd">            for func in self.enabled_hooks:</span>
 <span class="sd">                script_data = func(script_data, *args, **kwargs)</span>
 <span class="sd">            return script_data</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">_namespace</span> <span class="o">=</span> <span class="s2">&quot;troika&quot;</span>
+    <span class="n">_namespace</span> <span class="o">=</span> <span class="s2">"troika"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Attempt to call a non-instantiated hook registry&quot;</span><span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Translating directives&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Attempt to call a non-instantiated hook registry"</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Translating directives"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">funcname</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calling translator function </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">funcname</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Calling translator function </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">funcname</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span>
 
 
 <div class="viewcode-block" id="translators"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/translator.html#troika.translators.base.translators">[docs]</a><span class="nd">@Translator</span><span class="o">.</span><span class="n">declare</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">translators</span><span class="p">(</span><span class="n">script_data</span><span class="p">,</span> <span class="n">global_config</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Directive translation hook</span>
+<span class="w">    </span><span class="sd">"""Directive translation hook</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -87,7 +87,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    dict[str, Any]</span>
 <span class="sd">        Updated ``script_data``</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    """</span></div>
 </pre></div>
 
             <div class="clearer"></div>

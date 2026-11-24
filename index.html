@@ -53,13 +53,13 @@
 After installing this you need to set it up for the current session or permanently add it to your shell.
 Now it is easy to create a suitable environment for surfExp. Below is a recipie for micromamba.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install micromamba (linux, https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html)</span>
-<span class="s2">&quot;</span><span class="si">${</span><span class="nv">SHELL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&lt;<span class="o">(</span>curl<span class="w"> </span>-L<span class="w"> </span>micro.mamba.pm/install.sh<span class="o">)</span>
+<span class="s2">"</span><span class="si">${</span><span class="nv">SHELL</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>&lt;<span class="o">(</span>curl<span class="w"> </span>-L<span class="w"> </span>micro.mamba.pm/install.sh<span class="o">)</span>
 
 <span class="c1"># specify a installation location for micromamba and add it to your path afterwards. Default it will install in $HOME/.local/bin</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/.local/bin:<span class="nv">$PATH</span>
 
 <span class="c1"># initialize your shell (needed in all shells), e.g:</span>
-<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">"</span>
 
 micromamba<span class="w"> </span>create<span class="w"> </span>env<span class="w"> </span>surfExp
 micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
@@ -78,7 +78,7 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>projects
 clone<span class="w"> </span>https://github.com/metno/surfExp
 
 <span class="c1"># initialize your shell (needed in all shells), e.g:</span>
-<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">"</span>
 
 <span class="c1"># activate the environment</span>
 micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
@@ -115,7 +115,7 @@ from the config file.</p>
 <span class="nb">cd</span><span class="w"> </span>~/projects/surfExp
 
 <span class="c1"># initialize your shell (needed in all shells), e.g:</span>
-<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>micromamba<span class="w"> </span>shell<span class="w"> </span>hook<span class="w"> </span>--shell<span class="w"> </span>bash<span class="k">)</span><span class="s2">"</span>
 
 <span class="c1"># Activate the environment</span>
 micromamba<span class="w"> </span>activate<span class="w"> </span>surfExp
@@ -178,7 +178,7 @@ module<span class="w"> </span>load<span class="w"> </span>ecflow/5.8.1
 <span class="nb">export</span><span class="w"> </span><span class="nv">ECF_SSL</span><span class="o">=</span><span class="m">1</span>
 
 <span class="c1"># Set HOST</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">&quot;ppi_rhel8_b1&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">"ppi_rhel8_b1"</span>
 
 <span class="c1"># Start suite (modify dates)</span>
 tactus<span class="w"> </span>start<span class="w"> </span>suite<span class="w"> </span>--config-file<span class="w"> </span>exps/LDAS.toml
@@ -213,18 +213,18 @@ An useful visualization tool can be found in <a class="reference external" href=
 <p>Routines needing cfunits in reading netcdf files need to modify the LD_LIBRARY_PATH. This can beachieved by adding:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># TODO submission files</span>
 <span class="o">[</span>submission.task_exceptions.Forcing.ENV<span class="o">]</span>
-<span class="w">  </span><span class="nv">LD_LIBRARY_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/usr/local/apps/udunits/2.2.28/lib:</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nv">LD_LIBRARY_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"/usr/local/apps/udunits/2.2.28/lib:</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">"</span>
 
 <span class="o">[</span>submission.task_exceptions.FirstGuess4OI.ENV<span class="o">]</span>
-<span class="w">  </span><span class="nv">LD_LIBRARY_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/usr/local/apps/udunits/2.2.28/lib:</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nv">LD_LIBRARY_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"/usr/local/apps/udunits/2.2.28/lib:</span><span class="nv">$LD_LIBRARY_PATH</span><span class="s2">"</span>
 </pre></div>
 </div>
 </section>
 <section id="met-norway-ppi">
 <h2>MET-Norway PPI<a class="headerlink" href="#met-norway-ppi" title="Permalink to this heading">¶</a></h2>
 <p>To detect the proper host on MET-Norway PPI you need to export one of the following:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">&quot;ppi_rhel8_b1&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">&quot;ppi_rhel8_a1&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">"ppi_rhel8_b1"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TACTUS_HOST</span><span class="o">=</span><span class="s2">"ppi_rhel8_a1"</span>
 </pre></div>
 </div>
 <p>The variables below are needed for ecflow for MET-Norway PPI</p>

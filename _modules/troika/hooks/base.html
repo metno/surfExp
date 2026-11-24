@@ -37,10 +37,13 @@
           <div class="body" role="main">
             
   <h1>Source code for troika.hooks.base</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Base hook definitions&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Base hook definitions"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassVar</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..components</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_entrypoint</span>
@@ -49,22 +52,22 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Hook</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class to manage hooks</span>
+<span class="w">    </span><span class="sd">"""Helper class to manage hooks</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    name: str</span>
 <span class="sd">        Hook name</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1">#: Entrypoint namespace</span>
-    <span class="n">_namespace</span> <span class="o">=</span> <span class="s2">&quot;troika.hooks&quot;</span>
+    <span class="n">_namespace</span> <span class="o">=</span> <span class="s2">"troika.hooks"</span>
 
-    <span class="n">registered_hooks</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">registered_hooks</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Hook</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">declare</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register a hook</span>
+<span class="w">        </span><span class="sd">"""Register a hook</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -72,7 +75,7 @@
 <span class="sd">            Hook specification function (code is discarded)</span>
 <span class="sd">        name: str or None</span>
 <span class="sd">            Name of the hook (default: ``func.__name__``)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">hook</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -87,29 +90,29 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Attempt to call a non-instantiated hook registry&quot;</span><span class="p">)</span>
-        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Executing </span><span class="si">%s</span><span class="s2"> hooks&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Attempt to call a non-instantiated hook registry"</span><span class="p">)</span>
+        <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Executing </span><span class="si">%s</span><span class="s2"> hooks"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">funcname</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calling hook function </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">funcname</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Calling hook function </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">funcname</span><span class="p">)</span>
             <span class="n">res</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">instantiate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hooks</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select the requested hook implementations</span>
+<span class="w">        </span><span class="sd">"""Select the requested hook implementations</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        hooks: list of str</span>
 <span class="sd">            Requested hooks</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">hookfuncs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">hookname</span> <span class="ow">in</span> <span class="n">hooks</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">hookfunc</span> <span class="o">=</span> <span class="n">get_entrypoint</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hookname</span><span class="p">)</span>
+                <span class="n">hookfunc</span> <span class="o">=</span> <span class="n">get_entrypoint</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_namespace</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">hookname</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Implementation </span><span class="si">{</span><span class="n">hookname</span><span class="si">!r}</span><span class="s2"> not found for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> hook&quot;</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Implementation </span><span class="si">{</span><span class="n">hookname</span><span class="si">!r}</span><span class="s2"> not found for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> hook"</span>
                 <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="n">hookfuncs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">hookname</span><span class="p">,</span> <span class="n">hookfunc</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span> <span class="o">=</span> <span class="n">hookfuncs</span>
@@ -117,11 +120,11 @@
 
 <div class="viewcode-block" id="at_startup"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/hook.html#troika.hooks.base.at_startup">[docs]</a><span class="nd">@Hook</span><span class="o">.</span><span class="n">declare</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">at_startup</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Startup hook</span>
+<span class="w">    </span><span class="sd">"""Startup hook</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    action: {&quot;submit&quot;, &quot;monitor&quot;, &quot;kill&quot;}</span>
+<span class="sd">    action: {"submit", "monitor", "kill"}</span>
 <span class="sd">        Action that was requested</span>
 <span class="sd">    site: :py:class:`troika.sites.base.Site`</span>
 <span class="sd">        Selected site</span>
@@ -132,12 +135,12 @@
 <span class="sd">    -------</span>
 <span class="sd">    bool</span>
 <span class="sd">        If True, interrupt the action</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    """</span></div>
 
 
 <div class="viewcode-block" id="pre_submit"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/hook.html#troika.hooks.base.pre_submit">[docs]</a><span class="nd">@Hook</span><span class="o">.</span><span class="n">declare</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">pre_submit</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pre-submit hook</span>
+<span class="w">    </span><span class="sd">"""Pre-submit hook</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -149,12 +152,12 @@
 <span class="sd">        Path to the job output file</span>
 <span class="sd">    dryrun: bool</span>
 <span class="sd">        If True, do not do anything, only print actions</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    """</span></div>
 
 
 <div class="viewcode-block" id="post_kill"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/hook.html#troika.hooks.base.post_kill">[docs]</a><span class="nd">@Hook</span><span class="o">.</span><span class="n">declare</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">post_kill</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">jid</span><span class="p">,</span> <span class="n">cancel_status</span><span class="p">,</span> <span class="n">dryrun</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Post-kill hook</span>
+<span class="w">    </span><span class="sd">"""Post-kill hook</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -170,16 +173,16 @@
 <span class="sd">        CANCELLED, KILLED or TERMINATED</span>
 <span class="sd">    dryrun: bool</span>
 <span class="sd">        If True, do not do anything, only print actions</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    """</span></div>
 
 
 <div class="viewcode-block" id="at_exit"><a class="viewcode-back" href="../../../.venv/src/troika/docs/extending/hook.html#troika.hooks.base.at_exit">[docs]</a><span class="nd">@Hook</span><span class="o">.</span><span class="n">declare</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">at_exit</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">sts</span><span class="p">,</span> <span class="n">logfile</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exit hook</span>
+<span class="w">    </span><span class="sd">"""Exit hook</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    action: {&quot;submit&quot;, &quot;monitor&quot;, &quot;kill&quot;}</span>
+<span class="sd">    action: {"submit", "monitor", "kill"}</span>
 <span class="sd">        Action that was requested</span>
 <span class="sd">    site: :py:class:`troika.sites.base.Site`</span>
 <span class="sd">        Selected site</span>
@@ -189,7 +192,7 @@
 <span class="sd">        Exit status</span>
 <span class="sd">    logfile: path-like</span>
 <span class="sd">        Path to the log file</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
+<span class="sd">    """</span></div>
 </pre></div>
 
             <div class="clearer"></div>
