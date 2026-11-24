@@ -254,9 +254,11 @@
   cryo_var_name = "classed_value_c"
   filepattern = "@casedir@/archive/observations/@YYYY@/@MM@/@DD@/@HH@/ob@YYYY@@MM@@DD@@HH@"
 
-[Observations.oi.rh2m]
+[observations.oi.rh2m]
   hlength = 30000
   vlength = 400
+  minvalue = 0.01
+  maxvalue = 1.0 # Clamp analysed RH2m (fraction) to [minvalue, maxvalue]
 
 [observations.oi.sd]
   hlength = 60000
