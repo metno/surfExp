@@ -98,8 +98,8 @@ class PySurfexBaseTask(Task):
         # Binary input data
         self.input_definition = self.platform.get_system_value("sfx_input_definition")
         # Create PySurfex system paths
-        system_paths = self.config["system"].dict()
-        platform_paths = self.config["platform"].dict()
+        system_paths = self.config["system"]
+        platform_paths = self.config["platform"]
         exp_file_paths = {}
         for key, val in system_paths.items():
             lkey = self.platform.substitute(key)
@@ -305,13 +305,13 @@ class QualityControl(PySurfexBaseTask):
             self.offset = 0
             fcint = as_timedelta("PT0H")
 
-        self.validtime = self.basetime - fcint + as_timedelta(f"{self.offset:02d}:00:00")
+        self.validtime = self.basetime - fcint + as_timedelta(f"PT{self.offset}H")
 
     def execute(self):
         """Execute."""
         logger.info("Analysis time: {}", self.validtime)
 
-        obsdir = self.config["system.obs_dir"]
+        obsdir = self.config["platform.obs_dir"]
         obsdir = self.platform.substitute(obsdir, basetime=self.validtime)
 
         os.makedirs(obsdir, exist_ok=True)
@@ -572,7 +572,7 @@ class OptimalInterpolation(PySurfexBaseTask):
         except KeyError:
             self.offset = 0
             fcint = as_timedelta("PT0H")
-        self.validtime = self.basetime - fcint + as_timedelta(f"{self.offset:02d}:00:00")
+        self.validtime = self.basetime - fcint + as_timedelta(f"PT{self.offset}H")
 
     def execute(self):
         """Execute."""
@@ -632,7 +632,7 @@ class OptimalInterpolation(PySurfexBaseTask):
 
         logger.info("Analysis time: {}", self.validtime)
         # Read OK observations
-        obs_dir = self.config["system.obs_dir"]
+        obs_dir = self.config["platform.obs_dir"]
         obs_dir = self.platform.substitute(obs_dir, basetime=self.validtime)
         obs_file = f"{obs_dir}/qc_{var}.json"
 
@@ -723,7 +723,9 @@ class CryoClim2json(PySurfexBaseTask):
         except KeyError:
             cryo_varname = None
 
-        output = f"{self.platform.get_system_value('obs_dir')}/cryo.json"
+        obsdir = self.config["platform.obs_dir"]
+        obsdir = self.platform.substitute(obsdir, basetime=self.basetime)
+        output = f"{obsdir}/cryo.json"
         argv = [
             "--infiles",
             obs_file,
@@ -793,7 +795,9 @@ class Oi2soda(PySurfexBaseTask):
         dd2 = self.basetime.strftime("%d")
         hh2 = self.basetime.strftime("%H")
         obfile = "OBSERVATIONS_" + yy2 + mm2 + dd2 + "H" + hh2 + ".DAT"
-        output = f"{self.platform.get_system_value('obs_dir')}/{obfile}"
+        obsdir = self.config["platform.obs_dir"]
+        obsdir = self.platform.substitute(obsdir, basetime=self.basetime)
+        output = f"{obsdir}/{obfile}"
 
         t2m = None
         rh2m = None
@@ -894,14 +898,16 @@ class Qc2obsmon(PySurfexBaseTask):
             self.mode = self.config["task.args.mode"]
         except KeyError:
             raise RuntimeError("Mode not set") from KeyError
-        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
+        self.validtime = self.basetime - as_timedelta(f"PT{self.offset}H")
+        obsdir = self.config["platform.obs_dir"]
+        self.obsdir = self.platform.substitute(obsdir, basetime=self.validtime)
 
     def execute(self):
         """Execute."""
         logger.info("Analysis time: {}", self.validtime)
         archive = self.platform.get_system_value("archive_dir")
         extrarch = self.platform.get_system_value("extrarch_dir")
-        obsdir = self.platform.get_system_value("obs_dir")
+        obsdir = self.obsdir
         outdir = f"{extrarch}/ecma_sfc/{self.validtime.strftime('%Y%m%d%H')}/{self.mode}"
         os.makedirs(outdir, exist_ok=True)
         output = outdir + "/ecma.db"
@@ -991,7 +997,7 @@ class FirstGuess4OI(PySurfexBaseTask):
         except KeyError:
             raise RuntimeError from KeyError
 
-        self.validtime = self.basetime - as_timedelta(f"{self.offset:02d}:00:00")
+        self.validtime = self.basetime - as_timedelta(f"PT{self.offset}H")
         logger.info("basetime: {}", self.basetime)
         logger.info("validtime: {}", self.validtime)
 
@@ -1159,7 +1165,8 @@ class FetchMarsObs(PySurfexBaseTask):
 
         """
         PySurfexBaseTask.__init__(self, config, "FetchMarsObs")
-        self.obsdir = self.platform.get_system_value("obs_dir")
+        obsdir = self.config["platform.obs_dir"]
+        self.obsdir = self.platform.substitute(obsdir, basetime=self.basetime)
 
     def execute(self):
         """Execute."""
